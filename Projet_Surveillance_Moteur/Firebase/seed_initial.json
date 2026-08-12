@@ -1,0 +1,34 @@
+{
+  "moteur": {
+    "config": {
+      "rpm_nominal": 1500,
+      "rpm_min": 1200,
+      "rpm_max": 1800,
+      "vib_normal_mms": 2.8,
+      "vib_alerte_mms": 4.5,
+      "vib_critique_mms": 7.1,
+      "a_rms_normal_ms2": 1.5,
+      "a_rms_alerte_ms2": 3.0,
+      "a_rms_critique_ms2": 5.0,
+      "note": "Seuils a calibrer selon moteur et norme applicable (ISO 10816 / constructeur)"
+    },
+    "live": {
+      "ax": 0,
+      "ay": 0,
+      "az": 1,
+      "a_rms": 0,
+      "vibration_rms": 0,
+      "rpm": 0,
+      "rpm_nominal": 1500,
+      "status": "ARRET",
+      "alert_level": "INFO",
+      "diagnostic": "En attente de premiere publication ESP32",
+      "anomaly_hint": "",
+      "timestamp": 0,
+      "online": false,
+      "unit_a_rms": "m/s2",
+      "unit_vibration_rms": "mm/s (estime)",
+      "note_vibration": "vibration_rms = estimation; a_rms est la grandeur fiable"
+    }
+  }
+}

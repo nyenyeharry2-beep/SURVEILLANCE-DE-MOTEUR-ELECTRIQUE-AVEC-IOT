@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Surveillance Moteur IoT — Maintenance Prédictive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">MOTORGUARD IoT</p>
+        <p class="brand-sub">Maintenance prédictive — moteur électrique</p>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span id="connBadge" class="badge badge-off">ESP32 hors ligne</span>
+      <span id="clockLabel" class="mono muted">--:--:--</span>
+    </div>
+  </header>
+
+  <div id="alertBanner" class="alert-banner hidden" role="alert">
+    <strong>⚠ ALERTE</strong>
+    <span id="alertBannerText"></span>
+  </div>
+
+  <main class="layout">
+    <section class="card card-status" id="cardStatus">
+      <h2>État du moteur</h2>
+      <p id="motorStatus" class="status-value">—</p>
+      <p id="alertLevel" class="status-level">—</p>
+      <div class="status-lights" aria-hidden="true">
+        <span data-level="NORMAL" class="light"></span>
+        <span data-level="SURVEILLANCE" class="light"></span>
+        <span data-level="AVERTISSEMENT" class="light"></span>
+        <span data-level="ALARME" class="light"></span>
+      </div>
+      <ul class="legend">
+        <li><i class="dot normal"></i>NORMAL</li>
+        <li><i class="dot watch"></i>SURVEILLANCE</li>
+        <li><i class="dot warn"></i>AVERTISSEMENT</li>
+        <li><i class="dot alarm"></i>ALARME</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Vibration</h2>
+      <p class="metric-main"><span id="vibRms">—</span> <small>mm/s (estimé)</small></p>
+      <p class="metric-sub">A<sub>RMS</sub> = <span id="aRms">—</span> m/s² <span class="tag">fiable</span></p>
+      <div class="axes">
+        <div><span>Ax</span><strong id="ax">—</strong> g</div>
+        <div><span>Ay</span><strong id="ay">—</strong> g</div>
+        <div><span>Az</span><strong id="az">—</strong> g</div>
+      </div>
+      <p class="hint">La valeur mm/s est une estimation par intégration de l’ADXL345. A<sub>RMS</sub> reste la grandeur de référence.</p>
+    </section>
+
+    <section class="card">
+      <h2>Vitesse</h2>
+      <p class="metric-main"><span id="rpm">—</span> <small>tr/min</small></p>
+      <p class="metric-sub">Nominale : <span id="rpmNominal">—</span> tr/min</p>
+      <div class="bar-track" aria-hidden="true">
+        <div id="rpmBar" class="bar-fill"></div>
+      </div>
+      <p class="hint">Mesure Hall — 1 aimant = 1 impulsion / tour</p>
+    </section>
+
+    <section class="card card-diag">
+      <h2>Diagnostic</h2>
+      <p id="diagnostic" class="diag-text">En attente de données…</p>
+      <p id="anomalyHint" class="diag-hint"></p>
+    </section>
+
+    <section class="card">
+      <h2>Dernière mesure</h2>
+      <p class="metric-main mono" id="lastUpdate">—</p>
+      <p class="metric-sub">Horodatage ESP32 (s depuis boot) : <span id="tsEsp">—</span></p>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Graphiques temps réel</h2>
+      <div class="charts">
+        <div class="chart-box">
+          <h3>Vibration RMS (mm/s estimé)</h3>
+          <canvas id="chartVib"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Vitesse (tr/min)</h3>
+          <canvas id="chartRpm"></canvas>
+        </div>
+        <div class="chart-box chart-full">
+          <h3>Accélérations Ax, Ay, Az (g)</h3>
+          <canvas id="chartAxes"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card-wide">
+      <h2>Historique & statistiques</h2>
+      <div class="stats-grid">
+        <div><span>Dernière vib.</span><strong id="statLastVib">—</strong></div>
+        <div><span>Min vib.</span><strong id="statMinVib">—</strong></div>
+        <div><span>Max vib.</span><strong id="statMaxVib">—</strong></div>
+        <div><span>Moy. vib.</span><strong id="statAvgVib">—</strong></div>
+        <div><span>Dernier RPM</span><strong id="statLastRpm">—</strong></div>
+        <div><span>Min RPM</span><strong id="statMinRpm">—</strong></div>
+        <div><span>Max RPM</span><strong id="statMaxRpm">—</strong></div>
+        <div><span>Moy. RPM</span><strong id="statAvgRpm">—</strong></div>
+      </div>
+      <div class="table-wrap">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Horodatage</th>
+              <th>Vib. RMS</th>
+              <th>A_RMS</th>
+              <th>RPM</th>
+              <th>Ax</th>
+              <th>Ay</th>
+              <th>Az</th>
+              <th>État</th>
+              <th>Diagnostic</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint">Firebase Realtime Database convient à un historique court (démonstration / mémoire). Pour un archivage long terme, préférer Cloud Firestore ou un export périodique vers CSV/InfluxDB.</p>
+    </section>
+
+    <section class="card card-wide" id="params">
+      <h2>Paramètres (seuils configurables)</h2>
+      <p class="hint">Les seuils dépendent du moteur, de sa puissance, du montage et des normes (ex. ISO 10816). Calibrez-les expérimentalement. L’ESP32 relit cette config toutes les 5 s.</p>
+      <form id="configForm" class="form-grid">
+        <label>RPM nominal <input type="number" id="cfg_rpm_nominal" step="1" /></label>
+        <label>RPM minimum <input type="number" id="cfg_rpm_min" step="1" /></label>
+        <label>RPM maximum <input type="number" id="cfg_rpm_max" step="1" /></label>
+        <label>Vibration normale (mm/s) <input type="number" id="cfg_vib_normal" step="0.1" /></label>
+        <label>Vibration alerte (mm/s) <input type="number" id="cfg_vib_alerte" step="0.1" /></label>
+        <label>Vibration critique (mm/s) <input type="number" id="cfg_vib_critique" step="0.1" /></label>
+        <label>A_RMS normal (m/s²) <input type="number" id="cfg_a_rms_normal" step="0.1" /></label>
+        <label>A_RMS alerte (m/s²) <input type="number" id="cfg_a_rms_alerte" step="0.1" /></label>
+        <label>A_RMS critique (m/s²) <input type="number" id="cfg_a_rms_critique" step="0.1" /></label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Enregistrer dans Firebase</button>
+          <p id="configMsg" class="form-msg" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Mémoire — Conception et mise en œuvre d’un système de maintenance prédictive IoT pour la surveillance d’un moteur électrique.</p>
+  </footer>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
