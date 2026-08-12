@@ -1,41 +1,21 @@
-Bibliothèques Arduino IDE requises pour surveillance_moteur.ino
-================================================================
+Bibliothèques — Arduino Uno (surveillance_moteur_uno.ino)
+=========================================================
 
-1) Nom     : Adafruit ADXL345
-   Auteur  : Adafruit
-   Où      : Croquis → Inclure une bibliothèque → Gérer les bibliothèques
-             Rechercher « Adafruit ADXL345 »
-   Pourquoi: Lecture Ax, Ay, Az via I2C
+1) Adafruit ADXL345          — Gestionnaire de bibliothèques
+2) Adafruit Unified Sensor   — dépendance
 
-2) Nom     : Adafruit Unified Sensor
-   Auteur  : Adafruit
-   Où      : Installée automatiquement comme dépendance, sinon même gestionnaire
-   Pourquoi: Abstraction sensors_event_t utilisée par Adafruit_ADXL345_Unified
+Carte : Arduino Uno
+Port  : COMx / ttyUSBx
+Aucun Wi-Fi sur l'Uno — liaison série vers ESP32 (SoftwareSerial D10/D11 @ 9600)
 
-3) Nom     : Firebase ESP Client
-   Auteur  : Mobizt
-   Où      : Gérer les bibliothèques → « Firebase ESP Client »
-   Pourquoi: Écriture / lecture Firebase Realtime Database depuis ESP32
-   Includes: Firebase_ESP_Client.h , addons/TokenHelper.h , addons/RTDBHelper.h
+Bibliothèques — ESP32 (passerelle_firebase.ino)
+===============================================
 
-4) Nom     : WiFi (intégré core ESP32)
-   Où      : Fourni avec le package « esp32 by Espressif Systems »
-   Pourquoi: Connexion station Wi-Fi
+1) Firebase ESP Client (Mobizt)
+2) WiFi (core ESP32)
 
-5) Nom     : Wire (intégré)
-   Pourquoi: Bus I2C (SDA=21, SCL=22)
+Carte : ESP32 Dev Module
+Serial2 : RX=16 TX=17 vers l'Arduino Uno
 
-Installation du core ESP32
---------------------------
-Fichier → Préférences → URL de gestionnaire de cartes supplémentaires :
+Core ESP32 :
 https://espressif.github.io/arduino-esp32/package_esp32_index.json
-
-Outils → Type de carte → Gestionnaire de cartes → installer « esp32 » (Espressif)
-
-Carte recommandée : ESP32 Dev Module
-Vitesse de téléversement : 115200
-
-Compatibilité vérifiée conceptuellement avec :
-- ESP32 Arduino core 2.x / 3.x
-- Firebase ESP Client (Mobizt) API RTDB setJSON / getJSON
-- Modules ADXL345 en mode I2C adresse 0x53

@@ -18,8 +18,12 @@ moteur/
 │   ├── buzzer_state               # true = buzzer actif (phase ON)
 │   ├── buzzer_mute                # mute demandé
 │   ├── auto_stop_on_alarm         # miroir config
+│   ├── speed_sensor               # "IR"
+│   ├── controller                 # "Arduino_Uno"
+│   ├── gateway                    # "ESP32"
+│   ├── uno_online                 # true si trames MEAS récentes
 │   ├── timestamp                  # Secondes depuis boot ESP32
-│   ├── online                     # true si ESP32 publie
+│   ├── online                     # true si Uno joignable
 │   ├── unit_a_rms                 # "m/s2"
 │   ├── unit_vibration_rms         # "mm/s (estime)"
 │   └── note_vibration             # Rappel méthodologique

@@ -290,19 +290,20 @@
     pushPoint(label, live);
     updateStats(live);
     evaluateAlerts(live, configCache);
-    setOnline(true);
+    const linkOk = live.online !== false && live.uno_online !== false;
+    setOnline(linkOk);
   }
 
   function setOnline(online) {
     if (online) {
-      el.connBadge.textContent = "ESP32 en ligne";
+      el.connBadge.textContent = "Uno + ESP32 en ligne";
       el.connBadge.className = "badge badge-on";
     } else {
-      el.connBadge.textContent = "ESP32 hors ligne";
+      el.connBadge.textContent = "Uno / ESP32 hors ligne";
       el.connBadge.className = "badge badge-off";
       el.alertBanner.classList.remove("hidden");
       el.alertBannerText.textContent =
-        "Connexion ESP32 perdue ou données non rafraîchies. Vérifiez le Wi-Fi et l'alimentation.";
+        "Pas de données fraîches. Vérifiez l'Arduino Uno, le lien UART et le Wi-Fi ESP32.";
     }
   }
 

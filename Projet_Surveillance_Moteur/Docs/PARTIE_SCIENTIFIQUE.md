@@ -19,13 +19,13 @@ Concevoir et réaliser un système réel de maintenance prédictive basé sur l�
 
 ## 4. Objectifs spécifiques
 
-1. Sélectionner et câbler un ESP32, un ADXL345 et un capteur de vitesse Hall.
+1. Sélectionner et câbler un Arduino Uno (ADXL345, capteur IR, relais D8) et un ESP32 passerelle.
 2. Acquérir Ax, Ay, Az et calculer A_RMS ; estimer une vitesse vibratoire RMS.
-3. Mesurer le régime en tr/min par comptage d’impulsions.
-4. Transmettre les données vers Firebase Realtime Database.
+3. Mesurer le régime en tr/min par comptage d’impulsions **IR**.
+4. Transmettre les données Uno → ESP32 → Firebase Realtime Database.
 5. Développer une interface Web de supervision, d’historique et d’alertes.
 6. Proposer une logique de diagnostic configurable et en exposer les limites.
-7. Valider expérimentalement la mesure de vitesse et la cohérence vibratoire.
+7. Valider expérimentalement la mesure de vitesse IR et la cohérence vibratoire.
 
 ## 5. Méthodologie
 
@@ -33,7 +33,7 @@ Approche expérimentale en V : analyse du besoin → architecture → réalisati
 
 ## 6. Architecture du système
 
-Le système comporte trois couches : (i) **perception** (ADXL345, Hall), (ii) **traitement embarqué** (ESP32 : filtrage DC, RMS, RPM, diagnostic), (iii) **supervision** (Firebase + Web). La séparation galvanique entre puissance 230 V et commande 3,3 V est une contrainte de conception.
+Le système comporte trois couches : (i) **perception** (ADXL345, capteur IR sur Arduino Uno), (ii) **traitement embarqué** (Uno : filtrage DC, RMS, RPM, diagnostic, relais/buzzer) + **passerelle IoT** (ESP32), (iii) **supervision** (Firebase + Web). La séparation galvanique entre puissance 230 V et commande est une contrainte de conception.
 
 ## 7. Fonctionnement
 
@@ -41,8 +41,8 @@ Le système comporte trois couches : (i) **perception** (ADXL345, Hall), (ii) **
 
 ## 8. Acquisition des données
 
-- Vibrations : I2C, plage ±16 g, débit élevé, fenêtre de 64 points (~500 Hz effectif dans le firmware).
-- Vitesse : interruption sur front descendant, 1 aimant → 1 pulse/tour, anti-rebond logiciel.
+- Vibrations : I2C Uno A4/A5, plage ±16 g, fenêtre de 32 points (contrainte SRAM).
+- Vitesse : interruption IR sur D2, 1 marque → 1 pulse/tour, anti-rebond logiciel.
 
 ## 9. Traitement des données
 

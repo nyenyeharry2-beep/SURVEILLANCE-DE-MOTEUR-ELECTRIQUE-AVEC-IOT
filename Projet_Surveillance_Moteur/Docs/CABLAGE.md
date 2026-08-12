@@ -1,72 +1,92 @@
-# CÂBLAGE DÉTAILLÉ — ESP32 + ADXL345 + HALL + RELAIS 5 V + BUZZER
+# CÂBLAGE — Arduino Uno (capteurs + relais) + ESP32 (passerelle IoT)
 
-## Tableau de connexions
+## Architecture
 
-| COMPOSANT | BROCHE COMPOSANT | ESP32 / Alim | Tension |
-|-----------|------------------|--------------|---------|
-| ADXL345 | VCC | **3V3** | 3,3 V |
-| ADXL345 | GND | GND | 0 V |
-| ADXL345 | SDA | **GPIO 21** | 3,3 V I2C |
-| ADXL345 | SCL | **GPIO 22** | 3,3 V I2C |
-| ADXL345 | CS (si présent) | 3V3 | Force I2C |
-| ADXL345 | SDO/SA0 (si présent) | GND | Adresse **0x53** |
-| Capteur Hall | VCC | 3V3 (module 3,3 V) | 3,3 V |
-| Capteur Hall | GND | GND | 0 V |
-| Capteur Hall | OUT | **GPIO 18** | 3,3 V max |
-| Module relais 5 V | VCC | **5 V** (pin VIN/5V ESP32 USB) | 5 V |
-| Module relais 5 V | GND | GND | 0 V |
-| Module relais 5 V | IN | **GPIO 26** | 3,3 V logique |
-| Relais (contacts) | COM / NO | Bobine contacteur **basse tension** uniquement | Selon contacteur |
-| Buzzer actif | + | **GPIO 25** (via transistor si >20 mA) | 3,3 V |
-| Buzzer actif | − | GND | 0 V |
-| LED statut | (intégrée DevKit) | GPIO 2 | — |
+```
+MOTEUR
+  ├─ ADXL345 (vibrations) ──┐
+  └─ Capteur IR (RPM) ──────┼─► Arduino Uno ──UART──► ESP32 ──Wi-Fi──► Firebase ──► Web
+                            │         │
+                     Relais D8        Buzzer D9
+                            │
+                    bobine contacteur BT (pas le 230 V)
+```
 
-Si le module Hall n’existe qu’en version **5 V** : alimenter en 5 V et placer un **diviseur résistif** (ex. 10 kΩ + 20 kΩ) ou un translateur de niveau sur OUT → GPIO 18.
+## Arduino Uno — tableau de connexions
 
-### Relais — polarité IN
+| COMPOSANT | BROCHE | Arduino Uno | Tension |
+|-----------|--------|-------------|---------|
+| ADXL345 VCC | VCC | **3,3 V** (ou 5 V si module avec régulateur) | Voir module |
+| ADXL345 GND | GND | GND | 0 V |
+| ADXL345 SDA | SDA | **A4** | I2C |
+| ADXL345 SCL | SCL | **A5** | I2C |
+| ADXL345 CS | CS | 3,3 V (si présent, mode I2C) | — |
+| ADXL345 SDO | SDO | GND → adresse **0x53** | — |
+| Capteur IR VCC | VCC | **5 V** | 5 V |
+| Capteur IR GND | GND | GND | 0 V |
+| Capteur IR OUT | OUT | **D2** (INT0) | 5 V OK sur Uno |
+| Module relais VCC | VCC | **5 V** | 5 V |
+| Module relais GND | GND | GND | 0 V |
+| Module relais IN | IN | **D8** | 5 V logique |
+| Relais COM / NO | contacts | Bobine contacteur **BT uniquement** | — |
+| Buzzer + | + | **D9** | 5 V / transistor si besoin |
+| Buzzer − | − | GND | 0 V |
+| Liaison ESP32 | TX | **D11** → diviseur → ESP32 RX | **5 V → 3,3 V** |
+| Liaison ESP32 | RX | **D10** ← ESP32 TX | 3,3 V |
 
-La plupart des modules Songle / « Arduino relay » sont **active LOW** (IN à 0 V → relais collé). Le firmware utilise `RELAY_ACTIVE_LOW 1`. Si votre module est active HIGH, mettez `RELAY_ACTIVE_LOW 0` dans le `.ino`.
+### Capteur IR (vitesse)
 
-### Buzzer
+- Type : module réfléchissant (ex. **TCRT5000**, KY-033, capteur IR obstacle).
+- Coller **une marque** contrastée (bande blanche/noire ou pastille réfléchissante) sur l’arbre / ventilateur.
+- **1 marque = 1 impulsion = 1 tour** (`PULSES_PER_REV = 1`).
+- Distance typique 2–10 mm ; éviter la lumière parasite.
+- Sortie numérique vers **D2** ; anti-rebond logiciel 3 ms dans le firmware.
 
-- **Buzzer actif** (2 fils, bip fixe) : GPIO 25 → + , GND → −. Si le courant dépasse ~20 mA, passer par un NPN (ex. 2N2222) + résistance de base 1 kΩ.
-- **Buzzer passif** : même câblage ; le firmware actuel utilise un tout-ou-rien (HIGH/LOW). Pour une fréquence fixe, on pourrait ajouter `tone()`, non requis ici.
+### Relais sur D8
 
-## Montage mécanique
+- Active LOW par défaut (`RELAY_ACTIVE_LOW 1`).
+- Au démarrage : relais **OFF**.
 
-1. Fixer l’ADXL345 **rigidement** sur le carter moteur (vis / colle époxy / support usiné). Un montage mou fausse les mesures.
-2. Orienter les axes et noter X/Y/Z dans le mémoire (photo).
-3. Coller **un** aimant sur une pièce tournante accessible (ventilateur, poulie).  
-   → **1 impulsion = 1 tour**.
-4. Positionner le Hall à 2–5 mm de l’aimant, fixe par rapport au stator.
-5. Chemin de câbles loin des phases moteur ; torsader SDA/SCL si long.
-6. Placer le buzzer audible hors du carter ; isoler le module relais des vibrations fortes.
+## ESP32 — passerelle uniquement
+
+| Fonction | GPIO ESP32 |
+|----------|------------|
+| Serial2 RX (← Uno TX via diviseur) | **16** |
+| Serial2 TX (→ Uno RX) | **17** |
+| LED Wi-Fi | 2 |
+
+### Diviseur de tension obligatoire (Uno TX 5 V → ESP32 RX)
+
+```
+Uno D11 (TX) ── 2,2 kΩ ──┬── ESP32 GPIO16 (RX)
+                         │
+                        3,3 kΩ
+                         │
+                        GND
+```
+
+(Rapport ≈ 3,3/5,5 ≈ 3,0 V — adapté. Variante classique : 1 kΩ + 2 kΩ.)
+
+GND Uno et GND ESP32 **reliés**.
 
 ## Séparation puissance / commande
 
 ```
-[ RÉSEAU 230 V ]──disjoncteur──contacteur──MOTEUR
-                      │
-                      └── bobine contacteur (ex. 24 V DC)
-                              ▲
-                              │ contacts NO du module relais 5 V
-[ 5 V ]── module relais ◄── GPIO 26 ESP32
-[ 3,3 V ]──ESP32──ADXL345──HALL──BUZZER
+[ 230 V ]──disjoncteur──contacteur──MOTEUR
+                │
+                └── bobine BT ◄── contacts NO du relais (Uno D8)
+
+[ 5 V ]── Arduino Uno ── ADXL345 / IR / Relais / Buzzer
+[ 3,3/5 V USB ]── ESP32 (Wi-Fi seulement)
 ```
 
-### Règles de sécurité
+- L’ESP32 et l’Uno **ne touchent jamais** au 230 V.
+- Le module relais ne commute **pas** le moteur 230 V directement.
 
-- L’ESP32 **ne se connecte jamais** au 230 V.
-- Le **petit relais 5 V ne commute pas** directement un moteur 230 V / plusieurs ampères : il commande la **bobine** d’un contacteur dimensionné.
-- Travaux puissance : consignation, EPI, compétence électrique.
-- Terre / liaison équipotentielle selon normes locales.
-- Au boot, le firmware force le relais **OFF**.
+## Alimentation ADXL345 sur Uno
 
-## Vérifications avant mise sous tension commande
+Le circuit ADXL345 est en **3,3 V**. Préférer un module breakout avec :
+- régulateur 3,3 V + translation I2C, alimenté en 5 V, **ou**
+- alimentation 3,3 V Uno + vérification que les pull-ups I2C ne dépassent pas 3,3 V.
 
-1. Continuité GND commune ESP32 ↔ capteurs ↔ module relais.
-2. VCC ADXL345 = 3,3 V (pas 5 V).
-3. OUT Hall ≤ 3,3 V.
-4. Module relais alimenté en **5 V**, IN sur GPIO 26 uniquement.
-5. Contacts relais branchés uniquement sur circuit bobine BT du contacteur.
-6. Aucun fil puissance dans la breadboard de commande.
+Ne jamais alimenter la puce nue en 5 V.

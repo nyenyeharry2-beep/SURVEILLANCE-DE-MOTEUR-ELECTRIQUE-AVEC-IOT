@@ -56,16 +56,16 @@ V_{RMS,mm/s} = 1000\,V_{RMS}
 
 Utiliser un **accéléromètre IEPE** + conditionneur, ou un **vibromètre** affichant déjà mm/s RMS, et comparer / remplacer l’estimation ADXL345.
 
-## 4. Vitesse de rotation
+## 4. Vitesse de rotation (capteur IR)
 
-Avec \(P\) impulsions par tour (\(P=1\) si un aimant) sur une durée \(\Delta t\) (minutes) :
+Avec \(P\) impulsions par tour (\(P=1\) si une seule marque optique) sur une durée \(\Delta t\) :
 
 \[
-RPM = \frac{N_{impulsions}}{P}\times\frac{1}{\Delta t_{min}}
-= \frac{N_{impulsions}}{P}\times\frac{60000}{\Delta t_{ms}}
+RPM = \frac{N_{impulsions}}{P}\times\frac{60000}{\Delta t_{ms}}
 \]
 
 Anti-rebond : ignorer tout front si \(\Delta t_{impulsion} < 3000\,\mu s\).
+Le capteur IR détecte une variation de réflexion (marque claire/foncée) — pas besoin d’aimant.
 
 ## 5. Erreurs de validation
 

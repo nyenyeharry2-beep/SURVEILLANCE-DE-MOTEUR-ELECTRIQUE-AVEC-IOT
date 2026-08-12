@@ -1,60 +1,31 @@
 # CHECKLIST DE MISE EN SERVICE
 
 ## Matériel
-- [ ] ESP32 DevKit V1 alimenté en USB / 5 V stable
-- [ ] ADXL345 câblé en **3,3 V** (VCC, GND, SDA21, SCL22, CS→3V3 si besoin)
-- [ ] Capteur Hall câblé ; OUT ≤ 3,3 V ; aimant fixé (1 pulse/tour)
-- [ ] Module relais 5 V : VCC=5 V, GND, IN→GPIO 26 ; contacts sur bobine BT contacteur seulement
-- [ ] Buzzer sur GPIO 25 (transistor si besoin)
-- [ ] Fixation rigide de l’ADXL345 sur le carter
-- [ ] Séparation physique puissance 230 V / commande BT vérifiée
+- [ ] Arduino Uno alimenté (USB / 5 V)
+- [ ] ESP32 alimenté (USB)
+- [ ] ADXL345 sur Uno : SDA=A4, SCL=A5, alim 3,3 V (ou module 5 V régulé)
+- [ ] Capteur IR sur Uno **D2** ; 1 marque contrastée / tour
+- [ ] Module relais : IN → **D8**, VCC=5 V ; contacts = bobine BT contacteur seulement
+- [ ] Buzzer sur **D9**
+- [ ] UART : Uno D11→diviseur→ESP32 GPIO16 ; Uno D10←ESP32 GPIO17 ; GND commun
+- [ ] Séparation 230 V / commande BT vérifiée
 
-## Logiciel embarqué
-- [ ] Carte « ESP32 Dev Module » sélectionnée dans Arduino IDE
-- [ ] Libs : Adafruit ADXL345 (+ Unified Sensor), Firebase ESP Client (Mobizt)
-- [ ] `WIFI_SSID` / `WIFI_PASSWORD` renseignés
-- [ ] `FIREBASE_HOST` / `FIREBASE_AUTH` renseignés
-- [ ] Compilation sans erreur ; téléversement OK
-- [ ] Moniteur série : ADXL345 OK, Wi-Fi IP, Firebase OK
+## Logiciel
+- [ ] Sketch Uno flashé (`surveillance_moteur_uno.ino`)
+- [ ] Sketch ESP32 flashé (`passerelle_firebase.ino`) avec Wi-Fi + Firebase
+- [ ] Moniteur Uno : ADXL345 OK, IR OK, trames périodiques
+- [ ] Moniteur ESP32 : Wi-Fi OK, `Uno=OK`, live Firebase
 
-## Firebase
-- [ ] Projet créé + RTDB activée
+## Firebase / Web
 - [ ] `seed_initial.json` importé
-- [ ] Application Web créée ; clés copiées dans `firebase-config.js`
-- [ ] Nœud `moteur/live` se met à jour depuis l’ESP32
-- [ ] Nœud `moteur/config` modifiable
-- [ ] Historique qui se remplit (~10 s)
-
-## Interface Web
-- [ ] `firebase-config.js` personnalisé
-- [ ] Page ouverte (serveur local recommandé)
-- [ ] Badge « ESP32 en ligne »
-- [ ] Cartes État / Vibration / Vitesse / Diagnostic / Dernière mesure
-- [ ] 3 graphiques qui défilent
-- [ ] Statistiques min/max/moyenne
-- [ ] Bannière alerte si seuils dépassés
-- [ ] Alerte visuelle si liaison perdue (> 8 s)
-- [ ] Formulaire Paramètres : validation min < nom < max ; enregistrement OK
-- [ ] Boutons Marche/Arrêt relais opérationnels
-- [ ] Mute buzzer + option auto-stop ALARME
-- [ ] Affichage correct smartphone
-
-## Mesures
-- [ ] À l’arrêt : orientation cohérente (≈ 1 g sur un axe)
-- [ ] En rotation : RPM non nul et stable
-- [ ] Secousse / balourd test : A_RMS augmente
-- [ ] Diagnostic change d’état selon seuils calibrés
-
-## Sécurité & mémoire
-- [ ] Aucun fil ESP32 sur 230 V
-- [ ] Limites mm/s estimé expliquées dans le rapport
-- [ ] Seuils présentés comme calibrables, non universels
-- [ ] Plan de tests 1–10 exécuté et consignés
-- [ ] Calculs d’erreur RPM documentés
+- [ ] `firebase-config.js` renseigné
+- [ ] Badge en ligne ; RPM / vibrations / relais visibles
+- [ ] Boutons Marche/Arrêt → relais D8
+- [ ] Mute buzzer + auto-stop ALARME
 
 ## Critères « système fonctionne »
-1. Données live rafraîchies ≤ 2 s dans Firebase et sur le Web  
-2. RPM cohérent avec un tachymètre (erreur relative faible)  
-3. A_RMS sensible à une excitation mécanique  
-4. Passage volontaire en ALARME via seuils ou défaut simulé  
-5. Reconnexion Wi-Fi automatique après coupure  
+1. Trames `MEAS` reçues par l’ESP32  
+2. RPM cohérent (tachymètre) avec marque IR  
+3. A_RMS sensible à une excitation  
+4. Relais D8 suit la commande Web ; OFF en ALARME si auto-stop  
+5. Reconnexion Wi-Fi ESP32 après coupure  
