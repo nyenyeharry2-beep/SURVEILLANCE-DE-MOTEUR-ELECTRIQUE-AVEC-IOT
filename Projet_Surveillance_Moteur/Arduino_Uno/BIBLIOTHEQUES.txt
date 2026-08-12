@@ -11,8 +11,8 @@ Sketch : Arduino_Uno/surveillance_moteur_uno/surveillance_moteur_uno.ino
    Pourquoi : dépendance Adafruit ADXL345
 
 3) SoftwareSerial
-   Fourni avec le core Arduino AVR — liaison UART vers ESP32 (D10/D11)
+   Fourni avec le core Arduino AVR — liaison UART vers ESP32 (D3/D4)
 
 Carte à sélectionner : Arduino Uno
 Vitesse moniteur USB : 115200 (debug)
-Vitesse lien ESP32   : 9600 (SoftwareSerial)
+Vitesse lien ESP32   : 9600 (SoftwareSerial D3 RX / D4 TX)

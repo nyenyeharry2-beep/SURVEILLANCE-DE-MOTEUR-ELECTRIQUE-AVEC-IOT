@@ -89,8 +89,8 @@ ADXL345 VCC/GND/SDA/SCL → 3V3/GND/A4/A5
 IR VCC/GND/OUT          → 5V/GND/D2
 Relais VCC/GND/IN       → 5V/GND/D8
 Buzzer +/-              → D9/GND
-Uno D11 (TX) --diviseur--> ESP32 GPIO16 (RX)
-Uno D10 (RX) <----------- ESP32 GPIO17 (TX)
+Uno D4 (TX) --diviseur--> ESP32 GPIO16 (RX)
+Uno D3 (RX) <----------- ESP32 GPIO17 (TX)
 GND Uno ---------------- GND ESP32
 
 --- ESP32 ---
@@ -113,8 +113,8 @@ GPIO2 LED Wi-Fi
 | IR OUT | D2 | INT0, debounce 3 ms |
 | Relais IN | **D8** | Active LOW par défaut |
 | Buzzer | D9 | Alarme locale |
-| UART→ESP32 TX | D11 | SoftwareSerial 9600 |
-| UART←ESP32 RX | D10 | SoftwareSerial 9600 |
+| UART→ESP32 TX | **D4** | SoftwareSerial 9600 |
+| UART←ESP32 RX | **D3** | SoftwareSerial 9600 |
 
 ### ESP32 (passerelle)
 

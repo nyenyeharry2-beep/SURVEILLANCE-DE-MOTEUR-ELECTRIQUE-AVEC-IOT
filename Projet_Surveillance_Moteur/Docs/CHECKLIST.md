@@ -7,7 +7,7 @@
 - [ ] Capteur IR sur Uno **D2** ; 1 marque contrastée / tour
 - [ ] Module relais : IN → **D8**, VCC=5 V ; contacts = bobine BT contacteur seulement
 - [ ] Buzzer sur **D9**
-- [ ] UART : Uno D11→diviseur→ESP32 GPIO16 ; Uno D10←ESP32 GPIO17 ; GND commun
+- [ ] UART : Uno **D4**→diviseur→ESP32 GPIO16 ; Uno **D3**←ESP32 GPIO17 ; GND commun
 - [ ] Séparation 230 V / commande BT vérifiée
 
 ## Logiciel

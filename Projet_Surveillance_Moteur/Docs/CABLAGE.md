@@ -31,8 +31,8 @@ MOTEUR
 | Relais COM / NO | contacts | Bobine contacteur **BT uniquement** | — |
 | Buzzer + | + | **D9** | 5 V / transistor si besoin |
 | Buzzer − | − | GND | 0 V |
-| Liaison ESP32 | TX | **D11** → diviseur → ESP32 RX | **5 V → 3,3 V** |
-| Liaison ESP32 | RX | **D10** ← ESP32 TX | 3,3 V |
+| Liaison ESP32 | TX | **D4** → diviseur → ESP32 RX GPIO16 | **5 V → 3,3 V** |
+| Liaison ESP32 | RX | **D3** ← ESP32 TX GPIO17 | 3,3 V |
 
 ### Capteur IR (vitesse)
 
@@ -58,11 +58,14 @@ MOTEUR
 ### Diviseur de tension obligatoire (Uno TX 5 V → ESP32 RX)
 
 ```
-Uno D11 (TX) ── 2,2 kΩ ──┬── ESP32 GPIO16 (RX)
-                         │
-                        3,3 kΩ
-                         │
-                        GND
+Uno D4 (TX) ── 2,2 kΩ ──┬── ESP32 GPIO16 (RX)
+                        │
+                       3,3 kΩ
+                        │
+                       GND
+
+Uno D3 (RX) ◄───────────── ESP32 GPIO17 (TX)
+GND Uno ────────────────── GND ESP32
 ```
 
 (Rapport ≈ 3,3/5,5 ≈ 3,0 V — adapté. Variante classique : 1 kΩ + 2 kΩ.)

@@ -10,12 +10,12 @@
  *   - Envoi des mesures vers l'ESP32 (passerelle Wi-Fi / Firebase) via UART
  *
  * Liaison série vers ESP32 :
- *   SoftwareSerial : D11 (TX Uno → RX ESP32) , D10 (RX Uno ← TX ESP32)
+ *   SoftwareSerial : D4 (TX Uno → RX ESP32) , D3 (RX Uno ← TX ESP32)
  *   USB Serial (115200) : moniteur de debug
  *
  * IMPORTANT niveaux logiques :
- *   TX Uno (5 V) → diviseur résistif → RX ESP32 (3,3 V max)
- *   TX ESP32 (3,3 V) → RX Uno (accepté en pratique sur la plupart des UNO)
+ *   TX Uno D4 (5 V) → diviseur résistif → RX ESP32 (3,3 V max)
+ *   TX ESP32 (3,3 V) → RX Uno D3 (accepté en pratique sur la plupart des UNO)
  *
  * Bibliothèques :
  *   - Adafruit ADXL345
@@ -32,8 +32,8 @@
 #define PIN_IR           2    /* interruption INT0 — capteur IR vitesse */
 #define PIN_RELAY        8    /* module relais 5 V */
 #define PIN_BUZZER       9
-#define PIN_ESP_RX      10    /* Uno RX  ← ESP32 TX */
-#define PIN_ESP_TX      11    /* Uno TX  → ESP32 RX (via diviseur) */
+#define PIN_ESP_RX       3    /* Uno RX  ← ESP32 TX */
+#define PIN_ESP_TX       4    /* Uno TX  → ESP32 RX (via diviseur) */
 
 #define RELAY_ACTIVE_LOW 1
 

@@ -7,8 +7,8 @@
  * Les commandes Web (relais / mute / seuils) sont renvoyées à l'Uno.
  *
  * Liaison UART :
- *   ESP32 Serial2 RX = GPIO 16  ←  TX Uno D11 (via diviseur 5 V → 3,3 V)
- *   ESP32 Serial2 TX = GPIO 17  →  RX Uno D10
+ *   ESP32 Serial2 RX = GPIO 16  ←  TX Uno D4 (via diviseur 5 V → 3,3 V)
+ *   ESP32 Serial2 TX = GPIO 17  →  RX Uno D3
  *   Baud : 9600
  *
  * Bibliothèques : WiFi (core ESP32), Firebase ESP Client (Mobizt)
@@ -112,7 +112,7 @@ void setup() {
   Serial2.begin(UNO_BAUD, SERIAL_8N1, UNO_RX_PIN, UNO_TX_PIN);
 
   Serial.println(F("=== ESP32 Passerelle Firebase (Uno → Cloud) ==="));
-  Serial.println(F("UART2: RX=GPIO16 TX=GPIO17 @ 9600"));
+  Serial.println(F("UART2: RX=GPIO16 TX=GPIO17 @ 9600 (Uno D4→16, 17→Uno D3)"));
 
   connectWiFi();
   connectFirebase();

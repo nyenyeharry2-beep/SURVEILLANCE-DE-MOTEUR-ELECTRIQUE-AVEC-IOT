@@ -3,7 +3,7 @@
 ## Tests fonctionnels
 
 ### Test 2 — ESP32 + liaison Uno
-- **Objectif** : UART GPIO16/17 @ 9600.
+- **Objectif** : UART Uno D3/D4 ↔ ESP32 GPIO16/17 @ 9600.
 - **Procédure** : câbler diviseur ; flasher les deux cartes.
 - **Attendu** : ESP32 affiche `Uno=OK` quand l’Uno envoie `MEAS`.
 
