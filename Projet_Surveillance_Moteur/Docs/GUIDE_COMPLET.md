@@ -57,6 +57,8 @@ Firebase → Interface Web
 | 1 | ADXL345 (module I2C) | Alimenter en **3,3 V** |
 | 1 | Capteur Hall (ex. A3144 / KY-003 / module 3144) | Sortie compatible 3,3 V ou diviseur |
 | 1 | Aimant néodyme petit | Collé sur arbre / ventilateur |
+| 1 | Module relais 5 V (1 canal, optocoupleur) | Commande bobine contacteur BT |
+| 1 | Buzzer actif 3,3/5 V | Alarme locale (+ transistor si besoin) |
 | 1 | Breadboard + fils Dupont | Prototypage |
 | 1 | Alimentation 5 V USB (ESP32) | Ou régulateur 5 V isolé |
 | 1 | Support / boîtier | Fixation ADXL345 **rigide** sur carter |
@@ -86,6 +88,14 @@ Hall VCC     →  3V3 (si module 3,3 V)  OU 5 V + adaptation de niveau
 Hall GND     →  GND
 Hall OUT     →  GPIO 18  (INPUT_PULLUP, front descendant)
 
+Relais 5 V VCC → 5 V (VIN USB)
+Relais 5 V GND → GND
+Relais 5 V IN  → GPIO 26  (souvent active LOW)
+Relais COM/NO  → bobine contacteur BT uniquement (pas le 230 V moteur)
+
+Buzzer +       → GPIO 25 (transistor NPN si courant élevé)
+Buzzer −       → GND
+
 LED intégrée GPIO 2 → statut Wi-Fi (déjà sur DevKit)
 ```
 
@@ -110,6 +120,8 @@ LED intégrée GPIO 2 → statut Wi-Fi (déjà sur DevKit)
 | I2C SDA | 21 | Bidirectionnel | ADXL345 |
 | I2C SCL | 22 | Sortie horloge | ADXL345 |
 | Hall OUT | 18 | Entrée + ISR | Pull-up, debounce 3 ms |
+| Relais IN | 26 | Sortie | Module 5 V, active LOW par défaut |
+| Buzzer | 25 | Sortie | Alarme locale |
 | LED statut | 2 | Sortie | Connexion Wi-Fi |
 
 Adresse I2C ADXL345 typique : **0x53** (SDO au GND).
@@ -120,7 +132,9 @@ Le firmware utilise **Firebase ESP Client (Mobizt)** avec :
 - `FIREBASE_HOST` = URL RTDB (sans `https://`)
 - `FIREBASE_AUTH` = secret de base de données (legacy) **ou** token
 
-Écriture : `/moteur/live` chaque seconde ; lecture `/moteur/config` toutes les 5 s ; push `/moteur/historique` toutes les 10 s.
+Écriture : `/moteur/live` chaque seconde ; lecture `/moteur/config` toutes les 5 s ; lecture `/moteur/command` chaque seconde (relais / mute) ; push `/moteur/historique` toutes les 10 s.
+
+**Actionneurs** : en ALARME avec `auto_stop_on_alarm`, le relais est forcé OFF ; le buzzer bippe (lent en AVERTISSEMENT, rapide en ALARME) sauf mute.
 
 ---
 
@@ -181,7 +195,7 @@ Voir `Firebase/database_structure.txt`. Résumé :
 Fichier : `ESP32/surveillance_moteur/surveillance_moteur.ino`  
 (complet, compilable après configuration des macros Wi-Fi / Firebase).
 
-Fonctions principales : `initSensor`, `readVibration`, `calculateRMS`, `estimateVelocityRmsMmS`, `calculateRPM`, `diagnoseMotor`, `connectWiFi`, `connectFirebase`, `handleConnection`, `sendDataFirebase`, `loadConfigFromFirebase`.
+Fonctions principales : `initSensor`, `readVibration`, `calculateRMS`, `estimateVelocityRmsMmS`, `calculateRPM`, `diagnoseMotor`, `updateActuators`, `setRelay`, `updateBuzzerPattern`, `connectWiFi`, `connectFirebase`, `handleConnection`, `sendDataFirebase`, `loadConfigFromFirebase`, `loadCommandFromFirebase`.
 
 ---
 
@@ -193,7 +207,8 @@ Fonctions principales : `initSensor`, `readVibration`, `calculateRMS`, `estimate
 4. **RPM** : `pulseCount` incrémenté en ISR avec debounce 3 ms ; chaque fenêtre 1 s :  
    `RPM = (Δimpulsions / PULSES_PER_REV) × (60000 / Δt_ms)`.
 5. **Diagnostic** : croise seuils `vib_*` et `a_rms_*` avec plage RPM ; produit `status`, `diagnostic`, `anomaly_hint`.
-6. **Firebase** : JSON live ; garde-fous si `rpm_min >= rpm_max`.
+6. **Firebase** : JSON live ; garde-fous si `rpm_min >= rpm_max` ; commandes `moteur/command/relay` et `buzzer_mute`.
+7. **Relais / buzzer** : `updateActuators()` applique la consigne ; arrêt auto sur ALARME ; patterns buzzer non bloquants.
 
 ---
 
@@ -201,7 +216,7 @@ Fonctions principales : `initSensor`, `readVibration`, `calculateRMS`, `estimate
 
 Fichiers `Web/index.html`, `style.css`, `app.js`, `firebase-config.js`.
 
-Affiche : état, vibration estimée mm/s, A_RMS, Ax/Ay/Az, RPM, nominale, niveau, diagnostic, horodatage, graphiques Chart.js, historique + min/max/moyenne, alertes, paramètres.
+Affiche : état, vibration estimée mm/s, A_RMS, Ax/Ay/Az, RPM, nominale, niveau, diagnostic, commande relais/buzzer, horodatage, graphiques Chart.js, historique + min/max/moyenne, alertes, paramètres.
 
 Ouvrir via un serveur local recommandé :
 

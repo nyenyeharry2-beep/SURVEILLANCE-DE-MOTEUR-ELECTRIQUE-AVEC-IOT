@@ -38,6 +38,11 @@
     anomalyHint: document.getElementById("anomalyHint"),
     lastUpdate: document.getElementById("lastUpdate"),
     tsEsp: document.getElementById("tsEsp"),
+    relayState: document.getElementById("relayState"),
+    buzzerState: document.getElementById("buzzerState"),
+    btnRelayOn: document.getElementById("btnRelayOn"),
+    btnRelayOff: document.getElementById("btnRelayOff"),
+    chkBuzzerMute: document.getElementById("chkBuzzerMute"),
     historyBody: document.querySelector("#historyTable tbody"),
     configForm: document.getElementById("configForm"),
     configMsg: document.getElementById("configMsg"),
@@ -60,7 +65,9 @@
       a_rms_normal_ms2: document.getElementById("cfg_a_rms_normal"),
       a_rms_alerte_ms2: document.getElementById("cfg_a_rms_alerte"),
       a_rms_critique_ms2: document.getElementById("cfg_a_rms_critique")
-    }
+    },
+    cfgAutoStop: document.getElementById("cfg_auto_stop_on_alarm"),
+    cfgBuzzerEnabled: document.getElementById("cfg_buzzer_enabled")
   };
 
   let lastLiveAt = 0;
@@ -268,6 +275,13 @@
     el.diagnostic.textContent = live.diagnostic || "—";
     el.anomalyHint.textContent = live.anomaly_hint || "";
 
+    el.relayState.textContent = live.relay_state ? "ON" : "OFF";
+    el.relayState.style.color = live.relay_state ? "#2f9e8a" : "#c23b3b";
+    el.buzzerState.textContent = live.buzzer_state ? "ON" : "OFF";
+    if (typeof live.buzzer_mute === "boolean") {
+      el.chkBuzzerMute.checked = live.buzzer_mute;
+    }
+
     const now = new Date();
     el.lastUpdate.textContent = now.toLocaleString("fr-FR");
     el.tsEsp.textContent = live.timestamp != null ? String(live.timestamp) : "—";
@@ -300,6 +314,12 @@
         el.cfgFields[key].value = config[key];
       }
     });
+    if (typeof config.auto_stop_on_alarm === "boolean") {
+      el.cfgAutoStop.checked = config.auto_stop_on_alarm;
+    }
+    if (typeof config.buzzer_enabled === "boolean") {
+      el.cfgBuzzerEnabled.checked = config.buzzer_enabled;
+    }
   }
 
   function validateConfig(values) {
@@ -322,6 +342,8 @@
     Object.keys(el.cfgFields).forEach((key) => {
       values[key] = Number(el.cfgFields[key].value);
     });
+    values.auto_stop_on_alarm = el.cfgAutoStop.checked;
+    values.buzzer_enabled = el.cfgBuzzerEnabled.checked;
     values.note = "Seuils a calibrer selon moteur et norme applicable";
 
     const errors = validateConfig(values);
@@ -335,12 +357,29 @@
       .then(() => {
         el.configMsg.style.color = "#2f9e8a";
         el.configMsg.textContent = "Paramètres enregistrés. L'ESP32 les appliquera sous ~5 s.";
-        configCache = values;
+        configCache = Object.assign({}, configCache || {}, values);
       })
       .catch((err) => {
         el.configMsg.style.color = "#c23b3b";
         el.configMsg.textContent = "Erreur d'enregistrement : " + err.message;
       });
+  });
+
+  function setRelayCommand(on) {
+    db.ref("moteur/command").update({ relay: on })
+      .then(() => {
+        el.relayState.textContent = on ? "commande ON…" : "commande OFF…";
+      })
+      .catch((err) => {
+        alert("Impossible de commander le relais : " + err.message);
+      });
+  }
+
+  el.btnRelayOn.addEventListener("click", () => setRelayCommand(true));
+  el.btnRelayOff.addEventListener("click", () => setRelayCommand(false));
+  el.chkBuzzerMute.addEventListener("change", () => {
+    db.ref("moteur/command").update({ buzzer_mute: el.chkBuzzerMute.checked })
+      .catch((err) => alert("Mute buzzer impossible : " + err.message));
   });
 
   function renderHistory(snap) {

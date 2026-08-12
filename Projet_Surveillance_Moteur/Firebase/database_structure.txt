@@ -14,11 +14,19 @@ moteur/
 │   ├── alert_level                # Niveau d'alerte affiché
 │   ├── diagnostic                 # Message court
 │   ├── anomaly_hint               # Hypothèse de cause (non certifiée)
+│   ├── relay_state                # true = relais collé
+│   ├── buzzer_state               # true = buzzer actif (phase ON)
+│   ├── buzzer_mute                # mute demandé
+│   ├── auto_stop_on_alarm         # miroir config
 │   ├── timestamp                  # Secondes depuis boot ESP32
 │   ├── online                     # true si ESP32 publie
 │   ├── unit_a_rms                 # "m/s2"
 │   ├── unit_vibration_rms         # "mm/s (estime)"
 │   └── note_vibration             # Rappel méthodologique
+│
+├── command/                       # Commandes depuis l'interface Web
+│   ├── relay                      # true = marche demandée
+│   └── buzzer_mute                # true = silence buzzer
 │
 ├── config/                        # Seuils éditables depuis l'interface Web
 │   ├── rpm_nominal
@@ -30,6 +38,8 @@ moteur/
 │   ├── a_rms_normal_ms2
 │   ├── a_rms_alerte_ms2
 │   ├── a_rms_critique_ms2
+│   ├── auto_stop_on_alarm
+│   ├── buzzer_enabled
 │   └── note
 │
 └── historique/                    # Journal (nouvel enfant ~10 s)
@@ -43,7 +53,8 @@ moteur/
         ├── ay
         ├── az
         ├── status
-        └── diagnostic
+        ├── diagnostic
+        └── relay_state
 
 
 Exemple JSON initial (à coller dans Firebase Console → Realtime Database → Import JSON) :
@@ -60,7 +71,13 @@ Exemple JSON initial (à coller dans Firebase Console → Realtime Database → 
       "a_rms_normal_ms2": 1.5,
       "a_rms_alerte_ms2": 3.0,
       "a_rms_critique_ms2": 5.0,
+      "auto_stop_on_alarm": true,
+      "buzzer_enabled": true,
       "note": "Seuils a calibrer selon moteur et norme applicable"
+    },
+    "command": {
+      "relay": false,
+      "buzzer_mute": false
     },
     "live": {
       "ax": 0,
@@ -74,6 +91,8 @@ Exemple JSON initial (à coller dans Firebase Console → Realtime Database → 
       "alert_level": "INFO",
       "diagnostic": "En attente",
       "anomaly_hint": "",
+      "relay_state": false,
+      "buzzer_state": false,
       "timestamp": 0,
       "online": false
     }

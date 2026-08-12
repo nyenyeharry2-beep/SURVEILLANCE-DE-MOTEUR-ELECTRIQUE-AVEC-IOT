@@ -55,6 +55,21 @@
 ### Test reconnexion
 - Couper le Wi-Fi 20 s puis rétablir → messages `[WiFi] Reconnexion...` puis reprise des envois.
 
+### Test 11 — Relais 5 V
+- **Objectif** : commande marche/arrêt via Firebase / Web.
+- **Procédure** : sans 230 V ; LED du module relais ; boutons Marche/Arrêt de l’interface.
+- **Attendu** : clic audible du relais ; `relay_state` suit la commande ; au boot = OFF.
+
+### Test 12 — Buzzer
+- **Objectif** : alerte sonore locale.
+- **Procédure** : forcer AVERTISSEMENT puis ALARME (seuils abaissés) ; tester mute.
+- **Attendu** : bip lent puis rapide ; mute coupe le son ; `buzzer_enabled=false` désactive.
+
+### Test 13 — Arrêt auto sur ALARME
+- **Objectif** : sécurité `auto_stop_on_alarm`.
+- **Procédure** : relais ON, provoquer ALARME.
+- **Attendu** : relais passe OFF ; `moteur/command/relay` remis à `false`.
+
 ---
 
 ## Validation expérimentale

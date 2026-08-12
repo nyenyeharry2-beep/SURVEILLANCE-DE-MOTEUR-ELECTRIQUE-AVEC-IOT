@@ -10,7 +10,13 @@
       "a_rms_normal_ms2": 1.5,
       "a_rms_alerte_ms2": 3.0,
       "a_rms_critique_ms2": 5.0,
+      "auto_stop_on_alarm": true,
+      "buzzer_enabled": true,
       "note": "Seuils a calibrer selon moteur et norme applicable (ISO 10816 / constructeur)"
+    },
+    "command": {
+      "relay": false,
+      "buzzer_mute": false
     },
     "live": {
       "ax": 0,
@@ -24,6 +30,10 @@
       "alert_level": "INFO",
       "diagnostic": "En attente de premiere publication ESP32",
       "anomaly_hint": "",
+      "relay_state": false,
+      "buzzer_state": false,
+      "buzzer_mute": false,
+      "auto_stop_on_alarm": true,
       "timestamp": 0,
       "online": false,
       "unit_a_rms": "m/s2",

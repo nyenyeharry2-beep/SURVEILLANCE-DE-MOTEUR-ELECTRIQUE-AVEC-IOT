@@ -486,6 +486,48 @@ tbody tr:hover { background: rgba(47, 158, 138, 0.06); }
 
 .btn.primary:hover { filter: brightness(1.06); }
 
+.btn.danger {
+  color: #fff5f5;
+  background: linear-gradient(135deg, #a33a3a, var(--alarm));
+}
+
+.btn.danger:hover { filter: brightness(1.06); }
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.actuator-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.actuator-state {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+.check-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.check-line input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
+.span-all { grid-column: 1 / -1; }
+
 .form-msg {
   margin: 0;
   font-size: 0.85rem;
@@ -511,5 +553,6 @@ tbody tr:hover { background: rgba(47, 158, 138, 0.06); }
   .card, .card-wide { grid-column: span 12; }
   .charts { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
+  .actuator-row { grid-template-columns: 1fr; }
   .metric-main { font-size: 1.65rem; }
 }

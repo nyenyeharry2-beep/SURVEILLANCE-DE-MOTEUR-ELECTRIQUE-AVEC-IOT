@@ -4,6 +4,8 @@
 - [ ] ESP32 DevKit V1 alimenté en USB / 5 V stable
 - [ ] ADXL345 câblé en **3,3 V** (VCC, GND, SDA21, SCL22, CS→3V3 si besoin)
 - [ ] Capteur Hall câblé ; OUT ≤ 3,3 V ; aimant fixé (1 pulse/tour)
+- [ ] Module relais 5 V : VCC=5 V, GND, IN→GPIO 26 ; contacts sur bobine BT contacteur seulement
+- [ ] Buzzer sur GPIO 25 (transistor si besoin)
 - [ ] Fixation rigide de l’ADXL345 sur le carter
 - [ ] Séparation physique puissance 230 V / commande BT vérifiée
 
@@ -33,6 +35,8 @@
 - [ ] Bannière alerte si seuils dépassés
 - [ ] Alerte visuelle si liaison perdue (> 8 s)
 - [ ] Formulaire Paramètres : validation min < nom < max ; enregistrement OK
+- [ ] Boutons Marche/Arrêt relais opérationnels
+- [ ] Mute buzzer + option auto-stop ALARME
 - [ ] Affichage correct smartphone
 
 ## Mesures

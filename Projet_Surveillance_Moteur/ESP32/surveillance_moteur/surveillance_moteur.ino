@@ -4,6 +4,7 @@
  * =============================================================================
  * Matériel  : ESP32 DevKit V1 (ESP32-WROOM-32)
  * Capteurs  : ADXL345 (vibrations I2C) + capteur Hall (vitesse RPM)
+ * Actionneurs: Relais 5 V (commande contacteur BT) + buzzer d'alarme
  * Cloud     : Firebase Realtime Database
  *
  * Bibliothèques requises (Arduino IDE → Gestionnaire de bibliothèques) :
@@ -46,6 +47,7 @@
 /* Chemins RTDB */
 #define PATH_LIVE        "/moteur/live"
 #define PATH_CONFIG      "/moteur/config"
+#define PATH_COMMAND     "/moteur/command"
 #define PATH_HISTORIQUE  "/moteur/historique"
 
 /* GPIO */
@@ -53,6 +55,16 @@
 #define PIN_SCL          22
 #define PIN_HALL         18   /* entrée interruption — logique 3,3 V */
 #define PIN_LED_STATUS    2
+#define PIN_RELAY        26   /* IN module relais 5 V (optocoupleur) */
+#define PIN_BUZZER       25   /* buzzer actif 3,3/5 V via transistor si besoin */
+
+/*
+ * La plupart des modules relais « Arduino » 5 V sont ACTIVE LOW :
+ * IN = LOW  → bobine excitée (contact NO ferme)
+ * IN = HIGH → relais au repos
+ * Mettre 0 si votre module est active HIGH.
+ */
+#define RELAY_ACTIVE_LOW 1
 
 /* Acquisition vibrations */
 #define SAMPLE_COUNT     64          /* N échantillons pour le RMS */
@@ -68,9 +80,16 @@
 /* Périodes de boucle */
 #define LOOP_SEND_MS     1000        /* envoi Firebase */
 #define LOOP_CONFIG_MS   5000        /* lecture seuils */
+#define LOOP_CMD_MS      1000        /* lecture commandes relais / mute */
 #define LOOP_HISTO_MS    10000       /* historique (éviter surcharge RTDB) */
 #define WIFI_RETRY_MS    10000
 #define STALE_ONLINE_MS  5000
+
+/* Patterns buzzer (non bloquants) */
+#define BUZZ_WARN_ON_MS   200
+#define BUZZ_WARN_OFF_MS  800
+#define BUZZ_ALARM_ON_MS  150
+#define BUZZ_ALARM_OFF_MS 150
 
 /* Gravité pour conversion g → m/s² */
 #define G_TO_MS2         9.80665f
@@ -89,6 +108,7 @@ FirebaseConfig config;
 bool firebaseReady = false;
 unsigned long lastSendMs   = 0;
 unsigned long lastConfigMs = 0;
+unsigned long lastCmdMs    = 0;
 unsigned long lastHistoMs  = 0;
 unsigned long lastWifiTry  = 0;
 
@@ -106,6 +126,16 @@ String motorStatus   = "INCONNU";
 String alertLevel    = "INCONNU";
 String diagnosticMsg = "Initialisation...";
 String anomalyHint   = "";
+
+/* Actionneurs */
+bool relayDesired      = false;  /* consigne depuis Firebase / logique auto */
+bool relayState        = false;  /* état réellement appliqué */
+bool buzzerState       = false;
+bool buzzerMute        = false;
+bool cfg_auto_stop     = true;   /* coupe relais si ALARME */
+bool cfg_buzzer_enable = true;
+unsigned long buzzerPhaseMs = 0;
+bool buzzerPhaseOn = false;
 
 /* Seuils configurables (surchargés depuis Firebase) */
 float cfg_rpm_nominal   = 1500.0f;
@@ -135,9 +165,15 @@ float estimateVelocityRmsMmS(const float *ax, const float *ay, const float *az, 
 void calculateRPM();
 void diagnoseMotor();
 void loadConfigFromFirebase();
+void loadCommandFromFirebase();
+void updateActuators();
+void setRelay(bool on);
+void setBuzzerRaw(bool on);
+void updateBuzzerPattern();
 void sendDataFirebase();
 void pushHistorique();
 void printSerialStatus();
+void ensureCommandDefaults();
 
 /* =============================================================================
  * SETUP
@@ -161,7 +197,9 @@ void setup() {
 
   lastSendMs   = millis();
   lastConfigMs = millis();
+  lastCmdMs    = millis();
   lastHistoMs  = millis();
+  buzzerPhaseMs = millis();
 }
 
 /* =============================================================================
@@ -176,6 +214,13 @@ void loop() {
   diagnoseMotor();
 
   unsigned long now = millis();
+
+  if (firebaseReady && (now - lastCmdMs >= LOOP_CMD_MS)) {
+    lastCmdMs = now;
+    loadCommandFromFirebase();
+  }
+
+  updateActuators();
 
   if (firebaseReady && (now - lastConfigMs >= LOOP_CONFIG_MS)) {
     lastConfigMs = now;
@@ -204,6 +249,13 @@ void initPins() {
   pinMode(PIN_LED_STATUS, OUTPUT);
   digitalWrite(PIN_LED_STATUS, LOW);
   pinMode(PIN_HALL, INPUT_PULLUP);
+
+  pinMode(PIN_RELAY, OUTPUT);
+  pinMode(PIN_BUZZER, OUTPUT);
+  setRelay(false);      /* sécurité : relais ouvert au boot */
+  setBuzzerRaw(false);
+
+  Serial.println(F("[OK] Relais GPIO26 + buzzer GPIO25 initialises (OFF)"));
 }
 
 bool initSensor() {
@@ -304,12 +356,27 @@ bool connectFirebase() {
     json.set("a_rms_normal_ms2", cfg_a_rms_normal);
     json.set("a_rms_alerte_ms2", cfg_a_rms_alerte);
     json.set("a_rms_critique_ms2", cfg_a_rms_critique);
+    json.set("auto_stop_on_alarm", cfg_auto_stop);
+    json.set("buzzer_enabled", cfg_buzzer_enable);
     json.set("note", "Seuils a calibrer selon moteur et norme applicable");
     Firebase.RTDB.setJSON(&fbdo, PATH_CONFIG, &json);
     Serial.println(F("[OK] Config par défaut écrite dans Firebase"));
   }
 
+  ensureCommandDefaults();
+
   return true;
+}
+
+void ensureCommandDefaults() {
+  if (!firebaseReady) return;
+  if (!Firebase.RTDB.getJSON(&fbdo, PATH_COMMAND)) {
+    FirebaseJson json;
+    json.set("relay", false);
+    json.set("buzzer_mute", false);
+    Firebase.RTDB.setJSON(&fbdo, PATH_COMMAND, &json);
+    Serial.println(F("[OK] Commandes par defaut (relay=OFF, mute=OFF)"));
+  }
 }
 
 void handleConnection() {
@@ -577,6 +644,8 @@ void loadConfigFromFirebase() {
     if (json.get(data, "a_rms_normal_ms2") && data.success) cfg_a_rms_normal = data.to<float>();
     if (json.get(data, "a_rms_alerte_ms2") && data.success) cfg_a_rms_alerte = data.to<float>();
     if (json.get(data, "a_rms_critique_ms2") && data.success) cfg_a_rms_critique = data.to<float>();
+    if (json.get(data, "auto_stop_on_alarm") && data.success) cfg_auto_stop = data.to<bool>();
+    if (json.get(data, "buzzer_enabled") && data.success) cfg_buzzer_enable = data.to<bool>();
 
     /* Garde-fous anti mauvaise configuration */
     if (cfg_rpm_min >= cfg_rpm_max) {
@@ -588,6 +657,98 @@ void loadConfigFromFirebase() {
       Serial.println(F("[WARN] Seuils vibration incoherents — conservation des valeurs precedentes si possible"));
     }
   }
+}
+
+void loadCommandFromFirebase() {
+  if (!firebaseReady) return;
+
+  if (Firebase.RTDB.getJSON(&fbdoConfig, PATH_COMMAND)) {
+    FirebaseJson &json = fbdoConfig.jsonObject();
+    FirebaseJsonData data;
+    if (json.get(data, "relay") && data.success) {
+      relayDesired = data.to<bool>();
+    }
+    if (json.get(data, "buzzer_mute") && data.success) {
+      buzzerMute = data.to<bool>();
+    }
+  }
+}
+
+/* =============================================================================
+ * RELAIS 5 V + BUZZER
+ * =============================================================================
+ * Relais : commande UNIQUEMENT une bobine BT / entrée d'un contacteur.
+ * Ne commute jamais le 230 V du moteur directement avec un petit relais module.
+ *
+ * Buzzer : alerte locale
+ *   AVERTISSEMENT → bip lent
+ *   ALARME        → bip rapide
+ */
+void setRelay(bool on) {
+  relayState = on;
+#if RELAY_ACTIVE_LOW
+  digitalWrite(PIN_RELAY, on ? LOW : HIGH);
+#else
+  digitalWrite(PIN_RELAY, on ? HIGH : LOW);
+#endif
+}
+
+void setBuzzerRaw(bool on) {
+  buzzerState = on;
+  digitalWrite(PIN_BUZZER, on ? HIGH : LOW);
+}
+
+void updateBuzzerPattern() {
+  if (!cfg_buzzer_enable || buzzerMute) {
+    setBuzzerRaw(false);
+    return;
+  }
+
+  unsigned long onMs  = 0;
+  unsigned long offMs = 0;
+
+  if (alertLevel == "ALARME" || motorStatus == "ALARME") {
+    onMs = BUZZ_ALARM_ON_MS;
+    offMs = BUZZ_ALARM_OFF_MS;
+  } else if (alertLevel == "AVERTISSEMENT" || motorStatus == "AVERTISSEMENT") {
+    onMs = BUZZ_WARN_ON_MS;
+    offMs = BUZZ_WARN_OFF_MS;
+  } else {
+    setBuzzerRaw(false);
+    buzzerPhaseOn = false;
+    buzzerPhaseMs = millis();
+    return;
+  }
+
+  unsigned long now = millis();
+  unsigned long elapsed = now - buzzerPhaseMs;
+  unsigned long phaseLen = buzzerPhaseOn ? onMs : offMs;
+
+  if (elapsed >= phaseLen) {
+    buzzerPhaseOn = !buzzerPhaseOn;
+    buzzerPhaseMs = now;
+    setBuzzerRaw(buzzerPhaseOn);
+  }
+}
+
+void updateActuators() {
+  /* Arrêt automatique de sécurité sur ALARME */
+  if (cfg_auto_stop && (motorStatus == "ALARME" || alertLevel == "ALARME")) {
+    if (relayDesired || relayState) {
+      relayDesired = false;
+      setRelay(false);
+      if (firebaseReady) {
+        Firebase.RTDB.setBool(&fbdo, (String(PATH_COMMAND) + "/relay").c_str(), false);
+      }
+      Serial.println(F("[SECURITE] ALARME → relais FORCE OFF"));
+    } else {
+      setRelay(false);
+    }
+  } else {
+    setRelay(relayDesired);
+  }
+
+  updateBuzzerPattern();
 }
 
 void sendDataFirebase() {
@@ -608,6 +769,10 @@ void sendDataFirebase() {
   json.set("alert_level", alertLevel);
   json.set("diagnostic", diagnosticMsg);
   json.set("anomaly_hint", anomalyHint);
+  json.set("relay_state", relayState);
+  json.set("buzzer_state", buzzerState);
+  json.set("buzzer_mute", buzzerMute);
+  json.set("auto_stop_on_alarm", cfg_auto_stop);
   json.set("timestamp", (int)(millis() / 1000));
   json.set("online", true);
   json.set("unit_a_rms", "m/s2");
@@ -637,6 +802,7 @@ void pushHistorique() {
   json.set("az", az_g);
   json.set("status", motorStatus);
   json.set("diagnostic", diagnosticMsg);
+  json.set("relay_state", relayState);
 
   String path = String(PATH_HISTORIQUE) + "/" + String(millis());
   if (!Firebase.RTDB.setJSON(&fbdo, path.c_str(), &json)) {
@@ -651,6 +817,11 @@ void printSerialStatus() {
   Serial.printf("A_RMS=%.3f m/s2 | Vib_RMS(est)=%.3f mm/s | RPM=%.1f\n",
                 a_rms_ms2, vibration_rms_mms, rpm);
   Serial.printf("Etat=%s | Alerte=%s\n", motorStatus.c_str(), alertLevel.c_str());
+  Serial.printf("Relais=%s | Buzzer=%s | Mute=%s | AutoStop=%s\n",
+                relayState ? "ON" : "OFF",
+                buzzerState ? "ON" : "OFF",
+                buzzerMute ? "OUI" : "NON",
+                cfg_auto_stop ? "OUI" : "NON");
   Serial.printf("Diagnostic: %s\n", diagnosticMsg.c_str());
   Serial.printf("Hypothese: %s\n", anomalyHint.c_str());
   Serial.println(F("----------------------------"));

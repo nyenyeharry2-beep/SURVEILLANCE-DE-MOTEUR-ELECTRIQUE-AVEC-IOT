@@ -81,6 +81,29 @@
       <p id="anomalyHint" class="diag-hint"></p>
     </section>
 
+    <section class="card card-actuators">
+      <h2>Commande — Relais &amp; Buzzer</h2>
+      <div class="actuator-row">
+        <div>
+          <p class="metric-sub">Relais 5 V (contacteur BT)</p>
+          <p class="actuator-state">État : <strong id="relayState">—</strong></p>
+          <div class="btn-row">
+            <button type="button" id="btnRelayOn" class="btn primary">Marche</button>
+            <button type="button" id="btnRelayOff" class="btn danger">Arrêt</button>
+          </div>
+        </div>
+        <div>
+          <p class="metric-sub">Buzzer local</p>
+          <p class="actuator-state">État : <strong id="buzzerState">—</strong></p>
+          <label class="check-line">
+            <input type="checkbox" id="chkBuzzerMute" />
+            Couper le buzzer (mute)
+          </label>
+        </div>
+      </div>
+      <p class="hint">Le relais ne doit commander que la bobine BT d’un contacteur — jamais le 230 V moteur directement. En ALARME, l’arrêt automatique coupe le relais si l’option est active.</p>
+    </section>
+
     <section class="card">
       <h2>Dernière mesure</h2>
       <p class="metric-main mono" id="lastUpdate">—</p>
@@ -151,6 +174,14 @@
         <label>A_RMS normal (m/s²) <input type="number" id="cfg_a_rms_normal" step="0.1" /></label>
         <label>A_RMS alerte (m/s²) <input type="number" id="cfg_a_rms_alerte" step="0.1" /></label>
         <label>A_RMS critique (m/s²) <input type="number" id="cfg_a_rms_critique" step="0.1" /></label>
+        <label class="check-line span-all">
+          <input type="checkbox" id="cfg_auto_stop_on_alarm" />
+          Arrêt automatique du relais en ALARME
+        </label>
+        <label class="check-line span-all">
+          <input type="checkbox" id="cfg_buzzer_enabled" checked />
+          Buzzer activé
+        </label>
         <div class="form-actions">
           <button type="submit" class="btn primary">Enregistrer dans Firebase</button>
           <p id="configMsg" class="form-msg" aria-live="polite"></p>
