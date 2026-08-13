@@ -1,0 +1,14 @@
+# Secrets Firebase / local
+**/firebase-config.local.js
+**/*firebase*secret*
+**/.env
+**/.env.*
+!.env.example
+
+# Arduino / IDE
+*.hex
+*.elf
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

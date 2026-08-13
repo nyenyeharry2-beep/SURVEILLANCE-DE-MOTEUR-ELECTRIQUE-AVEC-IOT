@@ -1,0 +1,123 @@
+STRUCTURE FIREBASE REALTIME DATABASE
+====================================
+
+moteur/
+├── live/                          # Données temps réel (écrasées ~1 s)
+│   ├── ax                         # Accélération axe X (g) — moyenne fenêtre
+│   ├── ay                         # Accélération axe Y (g)
+│   ├── az                         # Accélération axe Z (g)
+│   ├── a_rms                      # Accélération RMS (m/s²) — GRANDEUR FIABLE
+│   ├── vibration_rms              # Vitesse vibratoire estimée (mm/s)
+│   ├── rpm                        # Vitesse de rotation (tr/min)
+│   ├── rpm_nominal                # Consigne / plaque moteur (tr/min)
+│   ├── status                     # NORMAL | SURVEILLANCE | AVERTISSEMENT | ALARME | ARRET
+│   ├── alert_level                # Niveau d'alerte affiché
+│   ├── diagnostic                 # Message court
+│   ├── anomaly_hint               # Hypothèse de cause (non certifiée)
+│   ├── relay_state                # true = relais collé
+│   ├── buzzer_state               # true = buzzer actif (phase ON)
+│   ├── buzzer_mute                # mute demandé
+│   ├── auto_stop_on_alarm         # miroir config
+│   ├── speed_sensor               # "IR"
+│   ├── controller                 # "Arduino_Uno"
+│   ├── gateway                    # "ESP32"
+│   ├── uno_online                 # true si trames MEAS récentes
+│   ├── timestamp                  # Secondes depuis boot ESP32
+│   ├── online                     # true si Uno joignable
+│   ├── unit_a_rms                 # "m/s2"
+│   ├── unit_vibration_rms         # "mm/s (estime)"
+│   └── note_vibration             # Rappel méthodologique
+│
+├── command/                       # Commandes depuis l'interface Web
+│   ├── relay                      # true = marche demandée
+│   └── buzzer_mute                # true = silence buzzer
+│
+├── config/                        # Seuils éditables depuis l'interface Web
+│   ├── rpm_nominal
+│   ├── rpm_min
+│   ├── rpm_max
+│   ├── vib_normal_mms
+│   ├── vib_alerte_mms
+│   ├── vib_critique_mms
+│   ├── a_rms_normal_ms2
+│   ├── a_rms_alerte_ms2
+│   ├── a_rms_critique_ms2
+│   ├── auto_stop_on_alarm
+│   ├── buzzer_enabled
+│   └── note
+│
+└── historique/                    # Journal (nouvel enfant ~10 s)
+    └── <millis>/
+        ├── timestamp
+        ├── epoch_ms
+        ├── vibration_rms
+        ├── a_rms
+        ├── rpm
+        ├── ax
+        ├── ay
+        ├── az
+        ├── status
+        ├── diagnostic
+        └── relay_state
+
+
+Exemple JSON initial (à coller dans Firebase Console → Realtime Database → Import JSON) :
+
+{
+  "moteur": {
+    "config": {
+      "rpm_nominal": 1500,
+      "rpm_min": 1200,
+      "rpm_max": 1800,
+      "vib_normal_mms": 2.8,
+      "vib_alerte_mms": 4.5,
+      "vib_critique_mms": 7.1,
+      "a_rms_normal_ms2": 1.5,
+      "a_rms_alerte_ms2": 3.0,
+      "a_rms_critique_ms2": 5.0,
+      "auto_stop_on_alarm": true,
+      "buzzer_enabled": true,
+      "note": "Seuils a calibrer selon moteur et norme applicable"
+    },
+    "command": {
+      "relay": false,
+      "buzzer_mute": false
+    },
+    "live": {
+      "ax": 0,
+      "ay": 0,
+      "az": 1,
+      "a_rms": 0,
+      "vibration_rms": 0,
+      "rpm": 0,
+      "rpm_nominal": 1500,
+      "status": "ARRET",
+      "alert_level": "INFO",
+      "diagnostic": "En attente",
+      "anomaly_hint": "",
+      "relay_state": false,
+      "buzzer_state": false,
+      "timestamp": 0,
+      "online": false
+    }
+  }
+}
+
+
+Règles de sécurité (développement / mémoire — À RENFORCER en production) :
+
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+
+Production recommandée (exemple) :
+- Auth anonyme ou email pour le dashboard
+- Secret / token pour l'ESP32
+- Historique avec TTL ou Cloud Function de purge
+
+Limite RTDB pour l'historique :
+- Un nœud par mesure toutes les 10 s ≈ 8640 nœuds/jour.
+- Au-delà de quelques jours, préférer Firestore, BigQuery, InfluxDB ou export CSV.
