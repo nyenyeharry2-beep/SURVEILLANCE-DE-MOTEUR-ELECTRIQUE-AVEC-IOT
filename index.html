@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoltWatch — Surveillance moteur électrique IoT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">VoltWatch</a>
+    <nav>
+      <a href="dashboard.html">Tableau de bord</a>
+      <a class="btn btn-small" href="dashboard.html">Ouvrir</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="hero-copy">
+      <p class="brand-mark">VoltWatch</p>
+      <h1>Surveillance moteur électrique en temps réel</h1>
+      <p class="lede">
+        Suivez température, courant et vibration de vos moteurs industriels via IoT.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="dashboard.html">Voir le tableau de bord</a>
+        <a class="btn btn-ghost" href="#comment">Comment ça marche</a>
+      </div>
+    </div>
+  </main>
+
+  <section id="comment" class="section">
+    <h2>Comment ça marche</h2>
+    <p class="section-text">
+      Capteurs IoT → Firebase (données) → site Netlify (affichage).
+    </p>
+    <ol class="steps">
+      <li>Les capteurs envoient les mesures</li>
+      <li>Firebase stocke et synchronise</li>
+      <li>Le tableau de bord affiche l’état du moteur</li>
+    </ol>
+  </section>
+
+  <footer class="site-footer">
+    <p>VoltWatch — projet IoT de surveillance moteur</p>
+  </footer>
+</body>
+</html>
