@@ -18,13 +18,14 @@ try {
   $stmt = $pdo->prepare(
     'INSERT INTO utilisateurs (nom, email, mot_de_passe) VALUES (?, ?, ?)'
   );
-  $stmt->execute([$nom, $email, password_hash($password, PASSWORD_DEFAULT)]);
+  $stmt->execute([$nom, $email, store_password_hash($password)]);
 } catch (PDOException $e) {
   if ((int) $e->getCode() === 23000) {
-    $existing = $pdo->prepare('SELECT id, nom, email, mot_de_passe FROM utilisateurs WHERE email = ? LIMIT 1');
-    $existing->execute([$email]);
-    $user = $existing->fetch();
-    if ($user && password_verify($password, $user['mot_de_passe'])) {
+    $user = find_user_by_email($pdo, $email);
+    if ($user && (
+      verify_stored_password($password, (string) $user['mot_de_passe'])
+      || ($email === strtolower(APP_EMAIL) && passwords_equal($password, APP_PASSWORD))
+    )) {
       json_ok(['ok' => true, 'user' => sign_in($user)]);
     }
     json_error('Cet e-mail est déjà utilisé. Connectez-vous avec le même mot de passe.');

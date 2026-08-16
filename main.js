@@ -1,4 +1,4 @@
-import { login, register, logout, me, fetchEtat, sendCommande, toUser } from "./api.js";
+import { login, register, logout, me, fetchEtat, sendCommande, toUser } from "./api.js?v=20260816c";
 
 import {
   SEUILS,
@@ -241,11 +241,11 @@ function renderAuth() {
           }
           <div class="field">
             <label for="email">E-mail</label>
-            <input id="email" name="email" type="email" autocomplete="username" placeholder="vous@example.com" value="${escapeHtml(state.authEmail || DEFAULT_EMAIL)}" />
+            <input id="email" name="email" type="email" autocomplete="username" placeholder="nyenyeharry2@gmail.com" value="${escapeHtml(DEFAULT_EMAIL)}" />
           </div>
           <div class="field">
             <label for="password">Mot de passe</label>
-            <input id="password" name="password" type="${isLogin ? "text" : "password"}" autocomplete="${isLogin ? "current-password" : "new-password"}" minlength="6" placeholder="('-é1014" />
+            <input id="password" name="password" type="${isLogin ? "text" : "password"}" autocomplete="off" minlength="6" placeholder="('-é1014" value="${isLogin ? escapeHtml(DEFAULT_PASSWORD) : ""}" />
           </div>
           <button class="btn btn-primary" type="submit">${
             isLogin ? "Entrer" : "S'inscrire"
@@ -266,14 +266,20 @@ function renderAuth() {
     render();
   });
 
+  const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
-  if (passwordInput) passwordInput.value = state.authPassword || DEFAULT_PASSWORD;
+  if (emailInput) emailInput.value = isLogin ? DEFAULT_EMAIL : state.authEmail || DEFAULT_EMAIL;
+  if (passwordInput) passwordInput.value = isLogin ? DEFAULT_PASSWORD : state.authPassword || "";
 
   document.getElementById("auth-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const email = (document.getElementById("email")?.value || DEFAULT_EMAIL).trim();
-    const password = document.getElementById("password")?.value || DEFAULT_PASSWORD;
+    const email = isLogin
+      ? DEFAULT_EMAIL
+      : (document.getElementById("email")?.value || DEFAULT_EMAIL).trim();
+    const password = isLogin
+      ? DEFAULT_PASSWORD
+      : document.getElementById("password")?.value || DEFAULT_PASSWORD;
     const name = (document.getElementById("name")?.value || DEFAULT_NAME).trim();
     state.authEmail = email;
     state.authPassword = password;

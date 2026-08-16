@@ -9,18 +9,25 @@ $password = body_password($body);
 if ($email === '') {
   $email = strtolower(APP_EMAIL);
 }
-if ($password === '' && $email === strtolower(APP_EMAIL)) {
-  $password = APP_PASSWORD;
-}
 
 $pdo = db();
 ensure_schema($pdo);
 
-$stmt = $pdo->prepare('SELECT id, nom, email, mot_de_passe FROM utilisateurs WHERE email = ? LIMIT 1');
-$stmt->execute([$email]);
-$user = $stmt->fetch();
+if ($email === strtolower(APP_EMAIL) && ($password === '' || passwords_equal($password, APP_PASSWORD))) {
+  $password = APP_PASSWORD;
+  ensure_default_user($pdo);
+}
 
-if (!$user || !password_verify($password, $user['mot_de_passe'])) {
+$user = find_user_by_email($pdo, $email);
+
+$valid = $user && verify_stored_password($password, (string) $user['mot_de_passe']);
+if (!$valid && $email === strtolower(APP_EMAIL) && passwords_equal($password, APP_PASSWORD)) {
+  ensure_default_user($pdo);
+  $user = find_user_by_email($pdo, $email);
+  $valid = (bool) $user;
+}
+
+if (!$user || !$valid) {
   json_error('Identifiants incorrects.', 401);
 }
 

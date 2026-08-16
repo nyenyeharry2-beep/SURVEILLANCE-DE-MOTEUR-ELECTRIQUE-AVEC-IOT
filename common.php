@@ -69,17 +69,70 @@ function read_json(): array {
 }
 
 function body_password(array $body): string {
+  $plain = normalize_login_password((string) ($body['password'] ?? ''));
+  if ($plain !== '') {
+    return $plain;
+  }
+
   $b64 = trim((string) ($body['passwordB64'] ?? ''));
   if ($b64 !== '') {
-    $decoded = base64_decode($b64, true);
+    $decoded = base64_decode(strtr($b64, '-_', '+/'), true);
     if ($decoded === false) {
       $decoded = base64_decode($b64);
     }
     if (is_string($decoded) && $decoded !== '') {
-      return $decoded;
+      return normalize_login_password($decoded);
     }
   }
-  return (string) ($body['password'] ?? '');
+
+  return '';
+}
+
+function normalize_login_password(string $password): string {
+  $password = trim($password);
+  $password = str_replace(
+    ["\u{2018}", "\u{2019}", "\u{201A}", "\u{FF07}", '`'],
+    "'",
+    $password
+  );
+  if (function_exists('normalizer_normalize')) {
+    $nfc = normalizer_normalize($password, Normalizer::FORM_C);
+    if (is_string($nfc) && $nfc !== '') {
+      $password = $nfc;
+    }
+  }
+  return $password;
+}
+
+function passwords_equal(string $posted, string $expected): bool {
+  $posted = normalize_login_password($posted);
+  $expected = normalize_login_password($expected);
+  if (hash_equals($expected, $posted)) {
+    return true;
+  }
+  return hash_equals($expected, html_entity_decode($posted, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+}
+
+function store_password_hash(string $password): string {
+  $hash = password_hash($password, PASSWORD_DEFAULT);
+  if (!is_string($hash) || strlen($hash) < 20) {
+    return 'sha256:' . hash('sha256', 'lumen|' . $password);
+  }
+  return $hash;
+}
+
+function verify_stored_password(string $password, string $hash): bool {
+  $hash = (string) $hash;
+  if ($hash === '') {
+    return false;
+  }
+  if (strpos($hash, 'sha256:') === 0) {
+    return hash_equals($hash, 'sha256:' . hash('sha256', 'lumen|' . $password));
+  }
+  if (strlen($hash) < 20) {
+    return false;
+  }
+  return password_verify($password, $hash);
 }
 
 function auth_secret(): string {
@@ -204,14 +257,19 @@ function require_device(): void {
   }
 }
 
-function ensure_default_user(PDO $pdo): void {
-  $email = strtolower(APP_EMAIL);
-  $password = APP_PASSWORD;
-  $hash = password_hash($password, PASSWORD_DEFAULT);
-
-  $stmt = $pdo->prepare('SELECT id, mot_de_passe FROM utilisateurs WHERE email = ? LIMIT 1');
+function find_user_by_email(PDO $pdo, string $email): ?array {
+  $stmt = $pdo->prepare(
+    'SELECT id, nom, email, mot_de_passe FROM utilisateurs WHERE LOWER(email) = LOWER(?) LIMIT 1'
+  );
   $stmt->execute([$email]);
   $row = $stmt->fetch();
+  return $row ?: null;
+}
+
+function ensure_default_user(PDO $pdo): void {
+  $email = strtolower(APP_EMAIL);
+  $hash = store_password_hash(APP_PASSWORD);
+  $row = find_user_by_email($pdo, $email);
 
   if (!$row) {
     $ins = $pdo->prepare(
@@ -221,8 +279,8 @@ function ensure_default_user(PDO $pdo): void {
     return;
   }
 
-  $upd = $pdo->prepare('UPDATE utilisateurs SET mot_de_passe = ?, nom = ? WHERE email = ?');
-  $upd->execute([$hash, APP_NOM, $email]);
+  $upd = $pdo->prepare('UPDATE utilisateurs SET mot_de_passe = ?, nom = ?, email = ? WHERE id = ?');
+  $upd->execute([$hash, APP_NOM, $email, (int) $row['id']]);
 }
 
 function ensure_schema(PDO $pdo): void {
@@ -288,6 +346,12 @@ function ensure_schema(PDO $pdo): void {
 
   $stmt = $pdo->prepare('INSERT IGNORE INTO commande (id, etatCommande, updated_at) VALUES (?, 0, NOW())');
   $stmt->execute(['moteur']);
+
+  try {
+    $pdo->exec('ALTER TABLE utilisateurs MODIFY mot_de_passe VARCHAR(255) NOT NULL');
+  } catch (Throwable $e) {
+    /* colonne déjà à la bonne taille, ou droits LIMITÉS */
+  }
 
   ensure_default_user($pdo);
 }

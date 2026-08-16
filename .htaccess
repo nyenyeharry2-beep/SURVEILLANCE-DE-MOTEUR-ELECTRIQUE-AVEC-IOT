@@ -6,7 +6,8 @@ Options -Indexes
   AddType text/css .css
 </IfModule>
 
-DirectoryIndex index.html
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .js .html .css .php
 
 <Files "config.php">
   <IfModule mod_authz_core.c>

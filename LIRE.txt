@@ -3,7 +3,10 @@ LUMEN — 3 etapes
 1. File Manager : ouvrez le dossier htdocs
 2. Upload & Unzip : envoyez les fichiers (ou LUMEN.zip)
 3. Ouvrez : http://VOTRE-DOMAINE/install.php
-   (bouton Visit Website dans InfinityFree, puis /install.php)
+   puis http://VOTRE-DOMAINE/  (rafraîchir avec Ctrl+F5)
+
+Si « Identifiants incorrects » apparaît, renvoyez login.php, common.php,
+config.php, api.js, main.js et index.html, puis relancez /install.php.
 
 Compte tableau de bord (page web) :
   e-mail     : nyenyeharry2@gmail.com

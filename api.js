@@ -46,8 +46,10 @@ function authBody(fields) {
 export function login(email, password) {
   return request("login.php", {
     method: "POST",
-    body: authBody({
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify({
       email,
+      password,
       passwordB64: passwordB64(password),
     }),
   });
@@ -56,9 +58,11 @@ export function login(email, password) {
 export function register(name, email, password) {
   return request("register.php", {
     method: "POST",
-    body: authBody({
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify({
       name,
       email,
+      password,
       passwordB64: passwordB64(password),
     }),
   });
