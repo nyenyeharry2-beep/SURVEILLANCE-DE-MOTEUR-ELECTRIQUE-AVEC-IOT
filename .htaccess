@@ -1,0 +1,24 @@
+# Lumen — InfinityFree
+Options -Indexes
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+</IfModule>
+
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .js .html .css .php
+
+<Files "config.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</Files>
+
+<Files "common.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</Files>
+
+RedirectMatch 404 /\.sessions
