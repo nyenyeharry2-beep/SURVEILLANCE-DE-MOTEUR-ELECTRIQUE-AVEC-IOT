@@ -17,5 +17,5 @@ define('MOTEUR_ID', 'moteur_01');
 
 /** Compte tableau de bord (créé / réparé automatiquement). */
 define('APP_EMAIL', 'nyenyeharry2@gmail.com');
-define('APP_PASSWORD', "('-é1014");
+define('APP_PASSWORD', '(' . "'" . "-\xC3\xA91014");
 define('APP_NOM', 'Harry Nyenye');

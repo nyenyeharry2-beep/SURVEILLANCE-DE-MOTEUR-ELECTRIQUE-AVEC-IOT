@@ -6,8 +6,11 @@ $body = read_json();
 $email = strtolower(trim((string) ($body['email'] ?? '')));
 $password = body_password($body);
 
-if ($email === '' || $password === '') {
-  json_error('E-mail et mot de passe requis.');
+if ($email === '') {
+  $email = strtolower(APP_EMAIL);
+}
+if ($password === '') {
+  $password = APP_PASSWORD;
 }
 
 $pdo = db();

@@ -5,8 +5,9 @@ LUMEN — 3 etapes
 3. Ouvrez : http://VOTRE-DOMAINE/install.php
    (bouton Visit Website dans InfinityFree, puis /install.php)
 
-Compte tableau de bord :
-  e-mail    : nyenyeharry2@gmail.com
-  mot de passe : celui de config.php (APP_PASSWORD), commence par (
+Compte tableau de bord (connexion automatique) :
+  e-mail     : nyenyeharry2@gmail.com
+  mot de passe : ('-é1014
 
-Apres install.php, ouvrez http://VOTRE-DOMAINE/ et cliquez Entrer.
+Apres install.php, ouvrez http://VOTRE-DOMAINE/
+La page se connecte toute seule avec ces identifiants.

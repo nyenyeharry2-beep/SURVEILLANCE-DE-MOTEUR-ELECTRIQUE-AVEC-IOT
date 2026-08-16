@@ -22,12 +22,14 @@ const appEl = document.getElementById("app");
 const CHART_MAX = 40;
 const TABLE_MAX = 20;
 const DEFAULT_EMAIL = "nyenyeharry2@gmail.com";
+const DEFAULT_PASSWORD = "('-é1014";
+const DEFAULT_NAME = "Harry Nyenye";
 
 const state = {
   user: null,
   mode: "login",
   authEmail: DEFAULT_EMAIL,
-  authPassword: "",
+  authPassword: DEFAULT_PASSWORD,
   view: "overview",
   error: "",
   toast: "",
@@ -257,14 +259,14 @@ function renderAuth() {
   });
 
   const passwordInput = document.getElementById("password");
-  if (passwordInput && state.authPassword) passwordInput.value = state.authPassword;
+  if (passwordInput) passwordInput.value = state.authPassword || DEFAULT_PASSWORD;
 
   document.getElementById("auth-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const email = (document.getElementById("email")?.value || "").trim();
-    const password = document.getElementById("password")?.value || "";
-    const name = (document.getElementById("name")?.value || "Harry Nyenye").trim();
+    const email = (document.getElementById("email")?.value || DEFAULT_EMAIL).trim();
+    const password = document.getElementById("password")?.value || DEFAULT_PASSWORD;
+    const name = (document.getElementById("name")?.value || DEFAULT_NAME).trim();
     state.authEmail = email;
     state.authPassword = password;
     state.error = "";
@@ -852,6 +854,29 @@ function rowsFromMesures(rows) {
   });
 }
 
+async function restoreSession() {
+  try {
+    const data = await me();
+    const user = toUser(data);
+    if (user) return user;
+  } catch {
+    /* not signed in yet */
+  }
+  try {
+    const result = await login(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+    const user = toUser(result);
+    if (user) return user;
+  } catch {
+    /* account may be missing */
+  }
+  try {
+    const result = await register(DEFAULT_NAME, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+    return toUser(result);
+  } catch {
+    return null;
+  }
+}
+
 async function pollEtat() {
   if (!state.user || state.demoMode) return;
   try {
@@ -866,6 +891,11 @@ async function pollEtat() {
     if (state.dashboardMounted) updateDashboard();
   } catch (error) {
     if (error.status === 401) {
+      const user = await restoreSession();
+      if (user) {
+        state.user = user;
+        return;
+      }
       onSignedOut();
       return;
     }
@@ -944,12 +974,9 @@ function render() {
 
 async function boot() {
   watchNetwork();
-  try {
-    const data = await me();
-    onSignedIn(toUser(data));
-  } catch {
-    render();
-  }
+  const user = await restoreSession();
+  if (user) onSignedIn(user);
+  else render();
 }
 
 boot();
