@@ -164,6 +164,25 @@ a {
   line-height: 1.5;
 }
 
+.cred-box {
+  background: var(--gold-soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cred-box p {
+  margin: 0;
+}
+
+.cred-box code {
+  font-size: 13px;
+  word-break: break-all;
+}
+
 label {
   display: block;
   font-size: 12px;

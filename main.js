@@ -22,7 +22,7 @@ const appEl = document.getElementById("app");
 const CHART_MAX = 40;
 const TABLE_MAX = 20;
 const DEFAULT_EMAIL = "nyenyeharry2@gmail.com";
-const DEFAULT_PASSWORD = "('-é1014";
+const DEFAULT_PASSWORD = "(\u0027-\u00e91014";
 const DEFAULT_NAME = "Harry Nyenye";
 
 const state = {
@@ -219,9 +219,17 @@ function renderAuth() {
           <h2>${isLogin ? "Connexion" : "Créer un compte"}</h2>
           <p class="lede">${
             isLogin
-              ? "Accédez au tableau de bord de surveillance."
+              ? "Utilisez le compte ci-dessous pour ouvrir le tableau de bord."
               : "Un e-mail et un mot de passe suffisent. La connexion est automatique après inscription."
           }</p>
+          ${
+            isLogin
+              ? `<div class="cred-box">
+                  <p>E-mail : <code>${escapeHtml(DEFAULT_EMAIL)}</code></p>
+                  <p>Mot de passe : <code>${escapeHtml(DEFAULT_PASSWORD)}</code></p>
+                </div>`
+              : ""
+          }
           ${state.error ? `<div class="alert">${escapeHtml(state.error)}</div>` : ""}
           ${
             isLogin
@@ -237,7 +245,7 @@ function renderAuth() {
           </div>
           <div class="field">
             <label for="password">Mot de passe</label>
-            <input id="password" name="password" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" minlength="6" placeholder="••••••••" />
+            <input id="password" name="password" type="${isLogin ? "text" : "password"}" autocomplete="${isLogin ? "current-password" : "new-password"}" minlength="6" placeholder="('-é1014" />
           </div>
           <button class="btn btn-primary" type="submit">${
             isLogin ? "Entrer" : "S'inscrire"

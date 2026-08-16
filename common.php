@@ -221,10 +221,8 @@ function ensure_default_user(PDO $pdo): void {
     return;
   }
 
-  if (!password_verify($password, (string) $row['mot_de_passe'])) {
-    $upd = $pdo->prepare('UPDATE utilisateurs SET mot_de_passe = ?, nom = ? WHERE email = ?');
-    $upd->execute([$hash, APP_NOM, $email]);
-  }
+  $upd = $pdo->prepare('UPDATE utilisateurs SET mot_de_passe = ?, nom = ? WHERE email = ?');
+  $upd->execute([$hash, APP_NOM, $email]);
 }
 
 function ensure_schema(PDO $pdo): void {

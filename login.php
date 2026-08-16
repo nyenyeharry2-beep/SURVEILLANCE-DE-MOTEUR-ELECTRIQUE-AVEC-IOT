@@ -9,7 +9,7 @@ $password = body_password($body);
 if ($email === '') {
   $email = strtolower(APP_EMAIL);
 }
-if ($password === '') {
+if ($password === '' && $email === strtolower(APP_EMAIL)) {
   $password = APP_PASSWORD;
 }
 
