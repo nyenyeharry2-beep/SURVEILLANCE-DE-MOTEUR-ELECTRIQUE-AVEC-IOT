@@ -1,8 +1,21 @@
 <?php
 require_once __DIR__ . '/common.php';
 
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-  json_error('POST requis.', 405);
+$method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+
+if ($method === 'OPTIONS') {
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+  header('Access-Control-Allow-Headers: Content-Type, X-Device-Key, User-Agent');
+  json_ok(['ok' => true]);
+}
+
+if ($method !== 'POST') {
+  json_ok([
+    'ok' => true,
+    'endpoint' => 'mesure',
+    'hint' => 'POST JSON vers /mesure.php (clé X-Device-Key). Un GET ici confirme que le fichier existe.',
+  ]);
 }
 
 require_device();
@@ -29,6 +42,15 @@ try {
      WHERE id=?'
   );
   $upd->execute([$x, $y, $z, $x, $y, $z, $rpm, $rms, 'mm/s', $defaut, $etat, MOTEUR_ID]);
+
+  if ($upd->rowCount() === 0) {
+    $insLive = $pdo->prepare(
+      'INSERT INTO moteur_live
+        (id, vibrationX, vibrationY, vibrationZ, x, y, z, rpm, rmsMmS, uniteRms, defautCapteur, etatMoteur, timestamp)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())'
+    );
+    $insLive->execute([MOTEUR_ID, $x, $y, $z, $x, $y, $z, $rpm, $rms, 'mm/s', $defaut, $etat]);
+  }
 
   if ($histo) {
     $ins = $pdo->prepare(

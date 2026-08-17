@@ -1,4 +1,4 @@
-# Lumen — InfinityFree
+# Lumen — InfinityFree (Apache derrière nginx)
 Options -Indexes
 
 <IfModule mod_mime.c>
@@ -8,6 +8,33 @@ Options -Indexes
 
 AddDefaultCharset UTF-8
 AddCharset UTF-8 .js .html .css .php
+
+# Fichier « mesure » sans extension (POST /mesure) exécuté comme PHP
+<Files "mesure">
+  <IfModule mod_mime.c>
+    AddType application/x-httpd-php mesure
+  </IfModule>
+  <IfModule mod_php.c>
+    SetHandler application/x-httpd-php
+  </IfModule>
+  <IfModule mod_php7.c>
+    SetHandler application/x-httpd-php
+  </IfModule>
+  <IfModule lsapi_module>
+    SetHandler application/x-httpd-php
+  </IfModule>
+</Files>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ESP32 : POST /mesure  →  mesure.php (rewrite interne, pas de 301)
+  RewriteRule ^mesure/?$ mesure.php [L,QSA]
+  RewriteRule ^commande/?$ commande.php [L,QSA]
+  RewriteRule ^etat/?$ etat.php [L,QSA]
+  RewriteRule ^ping/?$ ping.php [L,QSA]
+</IfModule>
 
 <Files "config.php">
   <IfModule mod_authz_core.c>

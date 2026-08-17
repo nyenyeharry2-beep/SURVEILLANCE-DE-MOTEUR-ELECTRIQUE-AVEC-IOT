@@ -20,6 +20,7 @@ try {
   echo '<p>E-mail : <code>' . htmlspecialchars(APP_EMAIL, ENT_QUOTES, 'UTF-8') . '</code></p>';
   echo '<p>Mot de passe : <code>' . htmlspecialchars(APP_PASSWORD, ENT_QUOTES, 'UTF-8') . '</code></p>';
   echo '<p><a href="index.html">Ouvrir le tableau de bord</a></p>';
+  echo '<p>ESP32 — URL des mesures : <code>mesure.php</code> (POST JSON + en-tête X-Device-Key). Test : <a href="ping.php">ping.php</a> · <a href="mesure.php">mesure.php</a></p>';
   echo '</body></html>';
 } catch (Throwable $e) {
   http_response_code(500);
