@@ -1,0 +1,24 @@
+LUMEN — 3 etapes
+
+1. File Manager : ouvrez le dossier htdocs
+2. Upload & Unzip : envoyez TOUS les fichiers, y compris mesure.php
+3. Ouvrez : http://VOTRE-DOMAINE/install.php
+   puis http://VOTRE-DOMAINE/  (rafraîchir avec Ctrl+F5)
+   Test API : http://VOTRE-DOMAINE/ping.php
+              http://VOTRE-DOMAINE/mesure.php
+
+Si « Identifiants incorrects » apparaît, renvoyez login.php, common.php,
+config.php, api.js, main.js et index.html, puis relancez /install.php.
+
+Si l’ESP32 affiche « Erreur POST mesure HTTP 404 » + page nginx :
+  - l’URL doit être http://VOTRE-DOMAINE/mesure.php (avec .php)
+  - pas un site Netlify (*.netlify.app)
+  - mesure.php doit être dans htdocs (même dossier que index.html)
+  - utilisez le sketch Lumen_ESP32/Lumen_ESP32.ino
+
+Compte tableau de bord (page web) :
+  e-mail     : nyenyeharry2@gmail.com
+  mot de passe : ('-é1014
+
+Apres install.php, ouvrez http://VOTRE-DOMAINE/
+La page de connexion affiche ces identifiants et ouvre le tableau de bord.
