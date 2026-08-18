@@ -1,0 +1,18 @@
+Bibliothèques Arduino IDE — carte Arduino Uno
+=============================================
+
+Sketch : Arduino_Uno/surveillance_moteur_uno/surveillance_moteur_uno.ino
+
+1) Nom   : Adafruit ADXL345
+   Où    : Croquis → Inclure une bibliothèque → Gérer les bibliothèques
+   Pourquoi : lecture Ax Ay Az (vibrations)
+
+2) Nom   : Adafruit Unified Sensor
+   Pourquoi : dépendance Adafruit ADXL345
+
+3) SoftwareSerial
+   Fourni avec le core Arduino AVR — liaison UART vers ESP32 (D3/D4)
+
+Carte à sélectionner : Arduino Uno
+Vitesse moniteur USB : 115200 (debug)
+Vitesse lien ESP32   : 9600 (SoftwareSerial D3 RX / D4 TX)

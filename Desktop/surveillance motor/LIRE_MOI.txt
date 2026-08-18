@@ -1,0 +1,29 @@
+SURVEILLANCE MOTEUR — tout est dans CE dossier
+==============================================
+
+Arduino, ESP32, Firebase, site web, Lumen PHP : tout est ici.
+
+Arduino_Uno/          sketch Uno (capteurs, relais, buzzer)
+ESP32/                passerelle Wi-Fi → Firebase
+Lumen_ESP32/          sketch ESP32 → site PHP (mesure.php)
+Firebase/             base de données + règles
+Web/                  interface web Firebase
+Site_VoltWatch/       site Netlify (mode démo)
+Docs/                 câblage, guide, équations
+*.php / index.html    site Lumen (InfinityFree)
+archives/             anciennes archives zip
+
+Site PHP (InfinityFree)
+-----------------------
+1. Envoie TOUS les fichiers .php, .js, .css, .htaccess dans htdocs
+2. Ouvre http://VOTRE-DOMAINE/install.php
+3. Compte : nyenyeharry2@gmail.com
+   Mot de passe : voir LIRE.txt et config.php
+
+Firebase + Arduino
+------------------
+Lis Docs/GUIDE_COMPLET.md et Docs/CABLAGE.md
+
+Site Netlify
+------------
+Lis Site_VoltWatch/README.md
