@@ -1,0 +1,44 @@
+JOYCE 1 — INFINITYFREE (File Manager → htdocs)
+==============================================
+
+ÉTAPES
+------
+1. Ouvrez le File Manager InfinityFree → dossier htdocs
+2. Sélectionnez TOUS les fichiers de ce dossier « joyce 1 »
+3. Téléversez-les (Upload) — même niveau que index.html
+4. Ouvrez dans le navigateur :
+   http://otornyenye.rf.gd/install.php
+   puis http://otornyenye.rf.gd/
+5. Test rapide :
+   http://otornyenye.rf.gd/ping.php        → doit afficher {"ok":true,...}
+   http://otornyenye.rf.gd/mesure.php      → doit afficher {"ok":true,...}
+
+FICHIER IMPORTANT : config.php
+------------------------------
+Ouvrez config.php dans le File Manager et vérifiez :
+
+  DB_PASS          → mot de passe MySQL InfinityFree
+  DEVICE_KEY       → même clé que dans Lumen_ESP32.ino
+  FIREBASE_DB_URL  → URL Realtime Database (pour le tableau de bord Firebase)
+  FIREBASE_AUTH    → secret legacy Firebase
+
+Exemple Firebase (à coller dans config.php) :
+  define('FIREBASE_DB_URL', 'https://VOTRE-PROJET-default-rtdb.europe-west1.firebasedatabase.app');
+  define('FIREBASE_AUTH', 'VOTRE_SECRET_ICI');
+
+Sans FIREBASE_DB_URL, le site PHP Lumen fonctionne quand même.
+Le dossier « joyce 2 » (Firebase) restera vide tant que ces 2 lignes ne sont pas remplies.
+
+ESP32 (Lumen_ESP32.ino)
+-----------------------
+  SERVER_HOST = "otornyenye.rf.gd"
+  POST vers   = http://otornyenye.rf.gd/mesure.php
+  DEVICE_KEY  = lumen-esp32-nyenye-7f3a9c
+
+Compte tableau de bord web :
+  e-mail       : nyenyeharry2@gmail.com
+  mot de passe : ('-é1014
+
+Si erreur 404 nginx sur mesure :
+  → mesure.php doit être dans htdocs (ce dossier joyce 1)
+  → pas sur Netlify (*.netlify.app)
