@@ -1,22 +1,24 @@
 JOYCE 1 — INFINITYFREE (File Manager → htdocs)
 ==============================================
 
-Tout le site tourne sur InfinityFree (otornyenye.rf.gd). Pas de Netlify.
+Pas de GitHub. Pas de Netlify.
+Téléversez ces fichiers avec le File Manager InfinityFree uniquement.
 
 ÉTAPES — JOYCE 1 (racine htdocs)
 --------------------------------
-1. File Manager → dossier htdocs
-2. Téléversez TOUS les fichiers de « joyce 1 » à la racine de htdocs
-3. Ouvrez : http://otornyenye.rf.gd/install.php
-4. Puis : http://otornyenye.rf.gd/
-5. Tests :
+1. InfinityFree → File Manager → htdocs
+2. Upload joyce 1.zip → Extract (ou téléversez fichier par fichier)
+3. Les fichiers doivent être à la racine de htdocs (pas dans un sous-dossier)
+4. Ouvrez : http://otornyenye.rf.gd/install.php
+5. Puis : http://otornyenye.rf.gd/
+6. Tests :
    http://otornyenye.rf.gd/ping.php
    http://otornyenye.rf.gd/mesure.php
 
-ÉTAPES — JOYCE 2 (sous-dossier firebase)
-----------------------------------------
+ÉTAPES — JOYCE 2 (dossier firebase)
+-----------------------------------
 1. Dans htdocs, créez le dossier : firebase
-2. Téléversez TOUS les fichiers de « joyce 2 » dans htdocs/firebase/
+2. Upload joyce 2.zip dans firebase → Extract
 3. Ouvrez : http://otornyenye.rf.gd/firebase/
 
 Deux tableaux de bord :
@@ -25,24 +27,18 @@ Deux tableaux de bord :
 
 FICHIER IMPORTANT : config.php (racine htdocs)
 ----------------------------------------------
+Éditez dans File Manager :
   DB_PASS          → mot de passe MySQL InfinityFree
-  DEVICE_KEY       → lumen-esp32-nyenye-7f3a9c (identique à l’ESP32)
+  DEVICE_KEY       → lumen-esp32-nyenye-7f3a9c
   FIREBASE_DB_URL  → URL Realtime Database
   FIREBASE_AUTH    → secret legacy Firebase
 
-Exemple :
-  define('FIREBASE_DB_URL', 'https://VOTRE-PROJET-default-rtdb.europe-west1.firebasedatabase.app');
-  define('FIREBASE_AUTH', 'VOTRE_SECRET_ICI');
-
-Sans FIREBASE_DB_URL, le site Lumen fonctionne mais /firebase/ restera vide.
-
-ESP32 (Lumen_ESP32.ino)
------------------------
+ESP32 :
   SERVER_HOST = "otornyenye.rf.gd"
-  URL POST    = http://otornyenye.rf.gd/mesure.php
+  POST → http://otornyenye.rf.gd/mesure.php
 
 Compte Lumen :
   e-mail       : nyenyeharry2@gmail.com
   mot de passe : ('-é1014
 
-Voir aussi LIRE.txt dans le dossier « joyce 2 » pour firebase-config.js.
+Guide complet : voir INSTALLATION.txt (fourni avec les zip)

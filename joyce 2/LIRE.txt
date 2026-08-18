@@ -1,63 +1,43 @@
 JOYCE 2 — TABLEAU DE BORD FIREBASE (InfinityFree uniquement)
 =============================================================
 
+Pas de GitHub. Pas de Netlify.
+Téléversez avec le File Manager InfinityFree dans htdocs/firebase/
+
 Où téléverser
 -------------
-1. File Manager InfinityFree → htdocs
-2. Créez un dossier : firebase
-3. Téléversez TOUS les fichiers de « joyce 2 » DANS ce dossier firebase
+1. File Manager → htdocs → créez le dossier firebase
+2. Entrez dans firebase
+3. Upload joyce 2.zip → Extract (ou fichier par fichier)
+4. URL : http://otornyenye.rf.gd/firebase/
 
-Structure finale sur le serveur :
+Structure sur le serveur :
   htdocs/
-    index.html          ← joyce 1 (tableau de bord Lumen PHP)
-    mesure.php          ← joyce 1
-    config.php          ← joyce 1
-    ...
-    firebase/           ← joyce 2
-      index.html
-      app.js
-      style.css
-      firebase-config.js
-      seed_initial.json
-      database.rules.json
-
-URL du tableau de bord Firebase :
-  http://otornyenye.rf.gd/firebase/
+    index.html, mesure.php, config.php ...  ← joyce 1
+    firebase/
+      index.html, app.js, firebase-config.js ...  ← joyce 2
 
 ÉTAPE 1 — Firebase Console (console.firebase.google.com)
 --------------------------------------------------------
-1. Créer / ouvrir le projet Firebase
-2. Realtime Database → Créer → mode test
-3. Données → ⋮ → Importer JSON → seed_initial.json (fichier de ce dossier)
-4. Règles → coller le contenu de database.rules.json → Publier
-5. Paramètres projet → Ajouter app Web → copier apiKey, databaseURL, etc.
+1. Realtime Database → Créer (mode test)
+2. Données → Importer → seed_initial.json (ce dossier)
+3. Règles → coller database.rules.json → Publier
+4. Paramètres → App Web → copier apiKey, databaseURL, etc.
 
-ÉTAPE 2 — firebase-config.js (OBLIGATOIRE)
-------------------------------------------
-Éditez firebase-config.js dans File Manager (dossier htdocs/firebase/) :
+ÉTAPE 2 — firebase-config.js
+----------------------------
+File Manager → htdocs/firebase/firebase-config.js → Edit
+Remplacez TOUS les VOTRE_… par vos clés Firebase.
 
-  databaseURL: "https://VOTRE-PROJET-default-rtdb.europe-west1.firebasedatabase.app"
+ÉTAPE 3 — config.php (racine htdocs, joyce 1)
+----------------------------------------------
+  define('FIREBASE_DB_URL', 'https://...firebasedatabase.app');
+  define('FIREBASE_AUTH', 'VOTRE_SECRET');
 
-Remplacez TOUS les VOTRE_… par vos vraies valeurs Firebase.
+L’ESP32 → mesure.php → MySQL + copie Firebase moteur/live.
 
-ÉTAPE 3 — Lien avec joyce 1 (config.php)
-------------------------------------------
-Dans htdocs/config.php (racine, pas dans firebase/) :
+Vérification :
+  http://otornyenye.rf.gd/firebase/
+  Firebase Console → moteur/live (valeurs qui changent)
 
-  define('FIREBASE_DB_URL', 'https://VOTRE-PROJET-default-rtdb.europe-west1.firebasedatabase.app');
-  define('FIREBASE_AUTH', 'VOTRE_SECRET_LEGACY');
-
-Même URL que databaseURL dans firebase-config.js.
-L’ESP32 envoie vers mesure.php → MySQL + copie vers Firebase moteur/live.
-
-ÉTAPE 4 — Vérification
-----------------------
-1. http://otornyenye.rf.gd/firebase/  → page tableau de bord
-2. Firebase Console → moteur/live → valeurs qui changent
-3. ESP32 allumé → mesure.php reçoit les POST
-
-Deux tableaux de bord sur InfinityFree :
-  http://otornyenye.rf.gd/           → Lumen (PHP, login)
-  http://otornyenye.rf.gd/firebase/  → Firebase (temps réel, graphiques)
-
-Pas de Netlify : tout reste sur otornyenye.rf.gd
+Guide complet : INSTALLATION.txt
