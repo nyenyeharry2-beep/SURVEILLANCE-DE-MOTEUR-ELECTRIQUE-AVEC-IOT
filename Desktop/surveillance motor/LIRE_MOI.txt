@@ -1,0 +1,33 @@
+SURVEILLANCE MOTEUR — tout le projet est ici
+=============================================
+
+Ce dossier contient TOUT le travail du système de surveillance
+de moteur électrique avec IoT.
+
+Comment le mettre sur TON bureau (Windows)
+------------------------------------------
+1. Télécharge l’archive :
+   Desktop/surveillance-motor.zip  (à la racine GitHub, dossier Desktop)
+2. Clic droit → Extraire tout…
+3. Copie le dossier « surveillance motor » sur le Bureau
+   (Bureau = C:\Users\TON-NOM\Desktop)
+
+Contenu
+-------
+1) Projet_Surveillance_Moteur/
+   Arduino Uno + ESP32 + Firebase + interface Web + docs (câblage, guide)
+
+2) Site_VoltWatch/
+   Site web prêt pour Netlify + Firebase (mode démo inclus)
+
+3) Lumen/
+   Site PHP (InfinityFree) + sketch ESP32 qui envoie les mesures
+   Compte web : nyenyeharry2@gmail.com
+   Mot de passe : voir Lumen/LIRE.txt et Lumen/config.php
+
+Par où commencer
+----------------
+- Matériel / câblage : Projet_Surveillance_Moteur/Docs/GUIDE_COMPLET.md
+- Firebase :            Projet_Surveillance_Moteur/Docs/SETUP_FIREBASE.md
+- Site Netlify :        Site_VoltWatch/README.md
+- Hébergement PHP :     Lumen/LIRE.txt
