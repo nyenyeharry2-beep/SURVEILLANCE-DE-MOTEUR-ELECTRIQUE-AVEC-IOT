@@ -1,0 +1,21 @@
+Bibliothèques — Arduino Uno (surveillance_moteur_uno.ino)
+=========================================================
+
+1) Adafruit ADXL345          — Gestionnaire de bibliothèques
+2) Adafruit Unified Sensor   — dépendance
+
+Carte : Arduino Uno
+Port  : COMx / ttyUSBx
+Aucun Wi-Fi sur l'Uno — liaison série vers ESP32 (SoftwareSerial D3/D4 @ 9600)
+
+Bibliothèques — ESP32 (passerelle_firebase.ino)
+===============================================
+
+1) Firebase ESP Client (Mobizt)
+2) WiFi (core ESP32)
+
+Carte : ESP32 Dev Module
+Serial2 : RX=16 TX=17 vers l'Arduino Uno
+
+Core ESP32 :
+https://espressif.github.io/arduino-esp32/package_esp32_index.json
