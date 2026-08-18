@@ -1,0 +1,16 @@
+FICHIERS A TELEVERSER SUR INFINITYFREE
+======================================
+
+Sur ce Bureau (dossier Desktop) vous trouvez :
+
+  joyce1.zip          → File Manager → htdocs (racine) → Extract
+  joyce2.zip          → File Manager → htdocs/firebase/ → Extract
+  LUMEN-INSTALLATION.zip  → contient joyce1 + joyce2 + guide
+  INSTALLATION.txt    → guide etape par etape
+
+Apres upload :
+  http://otornyenye.rf.gd/install.php
+  http://otornyenye.rf.gd/
+  http://otornyenye.rf.gd/firebase/
+
+Pas de GitHub. InfinityFree File Manager seulement.

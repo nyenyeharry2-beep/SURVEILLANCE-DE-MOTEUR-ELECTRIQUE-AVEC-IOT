@@ -1,0 +1,18 @@
+FICHIERS ZIP — emplacement
+==========================
+
+Les zip sont ici (dossier du projet) :
+
+  Desktop/joyce1.zip
+  Desktop/joyce2.zip
+  Desktop/LUMEN-INSTALLATION.zip   (tout en un)
+  Desktop/INSTALLATION.txt
+
+Aussi a la racine du projet :
+  joyce1.zip
+  joyce2.zip
+
+Dans Cursor : panneau fichiers a gauche → ouvrir Desktop → clic droit
+sur joyce1.zip → Download / Telecharger pour les copier sur votre PC.
+
+Ensuite : InfinityFree → File Manager → Upload → Extract.
