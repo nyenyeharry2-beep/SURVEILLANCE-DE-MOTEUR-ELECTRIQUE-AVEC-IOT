@@ -14,6 +14,7 @@ if ($method !== 'POST') {
   json_ok([
     'ok' => true,
     'endpoint' => 'mesure',
+    'firebase' => firebase_configured(),
     'hint' => 'POST JSON vers /mesure.php (clé X-Device-Key). Un GET ici confirme que le fichier existe.',
   ]);
 }
@@ -67,4 +68,9 @@ try {
   json_error($e->getMessage(), 500);
 }
 
-json_ok(['ok' => true]);
+firebase_sync_live_from_lumen($x, $y, $z, $rpm, $rms, $etat, (bool) $defaut);
+if ($histo) {
+  firebase_sync_historique_from_lumen($x, $y, $z, $rpm, $rms, $etat);
+}
+
+json_ok(['ok' => true, 'firebase' => firebase_configured()]);

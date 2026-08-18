@@ -9,6 +9,8 @@ Options -Indexes
 AddDefaultCharset UTF-8
 AddCharset UTF-8 .js .html .css .php
 
+DirectoryIndex index.html
+
 # Fichier « mesure » sans extension (POST /mesure) exécuté comme PHP
 <Files "mesure">
   <IfModule mod_mime.c>

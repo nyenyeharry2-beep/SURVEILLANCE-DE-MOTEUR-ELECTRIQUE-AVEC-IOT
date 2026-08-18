@@ -15,7 +15,15 @@ define('DEVICE_KEY', 'lumen-esp32-nyenye-7f3a9c');
 
 define('MOTEUR_ID', 'moteur_01');
 
-/** Compte tableau de bord — mot de passe web : ('-é1014 */
+/** Compte tableau de bord (créé / réparé automatiquement). */
 define('APP_EMAIL', 'nyenyeharry2@gmail.com');
-define('APP_PASSWORD', "(\x27-\xC3\xA91014");
+define('APP_PASSWORD', '(' . "'" . "-\xC3\xA91014");
 define('APP_NOM', 'Harry Nyenye');
+
+/**
+ * Firebase Realtime Database (optionnel) — miroir pour Web/firebase-config.js
+ * Collez l’URL RTDB et le secret legacy (Paramètres Firebase → Comptes de service).
+ * Laissez vide si vous n’utilisez que le tableau de bord PHP Lumen.
+ */
+define('FIREBASE_DB_URL', '');
+define('FIREBASE_AUTH', '');

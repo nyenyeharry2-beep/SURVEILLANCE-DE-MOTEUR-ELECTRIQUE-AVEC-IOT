@@ -350,8 +350,110 @@ function ensure_schema(PDO $pdo): void {
   try {
     $pdo->exec('ALTER TABLE utilisateurs MODIFY mot_de_passe VARCHAR(255) NOT NULL');
   } catch (Throwable $e) {
-    /* colonne déjà à la bonne taille, ou droits LIMITÉS */
+    /* colonne déjà à la bonne taille, ou droits limités */
   }
 
   ensure_default_user($pdo);
+}
+
+/* ——— Miroir Firebase (tableau de bord Web/) ——— */
+
+function firebase_configured(): bool {
+  return defined('FIREBASE_DB_URL')
+    && FIREBASE_DB_URL !== ''
+    && defined('FIREBASE_AUTH')
+    && FIREBASE_AUTH !== ''
+    && strpos(FIREBASE_DB_URL, 'VOTRE_PROJET') === false;
+}
+
+function map_lumen_etat_to_status(string $etat): string {
+  $e = mb_strtolower(trim($etat));
+  if (strpos($e, 'alarm') !== false) return 'ALARME';
+  if (strpos($e, 'marche') !== false || strpos($e, 'on') !== false) return 'NORMAL';
+  if (strpos($e, 'arr') !== false || strpos($e, 'stop') !== false) return 'ARRET';
+  return 'SURVEILLANCE';
+}
+
+function firebase_rtdb_put(string $path, array $payload): void {
+  if (!firebase_configured()) return;
+
+  $url = rtrim(FIREBASE_DB_URL, '/')
+    . '/' . ltrim($path, '/')
+    . '.json?auth=' . urlencode(FIREBASE_AUTH);
+
+  $ctx = stream_context_create([
+    'http' => [
+      'method' => 'PUT',
+      'header' => "Content-Type: application/json\r\n",
+      'content' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+      'timeout' => 4,
+      'ignore_errors' => true,
+    ],
+  ]);
+
+  @file_get_contents($url, false, $ctx);
+}
+
+function firebase_sync_live_from_lumen(
+  float $x,
+  float $y,
+  float $z,
+  float $rpm,
+  float $rms,
+  string $etat,
+  bool $defaut
+): void {
+  if (!firebase_configured()) return;
+
+  $status = map_lumen_etat_to_status($etat);
+  $a_rms = sqrt($x * $x + $y * $y + $z * $z) * 9.80665;
+
+  firebase_rtdb_put('moteur/live', [
+    'ax' => round($x, 4),
+    'ay' => round($y, 4),
+    'az' => round($z, 4),
+    'a_rms' => round($a_rms, 3),
+    'vibration_rms' => round($rms, 4),
+    'rpm' => round($rpm, 1),
+    'status' => $status,
+    'alert_level' => $status === 'ALARME' ? 'ALARME' : ($status === 'ARRET' ? 'INFO' : 'NORMAL'),
+    'diagnostic' => $defaut ? 'Defaut capteur Lumen' : 'Donnees Lumen ESP32',
+    'relay_state' => strpos(mb_strtolower($etat), 'marche') !== false,
+    'online' => true,
+    'uno_online' => true,
+    'gateway' => 'ESP32_Lumen',
+    'controller' => 'Lumen',
+    'timestamp' => (int) round(microtime(true) * 1000),
+    'unit_a_rms' => 'm/s2',
+    'unit_vibration_rms' => 'mm/s',
+  ]);
+}
+
+function firebase_sync_historique_from_lumen(
+  float $x,
+  float $y,
+  float $z,
+  float $rpm,
+  float $rms,
+  string $etat
+): void {
+  if (!firebase_configured()) return;
+
+  $status = map_lumen_etat_to_status($etat);
+  $a_rms = sqrt($x * $x + $y * $y + $z * $z) * 9.80665;
+  $id = (string) (int) round(microtime(true) * 1000);
+
+  firebase_rtdb_put('moteur/historique/' . $id, [
+    'timestamp' => (int) round(microtime(true)),
+    'epoch_ms' => (int) round(microtime(true) * 1000),
+    'vibration_rms' => round($rms, 4),
+    'a_rms' => round($a_rms, 3),
+    'rpm' => round($rpm, 1),
+    'ax' => round($x, 4),
+    'ay' => round($y, 4),
+    'az' => round($z, 4),
+    'status' => $status,
+    'diagnostic' => 'Historique Lumen',
+    'relay_state' => strpos(mb_strtolower($etat), 'marche') !== false,
+  ]);
 }

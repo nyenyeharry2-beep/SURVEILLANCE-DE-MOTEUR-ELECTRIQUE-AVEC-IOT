@@ -7,8 +7,8 @@ import {
 import { firebaseConfig, isFirebaseConfigured } from "./firebase-config.js";
 
 const els = {
-  temp: document.getElementById("temp-value"),
-  current: document.getElementById("current-value"),
+  rpm: document.getElementById("rpm-value"),
+  aRms: document.getElementById("a-rms-value"),
   vibration: document.getElementById("vibration-value"),
   status: document.getElementById("status-value"),
   badge: document.getElementById("connection-badge"),
@@ -18,15 +18,20 @@ const els = {
 function setStatus(label) {
   els.status.textContent = label;
   els.status.classList.remove("warn", "bad");
-  if (label === "Attention") els.status.classList.add("warn");
-  if (label === "Alarme") els.status.classList.add("bad");
+  const upper = String(label || "").toUpperCase();
+  if (upper.includes("SURVEILLANCE") || upper.includes("AVERT")) {
+    els.status.classList.add("warn");
+  }
+  if (upper.includes("ALARME") || upper.includes("ALARM")) {
+    els.status.classList.add("bad");
+  }
 }
 
 function renderMotor(data) {
-  els.temp.textContent = Number(data.temperature ?? 0).toFixed(1);
-  els.current.textContent = Number(data.current ?? 0).toFixed(1);
-  els.vibration.textContent = Number(data.vibration ?? 0).toFixed(2);
-  setStatus(data.status ?? "Inconnu");
+  els.rpm.textContent = Number(data.rpm ?? 0).toFixed(0);
+  els.aRms.textContent = Number(data.a_rms ?? 0).toFixed(2);
+  els.vibration.textContent = Number(data.vibration_rms ?? data.vibration ?? 0).toFixed(2);
+  setStatus(data.status ?? data.alert_level ?? "Inconnu");
 }
 
 function startDemoMode() {
@@ -35,13 +40,13 @@ function startDemoMode() {
   if (els.hint) els.hint.classList.remove("hidden");
 
   const tick = () => {
-    const temperature = 55 + Math.random() * 18;
-    const current = 8 + Math.random() * 6;
-    const vibration = 1.2 + Math.random() * 2.5;
-    let status = "OK";
-    if (temperature > 70 || vibration > 3.2) status = "Attention";
-    if (temperature > 78 || vibration > 3.6) status = "Alarme";
-    renderMotor({ temperature, current, vibration, status });
+    const rpm = 1200 + Math.random() * 400;
+    const a_rms = 1.2 + Math.random() * 1.8;
+    const vibration_rms = 1.5 + Math.random() * 2.5;
+    let status = "NORMAL";
+    if (vibration_rms > 4.5) status = "AVERTISSEMENT";
+    if (vibration_rms > 7) status = "ALARME";
+    renderMotor({ rpm, a_rms, vibration_rms, status });
   };
 
   tick();
@@ -55,17 +60,17 @@ function startFirebaseMode() {
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const motorRef = ref(db, "motors/motor1");
+  const liveRef = ref(db, "moteur/live");
 
   onValue(
-    motorRef,
+    liveRef,
     (snapshot) => {
       const data = snapshot.val();
       if (!data) {
         renderMotor({
-          temperature: 0,
-          current: 0,
-          vibration: 0,
+          rpm: 0,
+          a_rms: 0,
+          vibration_rms: 0,
           status: "En attente",
         });
         return;

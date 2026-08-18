@@ -1,15 +1,1 @@
 .sessions/
-.DS_Store
-Thumbs.db
-.env
-.env.*
-!.env.example
-**/firebase-config.local.js
-**/*firebase*secret*
-.vscode/
-.idea/
-node_modules/
-.firebase/
-*.hex
-*.elf
-*.log
