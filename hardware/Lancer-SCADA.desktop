@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Surveillance moteur électrique
+Comment=Lancer le SCADA IoT (simulateur + tableau de bord)
+Exec=xfce4-terminal -e "/home/ubuntu/Desktop/surveillance motor/scripts/start.sh"
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Engineering;
+Path=/home/ubuntu/Desktop/surveillance motor

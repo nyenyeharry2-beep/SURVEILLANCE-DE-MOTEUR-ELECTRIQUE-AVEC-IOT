@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCADA — Surveillance moteur électrique IoT</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">⚡</div>
+      <div>
+        <h1>Surveillance moteur électrique</h1>
+        <p>Supervision IoT · ESP32 · MQTT · Temps réel</p>
+      </div>
+    </div>
+    <div class="top-meta">
+      <span id="clock">--:--:--</span>
+      <span id="conn" class="pill off">Hors ligne</span>
+      <span id="source" class="pill">Simulateur</span>
+    </div>
+  </header>
+
+  <section class="status-banner" id="banner">Système en attente de données…</section>
+
+  <main>
+    <section class="kpis">
+      <article class="kpi" data-key="voltage"><label>Tension</label><strong id="v-voltage">—</strong><em>V</em></article>
+      <article class="kpi" data-key="current"><label>Courant</label><strong id="v-current">—</strong><em>A</em></article>
+      <article class="kpi" data-key="power"><label>Puissance</label><strong id="v-power">—</strong><em>W</em></article>
+      <article class="kpi" data-key="temperature"><label>Température</label><strong id="v-temperature">—</strong><em>°C</em></article>
+      <article class="kpi" data-key="vibration"><label>Vibration</label><strong id="v-vibration">—</strong><em>%</em></article>
+      <article class="kpi" data-key="rpm"><label>Vitesse</label><strong id="v-rpm">—</strong><em>tr/min</em></article>
+    </section>
+
+    <section class="grid-2">
+      <div class="card motor-card">
+        <h2>Moteur 01 · asynchrone 0,75 kW</h2>
+        <div class="motor-wrap">
+          <div class="motor" id="rotor">
+            <div class="hub"></div>
+          </div>
+          <div class="health">
+            <div class="ring" id="health-ring">
+              <span id="v-health">—</span>
+              <small>Santé</small>
+            </div>
+            <ul>
+              <li>Énergie <b id="v-energy">0 kWh</b></li>
+              <li>Relais <b id="v-relay">—</b></li>
+              <li>État <b id="v-status">—</b></li>
+              <li>Appareil <b>moteur-01</b></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Courbes temps réel</h2>
+        <canvas id="chart" height="160"></canvas>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <h2>Commandes</h2>
+        <div class="actions">
+          <button data-cmd="start">Démarrer</button>
+          <button data-cmd="stop" class="warn">Arrêter</button>
+          <button data-cmd="emergency" class="danger">Arrêt d'urgence</button>
+          <button data-cmd="reset">Réarmer</button>
+        </div>
+        <h3>Injection de défauts (simulateur)</h3>
+        <div class="actions">
+          <button data-cmd="overload" class="ghost">Surcharge</button>
+          <button data-cmd="overheat" class="ghost">Surchauffe</button>
+          <button data-cmd="bearing" class="ghost">Roulement</button>
+          <button data-cmd="undervoltage" class="ghost">Sous-tension</button>
+          <button data-cmd="none" class="ghost">Défaut off</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Journal d'alertes</h2>
+          <button id="ack" class="ghost">Acquitter</button>
+        </div>
+        <ul id="alerts" class="alerts"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Système de surveillance de moteur électrique avec IoT · ESP32 + ACS712 + ZMPT101B + DS18B20 + SW-420
+  </footer>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

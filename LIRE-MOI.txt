@@ -1,0 +1,22 @@
+CE DOSSIER CONTIENT TOUT LE PROJET
+==================================
+
+Système de surveillance de moteur électrique avec IoT
+
+Pour lancer le tableau de bord (sans carte ESP32) :
+
+  1. Ouvrir un terminal dans ce dossier
+  2. Taper :  ./scripts/start.sh
+  3. Ouvrir le navigateur : http://127.0.0.1:8000
+
+Fichiers importants :
+  README.md                 — vue d'ensemble
+  docs/                     — architecture, installation, rapport
+  hardware/                 — liste du matériel et câblage
+  firmware/esp32/           — programme de la carte ESP32
+  backend/                  — serveur + simulateur
+  dashboard/                — écran de supervision
+  docker-compose.yml        — broker MQTT
+
+Le même contenu est versionné sur GitHub :
+  SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT
