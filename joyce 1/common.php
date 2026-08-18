@@ -354,9 +354,166 @@ function ensure_schema(PDO $pdo): void {
   }
 
   ensure_default_user($pdo);
+  migrate_moteur_iot_schema($pdo);
 }
 
-/* ——— Miroir Firebase (tableau de bord Web/) ——— */
+function migrate_moteur_iot_schema(PDO $pdo): void {
+  $liveCols = [
+    'a_rms DOUBLE NOT NULL DEFAULT 0',
+    'vibration_rms DOUBLE NOT NULL DEFAULT 0',
+    'rpm_nominal DOUBLE NOT NULL DEFAULT 1500',
+    'status_moteur VARCHAR(32) NOT NULL DEFAULT \'ARRET\'',
+    'alert_level VARCHAR(32) NOT NULL DEFAULT \'INFO\'',
+    'diagnostic VARCHAR(255) NOT NULL DEFAULT \'\'',
+    'anomaly_hint VARCHAR(255) NOT NULL DEFAULT \'\'',
+    'relay_state TINYINT(1) NOT NULL DEFAULT 0',
+    'buzzer_state TINYINT(1) NOT NULL DEFAULT 0',
+    'buzzer_mute TINYINT(1) NOT NULL DEFAULT 0',
+    'uno_online TINYINT(1) NOT NULL DEFAULT 0',
+    'esp_timestamp BIGINT NOT NULL DEFAULT 0',
+  ];
+  foreach ($liveCols as $def) {
+    try {
+      $pdo->exec('ALTER TABLE moteur_live ADD COLUMN ' . $def);
+    } catch (Throwable $e) {
+      /* colonne existante */
+    }
+  }
+
+  $histCols = [
+    'a_rms DOUBLE NOT NULL DEFAULT 0',
+    'vibration_rms DOUBLE NOT NULL DEFAULT 0',
+    'status_moteur VARCHAR(32) NOT NULL DEFAULT \'\'',
+    'diagnostic VARCHAR(255) NOT NULL DEFAULT \'\'',
+    'relay_state TINYINT(1) NOT NULL DEFAULT 0',
+  ];
+  foreach ($histCols as $def) {
+    try {
+      $pdo->exec('ALTER TABLE mesures ADD COLUMN ' . $def);
+    } catch (Throwable $e) {
+      /* colonne existante */
+    }
+  }
+
+  try {
+    $pdo->exec('ALTER TABLE commande ADD COLUMN relay TINYINT(1) NOT NULL DEFAULT 0');
+  } catch (Throwable $e) {
+    /* ok */
+  }
+  try {
+    $pdo->exec('ALTER TABLE commande ADD COLUMN buzzer_mute TINYINT(1) NOT NULL DEFAULT 0');
+  } catch (Throwable $e) {
+    /* ok */
+  }
+
+  $pdo->exec("
+    CREATE TABLE IF NOT EXISTS moteur_config (
+      id VARCHAR(32) PRIMARY KEY,
+      rpm_nominal DOUBLE NOT NULL DEFAULT 1500,
+      rpm_min DOUBLE NOT NULL DEFAULT 1200,
+      rpm_max DOUBLE NOT NULL DEFAULT 1800,
+      vib_normal_mms DOUBLE NOT NULL DEFAULT 2.8,
+      vib_alerte_mms DOUBLE NOT NULL DEFAULT 4.5,
+      vib_critique_mms DOUBLE NOT NULL DEFAULT 7.1,
+      a_rms_normal_ms2 DOUBLE NOT NULL DEFAULT 1.5,
+      a_rms_alerte_ms2 DOUBLE NOT NULL DEFAULT 3.0,
+      a_rms_critique_ms2 DOUBLE NOT NULL DEFAULT 5.0,
+      auto_stop_on_alarm TINYINT(1) NOT NULL DEFAULT 1,
+      buzzer_enabled TINYINT(1) NOT NULL DEFAULT 1,
+      note TEXT NULL,
+      updated_at DATETIME NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  ");
+
+  $stmt = $pdo->prepare('INSERT IGNORE INTO moteur_config (id, updated_at) VALUES (?, NOW())');
+  $stmt->execute(['default']);
+}
+
+function default_moteur_config(): array {
+  return [
+    'rpm_nominal' => 1500,
+    'rpm_min' => 1200,
+    'rpm_max' => 1800,
+    'vib_normal_mms' => 2.8,
+    'vib_alerte_mms' => 4.5,
+    'vib_critique_mms' => 7.1,
+    'a_rms_normal_ms2' => 1.5,
+    'a_rms_alerte_ms2' => 3.0,
+    'a_rms_critique_ms2' => 5.0,
+    'auto_stop_on_alarm' => true,
+    'buzzer_enabled' => true,
+    'note' => 'Seuils a calibrer selon moteur et norme applicable',
+  ];
+}
+
+function fetch_moteur_config(PDO $pdo): array {
+  $stmt = $pdo->prepare('SELECT * FROM moteur_config WHERE id = ? LIMIT 1');
+  $stmt->execute(['default']);
+  $row = $stmt->fetch();
+  $cfg = default_moteur_config();
+  if (!$row) return $cfg;
+  foreach ($cfg as $key => $_) {
+    if (array_key_exists($key, $row) && $row[$key] !== null) {
+      if ($key === 'auto_stop_on_alarm' || $key === 'buzzer_enabled') {
+        $cfg[$key] = (bool) $row[$key];
+      } elseif ($key !== 'note') {
+        $cfg[$key] = (float) $row[$key];
+      } else {
+        $cfg[$key] = (string) $row[$key];
+      }
+    }
+  }
+  return $cfg;
+}
+
+function row_to_live(array $row): array {
+  $ts = $row['timestamp'] ?? null;
+  $stale = true;
+  if ($ts) {
+    $stale = (time() - strtotime((string) $ts)) > 12;
+  }
+  $uno = (bool) ($row['uno_online'] ?? 0);
+  return [
+    'ax' => (float) ($row['x'] ?? 0),
+    'ay' => (float) ($row['y'] ?? 0),
+    'az' => (float) ($row['z'] ?? 0),
+    'a_rms' => (float) ($row['a_rms'] ?? 0),
+    'vibration_rms' => (float) ($row['vibration_rms'] ?? $row['rmsMmS'] ?? 0),
+    'rpm' => (float) ($row['rpm'] ?? 0),
+    'rpm_nominal' => (float) ($row['rpm_nominal'] ?? 1500),
+    'status' => (string) ($row['status_moteur'] ?? 'ARRET'),
+    'alert_level' => (string) ($row['alert_level'] ?? 'INFO'),
+    'diagnostic' => (string) ($row['diagnostic'] ?? ''),
+    'anomaly_hint' => (string) ($row['anomaly_hint'] ?? ''),
+    'relay_state' => (bool) ($row['relay_state'] ?? 0),
+    'buzzer_state' => (bool) ($row['buzzer_state'] ?? 0),
+    'buzzer_mute' => (bool) ($row['buzzer_mute'] ?? 0),
+    'uno_online' => $uno,
+    'online' => $uno && !$stale,
+    'timestamp' => (int) ($row['esp_timestamp'] ?? 0),
+    'auto_stop_on_alarm' => true,
+    'speed_sensor' => 'IR',
+    'controller' => 'Arduino_Uno',
+    'gateway' => 'ESP32',
+  ];
+}
+
+function row_to_historique(array $row): array {
+  return [
+    'timestamp' => $row['timestamp'] ?? $row['id'] ?? '',
+    'vibration_rms' => (float) ($row['vibration_rms'] ?? $row['rmsMmS'] ?? 0),
+    'a_rms' => (float) ($row['a_rms'] ?? 0),
+    'rpm' => (float) ($row['rpm'] ?? 0),
+    'ax' => (float) ($row['x'] ?? 0),
+    'ay' => (float) ($row['y'] ?? 0),
+    'az' => (float) ($row['z'] ?? 0),
+    'status' => (string) ($row['status_moteur'] ?? $row['etatMoteur'] ?? ''),
+    'diagnostic' => (string) ($row['diagnostic'] ?? ''),
+    'relay_state' => (bool) ($row['relay_state'] ?? 0),
+  ];
+}
+
+/* ——— Miroir Firebase (optionnel) ——— */
 
 function firebase_configured(): bool {
   return defined('FIREBASE_DB_URL')

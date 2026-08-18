@@ -36,6 +36,8 @@ DirectoryIndex index.html
   RewriteRule ^commande/?$ commande.php [L,QSA]
   RewriteRule ^etat/?$ etat.php [L,QSA]
   RewriteRule ^ping/?$ ping.php [L,QSA]
+  RewriteRule ^live/?$ live.php [L,QSA]
+  RewriteRule ^config_moteur/?$ config_moteur.php [L,QSA]
 </IfModule>
 
 <Files "config.php">

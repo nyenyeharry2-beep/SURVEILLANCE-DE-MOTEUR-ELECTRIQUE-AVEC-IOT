@@ -1,43 +1,26 @@
-JOYCE 2 — TABLEAU DE BORD FIREBASE (InfinityFree uniquement)
-=============================================================
+JOYCE 2 — Tableau de bord Uno + ESP32 (InfinityFree, SANS Firebase)
+====================================================================
 
-Pas de GitHub. Pas de Netlify.
-Téléversez avec le File Manager InfinityFree dans htdocs/firebase/
+Ce dossier remplace l'ancienne version Firebase.
 
-Où téléverser
--------------
-1. File Manager → htdocs → créez le dossier firebase
-2. Entrez dans firebase
-3. Upload joyce 2.zip → Extract (ou fichier par fichier)
-4. URL : http://otornyenye.rf.gd/firebase/
+SUR INFINITYFREE
+----------------
+1. JOYCE 1 → htdocs/ (racine) — obligatoire (PHP + MySQL)
+2. JOYCE 2 → htdocs/firebase/ — ce dossier (interface web)
 
-Structure sur le serveur :
-  htdocs/
-    index.html, mesure.php, config.php ...  ← joyce 1
-    firebase/
-      index.html, app.js, firebase-config.js ...  ← joyce 2
+URL : http://otornyenye.rf.gd/firebase/
 
-ÉTAPE 1 — Firebase Console (console.firebase.google.com)
---------------------------------------------------------
-1. Realtime Database → Créer (mode test)
-2. Données → Importer → seed_initial.json (ce dossier)
-3. Règles → coller database.rules.json → Publier
-4. Paramètres → App Web → copier apiKey, databaseURL, etc.
+CARTES (Arduino IDE, pas File Manager)
+--------------------------------------
+1. Arduino Uno : ../surveillance motor/Arduino_Uno/surveillance_moteur_uno/surveillance_moteur_uno.ino
+2. ESP32       : firmware/passerelle_infinityfree.ino (dans ce zip)
 
-ÉTAPE 2 — firebase-config.js
-----------------------------
-File Manager → htdocs/firebase/firebase-config.js → Edit
-Remplacez TOUS les VOTRE_… par vos clés Firebase.
+Configurer WiFi + SERVER_HOST + DEVICE_KEY (identique a config.php).
 
-ÉTAPE 3 — config.php (racine htdocs, joyce 1)
-----------------------------------------------
-  define('FIREBASE_DB_URL', 'https://...firebasedatabase.app');
-  define('FIREBASE_AUTH', 'VOTRE_SECRET');
+FLUX
+----
+Uno (capteurs) → ESP32 (WiFi) → mesure.php → MySQL → live.php → cette page web
 
-L’ESP32 → mesure.php → MySQL + copie Firebase moteur/live.
+PAS DE FIREBASE. PAS DE CONSOLE GOOGLE.
 
-Vérification :
-  http://otornyenye.rf.gd/firebase/
-  Firebase Console → moteur/live (valeurs qui changent)
-
-Guide complet : INSTALLATION.txt
+Fichiers supprimés de l'ancien JOYCE 2 : firebase-config.js, seed_initial.json

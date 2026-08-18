@@ -1,53 +1,8 @@
-# Tableau de bord Firebase — LUMEN
+TABLEAU DE BORD FIREBASE — InfinityFree uniquement
+==================================================
 
-Interface web temps réel (Firebase Realtime Database) pour le projet **Lumen / surveillance moteur**.
+Téléversez ce dossier dans : htdocs/firebase/
 
-## Pourquoi la page ne recevait pas les données
+URL : http://VOTRE-DOMAINE.rf.gd/firebase/
 
-Deux chaînes coexistent dans le projet :
-
-| Composant | Destination | Tableau de bord |
-|-----------|-------------|-----------------|
-| **Lumen_ESP32.ino** | `mesure.php` → MySQL | `index.html` (PHP Lumen) |
-| **passerelle_firebase.ino** | Firebase `moteur/live` | ce dossier `Web/` |
-
-Si l’ESP32 exécute **Lumen_ESP32** (POST vers InfinityFree), Firebase reste vide tant que `config.php` ne recopie pas les mesures.
-
-## Installation rapide
-
-### 1. Firebase
-
-1. Créer un projet sur https://console.firebase.google.com
-2. Activer **Realtime Database** (mode test)
-3. Importer `Firebase/seed_initial.json` (depuis le dossier `surveillance motor/`)
-4. Créer une app Web → copier la config dans `firebase-config.js`
-
-### 2. Ce tableau de bord
-
-- Héberger ces fichiers sur Netlify, GitHub Pages, ou ouvrir `index.html` en local
-- Remplir **tous** les champs de `firebase-config.js`, surtout `databaseURL`
-
-### 3. Lumen ESP32 → Firebase (miroir)
-
-Dans `config.php` sur InfinityFree (site PHP Lumen) :
-
-```php
-define('FIREBASE_DB_URL', 'https://VOTRE-PROJET-default-rtdb.REGION.firebasedatabase.app');
-define('FIREBASE_AUTH', 'VOTRE_SECRET_LEGACY');
-```
-
-À chaque POST `/mesure.php`, les données sont enregistrées en MySQL **et** recopiées vers `moteur/live`.
-
-### 4. Vérification
-
-- Console Firebase → Données → `moteur/live` doit se mettre à jour
-- Badge du tableau de bord : « Uno + ESP32 en ligne » (ou valeurs qui changent)
-
-## Fichiers
-
-- `index.html` — page principale
-- `app.js` — écoute `moteur/live`, `moteur/config`, `moteur/historique`
-- `firebase-config.js` — **à personnaliser**
-- `style.css` — styles
-
-Voir aussi `Docs/SETUP_FIREBASE.md` dans le dépôt.
+Voir joyce 2/LIRE.txt pour la procédure complète.
