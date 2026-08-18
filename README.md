@@ -1,16 +1,18 @@
 # SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT
 
-Système de surveillance de moteur avec IoT (Lumen + Firebase).
+Système Lumen + Firebase — **hébergement InfinityFree uniquement**.
 
-## Tableau de bord Firebase ne reçoit pas les données ?
+## Déploiement (deux dossiers)
 
-1. **Lumen ESP32** envoie vers `mesure.php` (MySQL), pas directement Firebase.
-2. Renseignez `FIREBASE_DB_URL` et `FIREBASE_AUTH` dans `config.php` → miroir auto vers `moteur/live`.
-3. Collez la même config dans `webtableau-de-bord-firebase/firebase-config.js` (`databaseURL` obligatoire).
-4. Importez `surveillance motor/Firebase/seed_initial.json` dans Firebase Console.
+| Dossier | Où sur InfinityFree | URL |
+|---------|---------------------|-----|
+| **joyce 1** | `htdocs/` (racine) | http://otornyenye.rf.gd/ |
+| **joyce 2** | `htdocs/firebase/` | http://otornyenye.rf.gd/firebase/ |
 
-Package prêt : `webtableau-de-bord-firebase-LUMEN.zip`
+Archives : `joyce 1.zip` et `joyce 2.zip`
 
-Déploiement InfinityFree (PHP Lumen) : `LIRE.txt` → `/install.php`
+1. Téléverser joyce 1 → htdocs → `/install.php`
+2. Créer `htdocs/firebase/` → téléverser joyce 2
+3. Remplir `config.php` (FIREBASE_DB_URL, FIREBASE_AUTH) et `firebase/firebase-config.js`
 
-Connexion tableau de bord PHP : e-mail `nyenyeharry2@gmail.com` (mot de passe dans `config.php`).
+Compte Lumen : nyenyeharry2@gmail.com

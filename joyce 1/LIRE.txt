@@ -1,44 +1,48 @@
 JOYCE 1 — INFINITYFREE (File Manager → htdocs)
 ==============================================
 
-ÉTAPES
-------
-1. Ouvrez le File Manager InfinityFree → dossier htdocs
-2. Sélectionnez TOUS les fichiers de ce dossier « joyce 1 »
-3. Téléversez-les (Upload) — même niveau que index.html
-4. Ouvrez dans le navigateur :
-   http://otornyenye.rf.gd/install.php
-   puis http://otornyenye.rf.gd/
-5. Test rapide :
-   http://otornyenye.rf.gd/ping.php        → doit afficher {"ok":true,...}
-   http://otornyenye.rf.gd/mesure.php      → doit afficher {"ok":true,...}
+Tout le site tourne sur InfinityFree (otornyenye.rf.gd). Pas de Netlify.
 
-FICHIER IMPORTANT : config.php
-------------------------------
-Ouvrez config.php dans le File Manager et vérifiez :
+ÉTAPES — JOYCE 1 (racine htdocs)
+--------------------------------
+1. File Manager → dossier htdocs
+2. Téléversez TOUS les fichiers de « joyce 1 » à la racine de htdocs
+3. Ouvrez : http://otornyenye.rf.gd/install.php
+4. Puis : http://otornyenye.rf.gd/
+5. Tests :
+   http://otornyenye.rf.gd/ping.php
+   http://otornyenye.rf.gd/mesure.php
 
+ÉTAPES — JOYCE 2 (sous-dossier firebase)
+----------------------------------------
+1. Dans htdocs, créez le dossier : firebase
+2. Téléversez TOUS les fichiers de « joyce 2 » dans htdocs/firebase/
+3. Ouvrez : http://otornyenye.rf.gd/firebase/
+
+Deux tableaux de bord :
+  http://otornyenye.rf.gd/           → Lumen (connexion PHP)
+  http://otornyenye.rf.gd/firebase/  → Firebase (graphiques temps réel)
+
+FICHIER IMPORTANT : config.php (racine htdocs)
+----------------------------------------------
   DB_PASS          → mot de passe MySQL InfinityFree
-  DEVICE_KEY       → même clé que dans Lumen_ESP32.ino
-  FIREBASE_DB_URL  → URL Realtime Database (pour le tableau de bord Firebase)
+  DEVICE_KEY       → lumen-esp32-nyenye-7f3a9c (identique à l’ESP32)
+  FIREBASE_DB_URL  → URL Realtime Database
   FIREBASE_AUTH    → secret legacy Firebase
 
-Exemple Firebase (à coller dans config.php) :
+Exemple :
   define('FIREBASE_DB_URL', 'https://VOTRE-PROJET-default-rtdb.europe-west1.firebasedatabase.app');
   define('FIREBASE_AUTH', 'VOTRE_SECRET_ICI');
 
-Sans FIREBASE_DB_URL, le site PHP Lumen fonctionne quand même.
-Le dossier « joyce 2 » (Firebase) restera vide tant que ces 2 lignes ne sont pas remplies.
+Sans FIREBASE_DB_URL, le site Lumen fonctionne mais /firebase/ restera vide.
 
 ESP32 (Lumen_ESP32.ino)
 -----------------------
   SERVER_HOST = "otornyenye.rf.gd"
-  POST vers   = http://otornyenye.rf.gd/mesure.php
-  DEVICE_KEY  = lumen-esp32-nyenye-7f3a9c
+  URL POST    = http://otornyenye.rf.gd/mesure.php
 
-Compte tableau de bord web :
+Compte Lumen :
   e-mail       : nyenyeharry2@gmail.com
   mot de passe : ('-é1014
 
-Si erreur 404 nginx sur mesure :
-  → mesure.php doit être dans htdocs (ce dossier joyce 1)
-  → pas sur Netlify (*.netlify.app)
+Voir aussi LIRE.txt dans le dossier « joyce 2 » pour firebase-config.js.

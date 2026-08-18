@@ -1,27 +1,17 @@
-LUMEN + Firebase — déploiement
-==============================
+# Joyce 2 — Tableau de bord Firebase (InfinityFree)
 
-Ce zip / dossier contient le **tableau de bord Firebase** (MOTORGUARD IoT).
+Hébergement **uniquement sur InfinityFree**, dans le sous-dossier `htdocs/firebase/`.
 
-ÉTAPES
-------
-1. Configurer Firebase (Realtime Database + import seed_initial.json)
-2. Remplir firebase-config.js (databaseURL obligatoire)
-3. Déployer ces fichiers (Netlify, InfinityFree sous-dossier, ou local)
-4. Si ESP32 = Lumen_ESP32.ino : renseigner FIREBASE_DB_URL + FIREBASE_AUTH
-   dans config.php du site PHP Lumen pour miroir automatique vers Firebase
+## Installation
 
-CHEMIN FIREBASE ATTENDU
------------------------
-moteur/live          ← mesures temps réel
-moteur/config        ← seuils
-moteur/command       ← relais / buzzer
-moteur/historique/   ← journal
+1. Téléverser **joyce 1** à la racine de `htdocs`
+2. Créer `htdocs/firebase/` et y téléverser **joyce 2**
+3. Configurer Firebase (import `seed_initial.json`)
+4. Remplir `firebase-config.js` et `config.php` (racine)
 
-ERREURS FRÉQUENTES
-------------------
-- Mode démo / badge « Firebase non configuré » → PLACEHOLDER dans firebase-config.js
-- Données vides → Lumen envoie vers PHP, pas Firebase (voir étape 4)
-- Site_VoltWatch lisait motors/motor1 (corrigé → moteur/live)
+## URLs
 
-Compte Lumen PHP (autre tableau de bord) : nyenyeharry2@gmail.com
+| Page | URL |
+|------|-----|
+| Lumen (PHP) | http://otornyenye.rf.gd/ |
+| Firebase | http://otornyenye.rf.gd/firebase/ |
