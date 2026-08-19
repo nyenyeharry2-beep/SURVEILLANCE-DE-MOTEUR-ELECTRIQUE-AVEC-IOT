@@ -1,0 +1,13 @@
+COMMENT METTRE JOYCE1 ET JOYCE2 SUR VOTRE BUREAU WINDOWS
+=======================================================
+
+Les zip sont dans Cursor, pas sur le Bureau Windows automatiquement.
+
+1. Cursor → panneau Fichiers (gauche)
+2. Fichier : LUMEN-JOYCE1-et-JOYCE2.zip
+3. Clic droit → Telecharger
+4. Copier de Telechargements vers le Bureau
+
+Contenu du zip :
+  joyce1.zip → htdocs (InfinityFree)
+  joyce2.zip → htdocs/firebase/

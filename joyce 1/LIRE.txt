@@ -1,0 +1,27 @@
+JOYCE 1 — INFINITYFREE (File Manager → htdocs)
+==============================================
+
+Televersez avec le File Manager InfinityFree uniquement.
+
+ÉTAPES — JOYCE 1 (racine htdocs)
+--------------------------------
+1. Upload joyce1.zip dans htdocs → Extract
+2. Fichiers directement à la racine : mesure.php, live.php, config.php...
+3. http://otornyenye.rf.gd/install.php
+4. Tests : ping.php, mesure.php, live.php
+
+ÉTAPES — JOYCE 2 (dossier motorguard)
+-------------------------------------
+1. Créez le dossier : motorguard  (PAS firebase, PAS "joyce 2")
+2. Upload joyce2.zip dans motorguard → Extract
+3. http://otornyenye.rf.gd/motorguard/
+
+Deux tableaux de bord :
+  http://otornyenye.rf.gd/             → Lumen
+  http://otornyenye.rf.gd/motorguard/  → MOTORGUARD Uno+ESP32
+
+config.php : DB_PASS + DEVICE_KEY (même clé dans l'ESP32)
+
+ESP32 : passerelle_infinityfree.ino → POST http://otornyenye.rf.gd/mesure.php
+
+Sans JOYCE 1 à la racine, le tableau motorguard ne reçoit aucune donnée.

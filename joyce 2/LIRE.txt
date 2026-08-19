@@ -1,0 +1,27 @@
+JOYCE 2 — Tableau de bord MOTORGUARD (Uno + ESP32, InfinityFree)
+================================================================
+
+SUR INFINITYFREE
+----------------
+1. JOYCE 1 → htdocs/ (racine) — OBLIGATOIRE
+2. JOYCE 2 → htdocs/motorguard/ — ce dossier
+
+URL : http://otornyenye.rf.gd/motorguard/
+
+CARTES (Arduino IDE)
+--------------------
+1. Arduino Uno : surveillance_moteur_uno.ino
+2. ESP32       : firmware/passerelle_infinityfree.ino
+
+Configurer WiFi + SERVER_HOST + DEVICE_KEY (identique à config.php).
+
+FLUX
+----
+Uno → ESP32 (WiFi) → mesure.php → MySQL → live.php → cette page
+
+DEPANNAGE
+---------
+1. JOYCE 1 à la racine htdocs (live.php, mesure.php)
+2. Supprimer database.rules.json si présent (ancien fichier inutile)
+3. ESP32 : moniteur série → POST mesure HTTP 200
+4. WiFi 2,4 GHz obligatoire

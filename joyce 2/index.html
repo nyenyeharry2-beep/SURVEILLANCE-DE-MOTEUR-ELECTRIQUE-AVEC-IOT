@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOTORGUARD — Uno + ESP32 (InfinityFree)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">MOTORGUARD IoT</p>
+        <p class="brand-sub">Uno + ESP32 — InfinityFree + MySQL</p>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span id="connBadge" class="badge badge-off">Connexion…</span>
+      <span id="clockLabel" class="mono muted">--:--:--</span>
+    </div>
+  </header>
+  <div id="alertBanner" class="alert-banner hidden" role="alert">
+    <strong>⚠ ALERTE</strong>
+    <span id="alertBannerText"></span>
+  </div>
+  <main class="layout">
+    <section class="card card-status" id="cardStatus">
+      <h2>État du moteur</h2>
+      <p id="motorStatus" class="status-value">—</p>
+      <p id="alertLevel" class="status-level">—</p>
+      <div class="status-lights" aria-hidden="true">
+        <span data-level="NORMAL" class="light"></span>
+        <span data-level="SURVEILLANCE" class="light"></span>
+        <span data-level="AVERTISSEMENT" class="light"></span>
+        <span data-level="ALARME" class="light"></span>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Vibration</h2>
+      <p class="metric-main"><span id="vibRms">—</span> <small>mm/s</small></p>
+      <p class="metric-sub">A<sub>RMS</sub> = <span id="aRms">—</span> m/s²</p>
+      <div class="axes">
+        <div><span>Ax</span><strong id="ax">—</strong> g</div>
+        <div><span>Ay</span><strong id="ay">—</strong> g</div>
+        <div><span>Az</span><strong id="az">—</strong> g</div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Vitesse</h2>
+      <p class="metric-main"><span id="rpm">—</span> <small>tr/min</small></p>
+      <p class="metric-sub">Nominale : <span id="rpmNominal">—</span> tr/min</p>
+      <div class="bar-track"><div id="rpmBar" class="bar-fill"></div></div>
+    </section>
+    <section class="card card-diag">
+      <h2>Diagnostic</h2>
+      <p id="diagnostic" class="diag-text">En attente…</p>
+      <p id="anomalyHint" class="diag-hint"></p>
+    </section>
+    <section class="card card-actuators">
+      <h2>Relais &amp; Buzzer</h2>
+      <p>Relais : <strong id="relayState">—</strong></p>
+      <div class="btn-row">
+        <button type="button" id="btnRelayOn" class="btn primary">Marche</button>
+        <button type="button" id="btnRelayOff" class="btn danger">Arrêt</button>
+      </div>
+      <p>Buzzer : <strong id="buzzerState">—</strong></p>
+      <label class="check-line"><input type="checkbox" id="chkBuzzerMute" /> Mute buzzer</label>
+    </section>
+    <section class="card">
+      <h2>Dernière mesure</h2>
+      <p class="metric-main mono" id="lastUpdate">—</p>
+      <p class="metric-sub">Timestamp ESP32 : <span id="tsEsp">—</span></p>
+    </section>
+    <section class="card card-wide">
+      <h2>Graphiques</h2>
+      <div class="charts">
+        <div class="chart-box"><h3>Vibration RMS</h3><canvas id="chartVib"></canvas></div>
+        <div class="chart-box"><h3>RPM</h3><canvas id="chartRpm"></canvas></div>
+        <div class="chart-box chart-full"><h3>Ax, Ay, Az</h3><canvas id="chartAxes"></canvas></div>
+      </div>
+    </section>
+    <section class="card card-wide">
+      <h2>Historique</h2>
+      <div class="stats-grid">
+        <div><span>Dernière vib.</span><strong id="statLastVib">—</strong></div>
+        <div><span>Min vib.</span><strong id="statMinVib">—</strong></div>
+        <div><span>Max vib.</span><strong id="statMaxVib">—</strong></div>
+        <div><span>Moy. vib.</span><strong id="statAvgVib">—</strong></div>
+        <div><span>Dernier RPM</span><strong id="statLastRpm">—</strong></div>
+        <div><span>Min RPM</span><strong id="statMinRpm">—</strong></div>
+        <div><span>Max RPM</span><strong id="statMaxRpm">—</strong></div>
+        <div><span>Moy. RPM</span><strong id="statAvgRpm">—</strong></div>
+      </div>
+      <div class="table-wrap">
+        <table id="historyTable">
+          <thead><tr><th>Heure</th><th>Vib.</th><th>A_RMS</th><th>RPM</th><th>Ax</th><th>Ay</th><th>Az</th><th>État</th><th>Diag.</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card card-wide">
+      <h2>Paramètres seuils</h2>
+      <form id="configForm" class="form-grid">
+        <label>RPM nominal <input type="number" id="cfg_rpm_nominal" step="1" /></label>
+        <label>RPM min <input type="number" id="cfg_rpm_min" step="1" /></label>
+        <label>RPM max <input type="number" id="cfg_rpm_max" step="1" /></label>
+        <label>Vib. normale <input type="number" id="cfg_vib_normal" step="0.1" /></label>
+        <label>Vib. alerte <input type="number" id="cfg_vib_alerte" step="0.1" /></label>
+        <label>Vib. critique <input type="number" id="cfg_vib_critique" step="0.1" /></label>
+        <label>A_RMS normal <input type="number" id="cfg_a_rms_normal" step="0.1" /></label>
+        <label>A_RMS alerte <input type="number" id="cfg_a_rms_alerte" step="0.1" /></label>
+        <label>A_RMS critique <input type="number" id="cfg_a_rms_critique" step="0.1" /></label>
+        <label class="check-line span-all"><input type="checkbox" id="cfg_auto_stop_on_alarm" /> Arrêt auto en ALARME</label>
+        <label class="check-line span-all"><input type="checkbox" id="cfg_buzzer_enabled" checked /> Buzzer activé</label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Enregistrer (MySQL)</button>
+          <p id="configMsg" class="form-msg"></p>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

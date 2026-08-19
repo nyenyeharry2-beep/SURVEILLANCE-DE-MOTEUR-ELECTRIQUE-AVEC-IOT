@@ -1,0 +1,8 @@
+TABLEAU DE BORD FIREBASE — InfinityFree uniquement
+==================================================
+
+Téléversez ce dossier dans : htdocs/firebase/
+
+URL : http://VOTRE-DOMAINE.rf.gd/firebase/
+
+Voir joyce 2/LIRE.txt pour la procédure complète.

@@ -1,0 +1,53 @@
+INSTALLATION COMPLÈTE — InfinityFree uniquement
+================================================
+
+Pas de GitHub. Pas de Netlify.
+Tout se fait avec le File Manager InfinityFree et les fichiers zip joyce 1 / joyce 2.
+
+ÉTAPE 1 — joyce 1.zip → htdocs (racine)
+---------------------------------------
+1. Connectez-vous à InfinityFree → Control Panel → File Manager
+2. Ouvrez le dossier htdocs
+3. Cliquez Upload → choisissez joyce 1.zip
+4. Clic droit sur joyce 1.zip → Extract (décompresser)
+5. Déplacez tous les fichiers extraits à la racine de htdocs
+   (index.html, mesure.php, config.php, etc. doivent être directement dans htdocs)
+6. Ouvrez : http://otornyenye.rf.gd/install.php
+7. Puis : http://otornyenye.rf.gd/
+
+ÉTAPE 2 — joyce 2.zip → htdocs/firebase/
+----------------------------------------
+1. Dans htdocs, créez un nouveau dossier : firebase
+2. Entrez dans le dossier firebase
+3. Upload → joyce 2.zip → Extract
+4. Vérifiez que index.html est dans htdocs/firebase/ (pas dans un sous-dossier en trop)
+5. Ouvrez : http://otornyenye.rf.gd/firebase/
+
+ÉTAPE 3 — Firebase (console.firebase.google.com)
+------------------------------------------------
+1. Realtime Database → Créer (mode test)
+2. Importer seed_initial.json (fichier extrait de joyce 2)
+3. Règles → coller database.rules.json → Publier
+4. Paramètres → App Web → copier les clés
+
+ÉTAPE 4 — Configurer 2 fichiers (File Manager → Edit)
+-----------------------------------------------------
+A) htdocs/config.php :
+   FIREBASE_DB_URL = votre URL Realtime Database
+   FIREBASE_AUTH   = secret legacy Firebase
+
+B) htdocs/firebase/firebase-config.js :
+   Remplacez tous les VOTRE_… par vos clés Firebase
+
+ÉTAPE 5 — ESP32
+---------------
+Sketch Lumen_ESP32.ino :
+  SERVER_HOST = "otornyenye.rf.gd"
+  POST → http://otornyenye.rf.gd/mesure.php
+
+VOS DEUX SITES
+--------------
+  http://otornyenye.rf.gd/           → Lumen (login)
+  http://otornyenye.rf.gd/firebase/  → Firebase (graphiques)
+
+Compte : nyenyeharry2@gmail.com / ('-é1014

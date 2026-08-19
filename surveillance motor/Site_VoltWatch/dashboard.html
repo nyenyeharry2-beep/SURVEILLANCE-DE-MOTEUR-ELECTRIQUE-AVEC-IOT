@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord — VoltWatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="dashboard-page">
+  <header class="site-header">
+    <a class="brand" href="index.html">VoltWatch</a>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <span id="connection-badge" class="badge">Mode démo</span>
+    </nav>
+  </header>
+
+  <main class="dashboard">
+    <div class="dashboard-intro">
+      <h1>Tableau de bord moteur</h1>
+      <p>Données en direct (démo ou Firebase selon ta config).</p>
+    </div>
+
+    <div class="metrics" role="list">
+      <article class="metric" role="listitem">
+        <h2>RPM</h2>
+        <p class="metric-value"><span id="rpm-value">--</span><span class="unit">tr/min</span></p>
+      </article>
+      <article class="metric" role="listitem">
+        <h2>Accélération RMS</h2>
+        <p class="metric-value"><span id="a-rms-value">--</span><span class="unit">m/s²</span></p>
+      </article>
+      <article class="metric" role="listitem">
+        <h2>Vibration</h2>
+        <p class="metric-value"><span id="vibration-value">--</span><span class="unit">mm/s</span></p>
+      </article>
+      <article class="metric" role="listitem">
+        <h2>État</h2>
+        <p class="metric-value status" id="status-value">--</p>
+      </article>
+    </div>
+
+    <p class="hint" id="setup-hint">
+      Firebase pas encore configuré : le site tourne en <strong>mode démo</strong>.
+      Ouvre <code>js/firebase-config.js</code> et remplace les PLACEHOLDER.
+    </p>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

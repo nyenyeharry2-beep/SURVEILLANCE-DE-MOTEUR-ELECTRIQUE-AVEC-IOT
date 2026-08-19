@@ -1,0 +1,37 @@
+INSTALLATION — InfinityFree uniquement (PHP + MySQL, sans cloud externe)
+======================================================================
+
+ÉTAPE 1 — joyce1.zip → htdocs (racine)
+---------------------------------------
+1. InfinityFree → File Manager → htdocs
+2. Upload joyce1.zip → Extract
+3. Tous les fichiers à la racine : mesure.php, live.php, config.php, etc.
+4. Ouvrez : http://otornyenye.rf.gd/install.php
+5. Tests :
+   http://otornyenye.rf.gd/ping.php
+   http://otornyenye.rf.gd/live.php
+
+ÉTAPE 2 — joyce2.zip → htdocs/motorguard/
+-----------------------------------------
+1. Dans htdocs, créez le dossier : motorguard
+2. Upload joyce2.zip dans motorguard → Extract
+3. Ouvrez : http://otornyenye.rf.gd/motorguard/
+
+ÉTAPE 3 — config.php (File Manager → Edit)
+------------------------------------------
+  DB_PASS    → mot de passe MySQL InfinityFree
+  DEVICE_KEY → lumen-esp32-nyenye-7f3a9c
+
+ÉTAPE 4 — Cartes Arduino
+------------------------
+1. Arduino Uno : surveillance_moteur_uno.ino
+2. ESP32       : motorguard/firmware/passerelle_infinityfree.ino
+   WIFI_SSID, WIFI_PASS, SERVER_HOST = "otornyenye.rf.gd"
+   DEVICE_KEY identique à config.php
+
+VOS DEUX SITES
+--------------
+  http://otornyenye.rf.gd/              → Lumen (login PHP)
+  http://otornyenye.rf.gd/motorguard/   → MOTORGUARD Uno + ESP32
+
+Compte : nyenyeharry2@gmail.com / ('-é1014
