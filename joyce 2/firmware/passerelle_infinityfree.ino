@@ -1,5 +1,5 @@
 /**
- * ESP32 — Passerelle Uno → InfinityFree (sans Firebase)
+ * ESP32 — Passerelle Uno → InfinityFree (PHP + MySQL)
  * Bibliothèques : WiFi, HTTPClient (core ESP32)
  */
 #include <Arduino.h>

@@ -1,53 +1,37 @@
-INSTALLATION COMPLÈTE — InfinityFree uniquement
-================================================
+INSTALLATION — InfinityFree uniquement (PHP + MySQL, sans cloud externe)
+======================================================================
 
-Pas de GitHub. Pas de Netlify.
-Tout se fait avec le File Manager InfinityFree et les fichiers zip joyce 1 / joyce 2.
-
-ÉTAPE 1 — joyce 1.zip → htdocs (racine)
+ÉTAPE 1 — joyce1.zip → htdocs (racine)
 ---------------------------------------
-1. Connectez-vous à InfinityFree → Control Panel → File Manager
-2. Ouvrez le dossier htdocs
-3. Cliquez Upload → choisissez joyce 1.zip
-4. Clic droit sur joyce 1.zip → Extract (décompresser)
-5. Déplacez tous les fichiers extraits à la racine de htdocs
-   (index.html, mesure.php, config.php, etc. doivent être directement dans htdocs)
-6. Ouvrez : http://otornyenye.rf.gd/install.php
-7. Puis : http://otornyenye.rf.gd/
+1. InfinityFree → File Manager → htdocs
+2. Upload joyce1.zip → Extract
+3. Tous les fichiers à la racine : mesure.php, live.php, config.php, etc.
+4. Ouvrez : http://otornyenye.rf.gd/install.php
+5. Tests :
+   http://otornyenye.rf.gd/ping.php
+   http://otornyenye.rf.gd/live.php
 
-ÉTAPE 2 — joyce 2.zip → htdocs/firebase/
-----------------------------------------
-1. Dans htdocs, créez un nouveau dossier : firebase
-2. Entrez dans le dossier firebase
-3. Upload → joyce 2.zip → Extract
-4. Vérifiez que index.html est dans htdocs/firebase/ (pas dans un sous-dossier en trop)
-5. Ouvrez : http://otornyenye.rf.gd/firebase/
+ÉTAPE 2 — joyce2.zip → htdocs/motorguard/
+-----------------------------------------
+1. Dans htdocs, créez le dossier : motorguard
+2. Upload joyce2.zip dans motorguard → Extract
+3. Ouvrez : http://otornyenye.rf.gd/motorguard/
 
-ÉTAPE 3 — Firebase (console.firebase.google.com)
-------------------------------------------------
-1. Realtime Database → Créer (mode test)
-2. Importer seed_initial.json (fichier extrait de joyce 2)
-3. Règles → coller database.rules.json → Publier
-4. Paramètres → App Web → copier les clés
+ÉTAPE 3 — config.php (File Manager → Edit)
+------------------------------------------
+  DB_PASS    → mot de passe MySQL InfinityFree
+  DEVICE_KEY → lumen-esp32-nyenye-7f3a9c
 
-ÉTAPE 4 — Configurer 2 fichiers (File Manager → Edit)
------------------------------------------------------
-A) htdocs/config.php :
-   FIREBASE_DB_URL = votre URL Realtime Database
-   FIREBASE_AUTH   = secret legacy Firebase
-
-B) htdocs/firebase/firebase-config.js :
-   Remplacez tous les VOTRE_… par vos clés Firebase
-
-ÉTAPE 5 — ESP32
----------------
-Sketch Lumen_ESP32.ino :
-  SERVER_HOST = "otornyenye.rf.gd"
-  POST → http://otornyenye.rf.gd/mesure.php
+ÉTAPE 4 — Cartes Arduino
+------------------------
+1. Arduino Uno : surveillance_moteur_uno.ino
+2. ESP32       : motorguard/firmware/passerelle_infinityfree.ino
+   WIFI_SSID, WIFI_PASS, SERVER_HOST = "otornyenye.rf.gd"
+   DEVICE_KEY identique à config.php
 
 VOS DEUX SITES
 --------------
-  http://otornyenye.rf.gd/           → Lumen (login)
-  http://otornyenye.rf.gd/firebase/  → Firebase (graphiques)
+  http://otornyenye.rf.gd/              → Lumen (login PHP)
+  http://otornyenye.rf.gd/motorguard/   → MOTORGUARD Uno + ESP32
 
 Compte : nyenyeharry2@gmail.com / ('-é1014

@@ -1,5 +1,5 @@
 /**
- * MOTORGUARD IoT — InfinityFree (Uno + ESP32) sans Firebase
+ * MOTORGUARD IoT — InfinityFree (Uno + ESP32, PHP + MySQL)
  * JOYCE 2 — lit live.php / config_moteur.php / commande.php
  */
 (function () {
