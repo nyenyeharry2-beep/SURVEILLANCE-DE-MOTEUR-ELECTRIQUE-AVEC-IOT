@@ -61,14 +61,17 @@ bool httpPostMesure(bool historique) {
   json += "\"buzzer_state\":" + String(buzzerState ? "true" : "false") + ",";
   json += "\"buzzer_mute\":" + String(buzzerMute ? "true" : "false") + ",";
   json += "\"uno_online\":" + String(unoOnline ? "true" : "false") + ",";
-  json += "\"online\":" + String(unoOnline ? "true" : "false") + ",";
+  json += "\"online\":true,";
   json += "\"timestamp\":" + String((int)(millis() / 1000)) + ",";
   json += "\"historique\":" + String(historique ? "true" : "false");
   json += "}";
 
   int code = http.POST(json);
+  String resp = http.getString();
   http.end();
-  Serial.printf("POST mesure %d\n", code);
+  Serial.printf("POST mesure HTTP %d", code);
+  if (code < 200 || code >= 300) Serial.printf(" body=%s", resp.substring(0, 120).c_str());
+  Serial.println();
   return code >= 200 && code < 300;
 }
 

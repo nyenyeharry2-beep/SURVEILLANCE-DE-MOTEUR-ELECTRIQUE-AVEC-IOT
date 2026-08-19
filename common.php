@@ -489,7 +489,7 @@ function row_to_live(array $row): array {
     'buzzer_state' => (bool) ($row['buzzer_state'] ?? 0),
     'buzzer_mute' => (bool) ($row['buzzer_mute'] ?? 0),
     'uno_online' => $uno,
-    'online' => $uno && !$stale,
+    'online' => !$stale && ($ts !== null && $ts !== ''),
     'timestamp' => (int) ($row['esp_timestamp'] ?? 0),
     'auto_stop_on_alarm' => true,
     'speed_sensor' => 'IR',

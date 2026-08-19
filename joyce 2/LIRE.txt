@@ -5,22 +5,46 @@ Ce dossier remplace l'ancienne version Firebase.
 
 SUR INFINITYFREE
 ----------------
-1. JOYCE 1 → htdocs/ (racine) — obligatoire (PHP + MySQL)
+1. JOYCE 1 → htdocs/ (racine) — OBLIGATOIRE (PHP + MySQL)
 2. JOYCE 2 → htdocs/firebase/ — ce dossier (interface web)
 
-URL : http://otornyenye.rf.gd/firebase/
+URL : http://VOTRE-DOMAINE.rf.gd/firebase/
 
 CARTES (Arduino IDE, pas File Manager)
 --------------------------------------
-1. Arduino Uno : ../surveillance motor/Arduino_Uno/surveillance_moteur_uno/surveillance_moteur_uno.ino
+1. Arduino Uno : surveillance_moteur_uno.ino (projet surveillance motor)
 2. ESP32       : firmware/passerelle_infinityfree.ino (dans ce zip)
 
-Configurer WiFi + SERVER_HOST + DEVICE_KEY (identique a config.php).
+Dans passerelle_infinityfree.ino, configurez :
+  WIFI_SSID, WIFI_PASS
+  SERVER_HOST = "otornyenye.rf.gd"   (votre domaine InfinityFree)
+  DEVICE_KEY  = identique a config.php de JOYCE 1
 
 FLUX
 ----
 Uno (capteurs) → ESP32 (WiFi) → mesure.php → MySQL → live.php → cette page web
 
-PAS DE FIREBASE. PAS DE CONSOLE GOOGLE.
+PAS DE FIREBASE.
 
-Fichiers supprimés de l'ancien JOYCE 2 : firebase-config.js, seed_initial.json
+DEPANNAGE — ESP32 ne communique pas avec le web
+------------------------------------------------
+1. JOYCE 1 installe a la RACINE htdocs (pas seulement firebase/)
+   Test navigateur :
+     http://VOTRE-DOMAINE/ping.php      → {"ok":true,...}
+     http://VOTRE-DOMAINE/mesure.php    → {"ok":true,"endpoint":"mesure",...}
+     http://VOTRE-DOMAINE/live.php      → {"ok":true,"live":{...}}
+
+2. Si live.php = 404 → re-uploadez joyce1.zip a la racine htdocs
+
+3. ESP32 : flashez passerelle_infinityfree.ino (PAS Lumen_ESP32.ino ni Firebase)
+   Moniteur serie (115200) : vous devez voir "POST mesure HTTP 200"
+   Si HTTP 403 → DEVICE_KEY different entre ESP32 et config.php
+   Si HTTP 404 → mauvais SERVER_HOST ou JOYCE 1 absent
+
+4. WiFi 2,4 GHz obligatoire (pas 5 GHz seul)
+
+5. Uno absent = normal au debut : badge "ESP32 en ligne (Uno absent)"
+   Branchez Uno TX→ESP32 GPIO16, Uno RX→ESP32 GPIO17, GND commun
+
+6. Domaine InfinityFree : verifiez que otornyenye.rf.gd pointe vers votre compte
+   (Domains → Manage → attach to hosting account)

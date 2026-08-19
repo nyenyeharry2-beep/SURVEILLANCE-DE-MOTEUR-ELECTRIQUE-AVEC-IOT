@@ -5,7 +5,12 @@
 (function () {
   "use strict";
 
-  const API = "..";
+  const API = "";
+  const API_PATHS = {
+    live: "/live.php",
+    config: "/config_moteur.php",
+    commande: "/commande.php",
+  };
   const MAX_POINTS = 40;
   const MAX_HISTORY_ROWS = 30;
   const STALE_MS = 8000;
@@ -103,21 +108,24 @@
   });
 
   async function apiGet(path) {
-    const res = await fetch(`${API}/${path}`, { credentials: "include" });
+    const url = path.startsWith("/") ? path : `${API}/${path}`;
+    const res = await fetch(url, { credentials: "include", cache: "no-store" });
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status} sur ${url}`);
     return data;
   }
 
   async function apiPost(path, body) {
-    const res = await fetch(`${API}/${path}`, {
+    const url = path.startsWith("/") ? path : `${API}/${path}`;
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       credentials: "include",
+      cache: "no-store",
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status} sur ${url}`);
     return data;
   }
 
@@ -228,16 +236,25 @@
     pushPoint(new Date().toLocaleTimeString("fr-FR", { hour12: false }), live);
     updateStats(live);
     evaluateAlerts(live, configCache);
-    setOnline(live.online !== false && live.uno_online !== false);
+    setOnline(live.online !== false, live.uno_online === true);
   }
 
-  function setOnline(online) {
-    if (online) {
-      el.connBadge.textContent = "Uno + ESP32 en ligne";
+  function setOnline(espOnline, unoOnline) {
+    if (espOnline) {
+      el.connBadge.textContent = unoOnline ? "Uno + ESP32 en ligne" : "ESP32 en ligne (Uno absent)";
       el.connBadge.className = "badge badge-on";
     } else {
-      el.connBadge.textContent = "Uno / ESP32 hors ligne";
+      el.connBadge.textContent = "ESP32 hors ligne — aucune donnée récente";
       el.connBadge.className = "badge badge-off";
+    }
+  }
+
+  function showApiError(msg) {
+    el.connBadge.textContent = "Erreur API : " + msg;
+    el.connBadge.className = "badge badge-off";
+    if (el.configMsg && !el.configMsg.textContent) {
+      el.configMsg.style.color = "#c23b3b";
+      el.configMsg.textContent = "Vérifiez que JOYCE 1 est à la racine htdocs (live.php, mesure.php).";
     }
   }
 
@@ -281,7 +298,7 @@
       return;
     }
     try {
-      await apiPost("config_moteur.php", values);
+      await apiPost(API_PATHS.config, values);
       el.configMsg.style.color = "#2f9e8a";
       el.configMsg.textContent = "Paramètres enregistrés. L'ESP32 les lira sous ~5 s.";
       configCache = Object.assign({}, configCache || {}, values);
@@ -293,7 +310,7 @@
 
   async function setRelayCommand(on) {
     try {
-      await apiPost("commande.php", { relay: on });
+      await apiPost(API_PATHS.commande, { relay: on });
       el.relayState.textContent = on ? "commande ON…" : "commande OFF…";
     } catch (err) {
       alert("Impossible de commander le relais : " + err.message);
@@ -304,7 +321,7 @@
   el.btnRelayOff.addEventListener("click", () => setRelayCommand(false));
   el.chkBuzzerMute.addEventListener("change", async () => {
     try {
-      await apiPost("commande.php", { buzzer_mute: el.chkBuzzerMute.checked });
+      await apiPost(API_PATHS.commande, { buzzer_mute: el.chkBuzzerMute.checked });
     } catch (err) {
       alert("Mute buzzer impossible : " + err.message);
     }
@@ -312,15 +329,16 @@
 
   async function poll() {
     try {
-      const data = await apiGet("live.php");
+      const data = await apiGet(API_PATHS.live);
       if (data.live) renderLive(data.live);
       if (data.historique) renderHistory(data.historique);
     } catch (err) {
       console.error(err);
-      setOnline(false);
+      showApiError(err.message);
+      setOnline(false, false);
     }
     try {
-      const cfg = await apiGet("config_moteur.php");
+      const cfg = await apiGet(API_PATHS.config);
       if (cfg.config) fillConfigForm(cfg.config);
     } catch (err) {
       console.warn("config", err);
@@ -333,6 +351,6 @@
   setInterval(poll, POLL_MS);
   setInterval(() => {
     el.clockLabel.textContent = new Date().toLocaleTimeString("fr-FR", { hour12: false });
-    if (lastLiveAt && Date.now() - lastLiveAt > STALE_MS) setOnline(false);
+    if (lastLiveAt && Date.now() - lastLiveAt > STALE_MS) setOnline(false, false);
   }, 1000);
 })();

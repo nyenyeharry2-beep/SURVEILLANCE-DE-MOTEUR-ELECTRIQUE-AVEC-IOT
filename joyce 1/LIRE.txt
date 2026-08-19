@@ -2,38 +2,35 @@ JOYCE 1 — INFINITYFREE (File Manager → htdocs)
 ==============================================
 
 Pas de GitHub. Pas de Netlify.
-Téléversez ces fichiers avec le File Manager InfinityFree uniquement.
+Televersez ces fichiers avec le File Manager InfinityFree uniquement.
 
-ÉTAPES — JOYCE 1 (racine htdocs)
+ETAPES — JOYCE 1 (racine htdocs)
 --------------------------------
 1. InfinityFree → File Manager → htdocs
-2. Upload joyce 1.zip → Extract (ou téléversez fichier par fichier)
-3. Les fichiers doivent être à la racine de htdocs (pas dans un sous-dossier)
-4. Ouvrez : http://otornyenye.rf.gd/install.php
-5. Puis : http://otornyenye.rf.gd/
-6. Tests :
-   http://otornyenye.rf.gd/ping.php
-   http://otornyenye.rf.gd/mesure.php
+2. Upload joyce1.zip → Extract
+3. Les fichiers doivent etre a la racine de htdocs (mesure.php, live.php, config.php...)
+4. Ouvrez : http://VOTRE-DOMAINE/install.php
+5. Tests obligatoires :
+   http://VOTRE-DOMAINE/ping.php
+   http://VOTRE-DOMAINE/mesure.php
+   http://VOTRE-DOMAINE/live.php
 
-ÉTAPES — JOYCE 2 (dossier firebase)
+ETAPES — JOYCE 2 (dossier firebase)
 -----------------------------------
-1. Dans htdocs, créez le dossier : firebase
-2. Upload joyce 2.zip dans firebase → Extract
-3. Ouvrez : http://otornyenye.rf.gd/firebase/
+1. Dans htdocs, creez le dossier : firebase
+2. Upload joyce2.zip dans firebase → Extract
+3. Ouvrez : http://VOTRE-DOMAINE/firebase/
 
 Deux tableaux de bord :
-  http://otornyenye.rf.gd/           → Lumen (connexion PHP)
-  http://otornyenye.rf.gd/firebase/  → Firebase (graphiques temps réel)
+  http://VOTRE-DOMAINE/           → Lumen (connexion PHP)
+  http://VOTRE-DOMAINE/firebase/  → MOTORGUARD Uno+ESP32
 
 FICHIER IMPORTANT : config.php (racine htdocs)
 ----------------------------------------------
-Éditez dans File Manager :
-  DB_PASS          → mot de passe MySQL InfinityFree
-  DEVICE_KEY       → lumen-esp32-nyenye-7f3a9c
-  FIREBASE_DB_URL  → URL Realtime Database
-  FIREBASE_AUTH    → secret legacy Firebase
+  DB_PASS    → mot de passe MySQL InfinityFree
+  DEVICE_KEY → lumen-esp32-nyenye-7f3a9c (meme valeur dans l'ESP32)
 
-ESP32 :
+ESP32 (passerelle_infinityfree.ino) :
   SERVER_HOST = "otornyenye.rf.gd"
   POST → http://otornyenye.rf.gd/mesure.php
 
@@ -41,4 +38,4 @@ Compte Lumen :
   e-mail       : nyenyeharry2@gmail.com
   mot de passe : ('-é1014
 
-Guide complet : voir INSTALLATION.txt (fourni avec les zip)
+Sans JOYCE 1 a la racine, JOYCE 2 /firebase/ ne recoit AUCUNE donnee.
