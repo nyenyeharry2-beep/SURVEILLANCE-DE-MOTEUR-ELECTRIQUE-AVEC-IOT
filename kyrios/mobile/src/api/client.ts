@@ -1,5 +1,5 @@
 // API InfinityFree KYRIOS
-export const API_URL = 'https://kyrios.infinityfree.me'
+export const API_URL = 'https://kyrios.infinityfree.me/api.php'
 
 export interface User {
   id: string
@@ -77,14 +77,23 @@ export function setToken(t: string | null) { token = t }
 export function getToken() { return token }
 
 async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const route = path.replace(/^\/api\//, '').replace(/^\//, '')
   const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(options.headers as Record<string, string> || {}) }
   if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers })
+  const url = `${API_URL}?route=${encodeURIComponent(route)}`
+  const res = await fetch(url, { ...options, headers })
+  const text = await res.text()
+  let data: unknown
+  try {
+    data = JSON.parse(text)
+  } catch {
+    throw new Error('Serveur inaccessible — uploadez api.php sur InfinityFree')
+  }
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }))
+    const err = data as { error?: string }
     throw new Error(err.error || 'Erreur API')
   }
-  return res.json()
+  return data as T
 }
 
 export const auth = {
