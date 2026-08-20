@@ -1,0 +1,208 @@
+.messages-screen .screen-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kyrios-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.messages-screen h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  background: #f3f4f6;
+  border-radius: 14px;
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  outline: none;
+}
+
+.active-friends {
+  margin-bottom: 8px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 10px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.section-head a {
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.active-friends__scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 0 16px 8px;
+  scrollbar-width: none;
+}
+
+.active-friends__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.active-friend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 64px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.conversation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px;
+}
+
+.conversation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+}
+
+.conversation-row:active {
+  background: #f9fafb;
+}
+
+.conversation-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.conversation-row__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.conversation-row__name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.conversation-row__time {
+  font-size: 12px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.conversation-row__preview {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-row__preview--typing {
+  color: #2563eb;
+  font-style: italic;
+}
+
+.badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab {
+  position: fixed;
+  right: max(16px, calc(50% - 430px / 2 + 16px));
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.avatar__online {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #fff;
+}
