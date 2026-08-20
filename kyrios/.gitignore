@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+mobile/node_modules/
+
+# Build outputs
+dist/
+.expo/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Ne pas commiter les mots de passe
+infinityfree/config.production.php
+
+# Keep these tracked:
+!database/kyrios.db
+!releases/*.apk

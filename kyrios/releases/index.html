@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYRIOS — Téléchargements</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { max-width: 480px; width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px; backdrop-filter: blur(20px); }
+    .logo { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 0 auto 16px; }
+    h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
+    p.sub { text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 32px; font-size: 14px; }
+    a.btn { display: block; background: #6366f1; color: #fff; text-decoration: none; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; font-weight: 600; text-align: center; transition: background 0.2s; }
+    a.btn:hover { background: #818cf8; }
+    a.btn.secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+    a.btn.secondary:hover { background: rgba(255,255,255,0.14); }
+    .label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; margin-top: 20px; }
+    .info { background: rgba(99,102,241,0.15); border-radius: 12px; padding: 16px; margin-top: 24px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.7); }
+    .info strong { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">K</div>
+    <h1>KYRIOS</h1>
+    <p class="sub">Messagerie & Réseau Social</p>
+
+    <div class="label">Application Android</div>
+    <a class="btn" href="KYRIOS-v1.0.0.apk" download>📱 Télécharger l'APK (81 Mo)</a>
+
+    <div class="label">Base de données</div>
+    <a class="btn secondary" href="kyrios_mysql.sql" download>🗄️ MySQL pour InfinityFree (.sql)</a>
+    <a class="btn secondary" href="kyrios.db" download>🗄️ SQLite locale (.db)</a>
+
+    <div class="info">
+      <strong>Compte demo :</strong><br>
+      Email : me@kyrios.app<br>
+      Mot de passe : Kyrios2026!
+    </div>
+  </div>
+</body>
+</html>
