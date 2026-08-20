@@ -1,7 +1,5 @@
-// Change this to your server IP when testing on a real device
-// Android emulator: http://10.0.2.2:3001
-// Local network: http://YOUR_IP:3001
-export const API_URL = 'http://10.0.2.2:3001'
+// API InfinityFree KYRIOS
+export const API_URL = 'https://kyrios.infinityfree.me'
 
 export interface User {
   id: string
