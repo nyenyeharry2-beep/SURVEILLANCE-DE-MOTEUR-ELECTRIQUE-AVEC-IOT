@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-kyrios-bg: #0a0a0f;
+  --color-kyrios-surface: rgba(255, 255, 255, 0.06);
+  --color-kyrios-surface-hover: rgba(255, 255, 255, 0.1);
+  --color-kyrios-border: rgba(255, 255, 255, 0.08);
+  --color-kyrios-accent: #6366f1;
+  --color-kyrios-accent-light: #818cf8;
+  --color-kyrios-online: #22c55e;
+  --color-kyrios-live: #ef4444;
+  --color-kyrios-text: #ffffff;
+  --color-kyrios-text-muted: rgba(255, 255, 255, 0.5);
+  --color-kyrios-bubble-in: rgba(255, 255, 255, 0.08);
+  --color-kyrios-bubble-out: rgba(99, 102, 241, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #050508;
+  color: var(--color-kyrios-text);
+  overflow: hidden;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
