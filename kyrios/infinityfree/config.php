@@ -1,9 +1,9 @@
 <?php
 // KYRIOS - Configuration InfinityFree
-// Modifiez ces valeurs avec vos identifiants InfinityFree (panneau de contrôle > MySQL)
+// Mot de passe MySQL : panneau InfinityFree → MySQL Databases → Show Password
 
-define('DB_HOST', 'sqlXXX.infinityfree.com');  // Votre hôte MySQL InfinityFree
-define('DB_NAME', 'if0_XXXXXXX_kyrios');       // Nom de la base de données
-define('DB_USER', 'if0_XXXXXXX');              // Utilisateur MySQL
-define('DB_PASS', 'VOTRE_MOT_DE_PASSE');       // Mot de passe MySQL
-define('JWT_SECRET', 'kyrios-infinityfree-secret-2026-changez-moi');
+define('DB_HOST', 'sql109.infinityfree.com');
+define('DB_NAME', 'if0_42679313_KYRIOS');
+define('DB_USER', 'if0_42679313');
+define('DB_PASS', 'VOTRE_MOT_DE_PASSE_ICI');  // ← Collez votre mot de passe MySQL InfinityFree
+define('JWT_SECRET', 'kyrios-infinityfree-secret-2026');
