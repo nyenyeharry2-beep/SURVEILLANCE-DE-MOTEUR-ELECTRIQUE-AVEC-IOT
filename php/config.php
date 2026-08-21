@@ -88,6 +88,43 @@ function ensureDatabaseSchema(): void
 }
 
 /**
+ * Detecte le nom de la colonne date (timestamp ou date_mesure)
+ */
+function getMesureDateColumn(PDO $pdo): string
+{
+    static $col = null;
+    if ($col !== null) {
+        return $col;
+    }
+
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM moteur_surveillance LIKE 'date_mesure'");
+        if ($stmt->fetch()) {
+            $col = 'date_mesure';
+            return $col;
+        }
+        $stmt = $pdo->query("SHOW COLUMNS FROM moteur_surveillance LIKE 'timestamp'");
+        if ($stmt->fetch()) {
+            $col = 'timestamp';
+            return $col;
+        }
+    } catch (PDOException $e) {
+        // Table pas encore creee
+    }
+
+    $col = 'date_mesure';
+    return $col;
+}
+
+/**
+ * Retourne la date d'une ligne de mesure
+ */
+function getMesureDate(array $row): string
+{
+    return $row['date_mesure'] ?? $row['timestamp'] ?? '';
+}
+
+/**
  * Message d'erreur lisible pour le dashboard
  */
 function getDbErrorMessage(PDOException $e): string
