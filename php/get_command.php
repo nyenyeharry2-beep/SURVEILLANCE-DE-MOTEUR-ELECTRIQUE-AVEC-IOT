@@ -14,6 +14,7 @@ if (!checkApiKey()) {
 
 try {
     $pdo = getDbConnection();
+    ensureDatabaseSchema();
     $pdo->beginTransaction();
 
     $stmt = $pdo->query(

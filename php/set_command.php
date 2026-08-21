@@ -13,6 +13,7 @@ if (!in_array($cmd, ['ON', 'OFF'], true)) {
 
 try {
     $pdo = getDbConnection();
+    ensureDatabaseSchema();
     $stmt = $pdo->prepare('INSERT INTO commandes (cmd) VALUES (:cmd)');
     $stmt->execute([':cmd' => $cmd]);
 

@@ -29,20 +29,21 @@ $relayState = 'OFF';
 
 try {
     $pdo = getDbConnection();
+    ensureDatabaseSchema();
 
-    $stmt = $pdo->query('SELECT * FROM moteur_surveillance ORDER BY timestamp DESC, id DESC LIMIT 1');
+    $stmt = $pdo->query('SELECT * FROM moteur_surveillance ORDER BY date_mesure DESC, id DESC LIMIT 1');
     $latest = $stmt->fetch();
 
-    $stmt = $pdo->query('SELECT * FROM moteur_surveillance ORDER BY timestamp DESC, id DESC LIMIT 20');
+    $stmt = $pdo->query('SELECT * FROM moteur_surveillance ORDER BY date_mesure DESC, id DESC LIMIT 20');
     $history = $stmt->fetchAll();
 
-    $stmt = $pdo->query('SELECT relay_state FROM etat_relais ORDER BY id DESC LIMIT 1');
+    $stmt = $pdo->query('SELECT relay_state FROM etat_relais WHERE id = 1');
     $relayRow = $stmt->fetch();
     if ($relayRow) {
         $relayState = $relayRow['relay_state'];
     }
 } catch (PDOException $e) {
-    $message = 'Impossible de lire la base de donnees. Verifiez schema.sql dans phpMyAdmin.';
+    $message = getDbErrorMessage($e) . ' Ouvrez install.php pour corriger.';
     $messageType = 'error';
 }
 
@@ -144,7 +145,7 @@ function badgeClass(string $etat): string
                     <?= htmlspecialchars($latest['etat']) ?>
                 </span>
                 &nbsp; Relais: <strong><?= htmlspecialchars($latest['relay_state']) ?></strong>
-                &nbsp; <?= htmlspecialchars($latest['timestamp']) ?>
+                &nbsp; <?= htmlspecialchars($latest['date_mesure']) ?>
             </p>
             <div class="grid">
                 <div class="metric"><label>RPM</label><strong><?= number_format($latest['rpm'], 1) ?></strong></div>
@@ -180,7 +181,7 @@ function badgeClass(string $etat): string
             <tbody>
             <?php foreach ($history as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['timestamp']) ?></td>
+                    <td><?= htmlspecialchars($row['date_mesure']) ?></td>
                     <td><?= number_format($row['rpm'], 1) ?></td>
                     <td><?= number_format($row['arms'], 3) ?></td>
                     <td><?= number_format($row['vrms'], 3) ?></td>

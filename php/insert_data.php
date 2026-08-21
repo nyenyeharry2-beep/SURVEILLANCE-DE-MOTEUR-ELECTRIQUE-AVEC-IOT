@@ -40,6 +40,7 @@ if (!in_array($data['relay'], ['ON', 'OFF'], true)) {
 
 try {
     $pdo = getDbConnection();
+    ensureDatabaseSchema();
     $sql = 'INSERT INTO moteur_surveillance
             (ax, ay, az, rpm, arms, vrms, ecart, etat, relay_state, anomalie_vibration, anomalie_vitesse)
             VALUES (:ax, :ay, :az, :rpm, :arms, :vrms, :ecart, :etat, :relay, :anom_vib, :anom_vit)';
@@ -59,9 +60,13 @@ try {
         ':anom_vit' => $data['anomalie_vitesse'],
     ]);
 
-    // Mise a jour etat relais
-    $pdo->prepare('UPDATE etat_relais SET relay_state = :relay WHERE id = 1')
-        ->execute([':relay' => $data['relay']]);
+    // Mise a jour etat relais (id fixe = 1)
+    $upd = $pdo->prepare('UPDATE etat_relais SET relay_state = :relay WHERE id = 1');
+    $upd->execute([':relay' => $data['relay']]);
+    if ($upd->rowCount() === 0) {
+        $pdo->prepare('INSERT INTO etat_relais (id, relay_state) VALUES (1, :relay)')
+            ->execute([':relay' => $data['relay']]);
+    }
 
     jsonResponse(['status' => 'ok', 'id' => (int) $pdo->lastInsertId()]);
 } catch (PDOException $e) {
