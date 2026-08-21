@@ -27,6 +27,8 @@ https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/
 | get_command.php | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/get_command.php |
 | set_command.php | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/set_command.php |
 | dashboard.php | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/dashboard.php |
+| install.php | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/install.php |
+| test_db.php | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/test_db.php |
 | schema.sql | https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/motor-surveillance-system-e1e8/php/schema.sql |
 
 ### Documentation
