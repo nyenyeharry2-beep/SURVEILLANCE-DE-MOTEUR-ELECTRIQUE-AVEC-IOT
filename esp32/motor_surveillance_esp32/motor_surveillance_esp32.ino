@@ -182,7 +182,8 @@ bool sendTelemetryToCloud(const TelemetryData &t) {
 
   bool ok = httpPostForm(url, payload, response);
   if (ok) {
-    Serial.println(F("Donnees envoyees: ") + response);
+    Serial.print(F("Donnees envoyees: "));
+    Serial.println(response);
     return true;
   }
 
