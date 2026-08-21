@@ -228,7 +228,8 @@ void sendRelayCommandToArduino(const String &cmd) {
   for (uint8_t attempt = 0; attempt < HTTP_MAX_RETRIES; attempt++) {
     ArduinoLink.print("RELAY=");
     ArduinoLink.println(cmd);
-    Serial.println(F("Commande envoyee a Arduino: RELAY=") + cmd);
+    Serial.print(F("Commande envoyee a Arduino: RELAY="));
+    Serial.println(cmd);
 
     unsigned long start = millis();
     while (millis() - start < 2000UL) {
