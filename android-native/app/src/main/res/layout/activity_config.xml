@@ -54,6 +54,74 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- VOS PHOTOS — logo + affiches -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Vos photos (obligatoire pour un vrai rendu)"
+            android:textColor="#D4B896"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <ImageView
+                android:id="@+id/logoPreview"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_poster_border"
+                android:contentDescription="Aperçu logo"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/couple_photo" />
+
+            <TextView
+                android:id="@+id/photoStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="Importez la photo du couple et vos affiches"
+                android:textColor="@color/config_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickCouple"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📷 Choisir PHOTO DU COUPLE (logo)"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickPosterCivil"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="🖼 Choisir AFFICHE mariage civil"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickPosterBlanche"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="🖼 Choisir AFFICHE bénédiction"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
         <!-- Aperçu affiche — grande et claire -->
         <TextView
             android:layout_width="match_parent"

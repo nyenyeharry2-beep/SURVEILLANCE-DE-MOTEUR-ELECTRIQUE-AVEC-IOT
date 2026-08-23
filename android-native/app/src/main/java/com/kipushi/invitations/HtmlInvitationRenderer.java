@@ -59,7 +59,9 @@ public class HtmlInvitationRenderer {
         html = html.replace("{{EVENT_TIME}}", escapeHtml(prefs.getTime()));
         html = html.replace("{{EVENT_VENUE}}", escapeHtml(prefs.getVenue()));
         html = html.replace("{{QR_SIZE}}", String.valueOf(style.qrSizePx));
-        html = html.replace("{{QR_DATA}}", qrDataUri(guest, style.qrColor));
+        html = html.replace("{{QR_DATA}}", qrDataUri(guest, prefs, style.qrColor));
+        html = html.replace("{{COUPLE_PHOTO}}", PhotoManager.couplePhotoUri(ctx));
+        html = html.replace("{{POSTER_BG}}", PhotoManager.posterBgUri(ctx, style.id));
 
         return captureWebView(ctx, html);
     }
@@ -127,9 +129,13 @@ public class HtmlInvitationRenderer {
         return sb.toString();
     }
 
-    private static String qrDataUri(Guest guest, String color) throws WriterException {
-        int size = 200;
-        String data = "{\"id\":" + guest.id + ",\"name\":\"" + guest.fullName + "\",\"table\":\"" + empty(guest.tableZone, "") + "\"}";
+    private static String qrDataUri(Guest guest, PrefsHelper prefs, String color) throws WriterException {
+        int size = 240;
+        String data = "INVITE|id:" + guest.id
+            + "|nom:" + guest.fullName
+            + "|table:" + empty(guest.tableZone, "-")
+            + "|date:" + prefs.getDate()
+            + "|places:" + guest.seats;
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.MARGIN, 1);
         BitMatrix matrix = new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, size, size, hints);

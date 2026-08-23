@@ -19,7 +19,7 @@
   <div class="screen-inner">
     <div class="header-row">
       <div class="logo-frame">
-        <img src="assets/couple_photo.png" alt="Logo Moïse & Sarah"/>
+        <img id="homeLogo" src="assets/couple_photo.png" alt="Logo Moïse & Sarah"/>
       </div>
       <div>
         <h1>Générateur d'Invitations</h1>
@@ -73,10 +73,10 @@
       </div>
     </div>
 
-    <p class="version-tag">Version 2.3.0 — Affiches HTML/CSS</p>
+    <p class="version-tag">Version 2.4.0 — QR code + vos photos</p>
 
-    <a class="apk-link" href="../releases/invitations-moise-sarah-v2.3.0.apk">
-      📱 Télécharger l'APK Android v2.3.0
+    <a class="apk-link" href="../releases/invitations-moise-sarah-v2.4.0.apk">
+      📱 Télécharger l'APK Android v2.4.0
     </a>
   </div>
 </section>
@@ -88,12 +88,30 @@
 
     <div class="header-row" style="justify-content:flex-start">
       <div class="logo-frame lg">
-        <img src="assets/couple_photo.png" alt="Logo"/>
+        <img id="configLogo" src="assets/couple_photo.png" alt="Logo"/>
       </div>
       <div>
         <h1>Configurer l'événement</h1>
         <p class="subtitle">Mariage de Moïse & Sarah</p>
       </div>
+    </div>
+
+    <p class="config-poster-label" style="color:#D4B896;font-weight:700">⚠ Importez VOS photos (obligatoire)</p>
+    <p id="photoStatus" class="config-intro" style="color:#ffcc80;margin-bottom:12px">
+      Sans vos photos, l'app utilise des images génériques. Choisissez la photo du couple et vos affiches ci-dessous.
+    </p>
+
+    <div class="field">
+      <label>📷 Photo du couple (logo + invitation)</label>
+      <input type="file" id="uploadCouple" accept="image/*"/>
+    </div>
+    <div class="field">
+      <label>🖼 Affiche mariage civil</label>
+      <input type="file" id="uploadPosterCivil" accept="image/*"/>
+    </div>
+    <div class="field">
+      <label>🖼 Affiche bénédiction</label>
+      <input type="file" id="uploadPosterBlanche" accept="image/*"/>
     </div>
 
     <p class="config-poster-label">Aperçu de l'affiche officielle</p>
@@ -209,11 +227,7 @@
     <p class="subtitle">Mariage de Moïse & Sarah</p>
 
     <div class="phone-frame">
-      <div class="poster-viewport">
-        <div class="poster-scaler" id="previewScaler">
-          <!-- invitation rendue ici -->
-        </div>
-      </div>
+      <img id="previewImage" alt="Invitation avec QR code" style="max-width:280px;max-height:395px;width:100%;display:block;border-radius:4px;background:#fff"/>
     </div>
 
     <button type="button" class="btn-wa" id="btnSendWa">Envoyer l'invitation</button>

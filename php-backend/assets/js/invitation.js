@@ -17,8 +17,13 @@
   };
 
   const STORAGE_KEY = 'moise_sarah_config';
+  const UPLOAD_CACHE = {
+    couple: 'assets/uploads/couple_photo.jpg',
+    poster_civil: 'assets/uploads/poster_civil.jpg',
+    poster_blanche: 'assets/uploads/poster_blanche.jpg'
+  };
+
   let currentStyle = 'mariage-civil';
-  let invitationsLoaded = false;
 
   function loadConfig() {
     try {
@@ -44,84 +49,93 @@
       style: currentStyle
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
-    syncEventFields();
     updateHeroPoster();
-    updatePreview();
-  }
-
-  function getEventFromConfig() {
-    return {
-      date: document.getElementById('cfgDate')?.value || PRESETS[currentStyle].date,
-      time: document.getElementById('cfgTime')?.value || PRESETS[currentStyle].time,
-      venue: document.getElementById('cfgVenue')?.value || PRESETS[currentStyle].venue
-    };
-  }
-
-  function syncEventFields() {
-    const ev = getEventFromConfig();
-    /* champs invité héritent de la config */
-  }
-
-  function qrUrl(data) {
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=' + encodeURIComponent(data);
   }
 
   function getFormData() {
-    const ev = getEventFromConfig();
     const embed = document.getElementById('cfgEmbedName')?.checked !== false;
     const guest = document.getElementById('guestName')?.value || 'Invité';
     return {
       guest: embed ? guest : ' ',
       table: document.getElementById('tableNum')?.value || '—',
       seats: document.getElementById('seats')?.value || '1',
-      date: ev.date,
-      time: ev.time,
-      venue: ev.venue
+      date: document.getElementById('cfgDate')?.value || PRESETS[currentStyle].date,
+      time: document.getElementById('cfgTime')?.value || PRESETS[currentStyle].time,
+      venue: document.getElementById('cfgVenue')?.value || PRESETS[currentStyle].venue
     };
   }
 
-  function fillPoster(posterEl, data) {
-    if (!posterEl) return;
-    const qrData = 'INVITE|' + data.guest.trim() + '|TABLE:' + data.table + '|' + data.date;
-    posterEl.querySelectorAll('[data-field="guest"]').forEach(el => { el.textContent = data.guest; });
-    posterEl.querySelectorAll('[data-field="table"]').forEach(el => { el.textContent = data.table; });
-    posterEl.querySelectorAll('[data-field="table2"]').forEach(el => { el.textContent = data.table; });
-    posterEl.querySelectorAll('[data-field="seats"]').forEach(el => { el.textContent = data.seats; });
-    posterEl.querySelectorAll('[data-field="date"]').forEach(el => { el.textContent = data.date; });
-    posterEl.querySelectorAll('[data-field="time"]').forEach(el => { el.textContent = data.time; });
-    posterEl.querySelectorAll('[data-field="venue"]').forEach(el => { el.textContent = data.venue; });
-    posterEl.querySelectorAll('[data-field="qr"]').forEach(el => { el.src = qrUrl(qrData); });
+  function generateUrl() {
+    const d = getFormData();
+    const params = new URLSearchParams({
+      style: currentStyle,
+      guest: d.guest.trim(),
+      table: d.table,
+      seats: d.seats,
+      date: d.date,
+      time: d.time,
+      venue: d.venue,
+      _: Date.now()
+    });
+    return 'api/generate.php?' + params.toString();
   }
 
-  function updatePreview() {
-    if (!invitationsLoaded) return;
-    const data = getFormData();
-    fillPoster(document.getElementById('posterCivil'), data);
-    fillPoster(document.getElementById('posterBlanche'), data);
-    syncPreviewScreen();
-  }
-
-  function syncPreviewScreen() {
-    const host = document.getElementById('posterScaler');
-    const preview = document.getElementById('previewScaler');
-    if (!host || !preview) return;
-
-    const civil = document.getElementById('posterCivil');
-    const blanche = document.getElementById('posterBlanche');
-    const active = currentStyle === 'mariage-civil' ? civil : blanche;
-    if (active) {
-      preview.innerHTML = active.outerHTML;
-      const hidden = preview.querySelector('.invitation-hidden');
-      if (hidden) hidden.classList.remove('invitation-hidden');
-    }
+  function updatePreviewImage() {
+    const img = document.getElementById('previewImage');
+    if (img) img.src = generateUrl();
   }
 
   function updateHeroPoster() {
-    const thumb = PRESETS[currentStyle]?.thumb || PRESETS['mariage-civil'].thumb;
-    ['heroPoster', 'configPoster'].forEach(id => {
+    const thumb = PRESETS[currentStyle]?.thumb;
+    const hero = document.getElementById('heroPoster');
+    const configPoster = document.getElementById('configPoster');
+    const posterUpload = currentStyle === 'affiche-blanche'
+      ? UPLOAD_CACHE.poster_blanche
+      : UPLOAD_CACHE.poster_civil;
+    const src = posterUpload + '?t=' + Date.now();
+    if (hero) hero.src = src;
+    if (configPoster) configPoster.src = src;
+    if (!hero?.complete) hero.onerror = () => { hero.src = thumb; };
+  }
+
+  function refreshLogos() {
+    const logoSrc = UPLOAD_CACHE.couple + '?t=' + Date.now();
+    ['homeLogo', 'configLogo'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.src = thumb;
+      if (el) {
+        el.src = logoSrc;
+        el.onerror = () => { el.src = 'assets/couple_photo.png'; };
+      }
     });
+    const status = document.getElementById('photoStatus');
+    if (status) status.textContent = '✓ Photos chargées — logo et affiches actifs';
+  }
+
+  async function uploadPhoto(input, type) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('type', type);
+    fd.append('photo', file);
+    try {
+      const res = await fetch('api/upload.php', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Upload échoué');
+      refreshLogos();
+      updateHeroPoster();
+      const status = document.getElementById('photoStatus');
+      if (status) status.textContent = '✓ ' + json.message;
+    } catch (e) {
+      alert('Erreur upload: ' + e.message + '\n\nSur GitHub Pages, hébergez sur un serveur PHP local.');
+      /* Fallback: aperçu local immédiat */
+      const url = URL.createObjectURL(file);
+      if (type === 'couple') {
+        ['homeLogo', 'configLogo'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.src = url;
+        });
+      }
+    }
   }
 
   function setStyle(style) {
@@ -129,101 +143,60 @@
     document.querySelectorAll('.style-thumb').forEach(t => {
       t.classList.toggle('active', t.dataset.style === style);
     });
-
-    const civil = document.getElementById('posterCivil');
-    const blanche = document.getElementById('posterBlanche');
-    if (civil) civil.classList.toggle('invitation-hidden', style !== 'mariage-civil');
-    if (blanche) blanche.classList.toggle('invitation-hidden', style !== 'affiche-blanche');
-
-    const preset = PRESETS[style];
-    if (preset && !localStorage.getItem(STORAGE_KEY)) {
-      document.getElementById('cfgDate').value = preset.date;
-      document.getElementById('cfgTime').value = preset.time;
-      document.getElementById('cfgVenue').value = preset.venue;
-    }
     updateHeroPoster();
-    updatePreview();
   }
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const screen = document.getElementById('screen-' + id);
-    if (screen) {
-      screen.classList.add('active');
-      window.scrollTo(0, 0);
-    }
-    if (id === 'preview') {
-      updatePreview();
-      syncPreviewScreen();
-    }
+    document.getElementById('screen-' + id)?.classList.add('active');
+    window.scrollTo(0, 0);
+    if (id === 'preview') updatePreviewImage();
   }
 
   function formatWhatsAppMessage() {
     let msg = document.getElementById('cfgMessage')?.value || '';
-    const data = getFormData();
-    msg = msg.replace('{NAME}', data.guest.trim())
-      .replace('{DATE}', data.date)
-      .replace('{VENUE}', data.venue)
-      .replace('{TABLE}', data.table)
-      .replace('{SEATS}', data.seats);
-    return msg;
+    const d = getFormData();
+    return msg.replace('{NAME}', d.guest.trim())
+      .replace('{DATE}', d.date).replace('{VENUE}', d.venue)
+      .replace('{TABLE}', d.table).replace('{SEATS}', d.seats);
   }
 
   function sendWhatsApp() {
     const phone = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
     const msg = encodeURIComponent(formatWhatsAppMessage());
-    const url = phone
-      ? 'https://wa.me/' + phone + '?text=' + msg
-      : 'https://wa.me/?text=' + msg;
-    window.open(url, '_blank');
-  }
-
-  async function loadInvitations() {
-    const container = document.getElementById('posterScaler');
-    if (!container) return;
-
-    const [civilHtml, blancheHtml] = await Promise.all([
-      fetch('assets/invitations/mariage_civil.html').then(r => r.text()),
-      fetch('assets/invitations/affiche_blanche.html').then(r => r.text())
-    ]);
-
-    container.innerHTML = civilHtml + blancheHtml;
-    invitationsLoaded = true;
-    setStyle(currentStyle);
+    window.open(phone ? 'https://wa.me/' + phone + '?text=' + msg : 'https://wa.me/?text=' + msg, '_blank');
   }
 
   function bindEvents() {
     document.querySelectorAll('[data-nav]').forEach(el => {
       el.addEventListener('click', () => showScreen(el.dataset.nav));
     });
-
     document.querySelectorAll('.style-thumb').forEach(btn => {
       btn.addEventListener('click', () => setStyle(btn.dataset.style));
     });
-
     ['guestName', 'tableNum', 'seats', 'cfgDate', 'cfgTime', 'cfgVenue'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', updatePreview);
+      document.getElementById(id)?.addEventListener('input', () => {
+        if (document.getElementById('screen-preview')?.classList.contains('active')) {
+          updatePreviewImage();
+        }
+      });
     });
-
     document.getElementById('btnSaveConfig')?.addEventListener('click', () => {
       saveConfig();
       showScreen('home');
     });
-
-    document.getElementById('btnGenerate')?.addEventListener('click', () => {
-      updatePreview();
-      showScreen('preview');
-    });
-
+    document.getElementById('btnGenerate')?.addEventListener('click', () => showScreen('preview'));
     document.getElementById('btnSendWa')?.addEventListener('click', sendWhatsApp);
+    document.getElementById('uploadCouple')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
+    document.getElementById('uploadPosterCivil')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_civil'));
+    document.getElementById('uploadPosterBlanche')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_blanche'));
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  document.addEventListener('DOMContentLoaded', () => {
     loadConfig();
     bindEvents();
-    await loadInvitations();
-    updateHeroPoster();
+    setStyle(currentStyle);
+    refreshLogos();
     document.querySelectorAll('.style-thumb').forEach(t => {
       t.classList.toggle('active', t.dataset.style === currentStyle);
     });

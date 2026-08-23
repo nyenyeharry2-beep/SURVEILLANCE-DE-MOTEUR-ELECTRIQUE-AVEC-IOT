@@ -7,192 +7,69 @@
 @font-face { font-family: 'Great Vibes'; src: url('file:///android_asset/fonts/GreatVibes.ttf'); }
 @font-face { font-family: 'Playfair'; src: url('file:///android_asset/fonts/PlayfairDisplay-Regular.ttf'); }
 @font-face { font-family: 'Playfair'; font-weight: 700; src: url('file:///android_asset/fonts/PlayfairDisplay.ttf'); }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 1200px; height: 1700px; background: #fff; overflow: hidden; }
-
-.poster {
-  width: 1200px; height: 1700px; position: relative;
-  background: #ffffff;
-  font-family: 'Playfair', Georgia, serif;
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
+.poster { width:1200px; height:1700px; position:relative; }
+.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+.couple-logo {
+  position:absolute; left:40px; top:40px; width:200px; height:260px;
+  object-fit:cover; object-position:center top; z-index:3;
+  border:3px solid #D4B896; border-radius:16px; background:#fff;
+  box-shadow:0 4px 20px rgba(0,0,0,0.15);
 }
-
-/* Filigrane rose centrale */
-.watermark {
-  position: absolute; left: 50%; top: 45%; transform: translate(-50%,-50%);
-  width: 500px; height: 500px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,200,210,0.25) 0%, transparent 70%);
+.guest-name {
+  position:absolute; top:295px; left:490px; width:660px; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:34px; font-weight:700;
+  color:#1a1a1a; line-height:1.2;
 }
-
-/* Bordure violette droite */
-.border-curve {
-  position: absolute; right: 0; top: 40px; bottom: 40px; width: 4px;
-  background: linear-gradient(180deg, #e8dff0, #c9b8d8, #e8dff0);
-  border-radius: 2px;
+.table-badge {
+  position:absolute; top:220px; left:60px; width:400px; text-align:center; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:28px; color:#333;
 }
-
-/* Roses SVG coins */
-.rose-corner { position: absolute; width: 220px; height: 220px; }
-.rose-tl { top: 0; left: 0; }
-.rose-br { bottom: 0; right: 0; transform: rotate(180deg); }
-.vine-bl {
-  position: absolute; bottom: 80px; left: 20px; width: 120px; height: 180px; opacity: 0.7;
+.table-badge span {
+  font-weight:700; color:#6B2D82; border-bottom:3px dotted #999; padding:0 16px;
 }
-
-/* Panneau gauche — photo couple */
-.left-panel {
-  position: absolute; left: 0; top: 0; width: 480px; height: 100%;
-  overflow: hidden;
+.date-line, .time-line, .venue-line {
+  position:absolute; left:490px; width:660px; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:22px; color:#222;
 }
-.couple-photo {
-  width: 100%; height: 92%;
-  object-fit: cover;
-  object-position: center top;
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-}
-.table-line {
-  position: absolute; top: 140px; left: 0; right: 0; text-align: center;
-  font-size: 24px; color: #333; z-index: 5;
-}
-.table-line span { font-weight: 700; color: #6B2D82; border-bottom: 2px dotted #999; padding: 0 12px; }
-
-/* Panneau droit — texte */
-.right-panel {
-  position: absolute; left: 480px; top: 0; width: 720px; height: 100%;
-  padding: 55px 45px 40px 35px;
-}
-
-.title-invitation {
-  font-family: 'Great Vibes', cursive;
-  font-size: 96px; color: #C5A059; text-align: center;
-  line-height: 1; margin-bottom: 6px;
-}
-.title-underline {
-  width: 280px; height: 2px; background: #C5A059; margin: 0 auto 8px;
-  position: relative;
-}
-.title-underline::after {
-  content: '❧'; position: absolute; left: 50%; top: -12px;
-  transform: translateX(-50%); color: #C5A059; font-size: 22px;
-}
-
-.guest-row {
-  font-size: 21px; color: #333; margin: 18px 0 22px;
-  border-bottom: 2px dotted #bbb; padding-bottom: 12px;
-}
-.guest-row .name {
-  font-size: 30px; font-weight: 700; color: #1a1a1a;
-  display: inline-block; min-width: 200px;
-}
-
-.intro {
-  font-size: 22px; color: #2a2a2a; line-height: 1.55; text-align: center;
-  margin-bottom: 28px;
-}
-
-.names-block { text-align: center; margin: 20px 0 32px; }
-.name-script {
-  font-family: 'Great Vibes', cursive;
-  font-size: 52px; color: #D81B60; line-height: 1.2;
-}
-.ampersand {
-  font-size: 28px; color: #C5A059; margin: 8px 0;
-  letter-spacing: 8px;
-}
-.name-line { width: 100px; height: 2px; background: #C5A059; display: inline-block; vertical-align: middle; margin: 0 10px; }
-
-.detail-row {
-  display: flex; align-items: flex-start; gap: 16px;
-  margin-bottom: 18px; font-size: 21px; color: #333;
-}
-.icon-circle {
-  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; color: #fff;
-}
-.icon-cal { background: #4285F4; }
-.icon-clock { background: #C0392B; }
-.icon-pin { background: #27AE60; }
-
-.closing {
-  text-align: center; font-size: 22px; color: #444;
-  margin-top: 36px; font-style: italic;
-}
-
-.qr-box {
-  position: absolute; left: 50px; bottom: 120px;
-  width: {{QR_SIZE}}px; height: {{QR_SIZE}}px;
-  background: #fff; padding: 8px; border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(107,45,130,0.2);
-  border: 2px solid #e8dff0; z-index: 10;
-}
-.qr-box img { width: 100%; height: 100%; display: block; }
-
+.date-line { top:920px; }
+.time-line { top:980px; }
+.venue-line { top:1040px; line-height:1.4; }
 .seats-badge {
-  position: absolute; right: 50px; bottom: 130px;
-  font-size: 16px; color: #6B2D82; font-weight: 700;
+  position:absolute; bottom:340px; right:60px; z-index:5;
+  font-size:18px; font-weight:700; color:#6B2D82;
+}
+.qr-zone {
+  position:absolute; left:50px; bottom:70px; z-index:10;
+  width:{{QR_SIZE}}px; text-align:center;
+}
+.qr-box {
+  width:{{QR_SIZE}}px; height:{{QR_SIZE}}px;
+  background:#fff; padding:10px; border-radius:14px;
+  border:3px solid #6B2D82;
+  box-shadow:0 6px 28px rgba(107,45,130,0.35);
+}
+.qr-box img { width:100%; height:100%; display:block; }
+.qr-label {
+  margin-top:8px; font-family:'Playfair',Georgia,serif;
+  font-size:16px; font-weight:700; color:#6B2D82;
 }
 </style>
 </head>
 <body>
 <div class="poster">
-  <div class="watermark"></div>
-  <div class="border-curve"></div>
-
-  <!-- Roses top-left -->
-  <svg class="rose-corner rose-tl" viewBox="0 0 220 220">
-    <circle cx="60" cy="70" r="28" fill="#7A2EAF"/><circle cx="90" cy="50" r="22" fill="#9C27B0"/>
-    <circle cx="45" cy="100" r="18" fill="#E91E63"/><circle cx="100" cy="85" r="20" fill="#AB47BC"/>
-    <ellipse cx="70" cy="110" rx="8" ry="14" fill="#2E7D32"/><ellipse cx="95" cy="105" rx="6" ry="12" fill="#388E3C"/>
-  </svg>
-  <!-- Roses bottom-right -->
-  <svg class="rose-corner rose-br" viewBox="0 0 220 220">
-    <circle cx="60" cy="70" r="28" fill="#7A2EAF"/><circle cx="90" cy="50" r="22" fill="#9C27B0"/>
-    <circle cx="45" cy="100" r="18" fill="#E91E63"/><circle cx="100" cy="85" r="20" fill="#AB47BC"/>
-    <ellipse cx="70" cy="110" rx="8" ry="14" fill="#2E7D32"/>
-  </svg>
-  <!-- Vigne bottom-left -->
-  <svg class="vine-bl" viewBox="0 0 120 180">
-    <path d="M20,160 Q40,120 30,80 Q25,50 60,20" stroke="#5a2d82" stroke-width="3" fill="none"/>
-    <circle cx="60" cy="20" r="8" fill="#7A2EAF"/><circle cx="30" cy="80" r="6" fill="#9C27B0"/>
-  </svg>
-
-  <div class="left-panel">
-    <div class="table-line">Table <span>{{TABLE}}</span></div>
-    <img class="couple-photo" src="file:///android_asset/posters/couple_photo.png" alt="Moïse &amp; Sarah"/>
-    <div class="qr-box"><img src="{{QR_DATA}}" alt="QR"/></div>
-  </div>
-
-  <div class="right-panel">
-    <div class="title-invitation">Invitation</div>
-    <div class="title-underline"></div>
-
-    <div class="guest-row">Mme, Mlle, Mr, Couple : <span class="name">{{GUEST_NAME}}</span></div>
-
-    <p class="intro">Les familles NKUBA et BANZA vous invitent<br/>à prendre part au mariage civil<br/>de leur fils et fille :</p>
-
-    <div class="names-block">
-      <div class="name-script">Moïse NKUBA</div>
-      <div class="ampersand"><span class="name-line"></span> &amp; <span class="name-line"></span></div>
-      <div class="name-script">Sarah KASONGO</div>
-    </div>
-
-    <div class="detail-row">
-      <div class="icon-circle icon-cal">📅</div>
-      <div><strong>Date :</strong> {{EVENT_DATE}}</div>
-    </div>
-    <div class="detail-row">
-      <div class="icon-circle icon-clock">🕐</div>
-      <div><strong>Heure :</strong> {{EVENT_TIME}}</div>
-    </div>
-    <div class="detail-row">
-      <div class="icon-circle icon-pin">📍</div>
-      <div><strong>Lieu :</strong> {{EVENT_VENUE}}</div>
-    </div>
-
-    <p class="closing">Votre présence fera notre immense joie.</p>
-    <div class="seats-badge">{{SEATS}} place(s) • Table {{TABLE}}</div>
+  <img class="bg-affiche" src="{{POSTER_BG}}" alt="Affiche"/>
+  <img class="couple-logo" src="{{COUPLE_PHOTO}}" alt="Moïse &amp; Sarah"/>
+  <div class="table-badge">Table <span>{{TABLE}}</span></div>
+  <div class="guest-name">{{GUEST_NAME}}</div>
+  <div class="date-line"><strong>Date :</strong> {{EVENT_DATE}}</div>
+  <div class="time-line"><strong>Heure :</strong> {{EVENT_TIME}}</div>
+  <div class="venue-line"><strong>Lieu :</strong> {{EVENT_VENUE}}</div>
+  <div class="seats-badge">{{SEATS}} place(s) • Table {{TABLE}}</div>
+  <div class="qr-zone">
+    <div class="qr-box"><img src="{{QR_DATA}}" alt="QR Code invitation"/></div>
+    <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
 </body>

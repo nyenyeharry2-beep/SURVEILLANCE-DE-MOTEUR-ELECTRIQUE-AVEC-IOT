@@ -20,6 +20,7 @@
             android:paddingBottom="12dp">
 
             <ImageView
+                android:id="@+id/logoImage"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/bg_poster_border"
@@ -302,7 +303,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
             android:gravity="center"
-            android:text="Version 2.3.0 — Affiches HTML/CSS"
+            android:text="Version 2.4.0 — QR code + vos photos"
             android:textColor="@color/text_muted"
             android:textSize="12sp" />
     </LinearLayout>

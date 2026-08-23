@@ -2,11 +2,18 @@
 
 Application **Android native Java** + **backend PHP** pour générer des invitations personnalisées avec le **design Adrian**.
 
-## Télécharger l'APK (Java natif — v2.3.0 signé)
+## Télécharger l'APK (Java natif — v2.4.0 signé)
 
-**[Télécharger invitations-moise-sarah-v2.3.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.3.0.apk)** (~6 Mo)
+**[Télécharger invitations-moise-sarah-v2.4.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.4.0.apk)** (~6 Mo)
 
-> **v2.3.0** — correction polices + affiches HTML/CSS nettes • Désinstallez l'ancienne version avant d'installer
+> **v2.4.0** — Importez **VOS photos** (couple + affiches) • **QR code 200px** visible • Génération PHP + Java
+
+### Étape obligatoire après installation
+
+1. Ouvrez **Configurer l'événement**
+2. Appuyez sur **📷 Choisir PHOTO DU COUPLE** → sélectionnez votre vraie photo
+3. Appuyez sur **🖼 Choisir AFFICHE** → sélectionnez vos affiches officielles
+4. Ensuite **Ajouter un invité** → l'invitation aura **votre photo + QR code**
 
 ---
 
