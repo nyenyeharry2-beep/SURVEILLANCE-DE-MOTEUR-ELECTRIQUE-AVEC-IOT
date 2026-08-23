@@ -2,123 +2,124 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=1200"/>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=1200, height=1700"/>
 <style>
+@font-face { font-family: 'Great Vibes'; src: url('file:///android_asset/fonts/GreatVibes.ttf'); }
+@font-face { font-family: 'Playfair'; src: url('file:///android_asset/fonts/PlayfairDisplay-Regular.ttf'); }
+@font-face { font-family: 'Playfair'; font-weight: 700; src: url('file:///android_asset/fonts/PlayfairDisplay.ttf'); }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body {
-  width: 1200px; height: 1700px;
-  background: #fcfaf6;
-  font-family: 'Lato', sans-serif;
-  overflow: hidden;
+html, body { width: 1200px; height: 1700px; background: #fdfbf7; overflow: hidden; }
+
+.poster {
+  width: 1200px; height: 1700px; position: relative;
+  background: linear-gradient(180deg, #fffdf9 0%, #faf6f0 100%);
+  font-family: 'Playfair', Georgia, serif;
 }
-.card {
-  width: 1200px; height: 1700px;
-  position: relative;
-  background: linear-gradient(135deg, #fdfbf7 0%, #f8f4ee 50%, #fdfbf7 100%);
-}
-.corner { position: absolute; width: 200px; height: 200px; opacity: 0.95; }
-.tl { top: 0; left: 0; }
-.tr { top: 0; right: 0; transform: scaleX(-1); }
-.bl { bottom: 0; left: 0; transform: scaleY(-1); }
-.br { bottom: 0; right: 0; transform: scale(-1,-1); }
+
+/* Coins floraux chauds */
+.flower { position: absolute; width: 180px; height: 180px; }
+.fl-tl { top: 10px; left: 10px; }
+.fl-tr { top: 10px; right: 10px; transform: scaleX(-1); }
+.fl-bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+.fl-br { bottom: 10px; right: 10px; transform: scale(-1); }
+
 .divider {
-  position: absolute; left: 50%; top: 100px; bottom: 100px;
-  border-left: 2px dotted #bbb; transform: translateX(-50%);
+  position: absolute; left: 50%; top: 80px; bottom: 80px;
+  border-left: 2px dotted #c4b8a8; transform: translateX(-50%);
 }
+
 .left {
   position: absolute; left: 0; top: 0; width: 50%; height: 100%;
-  padding: 60px 40px;
+  padding: 50px 30px;
 }
-.table-badge {
-  text-align: center; font-family: 'Playfair Display', serif;
-  font-size: 26px; color: #333; margin-bottom: 20px;
-  border-bottom: 2px dotted #999; padding-bottom: 8px;
+.table-top {
+  text-align: center; font-size: 26px; color: #333;
+  border-bottom: 2px dotted #aaa; padding-bottom: 10px; margin-bottom: 16px;
 }
-.table-badge span { font-weight: 700; color: #1a3a7a; }
-.photo-zone {
-  margin-top: 20px; height: 1200px;
-  background: url('file:///android_asset/posters/affiche_blanche_bg.png') left center/cover no-repeat;
-  border-radius: 8px; opacity: 0.95;
+.table-top strong { color: #002366; font-size: 30px; }
+.couple-wrap {
+  position: relative; height: 1100px; overflow: hidden;
+  border-radius: 4px;
 }
+.couple-wrap img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 15%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+}
+.bronze-v { position: absolute; left: 8px; top: 0; bottom: 0; width: 3px; background: #CD7F32; }
+
 .right {
   position: absolute; right: 0; top: 0; width: 50%; height: 100%;
-  padding: 70px 50px 50px 30px;
+  padding: 60px 40px 40px 25px;
 }
+
 .script-title {
   font-family: 'Great Vibes', cursive;
-  font-size: 82px; color: #b48c50; text-align: center;
-  line-height: 1; margin-bottom: 8px;
+  font-size: 88px; color: #B8956B; text-align: center; line-height: 1;
 }
-.gold-line {
-  width: 80%; height: 2px; background: #b48c50; margin: 0 auto 24px;
-}
+.gold-rule { width: 75%; height: 2px; background: #B8956B; margin: 8px auto 20px; }
+
 .guest-line {
-  font-size: 22px; color: #333; margin-bottom: 20px;
-  border-bottom: 2px dotted #aaa; padding-bottom: 10px;
+  font-size: 20px; color: #333; margin-bottom: 16px;
+  border-bottom: 2px dotted #bbb; padding-bottom: 10px;
 }
-.guest-line strong {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px; color: #1a1a1a;
-}
-.intro { font-size: 19px; color: #333; line-height: 1.5; margin-bottom: 20px; }
-.name-moise {
-  font-family: 'Playfair Display', serif;
-  font-size: 38px; font-weight: 700; color: #1a3a7a;
-  letter-spacing: 2px;
-}
-.name-sarah {
-  font-family: 'Playfair Display', serif;
-  font-size: 38px; font-weight: 700; color: #a06e3c;
-  letter-spacing: 2px; margin-top: 4px;
-}
-.gold-sep { color: #b48c50; font-size: 20px; margin: 8px 0; }
-.date-badge {
+.guest-line .name { font-size: 28px; font-weight: 700; color: #111; }
+
+.intro { font-size: 18px; color: #333; line-height: 1.5; margin-bottom: 20px; }
+.name-m { font-size: 34px; font-weight: 700; color: #002366; letter-spacing: 1px; }
+.name-s { font-size: 34px; font-weight: 700; color: #FF8C00; letter-spacing: 1px; margin-top: 4px; }
+.sep { text-align: center; color: #B8956B; margin: 8px 0; font-size: 18px; }
+
+.date-pill {
   display: inline-block; background: #333; color: #fff;
-  padding: 14px 28px; border-radius: 12px; font-size: 28px;
-  font-weight: 700; margin: 24px 0;
+  padding: 12px 24px; border-radius: 10px; font-size: 26px; font-weight: 700;
+  margin: 20px 0;
 }
-.event { margin-top: 16px; }
-.event h3 { font-size: 18px; color: #222; margin-bottom: 6px; }
-.event p { font-size: 15px; color: #555; line-height: 1.45; }
+.event { margin-top: 14px; }
+.event h3 { font-size: 17px; color: #222; margin-bottom: 4px; }
+.event p { font-size: 14px; color: #555; line-height: 1.4; }
 .footer {
-  position: absolute; bottom: 60px; left: 52%; right: 40px;
-  font-size: 16px; color: #666; font-style: italic; line-height: 1.5;
+  position: absolute; bottom: 50px; left: 52%; right: 30px;
+  font-size: 15px; color: #666; font-style: italic; line-height: 1.5;
 }
+
 .qr-box {
-  position: absolute; bottom: 80px; left: 60px;
+  position: absolute; left: 40px; bottom: 100px;
   width: {{QR_SIZE}}px; height: {{QR_SIZE}}px;
   background: #fff; padding: 6px; border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 16px rgba(0,0,0,0.12); z-index: 5;
 }
 .qr-box img { width: 100%; height: 100%; }
-.seats-tag {
-  position: absolute; bottom: 80px; left: 52%;
-  font-size: 14px; color: #a06e3c; font-weight: 700;
-}
 </style>
 </head>
 <body>
-<div class="card">
-  <img class="corner tl" src="file:///android_asset/posters/floral_warm.png" alt=""/>
-  <img class="corner tr" src="file:///android_asset/posters/floral_warm.png" alt=""/>
-  <img class="corner bl" src="file:///android_asset/posters/floral_warm.png" alt=""/>
-  <img class="corner br" src="file:///android_asset/posters/floral_warm.png" alt=""/>
+<div class="poster">
+  <svg class="flower fl-tl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/><circle cx="40" cy="75" r="15" fill="#E0115F"/></svg>
+  <svg class="flower fl-tr" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/></svg>
+  <svg class="flower fl-bl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="20" fill="#FFB6C1"/><circle cx="75" cy="55" r="16" fill="#FF8C65"/></svg>
+  <svg class="flower fl-br" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="45" r="17" fill="#E0115F"/></svg>
+
   <div class="divider"></div>
+
   <div class="left">
-    <div class="table-badge">Table <span>{{TABLE}}</span></div>
-    <div class="photo-zone"></div>
+    <div class="bronze-v"></div>
+    <div class="table-top">Table <strong>{{TABLE}}</strong></div>
+    <div class="couple-wrap">
+      <img src="file:///android_asset/posters/couple_photo.png" alt="Couple"/>
+    </div>
     <div class="qr-box"><img src="{{QR_DATA}}" alt="QR"/></div>
   </div>
+
   <div class="right">
     <div class="script-title">Invitation</div>
-    <div class="gold-line"></div>
-    <div class="guest-line">Mme, Mlle, M., Couple : <strong>{{GUEST_NAME}}</strong></div>
+    <div class="gold-rule"></div>
+    <div class="guest-line">Mme, Mlle, M., Couple : <span class="name">{{GUEST_NAME}}</span></div>
     <p class="intro">Les familles NKUBA et BANZA ont le réel plaisir de vous inviter à prendre part au mariage de leur fils et fille</p>
-    <div class="name-moise">MOISE NKUBA</div>
-    <div class="gold-sep">— ✦ —</div>
-    <div class="name-sarah">SARAH KASONGO</div>
-    <div class="date-badge">📅 {{EVENT_DATE}}</div>
+    <div class="name-m">MOISE NKUBA</div>
+    <div class="sep">— ✦ —</div>
+    <div class="name-s">SARAH KASONGO</div>
+    <div class="date-pill">📅 {{EVENT_DATE}}</div>
     <div class="event">
       <h3>À 14h : Bénédiction nuptiale</h3>
       <p>Église 30ème CPCO, paroisse Étoile du Matin, Av. du 24 novembre coin Kasumbalesa, Kipushi.</p>
@@ -127,11 +128,7 @@ html, body {
       <h3>À 19h : Soirée dansante</h3>
       <p>Salle Elvine (Chez Trésor), Av. du 30 Juin, Q/Kamarenge, Ville de Kipushi.</p>
     </div>
-    <div class="footer">
-      NB : Cadeau non emballé<br/>
-      Votre présence, est notre plus beau cadeau
-    </div>
-    <div class="seats-tag">{{SEATS}} place(s)</div>
+    <div class="footer">NB : Cadeau non emballé<br/>Votre présence, est notre plus beau cadeau</div>
   </div>
 </div>
 </body>

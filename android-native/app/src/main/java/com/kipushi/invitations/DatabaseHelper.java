@@ -120,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         g.seats = c.getInt(c.getColumnIndexOrThrow("seats"));
         g.tableZone = c.getString(c.getColumnIndexOrThrow("table_zone"));
         g.styleId = c.getString(c.getColumnIndexOrThrow("style_id"));
-        if (g.styleId == null || g.styleId.isEmpty()) g.styleId = "affiche-blanche";
+        if (g.styleId == null || g.styleId.isEmpty()) g.styleId = "mariage-civil";
         g.sent = c.getInt(c.getColumnIndexOrThrow("sent")) == 1;
         g.createdAt = c.getString(c.getColumnIndexOrThrow("created_at"));
         return g;

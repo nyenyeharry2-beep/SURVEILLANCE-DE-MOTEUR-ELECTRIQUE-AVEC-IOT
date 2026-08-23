@@ -56,6 +56,8 @@ public class HtmlInvitationRenderer {
         html = html.replace("{{TABLE}}", escapeHtml(empty(guest.tableZone, "—")));
         html = html.replace("{{SEATS}}", String.valueOf(guest.seats));
         html = html.replace("{{EVENT_DATE}}", escapeHtml(prefs.getDate()));
+        html = html.replace("{{EVENT_TIME}}", escapeHtml(prefs.getTime()));
+        html = html.replace("{{EVENT_VENUE}}", escapeHtml(prefs.getVenue()));
         html = html.replace("{{QR_SIZE}}", String.valueOf(style.qrSizePx));
         html = html.replace("{{QR_DATA}}", qrDataUri(guest, style.qrColor));
 
@@ -91,7 +93,7 @@ public class HtmlInvitationRenderer {
                                 view.destroy();
                                 latch.countDown();
                             }
-                        }, 800);
+                        }, 1500);
                     }
                 });
 

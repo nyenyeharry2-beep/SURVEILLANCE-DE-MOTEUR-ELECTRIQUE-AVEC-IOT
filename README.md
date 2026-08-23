@@ -2,11 +2,15 @@
 
 Application **Android native Java** + **backend PHP** pour générer des invitations personnalisées avec le **design Adrian**.
 
-## Télécharger l'APK (Java natif — v2.1.0 signé)
+## Télécharger l'APK (Java natif — v2.2.0 signé)
 
-**[Télécharger invitations-moise-sarah-v2.1.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.1.0.apk)** (~6 Mo)
+**[Télécharger invitations-moise-sarah-v2.2.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.2.0.apk)** (~6 Mo)
 
-> Invitations **HTML/CSS ultra-réalistes** • Affiche blanche principale • Import contacts • Liste par tables • Logo affiche officielle
+> Invitations **HTML/CSS fidèles aux affiches** • Mariage civil (violet) + Bénédiction (blanche) • Photo couple en logo • QR unique • WhatsApp
+
+### Aperçu web
+
+Ouvrez [`php-backend/index.html`](php-backend/index.html) — configuration de l'événement + aperçu clair de l'affiche en direct.
 
 ### Installation
 
@@ -21,7 +25,7 @@ Application **Android native Java** + **backend PHP** pour générer des invitat
 | Composant | Technologie |
 |-----------|-------------|
 | **App mobile** | Java + Android SDK + Material Design XML |
-| **Rendu invitations** | Canvas Android + ZXing (QR code) |
+| **Rendu invitations** | WebView HTML/CSS (1200×1700) + ZXing (QR code) |
 | **Stockage local** | SQLite + SharedPreferences |
 | **Backend web** | PHP 8 (API REST + dashboard) |
 | **WhatsApp** | Intent Android + lien `wa.me` |

@@ -11,7 +11,7 @@ public class Guest {
     public String createdAt;
 
     public Guest() {
-        styleId = "affiche-blanche";
+        styleId = "mariage-civil";
         seats = 1;
     }
 }

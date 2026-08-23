@@ -19,11 +19,13 @@ public class ConfigActivity extends AppCompatActivity {
         prefs = new PrefsHelper(this);
 
         TextInputEditText inputDate = findViewById(R.id.inputDate);
+        TextInputEditText inputTime = findViewById(R.id.inputTime);
         TextInputEditText inputVenue = findViewById(R.id.inputVenue);
         TextInputEditText inputMessage = findViewById(R.id.inputMessage);
         CheckBox checkEmbed = findViewById(R.id.checkEmbedName);
 
         inputDate.setText(prefs.getDate());
+        inputTime.setText(prefs.getTime());
         inputVenue.setText(prefs.getVenue());
         inputMessage.setText(prefs.getMessage());
         checkEmbed.setChecked(prefs.embedName());
@@ -31,6 +33,7 @@ public class ConfigActivity extends AppCompatActivity {
         MaterialButton btnSave = findViewById(R.id.btnSave);
         btnSave.setOnClickListener(v -> {
             prefs.setDate(inputDate.getText() != null ? inputDate.getText().toString() : "");
+            prefs.setTime(inputTime.getText() != null ? inputTime.getText().toString() : "");
             prefs.setVenue(inputVenue.getText() != null ? inputVenue.getText().toString() : "");
             prefs.setMessage(inputMessage.getText() != null ? inputMessage.getText().toString() : "");
             prefs.setEmbedName(checkEmbed.isChecked());

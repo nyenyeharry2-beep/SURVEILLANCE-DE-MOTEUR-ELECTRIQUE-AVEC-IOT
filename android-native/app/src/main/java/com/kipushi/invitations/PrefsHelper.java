@@ -13,10 +13,16 @@ public class PrefsHelper {
     }
 
     public String getDate() {
-        return prefs.getString("date", "12. 9. 2026");
+        return prefs.getString("date", "Vendredi, le 11 Septembre 2026");
+    }
+
+    public String getTime() {
+        return prefs.getString("time", "11h00");
     }
 
     public void setDate(String v) { prefs.edit().putString("date", v).apply(); }
+
+    public void setTime(String v) { prefs.edit().putString("time", v).apply(); }
 
     public String getVenue() {
         return prefs.getString("venue", "Commune de Kipushi, Ville de KIPUSHI");
@@ -38,7 +44,7 @@ public class PrefsHelper {
     public void setEmbedName(boolean v) { prefs.edit().putBoolean("embed_name", v).apply(); }
 
     public String getDefaultStyle() {
-        return prefs.getString("default_style", "affiche-blanche");
+        return prefs.getString("default_style", "mariage-civil");
     }
 
     public void setDefaultStyle(String v) { prefs.edit().putString("default_style", v).apply(); }

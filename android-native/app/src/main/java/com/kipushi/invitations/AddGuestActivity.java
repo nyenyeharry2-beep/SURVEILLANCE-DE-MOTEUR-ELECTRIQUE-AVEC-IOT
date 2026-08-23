@@ -17,7 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class AddGuestActivity extends AppCompatActivity implements StyleAdapter.OnStyleSelected {
-    private String selectedStyleId = "affiche-blanche";
+    private String selectedStyleId = "mariage-civil";
     private DatabaseHelper db;
     private PrefsHelper prefs;
     private ActivityResultLauncher<Void> pickContactLauncher;
