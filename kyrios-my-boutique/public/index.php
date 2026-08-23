@@ -70,11 +70,7 @@ require __DIR__ . '/includes/layout-top.php';
 
                 <?php if ($post['product_id']): ?>
                 <div class="product-embed">
-                    <?php if ($post['product_image']): ?>
-                    <div class="product-embed-image"><img src="<?= e($post['product_image']) ?>" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
-                    <?php else: ?>
-                    <div class="product-embed-image">🛍️</div>
-                    <?php endif; ?>
+                    <?= productImageHtml($post['product_image'] ?? null, 'product-embed-image') ?>
                     <div class="product-embed-body">
                         <h5><?= e($post['product_title']) ?></h5>
                         <div class="product-price"><?= number_format((float)$post['product_price'], 2, ',', ' ') ?> €</div>
