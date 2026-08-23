@@ -73,6 +73,8 @@ public class HtmlInvitationRenderer {
             try {
                 WebView webView = new WebView(ctx);
                 webView.getSettings().setJavaScriptEnabled(false);
+                webView.getSettings().setAllowFileAccess(true);
+                webView.getSettings().setAllowFileAccessFromFileURLs(true);
                 webView.getSettings().setLoadWithOverviewMode(true);
                 webView.getSettings().setUseWideViewPort(true);
                 webView.setInitialScale(100);
@@ -93,7 +95,7 @@ public class HtmlInvitationRenderer {
                                 view.destroy();
                                 latch.countDown();
                             }
-                        }, 1500);
+                        }, 2200);
                     }
                 });
 

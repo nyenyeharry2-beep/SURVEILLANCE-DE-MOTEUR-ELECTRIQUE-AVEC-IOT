@@ -246,7 +246,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="24dp"
             android:clickable="true"
             android:focusable="true">
 
@@ -296,5 +295,15 @@
                     android:textSize="24sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:text="Version 2.3.0 — Affiches HTML/CSS"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp" />
     </LinearLayout>
 </ScrollView>
