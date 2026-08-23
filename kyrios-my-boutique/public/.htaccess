@@ -1,0 +1,19 @@
+# Kyrios My Boutique - InfinityFree
+DirectoryIndex index.php login.php
+
+# PHP 8 (InfinityFree: activez PHP 8.0+ dans le panneau)
+<IfModule mime_module>
+    AddHandler application/x-httpd-php .php
+</IfModule>
+
+# Bloquer accès config
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^src/ - [F,L]
+</IfModule>
+
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>

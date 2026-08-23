@@ -1,0 +1,59 @@
+═══════════════════════════════════════════════════════════
+  GUIDE PHOTOS PRODUITS — Kyrios My Boutique (v2)
+═══════════════════════════════════════════════════════════
+
+Uploadez vos photos dans : htdocs/uploads/products/
+OU utilisez : https://kyriosboutique.page.gd/seller-upload.php
+(compte vendeur : boutique@kyrios.page.gd / password)
+
+Renommez chaque photo EXACTEMENT comme ci-dessous :
+
+── MODE ENFANT (Little Princess) ──
+  lp-robe-creme.jpg       → Robe satin crème studio (badge 3-12yrs)
+  lp-robe-bleu.jpg        → Robe bleu ciel rose
+  lp-robe-rose.jpg        → Robe crème fashion show (logo Little Princess)
+  lp-robe-bleu-plisse.jpg → Robe bleu plissé
+  lp-robe-rouge.jpg       → Robe velours rouge
+  lp-robe-noir.jpg        → Robe velours noir
+
+── MODE FEMME — Robes de soirée ──
+  robe-magenta.jpg        → Robe magenta peplum manches bouffantes
+  robe-bleu-argent.jpg    → Robe bleu poudre sequins floraux
+  robe-marine.jpg         → Robe navy peplum perles sequins
+  robe-floral-menthe.jpg  → Robe menthe fleurs (Grand Palace Hotel)
+  robe-floral-lavande.jpg → Robe lavande fleurs (Grand Palace Hotel)
+
+── MODE FEMME — Ensembles ──
+  ensemble-marine.jpg     → Ensemble brodé marine wide-leg
+  ensemble-olive.jpg      → Ensemble satin vert olive perles dorées
+  ensemble-creme.jpg      → Ensemble crème broderie paon
+  ensemble-noir.jpg       → Ensemble noir broderie paon (canapé)
+  ensemble-bleu-satin.jpg → Ensemble bleu satin broderie (canapé)
+
+── MODE HOMME — Chemises boutique ──
+  chemise-marron.jpg      → Chemise marron à pois (boutique WOODCOCK)
+  chemise-bleu-fleur.jpg  → Chemise bleu motif floral abstrait
+  chemise-tribal.jpg      → Chemise marron motif tribal blanc
+  chemise-etoile.jpg      → Chemise grise étoiles, poches brodées
+  chemise-kaki.jpg        → Chemise kaki utility surpiqûres
+
+── CHAUSSURES ──
+  sneakers-or-noir.jpg    → Sneakers blanc/or/noir
+  sneakers-or-rose.jpg    → Sneakers blanc/or/rose
+  sneakers-or-marron.jpg  → Sneakers blanc/or/marron
+
+── ÉTAPES DÉPLOIEMENT ──
+1. phpMyAdmin → Importer catalog-kyrios.sql (16 produits)
+2. phpMyAdmin → Importer catalog-kyrios-v2.sql (+8 produits, total 24)
+3. File Manager → htdocs/uploads/products/ → uploader les 24 photos
+   OU seller-upload.php → sélection multiple avec noms corrects
+4. Visiter https://kyriosboutique.page.gd/marketplace.php
+
+── FICHIERS DÉPLOIEMENT ──
+  kyrios-photos-produits.zip  → 24 photos (placeholders)
+  kyriosboutique-htdocs.zip   → Site complet avec photos
+  catalog-kyrios-v2.sql       → Migration catalogue 24 produits
+
+Compte vendeur : boutique@kyrios.page.gd / password
+
+═══════════════════════════════════════════════════════════

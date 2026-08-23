@@ -1,0 +1,72 @@
+# 📦 KYRIOS MY BOUTIQUE — Fichiers à télécharger
+
+## 1️⃣ BASE DE DONNÉES (phpMyAdmin)
+
+**Fichier :** `kyriosboutique-database.sql`
+
+### Comment importer :
+1. Connectez-vous à **InfinityFree** → **MySQL Databases**
+2. Cliquez sur **phpMyAdmin** pour la base `if0_42727746_kyriosboutique`
+3. Onglet **Importer** → Choisir le fichier `kyriosboutique-database.sql`
+4. Cliquez **Exécuter**
+5. Importer aussi `catalog-kyrios.sql` puis `catalog-kyrios-v2.sql` (24 produits)
+
+---
+
+## 1b️⃣ CATALOGUE PRODUITS (phpMyAdmin)
+
+**Fichiers :** `catalog-kyrios.sql` + `catalog-kyrios-v2.sql`
+
+Importez dans l'ordre pour avoir 24 produits avec photos.
+
+**Photos :** uploadez `kyrios-photos-produits.zip` dans `htdocs/uploads/products/`
+ou utilisez `/seller-upload.php` (compte vendeur).
+
+Voir `GUIDE-PHOTOS.txt` pour les noms de fichiers.
+
+---
+
+## 2️⃣ FICHIERS WEB (File Manager)
+
+**Fichier :** `kyriosboutique-htdocs.zip`
+
+### Comment installer :
+1. InfinityFree → **File Manager** → ouvrir `htdocs`
+2. Uploadez `kyriosboutique-htdocs.zip`
+3. Clic droit → **Extract** (décompresser)
+4. Vérifiez que `index.php` est à la racine de `htdocs`
+5. Visitez : **https://kyriosboutique.page.gd**
+
+> Le fichier `.env` est déjà configuré avec vos identifiants MySQL.
+
+---
+
+## 3️⃣ APPLICATION ANDROID
+
+**Fichier :** `KyriosMyBoutique.apk`
+
+### Comment installer :
+1. Téléchargez l'APK sur votre téléphone Android
+2. Autorisez **Sources inconnues** si demandé
+3. Installez l'application
+4. Ouvrez **Kyrios My Boutique**
+
+---
+
+## Comptes de test (mot de passe : `password`)
+
+| Email | Rôle |
+|-------|------|
+| demo.client@kyrios.local | Client |
+| demo.vendeur@kyrios.local | Vendeur |
+| demo.livreur@kyrios.local | Livreur |
+
+---
+
+## Liens GitHub (téléchargement direct)
+
+Remplacez `main` par votre branche si nécessaire :
+
+- **Base de données :** `deploy/kyriosboutique-database.sql`
+- **Fichiers web ZIP :** `deploy/kyriosboutique-htdocs.zip`
+- **APK Android :** `deploy/KyriosMyBoutique.apk`
