@@ -581,7 +581,27 @@ select.form-control { cursor: pointer; }
   font-size: 0.85rem;
 }
 
-/* ── Responsive ── */
+/* ── Payment options ── */
+.payment-options { margin-bottom: 16px; }
+.payment-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all .15s;
+}
+.payment-option:hover { border-color: var(--primary-light); }
+.payment-option.selected { border-color: var(--primary); background: #eef2ff; }
+.payment-option input { margin-top: 4px; }
+.payment-option strong { display: block; font-size: 0.95rem; }
+.payment-option small { color: var(--text-muted); font-size: 0.8rem; }
+
+.product-card-image img { border-radius: 12px 12px 0 0; }
+
 @media (max-width: 1100px) {
   .app-layout { grid-template-columns: 240px 1fr; }
   .sidebar-right { display: none; }

@@ -36,18 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $config = appConfig();
-$googleAuthUrl = '';
-if (!empty($config['google']['client_id'])) {
-    $params = http_build_query([
-        'client_id' => $config['google']['client_id'],
-        'redirect_uri' => $config['google']['redirect_uri'],
-        'response_type' => 'code',
-        'scope' => 'email profile',
-        'access_type' => 'online',
-        'state' => 'register',
-    ]);
-    $googleAuthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . $params;
-}
+$googleAuthUrl = googleAuthUrl($config, 'register');
+$googleConfigured = !empty($config['google']['client_id']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">

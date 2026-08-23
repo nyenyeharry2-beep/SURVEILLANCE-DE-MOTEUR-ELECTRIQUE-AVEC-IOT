@@ -6,6 +6,8 @@ require_once __DIR__ . '/src/Auth.php';
 require_once __DIR__ . '/src/Feed.php';
 require_once __DIR__ . '/src/Messaging.php';
 require_once __DIR__ . '/src/Product.php';
+require_once __DIR__ . '/src/Upload.php';
+require_once __DIR__ . '/src/Payment.php';
 
 try {
     $db = Kyrios\Database::getInstance($config['db']);
@@ -55,6 +57,33 @@ function roleBadge($role)
         return '<span class="badge badge-delivery">Livreur</span>';
     }
     return '<span class="badge badge-client">Client</span>';
+}
+
+function productImageHtml($url, $class = 'product-card-image')
+{
+    if ($url) {
+        return '<div class="' . e($class) . '"><img src="' . e($url) . '" alt="" style="width:100%;height:100%;object-fit:cover;"></div>';
+    }
+    return '<div class="' . e($class) . '">🛍️</div>';
+}
+
+function googleAuthUrl($config, $state = '')
+{
+    if (empty($config['google']['client_id'])) {
+        return '';
+    }
+    $params = [
+        'client_id' => $config['google']['client_id'],
+        'redirect_uri' => $config['google']['redirect_uri'],
+        'response_type' => 'code',
+        'scope' => 'email profile',
+        'access_type' => 'online',
+        'prompt' => 'select_account',
+    ];
+    if ($state) {
+        $params['state'] = $state;
+    }
+    return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
 }
 
 function appConfig()

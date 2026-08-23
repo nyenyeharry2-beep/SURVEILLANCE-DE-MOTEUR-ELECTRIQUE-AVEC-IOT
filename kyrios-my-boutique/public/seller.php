@@ -12,15 +12,29 @@ $messaging = new Kyrios\Messaging($db);
 $unreadMessages = $messaging->getUnreadCount((int) $user['id']);
 
 $success = '';
+$error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $productModel->create((int) $user['id'], [
-        'title' => trim($_POST['title'] ?? ''),
-        'description' => trim($_POST['description'] ?? ''),
-        'price' => (float) ($_POST['price'] ?? 0),
-        'category' => $_POST['category'] ?? 'general',
-        'stock' => (int) ($_POST['stock'] ?? 1),
-    ]);
-    $success = 'Produit ajouté avec succès !';
+    $imageUrl = null;
+    if (!empty($_FILES['image']['tmp_name'])) {
+        $upload = Kyrios\Upload::productImage($_FILES['image'], (int) $user['id']);
+        if ($upload['success']) {
+            $imageUrl = $upload['url'];
+        } else {
+            $error = $upload['error'];
+        }
+    }
+
+    if (!$error) {
+        $productModel->create((int) $user['id'], [
+            'title' => trim($_POST['title'] ?? ''),
+            'description' => trim($_POST['description'] ?? ''),
+            'price' => (float) ($_POST['price'] ?? 0),
+            'category' => $_POST['category'] ?? 'general',
+            'stock' => (int) ($_POST['stock'] ?? 1),
+            'image_url' => $imageUrl,
+        ]);
+        $success = 'Produit ajouté avec succès !';
+    }
 }
 
 $products = $productModel->getBySeller((int) $user['id']);
@@ -37,10 +51,13 @@ require __DIR__ . '/includes/layout-top.php';
         <?php if ($success): ?>
         <div class="alert alert-success"><?= e($success) ?></div>
         <?php endif; ?>
+        <?php if ($error): ?>
+        <div class="alert alert-error"><?= e($error) ?></div>
+        <?php endif; ?>
 
         <div class="card" style="padding:20px;margin-bottom:16px;">
             <h2>➕ Ajouter un produit</h2>
-            <form method="POST" style="margin-top:16px;">
+            <form method="POST" enctype="multipart/form-data" style="margin-top:16px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div class="form-group">
                         <label>Titre</label>
@@ -67,6 +84,11 @@ require __DIR__ . '/includes/layout-top.php';
                     </div>
                 </div>
                 <div class="form-group">
+                    <label>Photo du produit</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif">
+                    <small style="color:var(--text-muted);">JPG, PNG, WEBP — max 5 Mo</small>
+                </div>
+                <div class="form-group">
                     <label>Description</label>
                     <textarea name="description" class="form-control" rows="3"></textarea>
                 </div>
@@ -79,7 +101,7 @@ require __DIR__ . '/includes/layout-top.php';
             <div class="products-grid" style="margin-top:16px;">
                 <?php foreach ($products as $product): ?>
                 <div class="product-card">
-                    <div class="product-card-image">🛍️</div>
+                    <?= productImageHtml($product['image_url'] ?? null) ?>
                     <div class="product-card-body">
                         <h4><?= e($product['title']) ?></h4>
                         <div class="product-price"><?= number_format((float)$product['price'], 2, ',', ' ') ?> €</div>

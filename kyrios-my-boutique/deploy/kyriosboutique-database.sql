@@ -135,12 +135,30 @@ CREATE TABLE orders (
     total_price DECIMAL(12, 2) NOT NULL,
     status ENUM('pending', 'confirmed', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
     delivery_address TEXT,
+    phone_number VARCHAR(30) DEFAULT NULL,
+    payment_method ENUM('mobile_money','cash','stripe') DEFAULT 'cash',
+    payment_status ENUM('pending','paid','failed','refunded') DEFAULT 'pending',
+    payment_reference VARCHAR(100) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (client_id) REFERENCES users(id),
     FOREIGN KEY (seller_id) REFERENCES users(id),
     FOREIGN KEY (livreur_id) REFERENCES users(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE payments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id INT UNSIGNED NOT NULL,
+    amount DECIMAL(12, 2) NOT NULL,
+    method ENUM('mobile_money','cash','stripe') NOT NULL,
+    status ENUM('pending','paid','failed','refunded') DEFAULT 'pending',
+    reference VARCHAR(100) DEFAULT NULL,
+    phone_number VARCHAR(30) DEFAULT NULL,
+    operator VARCHAR(50) DEFAULT NULL,
+    stripe_session_id VARCHAR(200) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE follows (

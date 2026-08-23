@@ -67,4 +67,8 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET', ''),
         'redirect_uri' => env('GOOGLE_REDIRECT_URI', ''),
     ],
+    'stripe' => [
+        'public_key' => env('STRIPE_PUBLIC_KEY', ''),
+        'secret_key' => env('STRIPE_SECRET_KEY', ''),
+    ],
 ];

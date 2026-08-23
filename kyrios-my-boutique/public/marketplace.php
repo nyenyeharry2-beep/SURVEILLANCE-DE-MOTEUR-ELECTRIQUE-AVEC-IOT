@@ -34,7 +34,7 @@ require __DIR__ . '/includes/layout-top.php';
             <div class="products-grid">
                 <?php foreach ($products as $product): ?>
                 <div class="product-card">
-                    <div class="product-card-image">🛍️</div>
+                    <?= productImageHtml($product['image_url'] ?? null) ?>
                     <div class="product-card-body">
                         <h4><?= e($product['title']) ?></h4>
                         <div class="seller">
@@ -44,7 +44,7 @@ require __DIR__ . '/includes/layout-top.php';
                         <div class="product-price"><?= number_format((float)$product['price'], 2, ',', ' ') ?> €</div>
                         <div style="display:flex;gap:8px;margin-top:10px;">
                             <a href="/messages.php?user=<?= $product['seller_id'] ?>" class="btn btn-secondary btn-sm">Contacter</a>
-                            <button class="btn btn-primary btn-sm" onclick="orderProduct(<?= $product['id'] ?>, '<?= e(addslashes($product['title'])) ?>')">Commander</button>
+                            <a href="/checkout.php?product_id=<?= $product['id'] ?>" class="btn btn-primary btn-sm">Commander</a>
                         </div>
                     </div>
                 </div>
