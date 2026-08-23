@@ -8,11 +8,38 @@ Application **Android native Java** + **backend PHP** pour générer des invitat
 
 > **v2.3.0** — correction polices + affiches HTML/CSS nettes • Désinstallez l'ancienne version avant d'installer
 
-### Aperçu web
+---
 
-Ouvrez [`php-backend/index.html`](php-backend/index.html) — configuration de l'événement + aperçu clair de l'affiche en direct.
+## Application web (index.html — identique à l'app Android)
 
-### Installation
+**[Ouvrir index.html sur GitHub](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/blob/cursor/invitation-generator-apk-06a4/php-backend/index.html)** • En local : `cd php-backend && php -S localhost:8080` → `http://localhost:8080/index.html`
+
+| Écran web | Écran Android |
+|-----------|---------------|
+| **Accueil** | MainActivity — affiche, cartes menu |
+| **Configurer l'événement** | ConfigActivity — fond dark `#0D0D0D` |
+| **Ajouter un invité** | AddGuestActivity — formulaire crème |
+| **Aperçu final** | PreviewActivity — cadre téléphone + WhatsApp |
+
+**Logo** : `couple_photo.png` + cadre blanc bordure or `#D4B896` (18px) • **Icône** : `app-icon.png`
+
+```
+php-backend/
+├── index.html
+└── assets/
+    ├── app-icon.png
+    ├── couple_photo.png
+    ├── template_mariage_civil.png
+    ├── template_affiche_blanche.png
+    ├── css/app.css
+    ├── css/invitation.css
+    ├── js/invitation.js
+    └── invitations/
+        ├── mariage_civil.html
+        └── affiche_blanche.html
+```
+
+### Installation APK
 
 1. Téléchargez l'APK sur votre téléphone Android
 2. Autorisez **Sources inconnues** si demandé
