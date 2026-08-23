@@ -12,6 +12,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import ViewShot from 'react-native-view-shot';
 import { Ionicons } from '@expo/vector-icons';
 import { InvitationCanvas } from '../components/InvitationCanvas';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
+import { buildTemplateConfig } from '../lib/styles';
 import {
   loadEventConfig,
   loadGuests,
@@ -19,8 +21,8 @@ import {
   upsertGuest,
 } from '../lib/storage';
 import { sendWhatsAppInvitation } from '../lib/whatsapp';
-import { Guest, TemplateConfig } from '../lib/types';
-import { EventConfig } from '../lib/types';
+import { Guest, TemplateConfig, EventConfig } from '../lib/types';
+import { theme } from '../lib/theme';
 
 export default function PreviewScreen() {
   const { guestId } = useLocalSearchParams<{ guestId: string }>();
@@ -41,7 +43,15 @@ export default function PreviewScreen() {
       const found = guests.find((g) => g.id === guestId);
       setGuest(found || null);
       setEvent(evt);
-      setTemplate({ ...tmpl, templateUri: evt.templateUri || tmpl.templateUri, embedGuestName: evt.embedGuestName });
+      const styleId = found?.styleId || evt.defaultStyleId || 'kipushi-floral';
+      setTemplate(
+        buildTemplateConfig(styleId, {
+          ...tmpl,
+          templateUri: evt.templateUri || tmpl.templateUri,
+          embedGuestName: evt.embedGuestName,
+          styleId,
+        }),
+      );
     })();
   }, [guestId]);
 
@@ -76,17 +86,17 @@ export default function PreviewScreen() {
   if (!guest || !event || !template) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#5a2d82" />
+        <ActivityIndicator size="large" color={theme.gold} />
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Aperçu final — {guest.fullName}</Text>
+    <ScrollView style={styles.root} contentContainerStyle={styles.container}>
+      <ScreenHeader title="Aperçu final" showSettings={false} />
 
-      <View style={styles.previewBox}>
-        <InvitationCanvas ref={shotRef} guest={guest} config={template} width={320} />
+      <View style={styles.phoneFrame}>
+        <InvitationCanvas ref={shotRef} guest={guest} config={template} width={300} />
       </View>
 
       <Pressable style={styles.sendBtn} onPress={handleSend} disabled={sending}>
@@ -94,7 +104,7 @@ export default function PreviewScreen() {
           <ActivityIndicator color="#fff" />
         ) : (
           <>
-            <Ionicons name="send" size={20} color="#fff" />
+            <Ionicons name="paper-plane" size={20} color="#fff" />
             <Text style={styles.sendBtnText}>Envoyer l'invitation</Text>
           </>
         )}
@@ -108,28 +118,28 @@ export default function PreviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  root: { flex: 1, backgroundColor: theme.creamBg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.creamBg },
   container: { padding: 20, alignItems: 'center', paddingBottom: 40 },
-  header: { fontSize: 16, fontWeight: '700', color: '#5a2d82', marginBottom: 16 },
-  previewBox: {
-    borderRadius: 12,
+  phoneFrame: {
+    borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#e8dff0',
-    marginBottom: 20,
-    elevation: 4,
+    backgroundColor: '#2A2A2A',
+    padding: 12,
+    marginBottom: 24,
+    ...theme.shadow,
   },
   sendBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#25D366',
-    padding: 16,
-    borderRadius: 12,
+    gap: 10,
+    backgroundColor: theme.greenWhatsApp,
+    padding: 18,
+    borderRadius: 16,
     width: '100%',
   },
-  sendBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  closeBtn: { marginTop: 16, padding: 8 },
-  closeBtnText: { color: '#888', fontSize: 14 },
+  sendBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  closeBtn: { marginTop: 20, padding: 8 },
+  closeBtnText: { color: theme.configBlue, fontSize: 15, fontWeight: '600' },
 });

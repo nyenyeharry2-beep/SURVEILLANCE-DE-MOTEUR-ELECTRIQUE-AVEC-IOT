@@ -1,5 +1,6 @@
 export interface TemplateConfig {
   templateUri: string | null;
+  styleId: string;
   embedGuestName: boolean;
   guestNameZone: TextZone;
   qrCodeZone: QrZone;
@@ -32,6 +33,7 @@ export interface Guest {
   whatsapp: string;
   seats: number;
   tableZone: string;
+  styleId: string;
   sent: boolean;
   sentAt?: string;
   createdAt: string;
@@ -43,6 +45,7 @@ export interface EventConfig {
   whatsappMessage: string;
   embedGuestName: boolean;
   templateUri: string | null;
+  defaultStyleId: string;
 }
 
 export const DEFAULT_WHATSAPP_MESSAGE =
@@ -54,10 +57,12 @@ export const DEFAULT_EVENT: EventConfig = {
   whatsappMessage: DEFAULT_WHATSAPP_MESSAGE,
   embedGuestName: true,
   templateUri: null,
+  defaultStyleId: 'kipushi-floral',
 };
 
 export const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
   templateUri: null,
+  styleId: 'kipushi-floral',
   embedGuestName: true,
   guestNameZone: { x: 0.48, y: 0.155, width: 0.48, fontSize: 22, color: '#2c2c2c', align: 'left' },
   qrCodeZone: { x: 0.065, y: 0.78, size: 0.17 },

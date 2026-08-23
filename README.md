@@ -6,7 +6,7 @@ Application mobile Android pour générer et envoyer des invitations de mariage 
 
 **Lien direct :**
 
-[📥 Télécharger invitations-moise-sarah-v1.0.0.apk](https://github.com/nyenyeharry2-beep/surveillance-de-moteur-electrique-avec-iot/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v1.0.0.apk)
+[📥 Télécharger invitations-moise-sarah-v1.0.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v1.0.0.apk)
 
 **Fichier local dans ce dépôt :** [`releases/invitations-moise-sarah-v1.0.0.apk`](releases/invitations-moise-sarah-v1.0.0.apk)
 

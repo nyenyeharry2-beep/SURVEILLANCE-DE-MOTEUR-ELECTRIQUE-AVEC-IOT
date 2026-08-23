@@ -1,10 +1,9 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot from 'react-native-view-shot';
+import { getStyleById } from '../lib/styles';
 import { Guest, TemplateConfig } from '../lib/types';
-
-const TEMPLATE = require('../assets/template-invitation.png');
 
 interface Props {
   guest: Guest;
@@ -12,96 +11,97 @@ interface Props {
   width?: number;
 }
 
-export const InvitationCanvas = forwardRef<React.ElementRef<typeof ViewShot>, Props>(function InvitationCanvas(
-  { guest, config, width = 340 },
-  ref,
-) {
-  const height = width * (1520 / 1080);
-  const qrData = JSON.stringify({
-    id: guest.id,
-    name: guest.fullName,
-    table: guest.tableZone,
-    seats: guest.seats,
-  });
+function formatGuestName(name: string, styleId: string): string {
+  if (styleId === 'royal-bordeaux') {
+    const upper = name.toUpperCase();
+    return `~ ~ ${upper} ~ ~`;
+  }
+  return name;
+}
 
-  const guestNameStyle = useMemo(
-    () => ({
-      left: config.guestNameZone.x * width,
-      top: config.guestNameZone.y * height,
-      width: config.guestNameZone.width * width,
-      fontSize: config.guestNameZone.fontSize * (width / 340),
-      color: config.guestNameZone.color,
-      textAlign: config.guestNameZone.align as 'left' | 'center' | 'right',
-    }),
-    [config, width, height],
-  );
+export const InvitationCanvas = forwardRef<React.ElementRef<typeof ViewShot>, Props>(
+  function InvitationCanvas({ guest, config, width = 320 }, ref) {
+    const height = width * (1520 / 1080);
+    const styleId = guest.styleId || config.styleId || 'kipushi-floral';
+    const style = getStyleById(styleId);
+    const zones = { ...config, ...style.config };
 
-  const qrSize = config.qrCodeZone.size * width;
-  const placementStyle = useMemo(
-    () => ({
-      left: config.placementZone.x * width,
-      top: config.placementZone.y * height,
-      width: config.placementZone.width * width,
-      fontSize: config.placementZone.fontSize * (width / 340),
-      color: config.placementZone.color,
-    }),
-    [config, width, height],
-  );
+    const qrData = JSON.stringify({
+      id: guest.id,
+      name: guest.fullName,
+      table: guest.tableZone,
+      seats: guest.seats,
+    });
 
-  const templateSource = config.templateUri ? { uri: config.templateUri } : TEMPLATE;
+    const guestNameStyle = {
+      left: zones.guestNameZone.x * width,
+      top: zones.guestNameZone.y * height,
+      width: zones.guestNameZone.width * width,
+      fontSize: zones.guestNameZone.fontSize * (width / 340),
+      color: zones.guestNameZone.color,
+      textAlign: zones.guestNameZone.align as 'left' | 'center' | 'right',
+      fontWeight: styleId === 'royal-bordeaux' ? '800' as const : '700' as const,
+      letterSpacing: styleId === 'royal-bordeaux' ? 2 : 0,
+    };
 
-  return (
-    <ViewShot ref={ref} options={{ format: 'png', quality: 1 }}>
-      <View style={[styles.container, { width, height }]}>
-        <Image source={templateSource} style={{ width, height }} resizeMode="cover" />
+    const qrSize = zones.qrCodeZone.size * width;
+    const placementStyle = {
+      left: zones.placementZone.x * width,
+      top: zones.placementZone.y * height,
+      width: zones.placementZone.width * width,
+      fontSize: zones.placementZone.fontSize * (width / 340),
+      color: zones.placementZone.color,
+      textAlign: 'center' as const,
+    };
 
-        {config.embedGuestName && (
-          <Text style={[styles.guestName, guestNameStyle]} numberOfLines={2}>
-            {guest.fullName}
-          </Text>
-        )}
+    const templateSource = config.templateUri ? { uri: config.templateUri } : style.template;
 
-        {(guest.tableZone || guest.seats > 0) && (
-          <Text style={[styles.placement, placementStyle]}>
-            {guest.seats > 0 ? `${guest.seats} place${guest.seats > 1 ? 's' : ''}` : ''}
-            {guest.tableZone ? ` • ${guest.tableZone}` : ''}
-          </Text>
-        )}
+    return (
+      <ViewShot ref={ref} options={{ format: 'png', quality: 1 }}>
+        <View style={[styles.container, { width, height }]}>
+          <Image source={templateSource} style={{ width, height }} resizeMode="cover" />
 
-        <View
-          style={[
-            styles.qrWrapper,
-            {
-              left: config.qrCodeZone.x * width,
-              top: config.qrCodeZone.y * height,
-              width: qrSize,
-              height: qrSize,
-            },
-          ]}
-        >
-          <QRCode value={qrData} size={qrSize - 8} backgroundColor="#ffffff" color="#5a2d82" />
+          {config.embedGuestName && (
+            <Text style={[styles.guestName, guestNameStyle]} numberOfLines={2}>
+              {formatGuestName(guest.fullName, styleId)}
+            </Text>
+          )}
+
+          {(guest.tableZone || guest.seats > 0) && styleId !== 'royal-bordeaux' && (
+            <Text style={[styles.placement, placementStyle]}>
+              {guest.seats > 0 ? `${guest.seats} place${guest.seats > 1 ? 's' : ''}` : ''}
+              {guest.tableZone ? ` • ${guest.tableZone}` : ''}
+            </Text>
+          )}
+
+          <View
+            style={[
+              styles.qrWrapper,
+              {
+                left: zones.qrCodeZone.x * width,
+                top: zones.qrCodeZone.y * height,
+                width: qrSize,
+                height: qrSize,
+              },
+            ]}
+          >
+            <QRCode
+              value={qrData}
+              size={qrSize - 8}
+              backgroundColor="#ffffff"
+              color={styleId === 'royal-bordeaux' ? '#5C1A1A' : '#5a2d82'}
+            />
+          </View>
         </View>
-      </View>
-    </ViewShot>
-  );
-});
+      </ViewShot>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-  },
-  guestName: {
-    position: 'absolute',
-    fontWeight: '700',
-    fontFamily: 'serif',
-  },
-  placement: {
-    position: 'absolute',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
+  container: { position: 'relative', overflow: 'hidden', backgroundColor: '#fff' },
+  guestName: { position: 'absolute', fontFamily: 'serif' },
+  placement: { position: 'absolute', fontWeight: '600' },
   qrWrapper: {
     position: 'absolute',
     backgroundColor: '#fff',

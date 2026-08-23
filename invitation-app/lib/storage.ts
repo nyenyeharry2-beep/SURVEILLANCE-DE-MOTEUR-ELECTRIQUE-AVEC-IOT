@@ -20,7 +20,8 @@ export async function saveEventConfig(config: EventConfig): Promise<void> {
 export async function loadGuests(): Promise<Guest[]> {
   const raw = await AsyncStorage.getItem(KEYS.guests);
   if (!raw) return [];
-  return JSON.parse(raw);
+  const guests: Guest[] = JSON.parse(raw);
+  return guests.map((g) => ({ ...g, styleId: g.styleId || 'kipushi-floral' }));
 }
 
 export async function saveGuests(guests: Guest[]): Promise<void> {

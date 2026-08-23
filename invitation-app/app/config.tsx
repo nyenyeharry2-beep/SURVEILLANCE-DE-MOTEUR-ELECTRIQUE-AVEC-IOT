@@ -5,16 +5,16 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import { OutlinedInput, BlueCheckbox } from '../components/ui/OutlinedInput';
 import { loadEventConfig, loadTemplateConfig, saveEventConfig, saveTemplateConfig } from '../lib/storage';
 import { EventConfig } from '../lib/types';
+import { theme } from '../lib/theme';
 
 export default function ConfigScreen() {
   const router = useRouter();
@@ -24,41 +24,32 @@ export default function ConfigScreen() {
     whatsappMessage: '',
     embedGuestName: true,
     templateUri: null,
+    defaultStyleId: 'kipushi-floral',
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const [event, template] = await Promise.all([loadEventConfig(), loadTemplateConfig()]);
-      setConfig(event);
-      if (template.templateUri) {
-        setConfig((c) => ({ ...c, templateUri: template.templateUri }));
-      }
+      setConfig({ ...event, templateUri: event.templateUri || template.templateUri });
       setLoading(false);
     })();
   }, []);
 
   const pickTemplate = async () => {
-    Alert.alert('Choisir le modèle', 'Sélectionnez une source', [
+    Alert.alert('Affiche Sarah & Moïse', 'Téléversez votre affiche HD', [
       {
         text: 'Galerie',
         onPress: async () => {
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 1,
-          });
-          if (!result.canceled) {
-            setConfig((c) => ({ ...c, templateUri: result.assets[0].uri }));
-          }
+          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+          if (!result.canceled) setConfig((c) => ({ ...c, templateUri: result.assets[0].uri }));
         },
       },
       {
         text: 'Fichier',
         onPress: async () => {
           const result = await DocumentPicker.getDocumentAsync({ type: 'image/*' });
-          if (!result.canceled) {
-            setConfig((c) => ({ ...c, templateUri: result.assets[0].uri }));
-          }
+          if (!result.canceled) setConfig((c) => ({ ...c, templateUri: result.assets[0].uri }));
         },
       },
       { text: 'Annuler', style: 'cancel' },
@@ -68,58 +59,68 @@ export default function ConfigScreen() {
   const save = async () => {
     await saveEventConfig(config);
     const template = await loadTemplateConfig();
-    await saveTemplateConfig({ ...template, templateUri: config.templateUri, embedGuestName: config.embedGuestName, whatsappMessage: config.whatsappMessage });
+    await saveTemplateConfig({
+      ...template,
+      templateUri: config.templateUri,
+      embedGuestName: config.embedGuestName,
+      whatsappMessage: config.whatsappMessage,
+      styleId: config.defaultStyleId,
+    });
     router.push('/add-guest');
   };
 
-  if (loading) return null;
+  if (loading) return <View style={styles.root} />;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.section}>Modèle d'invitation (PNG/JPG HD)</Text>
-      <Pressable style={styles.templateBox} onPress={pickTemplate}>
+    <ScrollView style={styles.root} contentContainerStyle={styles.container}>
+      <Image source={require('../assets/floral-corner.png')} style={styles.floral} />
+
+      <Text style={styles.title}>Configurer l'événement</Text>
+      <Text style={styles.intro}>
+        Remplissez ces informations une seule fois. Elles seront utilisées pour toutes les invitations.
+      </Text>
+
+      <Pressable style={styles.posterBox} onPress={pickTemplate}>
         <Image
-          source={config.templateUri ? { uri: config.templateUri } : require('../assets/template-invitation.png')}
-          style={styles.templateImg}
+          source={config.templateUri ? { uri: config.templateUri } : require('../assets/template-sarah.png')}
+          style={styles.poster}
           resizeMode="cover"
         />
-        <Text style={styles.templateHint}>Appuyez pour téléverser une affiche</Text>
+        <Text style={styles.posterHint}>Appuyez pour remplacer l'affiche Sarah & Moïse</Text>
       </Pressable>
 
-      <Text style={styles.label}>Date</Text>
-      <TextInput
-        style={styles.input}
+      <OutlinedInput
+        dark
+        label="Date (ex: 11 Septembre 2026)"
         value={config.date}
         onChangeText={(date) => setConfig((c) => ({ ...c, date }))}
         placeholder="Vendredi, le 11 Septembre 2026"
       />
 
-      <Text style={styles.label}>Lieu / Salle</Text>
-      <TextInput
-        style={styles.input}
+      <OutlinedInput
+        dark
+        label="Lieu / Salle"
         value={config.venue}
         onChangeText={(venue) => setConfig((c) => ({ ...c, venue }))}
         placeholder="Commune de Kipushi, Ville de KIPUSHI"
       />
 
-      <Text style={styles.label}>Message WhatsApp</Text>
-      <TextInput
-        style={[styles.input, styles.textarea]}
+      <OutlinedInput
+        dark
+        label="Message WhatsApp"
         value={config.whatsappMessage}
         onChangeText={(whatsappMessage) => setConfig((c) => ({ ...c, whatsappMessage }))}
         multiline
         numberOfLines={5}
+        style={{ minHeight: 100, textAlignVertical: 'top' }}
+        hint="Utilisez {NAME}, {DATE} et {VENUE} pour personnaliser automatiquement le message."
       />
-      <Text style={styles.hint}>Variables : {'{NAME}'}, {'{DATE}'}, {'{VENUE}'}, {'{TABLE}'}, {'{SEATS}'}</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Incruster le nom de l'invité sur l'image</Text>
-        <Switch
-          value={config.embedGuestName}
-          onValueChange={(embedGuestName) => setConfig((c) => ({ ...c, embedGuestName }))}
-          trackColor={{ true: '#9b59b6' }}
-        />
-      </View>
+      <BlueCheckbox
+        checked={config.embedGuestName}
+        onToggle={() => setConfig((c) => ({ ...c, embedGuestName: !c.embedGuestName }))}
+        label="Incruster le nom de l'invité sur l'image"
+      />
 
       <Pressable style={styles.saveBtn} onPress={save}>
         <Text style={styles.saveBtnText}>Enregistrer et Commencer</Text>
@@ -129,35 +130,20 @@ export default function ConfigScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, paddingBottom: 40 },
-  section: { fontSize: 14, fontWeight: '700', color: '#5a2d82', marginBottom: 8 },
-  templateBox: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#e8dff0',
-    marginBottom: 20,
-  },
-  templateImg: { width: '100%', height: 180 },
-  templateHint: { textAlign: 'center', padding: 8, color: '#888', fontSize: 12 },
-  label: { fontSize: 14, fontWeight: '600', color: '#444', marginBottom: 6, marginTop: 8 },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-  },
-  textarea: { minHeight: 120, textAlignVertical: 'top' },
-  hint: { fontSize: 11, color: '#999', marginTop: 4 },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
+  root: { flex: 1, backgroundColor: theme.configBg },
+  container: { padding: 24, paddingBottom: 48 },
+  floral: { position: 'absolute', top: 0, right: 0, width: 120, height: 120, opacity: 0.85 },
+  title: { fontSize: 24, fontWeight: '800', color: theme.configText, marginTop: 16, marginBottom: 8 },
+  intro: { fontSize: 14, color: theme.configMuted, lineHeight: 20, marginBottom: 20 },
+  posterBox: { borderRadius: 14, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: theme.configBorder },
+  poster: { width: '100%', height: 160 },
+  posterHint: { textAlign: 'center', padding: 8, color: theme.configMuted, fontSize: 11, backgroundColor: '#111' },
   saveBtn: {
-    backgroundColor: '#3498db',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: theme.configBlue,
+    padding: 18,
+    borderRadius: 14,
     marginTop: 24,
     alignItems: 'center',
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  saveBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
 });
