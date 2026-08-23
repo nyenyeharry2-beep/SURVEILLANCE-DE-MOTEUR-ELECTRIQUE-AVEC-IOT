@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Générateur d'Invitations — Moïse & Sarah</title>
+  <title>Invitations Moïse & Sarah</title>
+  <link rel="icon" href="assets/app-icon.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="assets/app-icon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
@@ -12,79 +14,164 @@
 </head>
 <body>
 
-<div class="page">
-  <!-- Partie invitation : aperçu affiche -->
-  <section class="invitation-section">
+<!-- ═══ ÉCRAN ACCUEIL (MainActivity) ═══ -->
+<section id="screen-home" class="screen active">
+  <div class="screen-inner">
     <div class="header-row">
-      <img class="logo" src="assets/couple_photo.png" alt="Moïse & Sarah"/>
+      <div class="logo-frame">
+        <img src="assets/couple_photo.png" alt="Logo Moïse & Sarah"/>
+      </div>
       <div>
         <h1>Générateur d'Invitations</h1>
         <p class="subtitle">Mariage de Moïse & Sarah</p>
       </div>
     </div>
 
-    <div class="poster-frame">
-      <div class="poster-viewport">
-        <div class="poster-scaler" id="posterScaler">
-          <!-- Chargé depuis assets/invitations/*.html -->
+    <div class="hero-poster">
+      <img id="heroPoster" src="assets/template_mariage_civil.png" alt="Affiche officielle"/>
+    </div>
+    <p class="caption">Affiche officielle — Moïse NKUBA & Sarah KASONGO</p>
+    <p class="caption-gold">Mariage de Moïse & Sarah</p>
+
+    <div class="card" style="margin-top:20px">
+      <h3 style="font-weight:700;font-size:1.05rem">Bienvenue</h3>
+      <p style="margin-top:6px;font-size:0.875rem;color:var(--text-muted);line-height:1.5">
+        Créez des invitations uniques pour chaque invité à partir de l'affiche officielle de Moïse & Sarah.
+      </p>
+    </div>
+
+    <div class="card card-menu" data-nav="config">
+      <div class="card-menu-row">
+        <div class="icon-box blue">⚙</div>
+        <div class="card-menu-text">
+          <h3>Configurer l'événement</h3>
+          <p>Date, lieu, message WhatsApp</p>
         </div>
+        <span class="card-menu-arrow">›</span>
       </div>
     </div>
 
-    <p class="caption">Affiche officielle — Moïse NKUBA & Sarah KASONGO</p>
-    <p class="caption-gold">Mariage de Moïse & Sarah</p>
-  </section>
+    <div class="card card-menu" data-nav="add">
+      <div class="card-menu-row">
+        <div class="icon-box gold">👤</div>
+        <div class="card-menu-text">
+          <h3>Ajouter un invité</h3>
+          <p>Nom, WhatsApp, table, style Adrian</p>
+        </div>
+        <span class="card-menu-arrow">›</span>
+      </div>
+    </div>
 
-  <!-- Formulaire invité -->
-  <section class="form-section">
+    <div class="card card-menu" data-nav="add">
+      <div class="card-menu-row">
+        <div class="icon-box purple">📋</div>
+        <div class="card-menu-text">
+          <h3>Liste des invités</h3>
+          <p>Recherche, filtres, export CSV</p>
+        </div>
+        <span class="card-menu-arrow">›</span>
+      </div>
+    </div>
+
+    <p class="version-tag">Version 2.3.0 — Affiches HTML/CSS</p>
+
+    <a class="apk-link" href="../releases/invitations-moise-sarah-v2.3.0.apk">
+      📱 Télécharger l'APK Android v2.3.0
+    </a>
+  </div>
+</section>
+
+<!-- ═══ ÉCRAN CONFIG (ConfigActivity — dark) ═══ -->
+<section id="screen-config" class="screen screen-config">
+  <div class="screen-inner">
+    <button type="button" class="back-link" data-nav="home">← Retour</button>
+
+    <div class="header-row" style="justify-content:flex-start">
+      <div class="logo-frame lg">
+        <img src="assets/couple_photo.png" alt="Logo"/>
+      </div>
+      <div>
+        <h1>Configurer l'événement</h1>
+        <p class="subtitle">Mariage de Moïse & Sarah</p>
+      </div>
+    </div>
+
+    <p class="config-poster-label">Aperçu de l'affiche officielle</p>
+    <div class="config-poster-card">
+      <img id="configPoster" src="assets/template_mariage_civil.png" alt="Aperçu affiche"/>
+    </div>
+
+    <p class="config-intro">
+      Remplissez ces informations une seule fois. Elles seront utilisées pour toutes les invitations.
+    </p>
+
+    <div class="field">
+      <label for="cfgDate">Date (ex: 11 Septembre 2026)</label>
+      <input type="text" id="cfgDate" value="Vendredi, le 11 Septembre 2026"/>
+    </div>
+    <div class="field">
+      <label for="cfgTime">Heure (ex: 11h00)</label>
+      <input type="text" id="cfgTime" value="11h00"/>
+    </div>
+    <div class="field">
+      <label for="cfgVenue">Lieu / Salle</label>
+      <input type="text" id="cfgVenue" value="Commune de Kipushi, Ville de KIPUSHI"/>
+    </div>
+    <div class="field">
+      <label for="cfgMessage">Message WhatsApp</label>
+      <textarea id="cfgMessage" rows="4">Bonjour {NAME}, nous avons l'honneur de vous inviter au mariage civil de nos enfants, Moïse NKUBA & Sarah KASONGO, le {DATE} à {VENUE}. Votre présence fera notre immense joie.</textarea>
+      <p class="hint">Variables : {NAME}, {DATE}, {VENUE}, {TABLE}, {SEATS}</p>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="cfgEmbedName" checked/>
+      Incruster le nom de l'invité sur l'image
+    </label>
+
+    <button type="button" class="btn-blue" id="btnSaveConfig">Enregistrer et Commencer</button>
+  </div>
+</section>
+
+<!-- ═══ ÉCRAN AJOUTER INVITÉ (AddGuestActivity) ═══ -->
+<section id="screen-add" class="screen">
+  <div class="screen-inner">
     <div class="page-title">
+      <button type="button" class="btn-settings" data-nav="config" title="Réglages">⚙</button>
       <h2>Ajouter un invité</h2>
       <p class="subtitle">Mariage de Moïse & Sarah</p>
     </div>
 
     <div class="card">
-      <h3>Nouvel invité d'honneur</h3>
-      <p class="desc">Crée une invitation raffinée, prête à être partagée en quelques secondes.</p>
+      <h3 style="font-weight:700">Nouvel invité d'honneur</h3>
+      <p style="margin-top:6px;font-size:0.875rem;color:var(--text-muted)">
+        Crée une invitation raffinée, prête à être partagée en quelques secondes.
+      </p>
     </div>
 
     <div class="card">
-      <h3>Informations invité</h3>
+      <h3 style="font-weight:700;margin-bottom:4px">Informations invité</h3>
 
       <div class="field">
         <label for="guestName">Nom complet</label>
         <input type="text" id="guestName" value="M. Jean-Pierre MUKENDI"/>
       </div>
-
       <div class="field">
         <label for="whatsapp">Numéro WhatsApp</label>
         <input type="tel" id="whatsapp" placeholder="243XXXXXXXXX"/>
         <p class="hint">Format conseillé : 243XXXXXXXXX</p>
       </div>
-
       <div class="field-row">
         <div class="field seats">
           <label for="seats">Places</label>
           <input type="number" id="seats" value="2" min="1"/>
         </div>
         <div class="field">
-          <label for="tableNum">Table</label>
+          <label for="tableNum">Table / Zone</label>
           <input type="text" id="tableNum" value="Table Royale 1"/>
           <p class="hint">Ex. : Table Royale 1</p>
         </div>
       </div>
-
-      <div class="field">
-        <label for="eventDate">Date</label>
-        <input type="text" id="eventDate" value="Vendredi, le 11 Septembre 2026"/>
-      </div>
-      <div class="field">
-        <label for="eventTime">Heure</label>
-        <input type="text" id="eventTime" value="11h00"/>
-      </div>
-      <div class="field">
-        <label for="eventVenue">Lieu</label>
-        <input type="text" id="eventVenue" value="Commune de Kipushi, Ville de KIPUSHI"/>
-      </div>
+      <button type="button" class="btn-outline">📇 Importer depuis le téléphone</button>
     </div>
 
     <p class="section-title">Choisir le style d'invitation</p>
@@ -93,22 +180,50 @@
     <div class="style-grid">
       <div class="style-thumb active" data-style="mariage-civil">
         <span class="check">✓</span>
-        <img src="assets/template_mariage_civil.png" alt="Mariage civil"/>
-        <span>Mariage civil</span>
+        <div class="preview-wrap">
+          <img src="assets/template_mariage_civil.png" alt="Mariage civil"/>
+        </div>
+        <span class="style-name">Affiche Sarah — Mariage Civil</span>
+        <span class="style-sub">Modèle officiel violet & or</span>
       </div>
       <div class="style-thumb" data-style="affiche-blanche">
         <span class="check">✓</span>
-        <img src="assets/template_affiche_blanche.png" alt="Bénédiction"/>
-        <span>Bénédiction</span>
+        <div class="preview-wrap">
+          <img src="assets/template_affiche_blanche.png" alt="Bénédiction"/>
+        </div>
+        <span class="style-name">Affiche Blanche — Bénédiction</span>
+        <span class="style-sub">12 Sept. 2026 — Moïse & Sarah</span>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="btn-gold-fixed" id="btnGenerate">Générer l'invitation</button>
+</section>
+
+<!-- ═══ ÉCRAN APERÇU (PreviewActivity) ═══ -->
+<section id="screen-preview" class="screen">
+  <div class="screen-inner preview-center">
+    <button type="button" class="back-link" data-nav="add" style="align-self:flex-start">← Retour</button>
+
+    <h2 style="font-size:1.35rem;font-weight:700">Aperçu final</h2>
+    <p class="subtitle">Mariage de Moïse & Sarah</p>
+
+    <div class="phone-frame">
+      <div class="poster-viewport">
+        <div class="poster-scaler" id="previewScaler">
+          <!-- invitation rendue ici -->
+        </div>
       </div>
     </div>
 
-    <button type="button" class="btn-gold" id="btnGenerate">GÉNÉRER L'INVITATION</button>
+    <button type="button" class="btn-wa" id="btnSendWa">Envoyer l'invitation</button>
+    <button type="button" class="btn-close" data-nav="home">Fermer</button>
+  </div>
+</section>
 
-    <a class="apk-link" href="../releases/invitations-moise-sarah-v2.3.0.apk">
-      📱 Télécharger l'APK Android v2.3.0
-    </a>
-  </section>
+<!-- Hôte rendu invitation (hors écran) -->
+<div id="invitationRenderHost">
+  <div class="poster-scaler" id="posterScaler"></div>
 </div>
 
 <script src="assets/js/invitation.js"></script>

@@ -66,7 +66,7 @@
             <h2>📱 Application Android (Java natif)</h2>
             <p style="margin-bottom:1rem;color:#777;">Affiches HTML/CSS claires — Mariage civil (11 Sept.) et Bénédiction (12 Sept.) • Photo couple en logo.</p>
             <a class="btn apk-link" href="../releases/invitations-moise-sarah-v2.3.0.apk">Télécharger l'APK v2.3.0 (signé)</a>
-            <a class="btn btn-gold" href="index.html" style="display:block;text-align:center;margin-top:0.75rem;">Voir l'aperçu des affiches (index.html)</a>
+            <a class="btn btn-gold" href="index.html" style="display:block;text-align:center;margin-top:0.75rem;">Ouvrir l'application web (index.html)</a>
         </div>
 
         <div class="card">

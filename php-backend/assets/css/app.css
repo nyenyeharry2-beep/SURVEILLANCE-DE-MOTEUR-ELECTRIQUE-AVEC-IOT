@@ -1,72 +1,96 @@
-/* UI application — thème crème Adrian */
+/* UI identique à l'application Android — thème Adrian */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --cream: #f5f0eb;
   --gold: #b8956b;
   --gold-light: #d4b896;
+  --gold-dark: #9a7b4f;
   --text-dark: #1a1a1a;
-  --text-muted: #777;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --text-muted: #777777;
+  --card-white: #ffffff;
+  --config-bg: #0d0d0d;
+  --config-text: #ffffff;
+  --config-muted: #aaaaaa;
+  --config-blue: #4a7bff;
+  --config-border: #555555;
+  --green-wa: #25d366;
+  --purple: #6b2d82;
+  --frame-dark: #2a2a2a;
+  --link-blue: #4a7bff;
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--cream);
   color: var(--text-dark);
   min-height: 100vh;
 }
 
-.page {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 20px 20px 100px;
+/* Logo — même cadre que bg_poster_border.xml (18dp, bordure or) */
+.logo-frame {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: var(--card-white);
+  border: 2px solid var(--gold-light);
+  border-radius: 18px;
+  padding: 2px;
+  overflow: hidden;
 }
 
+.logo-frame.lg { width: 72px; height: 72px; padding: 3px; }
+
+.logo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 14px;
+}
+
+.logo-frame.lg img { border-radius: 15px; }
+
+/* Écrans SPA */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: block; }
+
+.screen-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+/* En-tête accueil — centré comme MainActivity */
 .header-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 14px;
-  margin-bottom: 16px;
+  padding-bottom: 12px;
 }
 
-.logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  border: 3px solid var(--gold-light);
-  object-fit: cover;
-  object-position: center 20%;
-  flex-shrink: 0;
+.header-row h1 { font-size: 1.25rem; font-weight: 700; }
+.subtitle { color: var(--gold); font-size: 0.875rem; font-weight: 700; margin-top: 2px; }
+
+/* Affiche héro — bordure or, 240px */
+.hero-poster {
+  background: var(--card-white);
+  border: 2px solid var(--gold-light);
+  border-radius: 18px;
+  padding: 4px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.header-row h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.header-row .subtitle {
-  color: var(--gold);
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-top: 2px;
-}
-
-.page-title {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.page-title h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-}
-
-.page-title .subtitle {
-  color: var(--gold);
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-top: 4px;
+.hero-poster img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .caption {
@@ -84,83 +108,118 @@ body {
   margin-top: 4px;
 }
 
+/* Cartes Adrian — CardAdrian 20dp radius, 6dp elevation */
 .card {
-  background: #fff;
+  background: var(--card-white);
   border-radius: 20px;
   padding: 20px;
   margin-top: 12px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid #e0d5c8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.card h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 6px;
+.card-menu {
+  padding: 16px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.card p.desc {
-  font-size: 0.875rem;
+.card-menu:active { transform: scale(0.98); }
+
+.card-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.icon-box.blue { background: rgba(74, 123, 255, 0.09); }
+.icon-box.gold { background: rgba(184, 149, 107, 0.09); }
+.icon-box.purple { background: rgba(107, 45, 130, 0.09); }
+
+.card-menu-text { flex: 1; }
+.card-menu-text h3 { font-size: 1rem; font-weight: 700; }
+.card-menu-text p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.card-menu-arrow { color: #ccc; font-size: 1.5rem; line-height: 1; }
+
+.version-tag {
+  text-align: center;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  line-height: 1.5;
+  margin-top: 16px;
+  margin-bottom: 24px;
 }
 
+/* Titre écran centré */
+.page-title { text-align: center; margin-bottom: 16px; position: relative; }
+.page-title h2 { font-size: 1.35rem; font-weight: 700; }
+.page-title .subtitle { font-size: 0.95rem; }
+
+.btn-settings {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+/* Champs formulaire clair — InputLight */
 .field { margin-top: 12px; }
 
 .field label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-bottom: 6px;
 }
 
-.field input {
+.field input, .field textarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--gold-light);
   border-radius: 12px;
   font-size: 0.95rem;
   background: #fff;
   color: var(--text-dark);
+  font-family: inherit;
 }
 
-.field input:focus {
+.field input:focus, .field textarea:focus {
   outline: none;
   border-color: var(--gold);
 }
 
-.field-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
-
+.field-row { display: flex; gap: 12px; margin-top: 12px; }
 .field-row .field { flex: 1; margin-top: 0; }
 .field-row .field.seats { flex: 0 0 90px; }
 
-.hint {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+.hint { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
 
-.section-title {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-top: 16px;
-}
+.section-title { font-size: 1rem; font-weight: 700; margin-top: 16px; }
+.section-desc { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 12px; }
 
-.section-desc {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 4px 0 12px;
-}
-
+/* Styles invitation — item_style.xml */
 .style-grid {
   display: flex;
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
+  min-height: 240px;
 }
 
 .style-thumb {
@@ -171,26 +230,25 @@ body {
   cursor: pointer;
   position: relative;
   background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  padding: 10px;
+  transition: border-color 0.2s;
 }
 
-.style-thumb img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
+.style-thumb .preview-wrap {
+  height: 180px;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
-.style-thumb.active {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 2px rgba(184, 149, 107, 0.3);
-}
+.style-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.style-thumb.active { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(184, 149, 107, 0.25); }
 
 .style-thumb .check {
   display: none;
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 14px;
+  right: 14px;
   width: 24px;
   height: 24px;
   background: var(--gold);
@@ -203,15 +261,23 @@ body {
 
 .style-thumb.active .check { display: block; }
 
-.style-thumb span {
+.style-thumb .style-name {
   display: block;
-  padding: 8px;
-  font-size: 0.7rem;
-  text-align: center;
-  color: var(--text-muted);
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
 }
 
-.btn-gold {
+.style-thumb .style-sub {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Boutons — BtnGold, BtnBlue, BtnWhatsApp */
+.btn-gold-fixed {
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -220,17 +286,41 @@ body {
   max-width: 440px;
   padding: 16px;
   border: none;
-  border-radius: 14px;
-  background: var(--gold);
-  color: #fff;
+  border-radius: 16px;
+  background: var(--gold-light);
+  color: var(--text-dark);
   font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
+  font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 6px 24px rgba(184, 149, 107, 0.4);
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(184, 149, 107, 0.35);
 }
 
-.btn-gold:hover { filter: brightness(1.05); }
+.btn-blue {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--config-blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn-wa {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--green-wa);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 24px;
+}
 
 .btn-outline {
   width: 100%;
@@ -245,34 +335,152 @@ body {
   cursor: pointer;
 }
 
+.btn-close {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--link-blue);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 8px;
+}
+
 .apk-link {
   display: block;
   text-align: center;
   margin-top: 16px;
-  padding: 12px;
-  background: #25d366;
+  padding: 14px;
+  background: var(--green-wa);
   color: #fff;
   text-decoration: none;
-  border-radius: 14px;
+  border-radius: 16px;
   font-weight: 700;
-  font-size: 0.9rem;
 }
 
-.invitation-section {
+/* Écran Config — dark theme */
+.screen-config {
+  background: var(--config-bg);
+  color: var(--config-text);
+}
+
+.screen-config .screen-inner { padding-bottom: 40px; }
+
+.screen-config .header-row { justify-content: flex-start; }
+.screen-config .header-row h1 { color: var(--config-text); font-size: 1.35rem; }
+.screen-config .subtitle { color: #d4b896; }
+
+.screen-config .field label { color: var(--config-muted); }
+
+.screen-config .field input,
+.screen-config .field textarea {
+  background: var(--config-bg);
+  border-color: var(--config-border);
+  color: var(--config-text);
+}
+
+.screen-config .hint { color: var(--config-muted); }
+
+.config-poster-label {
+  font-size: 0.75rem;
+  color: var(--config-muted);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
-@media (min-width: 900px) {
-  .page {
-    max-width: 960px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: start;
-    padding-bottom: 40px;
-  }
+.config-poster-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .invitation-section { grid-column: 1; position: sticky; top: 20px; }
-  .form-section { grid-column: 2; }
-  .btn-gold { position: static; transform: none; width: 100%; max-width: none; margin-top: 16px; }
+.config-poster-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.config-intro {
+  font-size: 0.875rem;
+  color: var(--config-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--config-text);
+  font-size: 0.9rem;
+}
+
+.checkbox-row input { width: 18px; height: 18px; accent-color: var(--config-blue); }
+
+/* Aperçu final — cadre téléphone */
+.preview-center { text-align: center; }
+
+.phone-frame {
+  display: inline-block;
+  background: var(--frame-dark);
+  border-radius: 20px;
+  padding: 14px;
+  margin-top: 20px;
+}
+
+.phone-frame .poster-viewport {
+  width: 280px;
+  height: 395px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.phone-frame .poster-scaler {
+  --inv-scale: 0.233;
+  transform-origin: top left;
+  margin-bottom: calc(-1700px * (1 - 0.233));
+}
+
+.phone-frame .poster-viewport {
+  overflow: hidden;
+  width: calc(1200px * 0.233);
+  height: 395px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+/* Invitation cachée pour rendu */
+#invitationRenderHost {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .screen-inner { max-width: 520px; }
+  .btn-gold-fixed { position: static; transform: none; width: 100%; max-width: none; margin-top: 16px; }
 }
