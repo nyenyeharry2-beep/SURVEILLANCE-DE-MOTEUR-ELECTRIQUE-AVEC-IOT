@@ -70,7 +70,9 @@ require __DIR__ . '/includes/layout-top.php';
                     <div class="form-group">
                         <label>Catégorie</label>
                         <select name="category" class="form-control">
-                            <option value="mode">Mode</option>
+                            <option value="mode">Mode Femme</option>
+                            <option value="mode-enfant">Mode Enfant</option>
+                            <option value="mode-homme">Mode Homme</option>
                             <option value="accessoires">Accessoires</option>
                             <option value="chaussures">Chaussures</option>
                             <option value="electronique">Électronique</option>

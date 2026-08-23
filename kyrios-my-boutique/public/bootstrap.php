@@ -62,9 +62,24 @@ function roleBadge($role)
 function productImageHtml($url, $class = 'product-card-image')
 {
     if ($url) {
-        return '<div class="' . e($class) . '"><img src="' . e($url) . '" alt="" style="width:100%;height:100%;object-fit:cover;"></div>';
+        return '<div class="' . e($class) . '"><img src="' . e($url) . '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🛍️\'"></div>';
     }
     return '<div class="' . e($class) . '">🛍️</div>';
+}
+
+function categoryLabel($cat)
+{
+    $labels = [
+        'mode' => 'Mode Femme',
+        'mode-enfant' => 'Mode Enfant',
+        'mode-homme' => 'Mode Homme',
+        'accessoires' => 'Accessoires',
+        'chaussures' => 'Chaussures',
+        'electronique' => 'Électronique',
+        'maison' => 'Maison',
+        'general' => 'Général',
+    ];
+    return $labels[$cat] ?? ucfirst($cat);
 }
 
 function googleAuthUrl($config, $state = '')

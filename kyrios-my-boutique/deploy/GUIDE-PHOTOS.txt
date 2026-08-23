@@ -1,0 +1,40 @@
+═══════════════════════════════════════════════════════════
+  GUIDE PHOTOS PRODUITS — Kyrios My Boutique
+═══════════════════════════════════════════════════════════
+
+Uploadez vos photos dans : htdocs/uploads/products/
+
+Renommez chaque photo EXACTEMENT comme ci-dessous :
+
+── MODE ENFANT (Little Princess) ──
+  lp-robe-creme.jpg      → Robe satin crème
+  lp-robe-bleu.jpg       → Robe bleu ciel rose
+  lp-robe-rose.jpg       → Robe rose poudré
+  lp-robe-bleu-plisse.jpg→ Robe bleu plissé
+  lp-robe-rouge.jpg      → Robe velours rouge
+  lp-robe-noir.jpg       → Robe velours noir
+
+── MODE FEMME ──
+  robe-magenta.jpg       → Robe magenta peplum
+  robe-bleu-argent.jpg   → Robe bleu argent
+  robe-marine.jpg        → Robe bleu marine
+  ensemble-marine.jpg    → Ensemble brodé marine
+  ensemble-olive.jpg     → Ensemble vert olive
+
+── MODE HOMME (PASUXI) ──
+  veste-bordeaux.jpg     → Veste bordeaux
+  veste-creme.jpg        → Veste crème
+
+── CHAUSSURES ──
+  sneakers-or-noir.jpg   → Sneakers blanc/or/noir
+  sneakers-or-rose.jpg   → Sneakers blanc/or/rose
+  sneakers-or-marron.jpg → Sneakers blanc/or/marron
+
+── ÉTAPES ──
+1. phpMyAdmin → Importer catalog-kyrios.sql
+2. File Manager → htdocs/uploads/products/ → uploader les 16 photos
+3. Visiter https://kyriosboutique.page.gd/marketplace.php
+
+Compte vendeur : boutique@kyrios.page.gd / password
+
+═══════════════════════════════════════════════════════════

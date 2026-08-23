@@ -9,7 +9,7 @@ $category = $_GET['category'] ?? null;
 $products = $productModel->getAll(24, $category);
 $unreadMessages = $messaging->getUnreadCount((int) $user['id']);
 
-$categories = ['mode', 'accessoires', 'chaussures', 'electronique', 'maison', 'general'];
+$categories = ['mode', 'mode-enfant', 'mode-homme', 'accessoires', 'chaussures', 'electronique', 'maison', 'general'];
 
 $pageTitle = 'Marketplace';
 $currentPage = 'marketplace';
@@ -26,7 +26,7 @@ require __DIR__ . '/includes/layout-top.php';
                 <a href="/marketplace.php" class="btn btn-sm <?= !$category ? 'btn-primary' : 'btn-secondary' ?>">Tous</a>
                 <?php foreach ($categories as $cat): ?>
                 <a href="/marketplace.php?category=<?= $cat ?>" class="btn btn-sm <?= $category === $cat ? 'btn-primary' : 'btn-secondary' ?>">
-                    <?= ucfirst($cat) ?>
+                    <?= categoryLabel($cat) ?>
                 </a>
                 <?php endforeach; ?>
             </div>
