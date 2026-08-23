@@ -1,27 +1,36 @@
-NYENYE — Surveillance moteur (Firebase)
-========================================
+NYENYE — Surveillance moteur (Firebase + interface complète)
+============================================================
 
 DOMAINE : http://surveillancemotornyenye.xo.je/
 
-INSTALLATION INFINITYFREE
--------------------------
-1. File Manager → htdocs
-2. Supprimez TOUS les anciens fichiers (Lumen, PHP, main.js, app.js…)
-3. Uploadez index.html (ce fichier seul suffit)
-4. Ouvrez http://surveillancemotornyenye.xo.je/
+FICHIERS htdocs (tous obligatoires)
+-----------------------------------
+index.html
+main.js
+firebase-api.js
+firebase-config.js
+app.css
+calculs.js
 
-FIREBASE (déjà configuré dans index.html)
------------------------------------------
-Projet : surveillance-moteur-f38e1
-Chemins :
-  motor/live       ← données ESP32
-  motor/command    ← marche / arrêt / urgence
-  motor/thresholds ← seuils vibMax / rpmMax
+INSTALLATION
+------------
+1. Supprimez les anciens fichiers PHP/Lumen (mesure.php, config.php, etc.)
+2. Uploadez TOUS les fichiers ci-dessus dans htdocs
+3. Ouvrez http://surveillancemotornyenye.xo.je/  (Ctrl+F5)
 
-ESP32
------
-Doit publier vers motor/live (pas moteur/live, pas mesure.php)
-
-FICHIERS htdocs
+FONCTIONNALITÉS
 ---------------
-index.html   ← tout-en-un (HTML + CSS + JS + Firebase)
+- Vue d'ensemble, Surveillance, Historique, Diagnostic, Commande moteur
+- Graphiques temps réel (Chart.js)
+- Boutons ALLUMER / ÉTEINDRE → Firebase motor/command
+- Données en direct depuis Firebase motor/live
+- Badge « Firebase connecté » (pas MySQL)
+
+FIREBASE
+--------
+Projet : surveillance-moteur-f38e1
+motor/live       ← ESP32 envoie vib, rpm, motorOn, alert…
+motor/command    ← commandes web
+motor/thresholds ← seuils vibMax / rpmMax
+
+ESP32 : sketch Firebase → motor/live (pas mesure.php)
