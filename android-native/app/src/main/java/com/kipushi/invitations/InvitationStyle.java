@@ -4,18 +4,24 @@ public class InvitationStyle {
     public final String id;
     public final String name;
     public final String subtitle;
+    public final String htmlAsset;
     public final int templateRes;
     public final float nameX, nameY, nameW, nameSize;
     public final int nameColor;
     public final float qrX, qrY, qrSize;
+    public final int qrSizePx;
+    public final String qrColor;
     public final boolean centerName;
 
-    public InvitationStyle(String id, String name, String subtitle, int templateRes,
+    public InvitationStyle(String id, String name, String subtitle,
+                           String htmlAsset, int templateRes,
                            float nameX, float nameY, float nameW, float nameSize, int nameColor,
-                           float qrX, float qrY, float qrSize, boolean centerName) {
+                           float qrX, float qrY, float qrSize, int qrSizePx, String qrColor,
+                           boolean centerName) {
         this.id = id;
         this.name = name;
         this.subtitle = subtitle;
+        this.htmlAsset = htmlAsset;
         this.templateRes = templateRes;
         this.nameX = nameX;
         this.nameY = nameY;
@@ -25,19 +31,23 @@ public class InvitationStyle {
         this.qrX = qrX;
         this.qrY = qrY;
         this.qrSize = qrSize;
+        this.qrSizePx = qrSizePx;
+        this.qrColor = qrColor;
         this.centerName = centerName;
     }
 
     public static InvitationStyle[] all() {
         return new InvitationStyle[]{
-            new InvitationStyle("kipushi-floral", "Style Kipushi Floral", "Élégant & Romantique",
-                R.drawable.template_sarah, 0.48f, 0.168f, 0.48f, 22f, 0xFF2c2c2c, 0.065f, 0.78f, 0.16f, false),
-            new InvitationStyle("royal-bordeaux", "Royal Bordeaux", "Classique & noble",
-                R.drawable.template_royal_bordeaux, 0.08f, 0.42f, 0.84f, 38f, 0xFFFFFFFF, 0.35f, 0.72f, 0.22f, true),
-            new InvitationStyle("ivory-prestige", "Ivory Prestige", "Lumineux & raffiné",
-                R.drawable.template_ivory, 0.1f, 0.38f, 0.8f, 32f, 0xFF5C1A1A, 0.38f, 0.7f, 0.2f, true),
-            new InvitationStyle("ville-kipushi", "Style Ville de Kipushi", "Moderne & Raffiné",
-                R.drawable.template_ville, 0.08f, 0.35f, 0.84f, 30f, 0xFFFFFFFF, 0.72f, 0.78f, 0.18f, true),
+            new InvitationStyle(
+                "affiche-blanche", "Affiche Blanche Officielle", "Modèle principal — Moïse & Sarah",
+                "invitations/affiche_blanche.html", R.drawable.template_affiche_blanche,
+                0.52f, 0.14f, 0.45f, 28f, 0xFF1a1a1a,
+                0.05f, 0.78f, 0.14f, 140, "#1a3a7a", false),
+            new InvitationStyle(
+                "mariage-civil", "Mariage Civil Violet", "Élégant & Romantique — Sarah",
+                "invitations/mariage_civil.html", R.drawable.template_mariage_civil,
+                0.43f, 0.135f, 0.55f, 26f, 0xFF2c2c2c,
+                0.06f, 0.78f, 0.15f, 150, "#6B2D82", false),
         };
     }
 

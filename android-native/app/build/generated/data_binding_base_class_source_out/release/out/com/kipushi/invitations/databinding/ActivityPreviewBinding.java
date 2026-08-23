@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -30,12 +31,17 @@ public final class ActivityPreviewBinding implements ViewBinding {
   @NonNull
   public final ImageView invitationPreview;
 
+  @NonNull
+  public final ProgressBar progressRender;
+
   private ActivityPreviewBinding(@NonNull ScrollView rootView, @NonNull TextView btnClose,
-      @NonNull MaterialButton btnSend, @NonNull ImageView invitationPreview) {
+      @NonNull MaterialButton btnSend, @NonNull ImageView invitationPreview,
+      @NonNull ProgressBar progressRender) {
     this.rootView = rootView;
     this.btnClose = btnClose;
     this.btnSend = btnSend;
     this.invitationPreview = invitationPreview;
+    this.progressRender = progressRender;
   }
 
   @Override
@@ -83,8 +89,14 @@ public final class ActivityPreviewBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityPreviewBinding((ScrollView) rootView, btnClose, btnSend,
-          invitationPreview);
+      id = R.id.progressRender;
+      ProgressBar progressRender = ViewBindings.findChildViewById(rootView, id);
+      if (progressRender == null) {
+        break missingId;
+      }
+
+      return new ActivityPreviewBinding((ScrollView) rootView, btnClose, btnSend, invitationPreview,
+          progressRender);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

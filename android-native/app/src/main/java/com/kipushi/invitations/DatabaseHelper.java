@@ -1,16 +1,19 @@
 package com.kipushi.invitations;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import android.content.ContentValues;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB = "invitations.db";
@@ -37,12 +40,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {}
 
     public long insertGuest(Guest g) {
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = toValues(g);
         if (g.createdAt == null) {
             cv.put("created_at", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.FRANCE).format(new Date()));
         }
-        return db.insert("guests", null, cv);
+        return getWritableDatabase().insert("guests", null, cv);
     }
 
     public int updateGuest(Guest g) {
@@ -61,21 +63,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return g;
     }
 
-    public List<Guest> getAllGuests(String search) {
-        String q = "SELECT * FROM guests ORDER BY id DESC";
-        Cursor c;
+    public List<Guest> getAllGuests(String search, String tableFilter) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM guests WHERE 1=1");
+        List<String> args = new ArrayList<>();
+
         if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND (full_name LIKE ? OR whatsapp LIKE ?)");
             String like = "%" + search.trim() + "%";
-            c = getReadableDatabase().rawQuery(
-                "SELECT * FROM guests WHERE full_name LIKE ? OR whatsapp LIKE ? ORDER BY id DESC",
-                new String[]{like, like});
-        } else {
-            c = getReadableDatabase().rawQuery(q, null);
+            args.add(like);
+            args.add(like);
         }
+        if (tableFilter != null && !tableFilter.isEmpty() && !"Toutes".equals(tableFilter)) {
+            sql.append(" AND table_zone = ?");
+            args.add(tableFilter);
+        }
+        sql.append(" ORDER BY id DESC");
+
+        Cursor c = getReadableDatabase().rawQuery(sql.toString(), args.toArray(new String[0]));
         List<Guest> list = new ArrayList<>();
         while (c.moveToNext()) list.add(fromCursor(c));
         c.close();
         return list;
+    }
+
+    public List<String> getDistinctTables() {
+        Cursor c = getReadableDatabase().rawQuery(
+            "SELECT DISTINCT table_zone FROM guests WHERE table_zone IS NOT NULL AND table_zone != '' ORDER BY table_zone",
+            null);
+        Set<String> tables = new HashSet<>();
+        tables.add("Toutes");
+        while (c.moveToNext()) {
+            String t = c.getString(0);
+            if (t != null && !t.isEmpty()) tables.add(t);
+        }
+        c.close();
+        return new ArrayList<>(tables);
     }
 
     private ContentValues toValues(Guest g) {
@@ -98,6 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         g.seats = c.getInt(c.getColumnIndexOrThrow("seats"));
         g.tableZone = c.getString(c.getColumnIndexOrThrow("table_zone"));
         g.styleId = c.getString(c.getColumnIndexOrThrow("style_id"));
+        if (g.styleId == null || g.styleId.isEmpty()) g.styleId = "affiche-blanche";
         g.sent = c.getInt(c.getColumnIndexOrThrow("sent")) == 1;
         g.createdAt = c.getString(c.getColumnIndexOrThrow("created_at"));
         return g;

@@ -26,6 +26,9 @@ public final class ActivityAddGuestBinding implements ViewBinding {
   public final MaterialButton btnGenerate;
 
   @NonNull
+  public final MaterialButton btnImportContact;
+
+  @NonNull
   public final ImageButton btnSettings;
 
   @NonNull
@@ -44,12 +47,13 @@ public final class ActivityAddGuestBinding implements ViewBinding {
   public final RecyclerView styleRecycler;
 
   private ActivityAddGuestBinding(@NonNull CoordinatorLayout rootView,
-      @NonNull MaterialButton btnGenerate, @NonNull ImageButton btnSettings,
-      @NonNull TextInputEditText inputName, @NonNull TextInputEditText inputSeats,
-      @NonNull TextInputEditText inputTable, @NonNull TextInputEditText inputWhatsapp,
-      @NonNull RecyclerView styleRecycler) {
+      @NonNull MaterialButton btnGenerate, @NonNull MaterialButton btnImportContact,
+      @NonNull ImageButton btnSettings, @NonNull TextInputEditText inputName,
+      @NonNull TextInputEditText inputSeats, @NonNull TextInputEditText inputTable,
+      @NonNull TextInputEditText inputWhatsapp, @NonNull RecyclerView styleRecycler) {
     this.rootView = rootView;
     this.btnGenerate = btnGenerate;
+    this.btnImportContact = btnImportContact;
     this.btnSettings = btnSettings;
     this.inputName = inputName;
     this.inputSeats = inputSeats;
@@ -91,6 +95,12 @@ public final class ActivityAddGuestBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnImportContact;
+      MaterialButton btnImportContact = ViewBindings.findChildViewById(rootView, id);
+      if (btnImportContact == null) {
+        break missingId;
+      }
+
       id = R.id.btnSettings;
       ImageButton btnSettings = ViewBindings.findChildViewById(rootView, id);
       if (btnSettings == null) {
@@ -127,8 +137,9 @@ public final class ActivityAddGuestBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityAddGuestBinding((CoordinatorLayout) rootView, btnGenerate, btnSettings,
-          inputName, inputSeats, inputTable, inputWhatsapp, styleRecycler);
+      return new ActivityAddGuestBinding((CoordinatorLayout) rootView, btnGenerate,
+          btnImportContact, btnSettings, inputName, inputSeats, inputTable, inputWhatsapp,
+          styleRecycler);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

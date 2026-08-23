@@ -11,7 +11,7 @@ public class Guest {
     public String createdAt;
 
     public Guest() {
-        styleId = "kipushi-floral";
+        styleId = "affiche-blanche";
         seats = 1;
     }
 }

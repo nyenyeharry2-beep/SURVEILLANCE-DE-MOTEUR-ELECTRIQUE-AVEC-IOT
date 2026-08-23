@@ -1,94 +1,146 @@
 [
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_chip_active.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_chip_active.xml"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_activity_main.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_main.xml"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/mipmap-mdpi_ic_launcher.png.flat",
         "source": "com.kipushi.invitations.app-main-33:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/xml_file_paths.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/xml/file_paths.xml"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_template_sarah.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/template_sarah.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_sarah.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/template_sarah.png"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_ville.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/template_ville.png"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/mipmap-xhdpi_ic_launcher.png.flat",
         "source": "com.kipushi.invitations.app-main-33:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_chip_normal.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_chip_normal.xml"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/mipmap-xhdpi/ic_launcher.png"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/mipmap-xxxhdpi_ic_launcher.png.flat",
         "source": "com.kipushi.invitations.app-main-33:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_ivory.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/template_ivory.png"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/layout_item_style.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/layout/item_style.xml"
-    },
-    {
         "merged": "com.kipushi.invitations.app-release-32:/layout_activity_main.xml.flat",
         "source": "com.kipushi.invitations.app-main-33:/layout/activity_main.xml"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_phone_frame.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_phone_frame.xml"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/layout_activity_add_guest.xml.flat",
         "source": "com.kipushi.invitations.app-main-33:/layout/activity_add_guest.xml"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_poster_border.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_poster_border.xml"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_poster_border.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_poster_border.xml"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/layout_activity_preview.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/layout/activity_preview.xml"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_style_normal.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_style_normal.xml"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/layout_activity_config.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/layout/activity_config.xml"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_floral_corner.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/floral_corner.png"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/mipmap-xxhdpi_ic_launcher.png.flat",
         "source": "com.kipushi.invitations.app-main-33:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.kipushi.invitations.app-release-32:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/mipmap-hdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_bg_style_selected.xml.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/bg_style_selected.xml"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_royal_bordeaux.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/template_royal_bordeaux.png"
-    },
-    {
-        "merged": "com.kipushi.invitations.app-release-32:/drawable_floral_corner.png.flat",
-        "source": "com.kipushi.invitations.app-main-33:/drawable/floral_corner.png"
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_activity_preview.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_preview.xml"
     },
     {
         "merged": "com.kipushi.invitations.app-release-32:/layout_activity_dashboard.xml.flat",
         "source": "com.kipushi.invitations.app-main-33:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_template_ville.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/template_ville.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_style_normal.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_style_normal.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_chip_active.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_chip_active.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/layout_item_guest.xml.flat",
+        "source": "com.kipushi.invitations.app-main-33:/layout/item_guest.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_affiche_blanche.png.flat",
+        "source": "com.kipushi.invitations.app-main-33:/drawable/template_affiche_blanche.png"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/drawable_app_logo.png.flat",
+        "source": "com.kipushi.invitations.app-main-33:/drawable/app_logo.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_template_royal_bordeaux.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/template_royal_bordeaux.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_phone_frame.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_phone_frame.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_activity_dashboard.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/layout_activity_preview.xml.flat",
+        "source": "com.kipushi.invitations.app-main-33:/layout/activity_preview.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_chip_normal.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_chip_normal.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_activity_config.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_config.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_item_style.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/item_style.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_template_ivory.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/template_ivory.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/drawable_bg_style_selected.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/drawable/bg_style_selected.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.kipushi.invitations.app-main-33:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/xml_file_paths.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/xml/file_paths.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-release-32:/layout_activity_add_guest.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_add_guest.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-release-32:/drawable_template_mariage_civil.png.flat",
+        "source": "com.kipushi.invitations.app-main-33:/drawable/template_mariage_civil.png"
     }
 ]

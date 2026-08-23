@@ -42,6 +42,13 @@
                 android:layout_height="395dp"
                 android:contentDescription="@string/preview_title"
                 android:scaleType="fitCenter" />
+
+            <ProgressBar
+                android:id="@+id/progressRender"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/gold" />
         </FrameLayout>
 
         <com.google.android.material.button.MaterialButton

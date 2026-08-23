@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.chip.ChipGroup;
 import com.kipushi.invitations.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -21,16 +23,25 @@ public final class ActivityDashboardBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final ListView guestList;
+  public final RecyclerView guestRecycler;
 
   @NonNull
   public final EditText searchInput;
 
-  private ActivityDashboardBinding(@NonNull LinearLayout rootView, @NonNull ListView guestList,
-      @NonNull EditText searchInput) {
+  @NonNull
+  public final TextView statsText;
+
+  @NonNull
+  public final ChipGroup tableChips;
+
+  private ActivityDashboardBinding(@NonNull LinearLayout rootView,
+      @NonNull RecyclerView guestRecycler, @NonNull EditText searchInput,
+      @NonNull TextView statsText, @NonNull ChipGroup tableChips) {
     this.rootView = rootView;
-    this.guestList = guestList;
+    this.guestRecycler = guestRecycler;
     this.searchInput = searchInput;
+    this.statsText = statsText;
+    this.tableChips = tableChips;
   }
 
   @Override
@@ -60,9 +71,9 @@ public final class ActivityDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.guestList;
-      ListView guestList = ViewBindings.findChildViewById(rootView, id);
-      if (guestList == null) {
+      id = R.id.guestRecycler;
+      RecyclerView guestRecycler = ViewBindings.findChildViewById(rootView, id);
+      if (guestRecycler == null) {
         break missingId;
       }
 
@@ -72,7 +83,20 @@ public final class ActivityDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityDashboardBinding((LinearLayout) rootView, guestList, searchInput);
+      id = R.id.statsText;
+      TextView statsText = ViewBindings.findChildViewById(rootView, id);
+      if (statsText == null) {
+        break missingId;
+      }
+
+      id = R.id.tableChips;
+      ChipGroup tableChips = ViewBindings.findChildViewById(rootView, id);
+      if (tableChips == null) {
+        break missingId;
+      }
+
+      return new ActivityDashboardBinding((LinearLayout) rootView, guestRecycler, searchInput,
+          statsText, tableChips);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -13,7 +13,7 @@ public class PrefsHelper {
     }
 
     public String getDate() {
-        return prefs.getString("date", "Vendredi, le 11 Septembre 2026");
+        return prefs.getString("date", "12. 9. 2026");
     }
 
     public void setDate(String v) { prefs.edit().putString("date", v).apply(); }
@@ -38,7 +38,7 @@ public class PrefsHelper {
     public void setEmbedName(boolean v) { prefs.edit().putBoolean("embed_name", v).apply(); }
 
     public String getDefaultStyle() {
-        return prefs.getString("default_style", "kipushi-floral");
+        return prefs.getString("default_style", "affiche-blanche");
     }
 
     public void setDefaultStyle(String v) { prefs.edit().putString("default_style", v).apply(); }

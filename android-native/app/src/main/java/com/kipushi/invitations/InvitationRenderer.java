@@ -2,7 +2,6 @@ package com.kipushi.invitations;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,25 +18,35 @@ import java.util.Map;
 
 public class InvitationRenderer {
 
-    public static Bitmap render(Context ctx, Guest guest, PrefsHelper prefs) {
+    /** Canvas fallback when HTML fails. */
+    public static Bitmap renderCanvas(Context ctx, Guest guest, PrefsHelper prefs) {
         InvitationStyle style = InvitationStyle.getById(guest.styleId);
-        Bitmap template = BitmapFactory.decodeResource(ctx.getResources(), style.templateRes);
+        if (style.templateRes == 0) {
+            throw new RuntimeException("No template resource");
+        }
+        android.graphics.Bitmap template = android.graphics.BitmapFactory.decodeResource(ctx.getResources(), style.templateRes);
         int w = template.getWidth();
         int h = template.getHeight();
         Bitmap result = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(template, 0, 0, null);
 
-        if (prefs.embedName()) {
-            drawGuestName(canvas, guest, style, w, h);
-        }
-
-        if (guest.tableZone != null && !guest.tableZone.isEmpty() && !"royal-bordeaux".equals(style.id)) {
-            drawPlacement(canvas, guest, w, h);
-        }
-
+        if (prefs.embedName()) drawGuestName(canvas, guest, style, w, h);
+        if (guest.tableZone != null && !guest.tableZone.isEmpty()) drawPlacement(canvas, guest, w, h);
         drawQrCode(canvas, guest, style, w, h);
         return result;
+    }
+
+    public static Bitmap render(Context ctx, Guest guest, PrefsHelper prefs) {
+        InvitationStyle style = InvitationStyle.getById(guest.styleId);
+        if (style.htmlAsset != null) {
+            try {
+                return HtmlInvitationRenderer.renderBlocking(ctx, guest, prefs);
+            } catch (Exception e) {
+                return renderCanvas(ctx, guest, prefs);
+            }
+        }
+        return renderCanvas(ctx, guest, prefs);
     }
 
     private static void drawGuestName(Canvas canvas, Guest guest, InvitationStyle style, int w, int h) {
@@ -45,21 +54,14 @@ public class InvitationRenderer {
         paint.setColor(style.nameColor);
         paint.setTextSize(style.nameSize * (w / 340f));
         paint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.BOLD));
-
         String name = guest.fullName;
-        if ("royal-bordeaux".equals(style.id)) {
-            name = "~ ~ " + guest.fullName.toUpperCase() + " ~ ~";
-            paint.setLetterSpacing(0.08f);
-        }
-
-        float x = style.nameX * w;
         float y = style.nameY * h;
         if (style.centerName) {
             paint.setTextAlign(Paint.Align.CENTER);
             canvas.drawText(name, w / 2f, y + paint.getTextSize(), paint);
         } else {
             paint.setTextAlign(Paint.Align.LEFT);
-            canvas.drawText(name, x, y + paint.getTextSize(), paint);
+            canvas.drawText(name, style.nameX * w, y + paint.getTextSize(), paint);
         }
     }
 
@@ -69,43 +71,31 @@ public class InvitationRenderer {
         paint.setTextSize(14f * (w / 340f));
         paint.setTextAlign(Paint.Align.CENTER);
         String text = guest.seats + " place(s)";
-        if (guest.tableZone != null && !guest.tableZone.isEmpty()) {
-            text += " • " + guest.tableZone;
-        }
+        if (guest.tableZone != null && !guest.tableZone.isEmpty()) text += " • " + guest.tableZone;
         canvas.drawText(text, w / 2f, h * 0.915f, paint);
     }
 
     private static void drawQrCode(Canvas canvas, Guest guest, InvitationStyle style, int w, int h) {
         try {
             int size = (int) (style.qrSize * w);
-            String data = "{\"id\":" + guest.id + ",\"name\":\"" + guest.fullName + "\"}";
-            Bitmap qr = generateQr(data, size);
+            Bitmap qr = generateQr("{\"id\":" + guest.id + "}", size, style.qrColor);
             float left = style.qrX * w;
             float top = style.qrY * h;
-            canvas.drawRect(left - 4, top - 4, left + size + 4, top + size + 4, whitePaint());
             canvas.drawBitmap(qr, left, top, null);
         } catch (WriterException e) {
             e.printStackTrace();
         }
     }
 
-    private static Paint whitePaint() {
-        Paint p = new Paint();
-        p.setColor(Color.WHITE);
-        p.setStyle(Paint.Style.FILL);
-        return p;
-    }
-
-    private static Bitmap generateQr(String data, int size) throws WriterException {
+    private static Bitmap generateQr(String data, int size, String color) throws WriterException {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.MARGIN, 1);
         BitMatrix matrix = new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, size, size, hints);
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565);
-        for (int x = 0; x < size; x++) {
-            for (int y = 0; y < size; y++) {
-                bmp.setPixel(x, y, matrix.get(x, y) ? Color.parseColor("#5a2d82") : Color.WHITE);
-            }
-        }
+        int dark = Color.parseColor(color);
+        for (int x = 0; x < size; x++)
+            for (int y = 0; y < size; y++)
+                bmp.setPixel(x, y, matrix.get(x, y) ? dark : Color.WHITE);
         return bmp;
     }
 }

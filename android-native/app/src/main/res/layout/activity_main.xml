@@ -24,7 +24,7 @@
                 android:contentDescription="@string/app_name"
                 android:padding="3dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/template_sarah" />
+                android:src="@drawable/template_affiche_blanche" />
 
             <ImageView
                 android:layout_width="90dp"

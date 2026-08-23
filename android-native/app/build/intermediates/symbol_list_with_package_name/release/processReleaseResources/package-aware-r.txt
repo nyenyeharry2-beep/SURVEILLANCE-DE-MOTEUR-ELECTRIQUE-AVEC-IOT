@@ -3013,6 +3013,7 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable app_logo
 drawable avd_hide_password
 drawable avd_show_password
 drawable bg_chip_active
@@ -3126,7 +3127,9 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable template_affiche_blanche
 drawable template_ivory
+drawable template_mariage_civil
 drawable template_royal_bordeaux
 drawable template_sarah
 drawable template_ville
@@ -3238,7 +3241,9 @@ id btnAddGuest
 id btnClose
 id btnConfig
 id btnDashboard
+id btnDelete
 id btnGenerate
+id btnImportContact
 id btnSave
 id btnSend
 id btnSettings
@@ -3353,7 +3358,11 @@ id graph_wrap
 id group_divider
 id grouping
 id groups
-id guestList
+id guestBadge
+id guestMeta
+id guestName
+id guestPhone
+id guestRecycler
 id header_title
 id heroPoster
 id hide_ime_id
@@ -3513,6 +3522,7 @@ id position
 id postLayout
 id posterPreview
 id pressed
+id progressRender
 id progress_circular
 id progress_horizontal
 id radio
@@ -3583,6 +3593,7 @@ id startToEnd
 id startVertical
 id staticLayout
 id staticPostLayout
+id statsText
 id stop
 id stretch
 id styleCheck
@@ -3594,6 +3605,7 @@ id submenuarrow
 id submit_area
 id supportScrollUp
 id tabMode
+id tableChips
 id tag_accessibility_actions
 id tag_accessibility_clickable_spans
 id tag_accessibility_heading
@@ -3803,6 +3815,7 @@ layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
+layout item_guest
 layout item_style
 layout m3_alert_dialog
 layout m3_alert_dialog_actions

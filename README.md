@@ -2,11 +2,11 @@
 
 Application **Android native Java** + **backend PHP** pour générer des invitations personnalisées avec le **design Adrian**.
 
-## Télécharger l'APK (Java natif — v2.0.1 signé)
+## Télécharger l'APK (Java natif — v2.1.0 signé)
 
-**[Télécharger invitations-moise-sarah-v2.0.1.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.0.1.apk)** (~6 Mo)
+**[Télécharger invitations-moise-sarah-v2.1.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.1.0.apk)** (~6 Mo)
 
-> APK **signé et vérifié** (APK Signature Scheme v2) — installable sur tout Android 7+.
+> Invitations **HTML/CSS ultra-réalistes** • Affiche blanche principale • Import contacts • Liste par tables • Logo affiche officielle
 
 ### Installation
 
