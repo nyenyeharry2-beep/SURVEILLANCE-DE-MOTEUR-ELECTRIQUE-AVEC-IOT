@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#bg)"/>
+  <rect width="120" height="60" rx="28" fill="url(#shine)"/>
+  <!-- K stylized as boutique bag -->
+  <path d="M35 38h18c8 0 14 6 14 14v36c0 2-2 4-4 4H35c-2 0-4-2-4-4V42c0-2 2-4 4-4z" fill="white" opacity="0.95"/>
+  <path d="M44 38V32c0-4 3-7 7-7h18c4 0 7 3 7 7v6" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <text x="60" y="78" text-anchor="middle" fill="#6366f1" font-family="Georgia, serif" font-size="28" font-weight="bold">K</text>
+  <!-- Crown accent -->
+  <path d="M52 22l4 6 4-8 4 8 4-6 2 10H50z" fill="#fbbf24"/>
+</svg>
