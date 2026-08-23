@@ -31,10 +31,10 @@ INSERT INTO products (seller_id, title, description, price, category, stock, ima
 (@seller_id, 'Ensemble Brodé — Bleu Marine', 'Ensemble deux-pièces broderie florale ton sur ton, pantalon wide-leg.', 149.00, 'mode', 8, '/uploads/products/ensemble-marine.jpg'),
 (@seller_id, 'Ensemble Satin — Vert Olive', 'Ensemble satin vert olive, broderie perles dorées, pantalon fluide.', 139.00, 'mode', 7, '/uploads/products/ensemble-olive.jpg');
 
--- ── MODE HOMME — PASUXI ──
+-- ── MODE HOMME — Chemises boutique ──
 INSERT INTO products (seller_id, title, description, price, category, stock, image_url) VALUES
-(@seller_id, 'Veste PASUXI — Bordeau', 'Veste bordeaux texture laine, col chemise, poches poitrine. Style urbain premium.', 129.00, 'mode-homme', 10, '/uploads/products/veste-bordeaux.jpg'),
-(@seller_id, 'Veste PASUXI — Crème Shacket', 'Veste trucker crème oversize, boutons noirs, col classique. Tendance 2026.', 119.00, 'mode-homme', 12, '/uploads/products/veste-creme.jpg');
+(@seller_id, 'Chemise Boutique — Marron Pois', 'Chemise marron à pois, poches poitrine, style premium. Boutique WOODCOCK.', 89.00, 'mode-homme', 10, '/uploads/products/chemise-marron.jpg'),
+(@seller_id, 'Chemise Boutique — Bleu Floral', 'Chemise bleu motif floral abstrait, poches utilitaires. Collection Romeo/Elegance.', 95.00, 'mode-homme', 12, '/uploads/products/chemise-bleu-fleur.jpg');
 
 -- ── CHAUSSURES — Sneakers Premium ──
 INSERT INTO products (seller_id, title, description, price, category, stock, image_url) VALUES
@@ -47,4 +47,4 @@ INSERT INTO posts (user_id, content, product_id) VALUES
 (@seller_id, '👑 Nouvelle collection Little Princess ! Robes de gala pour petites princesses 3-12 ans. Découvrez nos modèles satin, velours et tulle.', (SELECT id FROM products WHERE image_url='/uploads/products/lp-robe-creme.jpg' LIMIT 1)),
 (@seller_id, '✨ Robes de soirée femme — Élégance garantie pour vos galas et mariages. Nouveautés disponibles !', (SELECT id FROM products WHERE image_url='/uploads/products/robe-magenta.jpg' LIMIT 1)),
 (@seller_id, '👟 Sneakers platform tendance — Confort et style luxe. Livraison rapide !', (SELECT id FROM products WHERE image_url='/uploads/products/sneakers-or-noir.jpg' LIMIT 1)),
-(@seller_id, '🧥 Collection PASUXI homme — Vestes premium bordeaux et crème. Stock limité !', (SELECT id FROM products WHERE image_url='/uploads/products/veste-bordeaux.jpg' LIMIT 1));
+(@seller_id, '🧥 Collection chemises homme boutique — Motifs uniques, qualité premium. Stock limité !', (SELECT id FROM products WHERE image_url='/uploads/products/chemise-marron.jpg' LIMIT 1));

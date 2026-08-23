@@ -56,7 +56,10 @@ require __DIR__ . '/includes/layout-top.php';
         <?php endif; ?>
 
         <div class="card" style="padding:20px;margin-bottom:16px;">
-            <h2>➕ Ajouter un produit</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <h2>➕ Ajouter un produit</h2>
+                <a href="/seller-upload.php" class="btn btn-secondary btn-sm">📸 Upload photos bulk</a>
+            </div>
             <form method="POST" enctype="multipart/form-data" style="margin-top:16px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div class="form-group">

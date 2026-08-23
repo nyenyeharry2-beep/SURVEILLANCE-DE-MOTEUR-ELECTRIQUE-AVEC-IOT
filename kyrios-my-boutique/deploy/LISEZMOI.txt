@@ -9,6 +9,20 @@
 2. Cliquez sur **phpMyAdmin** pour la base `if0_42727746_kyriosboutique`
 3. Onglet **Importer** → Choisir le fichier `kyriosboutique-database.sql`
 4. Cliquez **Exécuter**
+5. Importer aussi `catalog-kyrios.sql` puis `catalog-kyrios-v2.sql` (24 produits)
+
+---
+
+## 1b️⃣ CATALOGUE PRODUITS (phpMyAdmin)
+
+**Fichiers :** `catalog-kyrios.sql` + `catalog-kyrios-v2.sql`
+
+Importez dans l'ordre pour avoir 24 produits avec photos.
+
+**Photos :** uploadez `kyrios-photos-produits.zip` dans `htdocs/uploads/products/`
+ou utilisez `/seller-upload.php` (compte vendeur).
+
+Voir `GUIDE-PHOTOS.txt` pour les noms de fichiers.
 
 ---
 

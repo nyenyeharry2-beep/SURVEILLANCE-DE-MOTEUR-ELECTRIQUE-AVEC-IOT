@@ -6,7 +6,7 @@ $productModel = new Kyrios\Product($db);
 $messaging = new Kyrios\Messaging($db);
 
 $category = $_GET['category'] ?? null;
-$products = $productModel->getAll(24, $category);
+$products = $productModel->getAll(48, $category);
 $unreadMessages = $messaging->getUnreadCount((int) $user['id']);
 
 $categories = ['mode', 'mode-enfant', 'mode-homme', 'accessoires', 'chaussures', 'electronique', 'maison', 'general'];

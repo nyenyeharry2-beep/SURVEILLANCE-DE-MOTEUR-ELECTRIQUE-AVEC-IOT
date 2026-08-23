@@ -74,4 +74,22 @@ class Product
         $row = $stmt->fetch();
         return $row ?: null;
     }
+
+    public function getByImageFilename(string $filename): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM products WHERE image_url LIKE ? AND is_active = 1 LIMIT 1'
+        );
+        $stmt->execute(['%/uploads/products/' . $filename]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function updateImage(int $productId, int $sellerId, string $imageUrl): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE products SET image_url = ? WHERE id = ? AND seller_id = ?'
+        );
+        return $stmt->execute([$imageUrl, $productId, $sellerId]);
+    }
 }
