@@ -1,0 +1,21 @@
+{
+  "motor": {
+    "live": {
+      "vib": 0,
+      "rpm": 0,
+      "motorOn": false,
+      "alert": false,
+      "emergency": false,
+      "reason": "ok",
+      "ts": 0
+    },
+    "command": {
+      "wantOn": false,
+      "emergency": false
+    },
+    "thresholds": {
+      "vibMax": 100,
+      "rpmMax": 5000
+    }
+  }
+}

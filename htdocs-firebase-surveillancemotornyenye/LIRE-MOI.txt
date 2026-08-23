@@ -1,0 +1,22 @@
+NYENYE — Surveillance du moteur (1 seul fichier)
+=================================================
+
+DOMAINE : http://surveillancemotornyenye.xo.je/
+
+INSTALLATION
+------------
+1. File Manager → htdocs
+2. Supprimez TOUS les anciens fichiers (main.js, mesure.php, app.css…)
+3. Uploadez UNIQUEMENT index.html
+4. Ctrl+F5 sur http://surveillancemotornyenye.xo.je/
+
+INTERFACE (comme vos captures)
+------------------------------
+- Sidebar : Vue d'ensemble, Surveillance, Historique, Diagnostic, Commande
+- Cartes : État, RPM, Vibration, X/Y/Z
+- Graphiques Chart.js temps réel
+- Table historique
+- Boutons ALLUMER / ÉTEINDRE → Firebase motor/command
+
+FIREBASE : surveillance-moteur-f38e1 (déjà dans index.html)
+Pas de Lumen. Pas de MySQL. Pas de PHP.

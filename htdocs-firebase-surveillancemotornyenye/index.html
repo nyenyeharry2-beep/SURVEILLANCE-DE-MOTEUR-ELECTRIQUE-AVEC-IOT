@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NYENYE — Surveillance du moteur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg: #efe8dc; --bg-2: #e7dfd1; --surface: #faf6ef; --surface-2: #fffdf8;
+      --ink: #1c1914; --muted: #7a7368; --line: #e0d6c6;
+      --forest: #1e4d38; --forest-2: #2d6a4f; --gold: #b8893a; --gold-soft: #efe0c4;
+      --terracotta: #b85a42; --terracotta-soft: #f3d8d1; --sky: #3d6b7a;
+      --radius: 18px; --shadow: 0 18px 50px rgba(28,25,20,.08);
+      --font: "Manrope", system-ui, sans-serif;
+      --display: "Cormorant Garamond", Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--font); color: var(--ink);
+      background: radial-gradient(1200px 600px at 10% -10%, var(--bg-2), var(--bg));
+    }
+    button { font: inherit; cursor: pointer; border: 0; }
+    .grain {
+      pointer-events: none; position: fixed; inset: 0; z-index: 50; opacity: .15;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    }
+    .shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar {
+      padding: 28px 18px; border-right: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .mark { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+    .mark-dot {
+      width: 14px; height: 14px; border-radius: 50%; background: #c4a35a;
+      box-shadow: 0 0 0 6px rgba(196,163,90,.18);
+    }
+    .sidebar-sub { margin: -12px 0 0; color: var(--muted); font-size: 13px; }
+    .nav-btn {
+      width: 100%; text-align: left; background: transparent; border: 0;
+      border-radius: 12px; padding: 11px 12px; color: var(--muted); font-weight: 600;
+    }
+    .nav-btn.active, .nav-btn:hover { background: var(--surface); color: var(--ink); }
+    .sidebar-foot { margin-top: auto; display: grid; gap: 8px; }
+    .main { padding: 28px 32px 48px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 16px; margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .eyebrow {
+      margin: 0; text-transform: uppercase; letter-spacing: .16em;
+      font-size: 11px; font-weight: 700; color: var(--gold);
+    }
+    .topbar h1 {
+      font-family: var(--display); font-size: clamp(32px, 4vw, 48px);
+      margin: 4px 0 0; font-weight: 500;
+    }
+    .topbar-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .status-pill {
+      display: inline-flex; align-items: center; border-radius: 999px;
+      padding: 6px 12px; font-size: 11px; font-weight: 700;
+      background: var(--surface); border: 1px solid var(--line);
+    }
+    .status-pill.ok { background: #dceee3; color: var(--forest-2); border-color: transparent; }
+    .status-pill.bad { background: var(--terracotta-soft); color: var(--terracotta); border-color: transparent; }
+    .status-pill.live { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; background: var(--surface);
+      border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px 8px 8px;
+    }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--forest);
+      color: #f7f1e6; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    }
+    .muted { color: var(--muted); font-size: 13px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+    }
+    .kpi span { color: var(--muted); font-size: 13px; font-weight: 600; }
+    .kpi strong {
+      display: block; font-family: var(--display); font-size: 40px;
+      font-weight: 500; margin-top: 6px; line-height: 1;
+    }
+    .kpi small { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .kpi-diag { font-size: 22px !important; line-height: 1.2 !important; }
+    .kpi[data-etat="alerte"] { box-shadow: 0 0 0 2px var(--gold); }
+    .kpi[data-etat="marche"] { box-shadow: 0 0 0 2px var(--forest-2); }
+    .kpi[data-etat="defaut"] { box-shadow: 0 0 0 2px var(--terracotta); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 14px;
+    }
+    .panel h3 { margin: 0 0 8px; font-size: 16px; }
+    .panel-heading {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 12px; margin-bottom: 12px;
+    }
+    .chart-wrap { height: 220px; position: relative; }
+    .table-wrap { overflow: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 12px; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 10px 8px; border-bottom: 1px solid var(--line);
+    }
+    td { padding: 14px 8px; border-bottom: 1px solid var(--line); }
+    .motor-control {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .motor-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border-radius: 999px; padding: 12px 22px; font-weight: 700;
+      transition: transform .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--forest); color: #f7f1e6; }
+    .btn-danger { background: var(--terracotta); color: #fff; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .badge {
+      display: inline-flex; border-radius: 999px; padding: 4px 10px;
+      font-size: 12px; font-weight: 700; background: #dceee3; color: var(--forest-2);
+    }
+    .badge.alerte { background: var(--gold-soft); color: var(--gold); }
+    .problem-list { display: grid; gap: 8px; }
+    .problem {
+      padding: 10px 12px; border-radius: 12px; background: var(--surface-2);
+      border: 1px solid var(--line); font-size: 14px;
+    }
+    .problem.warning { border-color: var(--gold); }
+    .problem.fault { border-color: var(--terracotta); }
+    .toast {
+      position: fixed; right: 20px; bottom: 20px; z-index: 30;
+      background: var(--ink); color: var(--surface); padding: 12px 16px;
+      border-radius: 12px; box-shadow: var(--shadow); display: none;
+    }
+    .toast.show { display: block; }
+    [data-section][hidden] { display: none !important; }
+    @media (max-width: 960px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .kpis, .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .kpis, .grid-2 { grid-template-columns: 1fr; }
+      .main { padding: 20px 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div>
+        <div class="mark"><span class="mark-dot"></span> Surveillance Moteur</div>
+        <p class="sidebar-sub">IoT · Temps réel · Firebase</p>
+      </div>
+      <nav>
+        <button type="button" class="nav-btn active" data-nav="overview">Vue d'ensemble</button>
+        <button type="button" class="nav-btn" data-nav="surveillance">Surveillance</button>
+        <button type="button" class="nav-btn" data-nav="historique">Historique</button>
+        <button type="button" class="nav-btn" data-nav="diagnostic">Diagnostic</button>
+        <button type="button" class="nav-btn" data-nav="commande">Commande moteur</button>
+      </nav>
+      <div class="sidebar-foot">
+        <button type="button" class="nav-btn" id="theme-btn">Thème sombre</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Tableau de bord</p>
+          <h1>Surveillance du moteur</h1>
+        </div>
+        <div class="topbar-status">
+          <span class="status-pill" id="fb-status">Firebase…</span>
+          <span class="status-pill" id="esp-status">ESP32…</span>
+          <span class="status-pill" id="motor-pill">ARRÊTÉ</span>
+          <div class="user-chip">
+            <span class="avatar">HN</span>
+            <div>
+              <strong>Harry Nyenye</strong>
+              <div class="muted">nyenyeharry2@gmail.com</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="kpis" data-section="overview surveillance commande diagnostic">
+        <article class="kpi" id="card-etat" data-etat="arret">
+          <span>État du moteur</span>
+          <strong id="val-etat">ARRÊTÉ</strong>
+          <small>Commande logicielle distincte</small>
+        </article>
+        <article class="kpi">
+          <span>Vitesse de rotation</span>
+          <strong id="val-rpm">0</strong>
+          <small>tr/min (RPM)</small>
+        </article>
+        <article class="kpi" id="card-rms">
+          <span>RMS Vibration</span>
+          <strong id="val-rms">0.00</strong>
+          <small>mm/s · <span id="val-rms-level">NORMAL</span></small>
+        </article>
+        <article class="kpi">
+          <span>Diagnostic</span>
+          <strong id="val-diag" class="kpi-diag">RAS</strong>
+          <small id="val-diag-count">Aucun problème</small>
+        </article>
+      </section>
+
+      <section class="kpis" data-section="overview surveillance">
+        <article class="kpi">
+          <span>X</span>
+          <strong id="val-x">0.00</strong>
+          <small>g · ADXL345</small>
+        </article>
+        <article class="kpi">
+          <span>Y</span>
+          <strong id="val-y">0.00</strong>
+          <small>g · ADXL345</small>
+        </article>
+        <article class="kpi">
+          <span>Z</span>
+          <strong id="val-z">0.00</strong>
+          <small>g · ADXL345</small>
+        </article>
+        <article class="kpi">
+          <span>Norme / résultante</span>
+          <strong id="val-res">0.00</strong>
+          <small>g</small>
+        </article>
+      </section>
+
+      <section class="kpis" data-section="overview surveillance">
+        <article class="kpi">
+          <span>A_RMS</span>
+          <strong id="val-arms">0.00</strong>
+          <small>m/s² · ADXL345</small>
+        </article>
+        <article class="kpi">
+          <span>Relais UNO</span>
+          <strong id="val-relay">OFF</strong>
+          <small>Pin D8 · contacteur</small>
+        </article>
+        <article class="kpi">
+          <span>Buzzer</span>
+          <strong id="val-buzzer">OFF</strong>
+          <small id="val-buzzer-mute">—</small>
+        </article>
+        <article class="kpi">
+          <span>Niveau alerte</span>
+          <strong id="val-alert-level" style="font-size:28px">—</strong>
+          <small id="val-diagnostic-text">En attente ESP32…</small>
+        </article>
+      </section>
+
+      <section class="grid-2" data-section="overview surveillance">
+        <article class="panel">
+          <h3>Courbe de vibration X / Y / Z</h3>
+          <p class="muted">Accélération ADXL345 (g) · temps</p>
+          <div class="chart-wrap"><canvas id="chart-vibration"></canvas></div>
+        </article>
+        <article class="panel">
+          <h3>Courbe de vitesse</h3>
+          <p class="muted">Axe horizontal : temps · Axe vertical : RPM</p>
+          <div class="chart-wrap"><canvas id="chart-rpm"></canvas></div>
+        </article>
+      </section>
+
+      <section class="panel" data-section="overview diagnostic" id="section-diagnostic">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Diagnostic / Problèmes détectés</p>
+            <h3>État de santé</h3>
+          </div>
+          <span class="badge" id="diag-badge">Normal</span>
+        </div>
+        <div class="problem-list" id="problem-list"></div>
+      </section>
+
+      <section class="panel" data-section="overview historique">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Historique</p>
+            <h3>Mesures récentes</h3>
+          </div>
+          <span class="muted" id="last-update">—</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Heure</th><th>X (g)</th><th>Y (g)</th><th>Z (g)</th>
+                <th>A_RMS</th><th>RMS (mm/s)</th><th>RPM</th><th>État</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr><td colspan="8" class="muted">Aucune mesure pour l'instant.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel motor-control" data-section="overview commande">
+        <div>
+          <p class="eyebrow">Commande moteur</p>
+          <h3 id="commande-label">Commande : ÉTEINT</h3>
+          <p class="muted">
+            Commande enregistrée dans Firebase (<code>motor/command</code>).
+            L'ESP32 lit la commande et actionne le relais UNO.
+          </p>
+        </div>
+        <div class="motor-buttons">
+          <button type="button" class="btn btn-primary" id="motor-on">ALLUMER LE MOTEUR</button>
+          <button type="button" class="btn btn-danger" id="motor-off">ÉTEINDRE LE MOTEUR</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function () {
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCEGHFHLaFxgAlXcjfPaLW0vIge1R7eHwg",
+      authDomain: "surveillance-moteur-f38e1.firebaseapp.com",
+      databaseURL: "https://surveillance-moteur-f38e1-default-rtdb.firebaseio.com",
+      projectId: "surveillance-moteur-f38e1",
+      storageBucket: "surveillance-moteur-f38e1.firebasestorage.app",
+      messagingSenderId: "993372392894",
+      appId: "1:993372392894:web:d891727c83ac691a10fdef",
+    };
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.database();
+
+    const MAX = 60;
+    const STALE_MS = 8000;
+    let view = "overview";
+    let vibMax = 100;
+    let rpmMax = 5000;
+    let busy = false;
+    let cmdCounter = 0;
+    let commandedOn = false;
+    let lastLiveAt = 0;
+    let fbOnline = false;
+    let espOnline = false;
+    const liveMotor = {};
+    const liveMoteur = {};
+    const history = [];
+    let charts = { vib: null, rpm: null };
+    let lastHistoryKey = "";
+
+    const $ = (id) => document.getElementById(id);
+
+    function fmt(n, d) {
+      const x = Number(n);
+      return Number.isFinite(x) ? x.toFixed(d ?? 2) : "0.00";
+    }
+
+    function fmtTime(d) {
+      if (!d) return "—";
+      const dt = d instanceof Date ? d : new Date(d);
+      return dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+
+    function fmtDate(d) {
+      if (!d) return "—";
+      const dt = d instanceof Date ? d : new Date(d);
+      return dt.toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+
+    function toast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2500);
+    }
+
+    function resultante(x, y, z) {
+      return Math.sqrt(x * x + y * y + z * z);
+    }
+
+    /** Fusionne motor/live + moteur/live (tous formats ESP32) */
+    function mergedRaw() {
+      return { ...liveMoteur, ...liveMotor };
+    }
+
+    function mapRow(row) {
+      if (!row || !Object.keys(row).length) return null;
+
+      const x = Number(row.x ?? row.ax ?? 0);
+      const y = Number(row.y ?? row.ay ?? 0);
+      const z = Number(row.z ?? row.az ?? 0);
+      const rpm = Number(row.rpm ?? 0);
+      const aRms = Number(row.a_rms ?? row.arms ?? row.aRms ?? 0);
+
+      let rms = Number(row.vibration_rms ?? row.rmsMmS ?? row.rms ?? row.vibration);
+      if (!Number.isFinite(rms)) {
+        const vibPct = Number(row.vib ?? row.vibration ?? 0);
+        rms = (vibPct / Math.max(vibMax, 1)) * 7.1;
+      }
+
+      const motorOn = !!(row.motorOn ?? row.relay_state ?? row.relay);
+      espOnline = !!(row.online ?? row.uno_online ?? false);
+
+      const status = String(row.status ?? row.etat ?? "").toUpperCase();
+      let etat = "ARRÊTÉ";
+      if (row.emergency) etat = "DÉFAUT";
+      else if (status.includes("ALARME") || status.includes("DEFAUT") || status.includes("DÉFAUT")) etat = "DÉFAUT";
+      else if (row.alert || row.alert_level === "ALARME" || status.includes("ALERTE") || status === "ALERTE") etat = "ALERTE";
+      else if (status.includes("FONCTION") || status === "NORMAL" || status === "EN MARCHE" || motorOn || rpm > 50) etat = "EN FONCTIONNEMENT";
+
+      let ts = new Date();
+      if (row.ts != null && Number(row.ts) > 1e12) ts = new Date(Number(row.ts));
+      else if (row.epoch_ms != null) ts = new Date(Number(row.epoch_ms));
+      else if (row.timestamp != null) {
+        const t = Number(row.timestamp);
+        ts = t > 1e12 ? new Date(t) : new Date(Date.now());
+      }
+
+      return {
+        x, y, z, rpm, rms, aRms, etat, ts, motorOn,
+        online: espOnline,
+        alert: !!row.alert,
+        reason: row.reason || row.anomaly_hint || "ok",
+        diagnostic: row.diagnostic || "—",
+        alertLevel: row.alert_level || row.alertLevel || "INFO",
+        relay: motorOn,
+        buzzer: !!(row.buzzer_state ?? row.buzzer),
+        buzzerMute: !!row.buzzer_mute,
+        rpmNominal: Number(row.rpm_nominal ?? 0),
+      };
+    }
+
+    function rmsLevel(rms) {
+      if (rms >= 7.1) return "CRITIQUE";
+      if (rms >= 2.8) return "ATTENTION";
+      return "NORMAL";
+    }
+
+    function buildProblems(m) {
+      const items = [];
+      const stale = !lastLiveAt || Date.now() - lastLiveAt > STALE_MS;
+      if (stale) {
+        items.push({ label: "Données ESP32 absentes ou trop anciennes", sev: "warning" });
+        return items;
+      }
+      if (m.diagnostic && m.diagnostic !== "—") {
+        items.push({ label: m.diagnostic, sev: m.etat === "DÉFAUT" ? "fault" : m.etat === "ALERTE" ? "warning" : "ok" });
+      }
+      if (m.rms >= 7.1) items.push({ label: "Vibration critique (" + fmt(m.rms) + " mm/s)", sev: "fault" });
+      else if (m.rms >= 2.8) items.push({ label: "Vibration élevée (" + fmt(m.rms) + " mm/s)", sev: "warning" });
+      else items.push({ label: "Vibration normale", sev: "ok" });
+      if (m.rpm > rpmMax * 0.9) items.push({ label: "Survitesse (" + fmt(m.rpm, 0) + " RPM)", sev: "warning" });
+      else if (m.rpm > 50) items.push({ label: "Vitesse OK (" + fmt(m.rpm, 0) + " RPM)", sev: "ok" });
+      else items.push({ label: "Moteur arrêté", sev: "info" });
+      if (m.aRms >= 5) items.push({ label: "A_RMS élevé (" + fmt(m.aRms) + " m/s²)", sev: "warning" });
+      return items;
+    }
+
+    function applyView() {
+      document.querySelectorAll("[data-nav]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.nav === view);
+      });
+      document.querySelectorAll("[data-section]").forEach((el) => {
+        const tags = el.dataset.section.split(/\s+/);
+        el.hidden = view !== "overview" && !tags.includes(view);
+      });
+      charts.vib?.resize();
+      charts.rpm?.resize();
+    }
+
+    function initCharts() {
+      const c = {
+        ink: "#1c1914", muted: "#7a7368", grid: "rgba(28,25,20,.08)",
+        x: "#3d6b7a", y: "#b8893a", z: "#2d6a4f", rpm: "#b85a42",
+      };
+      const common = {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 150 },
+        plugins: { legend: { labels: { color: c.ink, boxWidth: 12 } } },
+        scales: {
+          x: { ticks: { color: c.muted, maxTicksLimit: 8 }, grid: { color: c.grid } },
+          y: { ticks: { color: c.muted }, grid: { color: c.grid } },
+        },
+      };
+      charts.vib = new Chart($("chart-vibration"), {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            { label: "X (g)", data: [], borderColor: c.x, tension: .25, pointRadius: 0, borderWidth: 2 },
+            { label: "Y (g)", data: [], borderColor: c.y, tension: .25, pointRadius: 0, borderWidth: 2 },
+            { label: "Z (g)", data: [], borderColor: c.z, tension: .25, pointRadius: 0, borderWidth: 2 },
+          ],
+        },
+        options: common,
+      });
+      charts.rpm = new Chart($("chart-rpm"), {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{ label: "RPM", data: [], borderColor: c.rpm, backgroundColor: "rgba(184,90,66,.12)", fill: true, tension: .25, pointRadius: 0, borderWidth: 2 }],
+        },
+        options: {
+          ...common,
+          scales: {
+            ...common.scales,
+            y: { ...common.scales.y, title: { display: true, text: "RPM", color: c.muted }, beginAtZero: true },
+            x: { ...common.scales.x, title: { display: true, text: "Temps", color: c.muted } },
+          },
+        },
+      });
+    }
+
+    function updateCharts() {
+      const labels = history.map((h) => h.timeLabel);
+      charts.vib.data.labels = labels;
+      charts.vib.data.datasets[0].data = history.map((h) => h.x);
+      charts.vib.data.datasets[1].data = history.map((h) => h.y);
+      charts.vib.data.datasets[2].data = history.map((h) => h.z);
+      charts.vib.update("none");
+      charts.rpm.data.labels = labels;
+      charts.rpm.data.datasets[0].data = history.map((h) => h.rpm);
+      charts.rpm.update("none");
+    }
+
+    function renderUI(m) {
+      const fresh = lastLiveAt && Date.now() - lastLiveAt < STALE_MS;
+
+      const fb = $("fb-status");
+      fb.textContent = fbOnline ? "Firebase connecté" : "Hors ligne Firebase";
+      fb.className = "status-pill " + (fbOnline ? "ok" : "bad");
+
+      const esp = $("esp-status");
+      if (fresh && espOnline) {
+        esp.textContent = "ESP32 en ligne";
+        esp.className = "status-pill ok live";
+      } else if (fresh) {
+        esp.textContent = "Données reçues";
+        esp.className = "status-pill ok";
+      } else {
+        esp.textContent = "ESP32 hors ligne";
+        esp.className = "status-pill bad";
+      }
+
+      const pill = $("motor-pill");
+      pill.textContent = m.etat;
+      pill.className = "status-pill " + (m.etat === "ALERTE" ? "alerte" : m.etat === "EN FONCTIONNEMENT" ? "ok" : m.etat === "DÉFAUT" ? "bad" : "");
+
+      $("val-etat").textContent = m.etat;
+      $("card-etat").dataset.etat = m.etat === "ALERTE" ? "alerte" : m.etat === "EN FONCTIONNEMENT" ? "marche" : m.etat === "DÉFAUT" ? "defaut" : "arret";
+      $("val-rpm").textContent = fmt(m.rpm, 0);
+      $("val-rms").textContent = fmt(m.rms);
+      $("val-rms-level").textContent = rmsLevel(m.rms);
+      $("val-x").textContent = fmt(m.x);
+      $("val-y").textContent = fmt(m.y);
+      $("val-z").textContent = fmt(m.z);
+      $("val-res").textContent = fmt(resultante(m.x, m.y, m.z));
+      $("val-arms").textContent = fmt(m.aRms);
+      $("val-relay").textContent = m.relay ? "ON" : "OFF";
+      $("val-relay").style.color = m.relay ? "var(--forest-2)" : "var(--terracotta)";
+      $("val-buzzer").textContent = m.buzzer ? "ON" : "OFF";
+      $("val-buzzer-mute").textContent = m.buzzerMute ? "Muet" : "Actif";
+      $("val-alert-level").textContent = m.alertLevel;
+      $("val-diagnostic-text").textContent = m.diagnostic;
+
+      const probs = buildProblems(m);
+      const alerts = probs.filter((p) => p.sev === "warning" || p.sev === "fault");
+      $("val-diag").textContent = alerts.length ? alerts[0].label.slice(0, 40) : "RAS";
+      $("val-diag-count").textContent = alerts.length ? alerts.length + " problème(s)" : "Aucun problème";
+      $("diag-badge").textContent = alerts.length ? alerts.length + " alerte(s)" : "Normal";
+      $("diag-badge").className = "badge" + (alerts.length ? " alerte" : "");
+      $("problem-list").innerHTML = probs.map((p) =>
+        `<div class="problem ${p.sev === "warning" ? "warning" : p.sev === "fault" ? "fault" : ""}">${p.label}</div>`
+      ).join("");
+
+      $("last-update").textContent = m.ts ? "Dernière mesure : " + fmtDate(m.ts) : "—";
+
+      const rows = [...history].reverse().slice(0, 25);
+      $("history-body").innerHTML = rows.length
+        ? rows.map((h) => `<tr>
+            <td>${h.timeLabel}</td><td>${fmt(h.x)}</td><td>${fmt(h.y)}</td><td>${fmt(h.z)}</td>
+            <td>${fmt(h.aRms)}</td><td>${fmt(h.rms)}</td><td>${fmt(h.rpm, 0)}</td><td>${h.etat}</td></tr>`).join("")
+        : `<tr><td colspan="8" class="muted">Aucune mesure pour l'instant.</td></tr>`;
+
+      $("commande-label").textContent = commandedOn ? "Commande : ALLUMÉ" : "Commande : ÉTEINT";
+      $("motor-on").disabled = commandedOn || busy;
+      $("motor-off").disabled = !commandedOn || busy;
+    }
+
+    function pushHistory(m) {
+      const key = m.ts.getTime() + "|" + m.x + "|" + m.y + "|" + m.rpm;
+      if (key === lastHistoryKey) return;
+      lastHistoryKey = key;
+      history.push({ ...m, timeLabel: fmtTime(m.ts) });
+      while (history.length > MAX) history.shift();
+      updateCharts();
+      renderUI(m);
+    }
+
+    function onLiveUpdate() {
+      const m = mapRow(mergedRaw());
+      if (!m) {
+        renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "En attente ESP32…" });
+        return;
+      }
+      lastLiveAt = Date.now();
+      if (typeof mergedRaw().motorOn === "boolean") commandedOn = mergedRaw().motorOn;
+      else if (typeof mergedRaw().relay_state === "boolean") commandedOn = mergedRaw().relay_state;
+      pushHistory(m);
+    }
+
+    async function sendMotor(on) {
+      if (busy) return;
+      busy = true;
+      commandedOn = !!on;
+      cmdCounter += 1;
+      const seq = "w" + cmdCounter + "-" + Date.now().toString(36);
+      try {
+        await Promise.all([
+          db.ref("motor/command").set({ wantOn: !!on, emergency: false, seq, src: "web", at: new Date().toISOString() }),
+          db.ref("motor/wantOn").set(!!on),
+          db.ref("motor/emergency").set(false),
+          db.ref("moteur/command").update({ relay: !!on, buzzer_mute: false }),
+        ]);
+        toast(on ? "Commande ALLUMER envoyée" : "Commande ÉTEINDRE envoyée");
+      } catch (e) {
+        toast("Erreur Firebase : " + (e.message || e));
+      }
+      setTimeout(() => { busy = false; renderUI(mapRow(mergedRaw()) || { x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: new Date(), relay: on, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "—" }); }, 800);
+    }
+
+    document.querySelectorAll("[data-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => { view = btn.dataset.nav; applyView(); });
+    });
+
+    $("motor-on").addEventListener("click", () => sendMotor(true));
+    $("motor-off").addEventListener("click", () => sendMotor(false));
+
+    $("theme-btn").addEventListener("click", () => {
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "" : "dark";
+      $("theme-btn").textContent = document.documentElement.dataset.theme === "dark" ? "Thème clair" : "Thème sombre";
+    });
+
+    /* ——— Écoute temps réel : motor/live ET moteur/live ——— */
+    db.ref("motor/thresholds").on("value", (snap) => {
+      const t = snap.val() || {};
+      if (t.vibMax != null) vibMax = Math.max(Number(t.vibMax), 50);
+      if (t.rpmMax != null) rpmMax = Math.max(Number(t.rpmMax), 1000);
+      onLiveUpdate();
+    });
+
+    db.ref("moteur/config").on("value", (snap) => {
+      const t = snap.val() || {};
+      if (t.vib_critique_mms != null) vibMax = Math.max(Number(t.vib_critique_mms) * 14, 50);
+      if (t.rpm_max != null) rpmMax = Math.max(Number(t.rpm_max), 1000);
+    });
+
+    db.ref("motor/live").on("value", (snap) => {
+      Object.assign(liveMotor, snap.val() || {});
+      onLiveUpdate();
+    });
+
+    db.ref("moteur/live").on("value", (snap) => {
+      Object.assign(liveMoteur, snap.val() || {});
+      onLiveUpdate();
+    });
+
+    db.ref("motor/command").on("value", (snap) => {
+      const d = snap.val() || {};
+      if (typeof d.wantOn === "boolean") commandedOn = d.wantOn;
+      renderUI(mapRow(mergedRaw()) || { x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "—" });
+    });
+
+    db.ref("moteur/command").on("value", (snap) => {
+      const d = snap.val() || {};
+      if (typeof d.relay === "boolean") commandedOn = d.relay;
+    });
+
+    db.ref("moteur/historique").limitToLast(30).on("child_added", (snap) => {
+      const row = snap.val() || {};
+      const m = mapRow(row);
+      if (m) pushHistory(m);
+    });
+
+    db.ref(".info/connected").on("value", (snap) => {
+      fbOnline = !!snap.val();
+      onLiveUpdate();
+    });
+
+    setInterval(() => {
+      if (history.length) renderUI(history[history.length - 1]);
+    }, 1000);
+
+    initCharts();
+    applyView();
+    renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "En attente ESP32…" });
+  })();
+  </script>
+</body>
+</html>
