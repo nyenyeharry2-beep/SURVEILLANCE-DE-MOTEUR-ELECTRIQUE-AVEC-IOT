@@ -1,34 +1,58 @@
-<div class="poster-blanche invitation-hidden" id="posterBlanche">
-  <svg class="flower fl-tl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/><circle cx="40" cy="75" r="15" fill="#E0115F"/></svg>
-  <svg class="flower fl-tr" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/></svg>
-  <svg class="flower fl-bl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="20" fill="#FFB6C1"/><circle cx="75" cy="55" r="16" fill="#FF8C65"/></svg>
-  <svg class="flower fl-br" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="45" r="17" fill="#E0115F"/></svg>
-  <div class="divider"></div>
-  <div class="left">
-    <div class="bronze-v"></div>
-    <div class="table-top">Table <strong data-field="table">12</strong></div>
-    <div class="couple-wrap">
-      <img src="assets/couple_photo.png" alt="Couple"/>
-    </div>
-    <div class="qr-box"><img data-field="qr" src="" alt="QR"/></div>
-  </div>
-  <div class="right">
-    <div class="script-title">Invitation</div>
-    <div class="gold-rule"></div>
-    <div class="guest-line">Mme, Mlle, M., Couple : <span class="name" data-field="guest">Invité</span></div>
-    <p class="intro">Les familles NKUBA et BANZA ont le réel plaisir de vous inviter à prendre part au mariage de leur fils et fille</p>
-    <div class="name-m">MOISE NKUBA</div>
-    <div class="sep">— ✦ —</div>
-    <div class="name-s">SARAH KASONGO</div>
-    <div class="date-pill">📅 <span data-field="date">Samedi 12 Septembre 2026</span></div>
-    <div class="event">
-      <h3>À 14h : Bénédiction nuptiale</h3>
-      <p>Église 30ème CPCO, paroisse Étoile du Matin, Av. du 24 novembre coin Kasumbalesa, Kipushi.</p>
-    </div>
-    <div class="event">
-      <h3>À 19h : Soirée dansante</h3>
-      <p>Salle Elvine (Chez Trésor), Av. du 30 Juin, Q/Kamarenge, Ville de Kipushi.</p>
-    </div>
-    <div class="footer">NB : Cadeau non emballé<br/>Votre présence, est notre plus beau cadeau</div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1200, height=1700"/>
+<style>
+@font-face { font-family: 'Great Vibes'; src: url('../fonts/GreatVibes.ttf'); }
+@font-face { font-family: 'Playfair'; src: url('../fonts/PlayfairDisplay-Regular.ttf'); }
+@font-face { font-family: 'Playfair'; font-weight: 700; src: url('../fonts/PlayfairDisplay.ttf'); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
+.poster { width:1200px; height:1700px; position:relative; }
+.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+.couple-logo {
+  position:absolute; left:50px; top:180px; width:480px; height:1100px;
+  object-fit:cover; object-position:center 15%; z-index:3;
+  -webkit-mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
+}
+.table-badge {
+  position:absolute; top:120px; left:50px; width:480px; text-align:center; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:28px;
+}
+.table-badge strong { color:#002366; font-size:32px; }
+.guest-name {
+  position:absolute; top:200px; left:620px; width:520px; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:30px; font-weight:700; color:#111;
+}
+.qr-zone {
+  position:absolute; left:50px; bottom:80px; z-index:10;
+  width:200px; text-align:center;
+}
+.qr-box {
+  width:200px; height:200px;
+  background:#fff; padding:10px; border-radius:14px;
+  border:3px solid #002366;
+  box-shadow:0 6px 28px rgba(0,35,102,0.3);
+}
+.qr-box img { width:100%; height:100%; display:block; }
+.qr-label {
+  margin-top:8px; font-family:'Playfair',Georgia,serif;
+  font-size:16px; font-weight:700; color:#002366;
+}
+</style>
+</head>
+<body>
+<div class="poster">
+  <img class="bg-affiche" src="../template_affiche_blanche.png" alt="Affiche"/>
+  <img class="couple-logo" src="../couple_photo.png" alt="Couple"/>
+  <div class="table-badge">Table <strong data-field="table">12</strong></div>
+  <div class="guest-name" data-field="guest">Invité</div>
+  <div class="qr-zone">
+    <div class="qr-box"><img data-field="qr" src="" alt="QR Code invitation"/></div>
+    <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <?php
 /**
- * Génération invitation PNG avec QR code (PHP + GD)
- * GET: style, guest, table, seats, date, time, venue
+ * Génération invitation PNG — affiche officielle + nom invité + photo + QR
+ * Positions alignées sur l'app Android (HtmlInvitationRenderer)
  */
 header('Access-Control-Allow-Origin: *');
 
@@ -9,7 +9,7 @@ $base = dirname(__DIR__);
 $uploadDir = $base . '/assets/uploads';
 $assetsDir = $base . '/assets';
 
-function loadImage(string $path) {
+function loadImage(string $path): ?GdImage {
     if (!file_exists($path)) return null;
     $info = @getimagesize($path);
     if (!$info) return null;
@@ -32,27 +32,58 @@ function fetchQrImage(string $data, int $size): ?GdImage {
     return @imagecreatefromstring($raw) ?: null;
 }
 
+function fontPath(bool $bold = false): ?string {
+    $path = '/usr/share/fonts/truetype/dejavu/DejaVuSerif' . ($bold ? '-Bold' : '') . '.ttf';
+    return file_exists($path) ? $path : null;
+}
+
 function drawText(GdImage $img, int $size, int $x, int $y, string $text, int $color, bool $bold = false): void {
-    $font = '/usr/share/fonts/truetype/dejavu/DejaVuSerif' . ($bold ? '-Bold' : '') . '.ttf';
-    if (!file_exists($font)) {
-        imagestring($img, $bold ? 5 : 4, $x, $y, $text, $color);
+    $font = fontPath($bold);
+    if ($font) {
+        imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
         return;
     }
-    imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
+    imagestring($img, $bold ? 5 : 4, $x, $y - 14, $text, $color);
+}
+
+function drawTextCentered(GdImage $img, int $size, int $cx, int $y, string $text, int $color, bool $bold = false): void {
+    $font = fontPath($bold);
+    if ($font) {
+        $box = imagettfbbox($size, 0, $font, $text);
+        $w = abs($box[2] - $box[0]);
+        imagettftext($img, $size, 0, (int)($cx - $w / 2), $y, $color, $font, $text);
+        return;
+    }
+    $w = imagefontwidth($bold ? 5 : 4) * strlen($text);
+    imagestring($img, $bold ? 5 : 4, (int)($cx - $w / 2), $y - 14, $text, $color);
+}
+
+function coverRect(GdImage $img, int $x, int $y, int $w, int $h, int $color): void {
+    imagefilledrectangle($img, $x, $y, $x + $w, $y + $h, $color);
+}
+
+function pasteCover(GdImage $canvas, GdImage $src, int $dx, int $dy, int $dw, int $dh): void {
+    $sw = imagesx($src);
+    $sh = imagesy($src);
+    $scale = max($dw / $sw, $dh / $sh);
+    $cw = (int)($sw * $scale);
+    $ch = (int)($sh * $scale);
+    $sx = (int)(($cw - $dw) / 2 / $scale);
+    $sy = (int)(($ch - $dh) / 2 / $scale);
+    imagecopyresampled($canvas, $src, $dx, $dy, $sx, $sy, $dw, $dh, (int)($dw / $scale), (int)($dh / $scale));
 }
 
 $style = $_GET['style'] ?? 'mariage-civil';
 $guest = trim($_GET['guest'] ?? 'Invité');
 $table = trim($_GET['table'] ?? '—');
 $seats = (int)($_GET['seats'] ?? 1);
-$date = trim($_GET['date'] ?? 'Vendredi, le 11 Septembre 2026');
-$time = trim($_GET['time'] ?? '11h00');
-$venue = trim($_GET['venue'] ?? 'Commune de Kipushi, Ville de KIPUSHI');
 
 $W = 1200;
 $H = 1700;
 
-$posterFile = $style === 'affiche-blanche'
+$isBlanche = ($style === 'affiche-blanche');
+
+$posterFile = $isBlanche
     ? pickFile("$uploadDir/poster_blanche.jpg", "$assetsDir/template_affiche_blanche.png")
     : pickFile("$uploadDir/poster_civil.jpg", "$assetsDir/template_mariage_civil.png");
 
@@ -71,38 +102,56 @@ if ($poster) {
 }
 
 if ($couple) {
-    $cw = $style === 'affiche-blanche' ? 480 : 200;
-    $ch = $style === 'affiche-blanche' ? 620 : 260;
-    $cx = $style === 'affiche-blanche' ? 50 : 40;
-    $cy = $style === 'affiche-blanche' ? 180 : 40;
-    imagecopyresampled($canvas, $couple, $cx, $cy, 0, 0, $cw, $ch, imagesx($couple), imagesy($couple));
+    if ($isBlanche) {
+        pasteCover($canvas, $couple, 50, 180, 480, 1100);
+    } else {
+        pasteCover($canvas, $couple, 0, 120, 480, 1450);
+    }
     imagedestroy($couple);
 }
 
 $black = imagecolorallocate($canvas, 26, 26, 26);
 $purple = imagecolorallocate($canvas, 107, 45, 130);
 $blue = imagecolorallocate($canvas, 0, 35, 102);
-$accent = $style === 'affiche-blanche' ? $blue : $purple;
+$accent = $isBlanche ? $blue : $purple;
 
-drawText($canvas, 28, 490, 320, $guest, $black, true);
-drawText($canvas, 22, 60, 250, "Table $table", $accent, true);
-drawText($canvas, 18, 490, 920, "Date : $date", $black);
-drawText($canvas, 18, 490, 980, "Heure : $time", $black);
-drawText($canvas, 16, 490, 1040, "Lieu : $venue", $black);
-drawText($canvas, 14, 900, 1580, "$seats place(s) • Table $table", $accent, true);
+if ($isBlanche) {
+    coverRect($canvas, 620, 195, 520, 55, $white);
+    drawText($canvas, 30, 620, 240, $guest, $black, true);
 
-$qrData = "INVITE|nom:$guest|table:$table|date:$date|places:$seats";
+    coverRect($canvas, 50, 115, 480, 50, $white);
+    drawTextCentered($canvas, 28, 290, 155, "Table $table", $black, true);
+
+    $qrX = 50;
+    $qrY = $H - 290;
+} else {
+    coverRect($canvas, 490, 285, 660, 55, $white);
+    drawText($canvas, 34, 490, 330, $guest, $black, true);
+
+    coverRect($canvas, 60, 205, 400, 45, $white);
+    drawTextCentered($canvas, 28, 260, 240, "Table $table", $accent, true);
+
+    coverRect($canvas, 880, 1540, 280, 35, $white);
+    drawText($canvas, 18, 900, 1565, "$seats place(s) • Table $table", $accent, true);
+
+    $qrX = 50;
+    $qrY = $H - 290;
+}
+
+$qrData = "INVITE|nom:$guest|table:$table|places:$seats";
 $qrSize = 200;
 $qr = fetchQrImage($qrData, $qrSize);
 if ($qr) {
-    $qx = 50;
-    $qy = $H - 280;
     $pad = 12;
-    $box = imagecolorallocate($canvas, 255, 255, 255);
-    imagefilledrectangle($canvas, $qx - $pad, $qy - $pad, $qx + $qrSize + $pad, $qy + $qrSize + $pad + 30, $box);
-    imagecopyresampled($canvas, $qr, $qx, $qy, 0, 0, $qrSize, $qrSize, imagesx($qr), imagesy($qr));
+    $border = $accent;
+    $boxW = $qrSize + $pad * 2;
+    $boxH = $qrSize + $pad * 2 + 28;
+    coverRect($canvas, $qrX - 4, $qrY - 4, $boxW + 8, $boxH + 8, $white);
+    imagefilledrectangle($canvas, $qrX - $pad, $qrY - $pad, $qrX + $qrSize + $pad, $qrY + $qrSize + $pad, $white);
+    imagerectangle($canvas, $qrX - $pad, $qrY - $pad, $qrX + $qrSize + $pad, $qrY + $qrSize + $pad, $border);
+    imagecopyresampled($canvas, $qr, $qrX, $qrY, 0, 0, $qrSize, $qrSize, imagesx($qr), imagesy($qr));
     imagedestroy($qr);
-    drawText($canvas, 14, $qx, $qy + $qrSize + 28, 'Scannez pour valider', $accent, true);
+    drawTextCentered($canvas, 14, $qrX + (int)($qrSize / 2), $qrY + $qrSize + 26, 'Scannez pour valider', $accent, true);
 }
 
 header('Content-Type: image/png');

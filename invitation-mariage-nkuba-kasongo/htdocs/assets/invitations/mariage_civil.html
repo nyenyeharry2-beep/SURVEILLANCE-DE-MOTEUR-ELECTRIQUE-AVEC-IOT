@@ -1,48 +1,66 @@
-<div class="poster-civil" id="posterCivil">
-  <div class="watermark"></div>
-  <div class="border-curve"></div>
-  <svg class="rose-corner rose-tl" viewBox="0 0 220 220">
-    <circle cx="60" cy="70" r="28" fill="#7A2EAF"/><circle cx="90" cy="50" r="22" fill="#9C27B0"/>
-    <circle cx="45" cy="100" r="18" fill="#E91E63"/><circle cx="100" cy="85" r="20" fill="#AB47BC"/>
-    <ellipse cx="70" cy="110" rx="8" ry="14" fill="#2E7D32"/><ellipse cx="95" cy="105" rx="6" ry="12" fill="#388E3C"/>
-  </svg>
-  <svg class="rose-corner rose-br" viewBox="0 0 220 220">
-    <circle cx="60" cy="70" r="28" fill="#7A2EAF"/><circle cx="90" cy="50" r="22" fill="#9C27B0"/>
-    <circle cx="45" cy="100" r="18" fill="#E91E63"/><circle cx="100" cy="85" r="20" fill="#AB47BC"/>
-    <ellipse cx="70" cy="110" rx="8" ry="14" fill="#2E7D32"/>
-  </svg>
-  <svg class="vine-bl" viewBox="0 0 120 180">
-    <path d="M20,160 Q40,120 30,80 Q25,50 60,20" stroke="#5a2d82" stroke-width="3" fill="none"/>
-    <circle cx="60" cy="20" r="8" fill="#7A2EAF"/><circle cx="30" cy="80" r="6" fill="#9C27B0"/>
-  </svg>
-  <div class="left-panel">
-    <div class="table-line">Table <span data-field="table">12</span></div>
-    <img class="couple-photo" src="assets/couple_photo.png" alt="Moïse & Sarah"/>
-    <div class="qr-box"><img data-field="qr" src="" alt="QR"/></div>
-  </div>
-  <div class="right-panel">
-    <div class="title-invitation">Invitation</div>
-    <div class="title-underline"></div>
-    <div class="guest-row">Mme, Mlle, Mr, Couple : <span class="name" data-field="guest">Invité</span></div>
-    <p class="intro">Les familles NKUBA et BANZA vous invitent<br/>à prendre part au mariage civil<br/>de leur fils et fille :</p>
-    <div class="names-block">
-      <div class="name-script">Moïse NKUBA</div>
-      <div class="ampersand"><span class="name-line"></span> &amp; <span class="name-line"></span></div>
-      <div class="name-script">Sarah KASONGO</div>
-    </div>
-    <div class="detail-row">
-      <div class="icon-circle icon-cal">📅</div>
-      <div><strong>Date :</strong> <span data-field="date">Vendredi, le 11 Septembre 2026</span></div>
-    </div>
-    <div class="detail-row">
-      <div class="icon-circle icon-clock">🕐</div>
-      <div><strong>Heure :</strong> <span data-field="time">11h00</span></div>
-    </div>
-    <div class="detail-row">
-      <div class="icon-circle icon-pin">📍</div>
-      <div><strong>Lieu :</strong> <span data-field="venue">Commune de Kipushi, Ville de KIPUSHI</span></div>
-    </div>
-    <p class="closing">Votre présence fera notre immense joie.</p>
-    <div class="seats-badge"><span data-field="seats">2</span> place(s) • Table <span data-field="table2">12</span></div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1200, height=1700"/>
+<style>
+@font-face { font-family: 'Great Vibes'; src: url('../fonts/GreatVibes.ttf'); }
+@font-face { font-family: 'Playfair'; src: url('../fonts/PlayfairDisplay-Regular.ttf'); }
+@font-face { font-family: 'Playfair'; font-weight: 700; src: url('../fonts/PlayfairDisplay.ttf'); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
+.poster { width:1200px; height:1700px; position:relative; }
+.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+.couple-logo {
+  position:absolute; left:0; top:120px; width:480px; height:1450px;
+  object-fit:cover; object-position:center top; z-index:3;
+  -webkit-mask-image:linear-gradient(to bottom,#000 75%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 75%,transparent 100%);
+}
+.guest-name {
+  position:absolute; top:295px; left:490px; width:660px; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:34px; font-weight:700;
+  color:#1a1a1a; line-height:1.2;
+}
+.table-badge {
+  position:absolute; top:220px; left:60px; width:400px; text-align:center; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:28px; color:#333;
+}
+.table-badge span {
+  font-weight:700; color:#6B2D82; border-bottom:3px dotted #999; padding:0 16px;
+}
+.seats-badge {
+  position:absolute; bottom:340px; right:60px; z-index:5;
+  font-size:18px; font-weight:700; color:#6B2D82;
+}
+.qr-zone {
+  position:absolute; left:50px; bottom:70px; z-index:10;
+  width:200px; text-align:center;
+}
+.qr-box {
+  width:200px; height:200px;
+  background:#fff; padding:10px; border-radius:14px;
+  border:3px solid #6B2D82;
+  box-shadow:0 6px 28px rgba(107,45,130,0.35);
+}
+.qr-box img { width:100%; height:100%; display:block; }
+.qr-label {
+  margin-top:8px; font-family:'Playfair',Georgia,serif;
+  font-size:16px; font-weight:700; color:#6B2D82;
+}
+</style>
+</head>
+<body>
+<div class="poster">
+  <img class="bg-affiche" src="../template_mariage_civil.png" alt="Affiche"/>
+  <img class="couple-logo" src="../couple_photo.png" alt="Moïse &amp; Sarah"/>
+  <div class="table-badge">Table <span data-field="table">12</span></div>
+  <div class="guest-name" data-field="guest">Invité</div>
+  <div class="seats-badge"><span data-field="seats">2</span> place(s) • Table <span data-field="table2">12</span></div>
+  <div class="qr-zone">
+    <div class="qr-box"><img data-field="qr" src="" alt="QR Code invitation"/></div>
+    <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
+</body>
+</html>
