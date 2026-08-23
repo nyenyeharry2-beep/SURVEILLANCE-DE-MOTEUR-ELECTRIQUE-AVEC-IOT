@@ -62,7 +62,7 @@ function roleBadge($role)
 function productImageHtml($url, $class = 'product-card-image')
 {
     if ($url) {
-        return '<div class="' . e($class) . '"><img src="' . e($url) . '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🛍️\'"></div>';
+        return '<div class="' . e($class) . '"><img src="' . e($url) . '" alt="" style="width:100%;height:100%;object-fit:contain;background:#f8fafc;" onerror="this.parentElement.innerHTML=\'🛍️\'"></div>';
     }
     return '<div class="' . e($class) . '">🛍️</div>';
 }

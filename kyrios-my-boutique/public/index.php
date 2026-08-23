@@ -118,7 +118,11 @@ require __DIR__ . '/includes/layout-top.php';
             <h3>🔥 Tendances</h3>
             <?php foreach ($trending as $product): ?>
             <div class="trend-item">
+                <?php if (!empty($product['image_url'])): ?>
+                <img src="<?= e($product['image_url']) ?>" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:contain;background:#f8fafc;">
+                <?php else: ?>
                 <div style="width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#e0e7ff,#ede9fe);display:flex;align-items:center;justify-content:center;">🛍️</div>
+                <?php endif; ?>
                 <div class="trend-info">
                     <h5><?= e($product['title']) ?></h5>
                     <span><?= number_format((float)$product['price'], 2, ',', ' ') ?> € · <?= e($product['shop_name'] ?: $product['seller_name']) ?></span>
