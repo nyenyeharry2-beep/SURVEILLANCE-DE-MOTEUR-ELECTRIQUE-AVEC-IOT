@@ -1,0 +1,38 @@
+SURVEILLANCE MOTEUR — Firebase (surveillancemotornyenye.xo.je)
+================================================================
+
+PAS de MySQL. PAS de Lumen. Uniquement Firebase Realtime Database.
+
+INSTALLATION INFINITYFREE (File Manager → htdocs)
+-------------------------------------------------
+1. Supprimez les anciens fichiers PHP/Lumen (mesure.php, config.php, etc.)
+2. Uploadez et décompressez CE ZIP dans htdocs (racine)
+3. Ouvrez firebase-config.js → collez vos clés Firebase
+4. Ouvrez : http://surveillancemotornyenye.xo.je/
+
+FICHIERS DANS htdocs
+--------------------
+index.html
+app.js
+firebase-config.js
+style.css
+
+FIREBASE (console.firebase.google.com)
+--------------------------------------
+1. Créer un projet Firebase
+2. Activer Realtime Database (mode test)
+3. Importer la structure initiale (moteur/live, moteur/config, moteur/command)
+4. App Web → copier la config dans firebase-config.js
+
+ESP32
+-----
+Sketch : passerelle_firebase.ino (PAS Lumen_ESP32, PAS mesure.php)
+FIREBASE_HOST = votre databaseURL Firebase
+Publie vers : /moteur/live
+
+VÉRIFICATION
+------------
+- Console Firebase → Données → moteur/live se met à jour
+- Badge du site : « Uno + ESP32 en ligne »
+
+Site : http://surveillancemotornyenye.xo.je/

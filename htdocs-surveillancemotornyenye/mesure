@@ -1,3 +1,0 @@
-<?php
-/** Alias POST /mesure (sans .php) pour eviter le 404 nginx. */
-require __DIR__ . "/mesure.php";
