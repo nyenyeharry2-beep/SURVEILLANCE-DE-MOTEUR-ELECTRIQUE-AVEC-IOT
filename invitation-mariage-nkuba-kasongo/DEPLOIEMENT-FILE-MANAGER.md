@@ -18,26 +18,26 @@
 ## ÉTAPE 2 — File Manager (htdocs)
 
 1. Ouvrez **File Manager** de votre hébergement
-2. Allez dans le dossier **`htdocs`**
-3. **Uploadez tout le contenu** du dossier `htdocs/` de ce package :
+2. Allez dans le dossier **`htdocs`** (racine du site)
+3. **Supprimez** tout ancien contenu si vous réinstallez
+4. Uploadez **`htdocs-upload.zip`**
+5. **Extrayez** le ZIP **dans `htdocs`**
+6. **IMPORTANT** — vérifiez que ces fichiers sont **directement** dans `htdocs`, pas dans un sous-dossier :
 
 ```
 htdocs/
-├── index.html          ← site principal
+├── index.html          ← DOIT être ici (pas dans htdocs/htdocs/)
 ├── index.php
+├── .htaccess
 ├── api/
-│   ├── guests.php      ← invités + sync app
-│   ├── config.php
-│   ├── generate.php    ← invitation + QR code
-│   └── upload.php      ← photos couple/affiches
-├── assets/             ← CSS, JS, images
+├── assets/
 ├── app/
-│   └── invitation-mariage-nkuba-kasongo.apk  ← APK à télécharger
-└── _private/           ← secrets (protégé, invisible web)
-    ├── app.secrets.php
-    ├── bootstrap.php
-    └── .htaccess
+└── _private/
 ```
+
+> **Erreur 403 ?** Si vous voyez un dossier `htdocs/htdocs/` après extraction, déplacez tout le contenu du sous-dossier vers la racine `htdocs/`.
+
+Structure attendue :
 
 > Le dossier `_private/` est **bloqué** — les visiteurs ne voient jamais la config technique.
 
