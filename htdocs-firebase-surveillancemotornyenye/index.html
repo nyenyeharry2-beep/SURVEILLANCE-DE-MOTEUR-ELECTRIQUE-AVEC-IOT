@@ -70,7 +70,8 @@
     }
     .status-pill.ok { background: #dceee3; color: var(--forest-2); border-color: transparent; }
     .status-pill.bad { background: var(--terracotta-soft); color: var(--terracotta); border-color: transparent; }
-    .status-pill.alerte { background: var(--gold-soft); color: var(--gold); border-color: transparent; }
+    .status-pill.live { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
     .user-chip {
       display: flex; align-items: center; gap: 10px; background: var(--surface);
       border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px 8px 8px;
@@ -186,6 +187,7 @@
         </div>
         <div class="topbar-status">
           <span class="status-pill" id="fb-status">Firebase…</span>
+          <span class="status-pill" id="esp-status">ESP32…</span>
           <span class="status-pill" id="motor-pill">ARRÊTÉ</span>
           <div class="user-chip">
             <span class="avatar">HN</span>
@@ -243,6 +245,29 @@
         </article>
       </section>
 
+      <section class="kpis" data-section="overview surveillance">
+        <article class="kpi">
+          <span>A_RMS</span>
+          <strong id="val-arms">0.00</strong>
+          <small>m/s² · ADXL345</small>
+        </article>
+        <article class="kpi">
+          <span>Relais UNO</span>
+          <strong id="val-relay">OFF</strong>
+          <small>Pin D8 · contacteur</small>
+        </article>
+        <article class="kpi">
+          <span>Buzzer</span>
+          <strong id="val-buzzer">OFF</strong>
+          <small id="val-buzzer-mute">—</small>
+        </article>
+        <article class="kpi">
+          <span>Niveau alerte</span>
+          <strong id="val-alert-level" style="font-size:28px">—</strong>
+          <small id="val-diagnostic-text">En attente ESP32…</small>
+        </article>
+      </section>
+
       <section class="grid-2" data-section="overview surveillance">
         <article class="panel">
           <h3>Courbe de vibration X / Y / Z</h3>
@@ -280,11 +305,11 @@
             <thead>
               <tr>
                 <th>Heure</th><th>X (g)</th><th>Y (g)</th><th>Z (g)</th>
-                <th>RMS (mm/s)</th><th>RPM</th><th>État</th>
+                <th>A_RMS</th><th>RMS (mm/s)</th><th>RPM</th><th>État</th>
               </tr>
             </thead>
             <tbody id="history-body">
-              <tr><td colspan="7" class="muted">Aucune mesure pour l'instant.</td></tr>
+              <tr><td colspan="8" class="muted">Aucune mesure pour l'instant.</td></tr>
             </tbody>
           </table>
         </div>
@@ -324,7 +349,8 @@
     firebase.initializeApp(FIREBASE_CONFIG);
     const db = firebase.database();
 
-    const MAX = 40;
+    const MAX = 60;
+    const STALE_MS = 8000;
     let view = "overview";
     let vibMax = 100;
     let rpmMax = 5000;
@@ -333,8 +359,12 @@
     let commandedOn = false;
     let lastLiveAt = 0;
     let fbOnline = false;
+    let espOnline = false;
+    const liveMotor = {};
+    const liveMoteur = {};
     const history = [];
     let charts = { vib: null, rpm: null };
+    let lastHistoryKey = "";
 
     const $ = (id) => document.getElementById(id);
 
@@ -366,24 +396,56 @@
       return Math.sqrt(x * x + y * y + z * z);
     }
 
-    function readVib(row) {
-      return Number(row.vib ?? row.vibration ?? 0);
+    /** Fusionne motor/live + moteur/live (tous formats ESP32) */
+    function mergedRaw() {
+      return { ...liveMoteur, ...liveMotor };
     }
 
     function mapRow(row) {
-      if (!row) return null;
-      const vibPct = readVib(row);
-      const rpm = Number(row.rpm) || 0;
-      const rms = (vibPct / Math.max(vibMax, 1)) * 7.1;
+      if (!row || !Object.keys(row).length) return null;
+
       const x = Number(row.x ?? row.ax ?? 0);
       const y = Number(row.y ?? row.ay ?? 0);
       const z = Number(row.z ?? row.az ?? 0);
-      const ts = row.ts ? new Date(Number(row.ts)) : new Date();
+      const rpm = Number(row.rpm ?? 0);
+      const aRms = Number(row.a_rms ?? row.arms ?? row.aRms ?? 0);
+
+      let rms = Number(row.vibration_rms ?? row.rmsMmS ?? row.rms ?? row.vibration);
+      if (!Number.isFinite(rms)) {
+        const vibPct = Number(row.vib ?? row.vibration ?? 0);
+        rms = (vibPct / Math.max(vibMax, 1)) * 7.1;
+      }
+
+      const motorOn = !!(row.motorOn ?? row.relay_state ?? row.relay);
+      espOnline = !!(row.online ?? row.uno_online ?? false);
+
+      const status = String(row.status ?? row.etat ?? "").toUpperCase();
       let etat = "ARRÊTÉ";
       if (row.emergency) etat = "DÉFAUT";
-      else if (row.alert || vibPct > vibMax * 0.9 || rpm > rpmMax * 0.9) etat = "ALERTE";
-      else if (row.motorOn || rpm > 50) etat = "EN FONCTIONNEMENT";
-      return { x, y, z, rpm, rms, etat, ts, motorOn: !!row.motorOn, alert: !!row.alert, reason: row.reason || "ok" };
+      else if (status.includes("ALARME") || status.includes("DEFAUT") || status.includes("DÉFAUT")) etat = "DÉFAUT";
+      else if (row.alert || row.alert_level === "ALARME" || status.includes("ALERTE") || status === "ALERTE") etat = "ALERTE";
+      else if (status.includes("FONCTION") || status === "NORMAL" || status === "EN MARCHE" || motorOn || rpm > 50) etat = "EN FONCTIONNEMENT";
+
+      let ts = new Date();
+      if (row.ts != null && Number(row.ts) > 1e12) ts = new Date(Number(row.ts));
+      else if (row.epoch_ms != null) ts = new Date(Number(row.epoch_ms));
+      else if (row.timestamp != null) {
+        const t = Number(row.timestamp);
+        ts = t > 1e12 ? new Date(t) : new Date(Date.now());
+      }
+
+      return {
+        x, y, z, rpm, rms, aRms, etat, ts, motorOn,
+        online: espOnline,
+        alert: !!row.alert,
+        reason: row.reason || row.anomaly_hint || "ok",
+        diagnostic: row.diagnostic || "—",
+        alertLevel: row.alert_level || row.alertLevel || "INFO",
+        relay: motorOn,
+        buzzer: !!(row.buzzer_state ?? row.buzzer),
+        buzzerMute: !!row.buzzer_mute,
+        rpmNominal: Number(row.rpm_nominal ?? 0),
+      };
     }
 
     function rmsLevel(rms) {
@@ -394,16 +456,21 @@
 
     function buildProblems(m) {
       const items = [];
-      if (!lastLiveAt || Date.now() - lastLiveAt > 15000) {
-        items.push({ label: "Données indisponibles ou anciennes", sev: "warning" });
-      } else {
-        if (m.rms >= 7.1) items.push({ label: "Vibration critique", sev: "fault" });
-        else if (m.rms >= 2.8) items.push({ label: "Vibration élevée", sev: "warning" });
-        else items.push({ label: "Vibration normale", sev: "ok" });
-        if (m.rpm > rpmMax * 0.9) items.push({ label: "Survitesse", sev: "warning" });
-        else if (m.rpm > 50) items.push({ label: "Vitesse normale", sev: "ok" });
-        else items.push({ label: "Moteur arrêté", sev: "info" });
+      const stale = !lastLiveAt || Date.now() - lastLiveAt > STALE_MS;
+      if (stale) {
+        items.push({ label: "Données ESP32 absentes ou trop anciennes", sev: "warning" });
+        return items;
       }
+      if (m.diagnostic && m.diagnostic !== "—") {
+        items.push({ label: m.diagnostic, sev: m.etat === "DÉFAUT" ? "fault" : m.etat === "ALERTE" ? "warning" : "ok" });
+      }
+      if (m.rms >= 7.1) items.push({ label: "Vibration critique (" + fmt(m.rms) + " mm/s)", sev: "fault" });
+      else if (m.rms >= 2.8) items.push({ label: "Vibration élevée (" + fmt(m.rms) + " mm/s)", sev: "warning" });
+      else items.push({ label: "Vibration normale", sev: "ok" });
+      if (m.rpm > rpmMax * 0.9) items.push({ label: "Survitesse (" + fmt(m.rpm, 0) + " RPM)", sev: "warning" });
+      else if (m.rpm > 50) items.push({ label: "Vitesse OK (" + fmt(m.rpm, 0) + " RPM)", sev: "ok" });
+      else items.push({ label: "Moteur arrêté", sev: "info" });
+      if (m.aRms >= 5) items.push({ label: "A_RMS élevé (" + fmt(m.aRms) + " m/s²)", sev: "warning" });
       return items;
     }
 
@@ -425,10 +492,11 @@
         x: "#3d6b7a", y: "#b8893a", z: "#2d6a4f", rpm: "#b85a42",
       };
       const common = {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 150 },
         plugins: { legend: { labels: { color: c.ink, boxWidth: 12 } } },
         scales: {
-          x: { ticks: { color: c.muted, maxTicksLimit: 6 }, grid: { color: c.grid } },
+          x: { ticks: { color: c.muted, maxTicksLimit: 8 }, grid: { color: c.grid } },
           y: { ticks: { color: c.muted }, grid: { color: c.grid } },
         },
       };
@@ -474,16 +542,22 @@
     }
 
     function renderUI(m) {
+      const fresh = lastLiveAt && Date.now() - lastLiveAt < STALE_MS;
+
       const fb = $("fb-status");
-      if (fbOnline && lastLiveAt && Date.now() - lastLiveAt < 15000) {
-        fb.textContent = "Firebase connecté";
-        fb.className = "status-pill ok";
-      } else if (fbOnline) {
-        fb.textContent = "En attente ESP32";
-        fb.className = "status-pill bad";
+      fb.textContent = fbOnline ? "Firebase connecté" : "Hors ligne Firebase";
+      fb.className = "status-pill " + (fbOnline ? "ok" : "bad");
+
+      const esp = $("esp-status");
+      if (fresh && espOnline) {
+        esp.textContent = "ESP32 en ligne";
+        esp.className = "status-pill ok live";
+      } else if (fresh) {
+        esp.textContent = "Données reçues";
+        esp.className = "status-pill ok";
       } else {
-        fb.textContent = "Hors ligne";
-        fb.className = "status-pill bad";
+        esp.textContent = "ESP32 hors ligne";
+        esp.className = "status-pill bad";
       }
 
       const pill = $("motor-pill");
@@ -499,10 +573,17 @@
       $("val-y").textContent = fmt(m.y);
       $("val-z").textContent = fmt(m.z);
       $("val-res").textContent = fmt(resultante(m.x, m.y, m.z));
+      $("val-arms").textContent = fmt(m.aRms);
+      $("val-relay").textContent = m.relay ? "ON" : "OFF";
+      $("val-relay").style.color = m.relay ? "var(--forest-2)" : "var(--terracotta)";
+      $("val-buzzer").textContent = m.buzzer ? "ON" : "OFF";
+      $("val-buzzer-mute").textContent = m.buzzerMute ? "Muet" : "Actif";
+      $("val-alert-level").textContent = m.alertLevel;
+      $("val-diagnostic-text").textContent = m.diagnostic;
 
       const probs = buildProblems(m);
       const alerts = probs.filter((p) => p.sev === "warning" || p.sev === "fault");
-      $("val-diag").textContent = alerts.length ? alerts[0].label : "RAS";
+      $("val-diag").textContent = alerts.length ? alerts[0].label.slice(0, 40) : "RAS";
       $("val-diag-count").textContent = alerts.length ? alerts.length + " problème(s)" : "Aucun problème";
       $("diag-badge").textContent = alerts.length ? alerts.length + " alerte(s)" : "Normal";
       $("diag-badge").className = "badge" + (alerts.length ? " alerte" : "");
@@ -512,12 +593,12 @@
 
       $("last-update").textContent = m.ts ? "Dernière mesure : " + fmtDate(m.ts) : "—";
 
-      const rows = [...history].reverse().slice(0, 20);
+      const rows = [...history].reverse().slice(0, 25);
       $("history-body").innerHTML = rows.length
         ? rows.map((h) => `<tr>
             <td>${h.timeLabel}</td><td>${fmt(h.x)}</td><td>${fmt(h.y)}</td><td>${fmt(h.z)}</td>
-            <td>${fmt(h.rms)}</td><td>${fmt(h.rpm, 0)}</td><td>${h.etat}</td></tr>`).join("")
-        : `<tr><td colspan="7" class="muted">Aucune mesure pour l'instant.</td></tr>`;
+            <td>${fmt(h.aRms)}</td><td>${fmt(h.rms)}</td><td>${fmt(h.rpm, 0)}</td><td>${h.etat}</td></tr>`).join("")
+        : `<tr><td colspan="8" class="muted">Aucune mesure pour l'instant.</td></tr>`;
 
       $("commande-label").textContent = commandedOn ? "Commande : ALLUMÉ" : "Commande : ÉTEINT";
       $("motor-on").disabled = commandedOn || busy;
@@ -525,20 +606,24 @@
     }
 
     function pushHistory(m) {
+      const key = m.ts.getTime() + "|" + m.x + "|" + m.y + "|" + m.rpm;
+      if (key === lastHistoryKey) return;
+      lastHistoryKey = key;
       history.push({ ...m, timeLabel: fmtTime(m.ts) });
       while (history.length > MAX) history.shift();
       updateCharts();
       renderUI(m);
     }
 
-    function showLive(row) {
-      const m = mapRow(row);
+    function onLiveUpdate() {
+      const m = mapRow(mergedRaw());
       if (!m) {
-        renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, etat: "ARRÊTÉ", ts: null });
+        renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "En attente ESP32…" });
         return;
       }
       lastLiveAt = Date.now();
-      if (typeof row.motorOn === "boolean") commandedOn = row.motorOn;
+      if (typeof mergedRaw().motorOn === "boolean") commandedOn = mergedRaw().motorOn;
+      else if (typeof mergedRaw().relay_state === "boolean") commandedOn = mergedRaw().relay_state;
       pushHistory(m);
     }
 
@@ -549,15 +634,17 @@
       cmdCounter += 1;
       const seq = "w" + cmdCounter + "-" + Date.now().toString(36);
       try {
-        await db.ref("motor/command").set({ wantOn: !!on, emergency: false, seq, src: "web", at: new Date().toISOString() });
-        await db.ref("motor/wantOn").set(!!on);
-        await db.ref("motor/emergency").set(false);
+        await Promise.all([
+          db.ref("motor/command").set({ wantOn: !!on, emergency: false, seq, src: "web", at: new Date().toISOString() }),
+          db.ref("motor/wantOn").set(!!on),
+          db.ref("motor/emergency").set(false),
+          db.ref("moteur/command").update({ relay: !!on, buzzer_mute: false }),
+        ]);
         toast(on ? "Commande ALLUMER envoyée" : "Commande ÉTEINDRE envoyée");
-        renderUI(mapRow({ motorOn: on, rpm: 0, vib: 0 }) || { x: 0, y: 0, z: 0, rpm: 0, rms: 0, etat: "ARRÊTÉ", ts: new Date() });
       } catch (e) {
         toast("Erreur Firebase : " + (e.message || e));
       }
-      setTimeout(() => { busy = false; $("motor-on").disabled = commandedOn; $("motor-off").disabled = !commandedOn; }, 800);
+      setTimeout(() => { busy = false; renderUI(mapRow(mergedRaw()) || { x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: new Date(), relay: on, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "—" }); }, 800);
     }
 
     document.querySelectorAll("[data-nav]").forEach((btn) => {
@@ -568,33 +655,63 @@
     $("motor-off").addEventListener("click", () => sendMotor(false));
 
     $("theme-btn").addEventListener("click", () => {
-      document.documentElement.dataset.theme =
-        document.documentElement.dataset.theme === "dark" ? "" : "dark";
-      $("theme-btn").textContent = document.documentElement.dataset.theme === "dark"
-        ? "Thème clair" : "Thème sombre";
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "" : "dark";
+      $("theme-btn").textContent = document.documentElement.dataset.theme === "dark" ? "Thème clair" : "Thème sombre";
     });
 
+    /* ——— Écoute temps réel : motor/live ET moteur/live ——— */
     db.ref("motor/thresholds").on("value", (snap) => {
       const t = snap.val() || {};
       if (t.vibMax != null) vibMax = Math.max(Number(t.vibMax), 50);
       if (t.rpmMax != null) rpmMax = Math.max(Number(t.rpmMax), 1000);
+      onLiveUpdate();
     });
 
-    db.ref("motor/live").on("value", (snap) => showLive(snap.val()));
+    db.ref("moteur/config").on("value", (snap) => {
+      const t = snap.val() || {};
+      if (t.vib_critique_mms != null) vibMax = Math.max(Number(t.vib_critique_mms) * 14, 50);
+      if (t.rpm_max != null) rpmMax = Math.max(Number(t.rpm_max), 1000);
+    });
+
+    db.ref("motor/live").on("value", (snap) => {
+      Object.assign(liveMotor, snap.val() || {});
+      onLiveUpdate();
+    });
+
+    db.ref("moteur/live").on("value", (snap) => {
+      Object.assign(liveMoteur, snap.val() || {});
+      onLiveUpdate();
+    });
 
     db.ref("motor/command").on("value", (snap) => {
       const d = snap.val() || {};
       if (typeof d.wantOn === "boolean") commandedOn = d.wantOn;
+      renderUI(mapRow(mergedRaw()) || { x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "—" });
+    });
+
+    db.ref("moteur/command").on("value", (snap) => {
+      const d = snap.val() || {};
+      if (typeof d.relay === "boolean") commandedOn = d.relay;
+    });
+
+    db.ref("moteur/historique").limitToLast(30).on("child_added", (snap) => {
+      const row = snap.val() || {};
+      const m = mapRow(row);
+      if (m) pushHistory(m);
     });
 
     db.ref(".info/connected").on("value", (snap) => {
       fbOnline = !!snap.val();
-      if (history.length) renderUI(history[history.length - 1]);
+      onLiveUpdate();
     });
+
+    setInterval(() => {
+      if (history.length) renderUI(history[history.length - 1]);
+    }, 1000);
 
     initCharts();
     applyView();
-    renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, etat: "ARRÊTÉ", ts: null });
+    renderUI({ x: 0, y: 0, z: 0, rpm: 0, rms: 0, aRms: 0, etat: "ARRÊTÉ", ts: null, relay: false, buzzer: false, buzzerMute: false, alertLevel: "—", diagnostic: "En attente ESP32…" });
   })();
   </script>
 </body>
