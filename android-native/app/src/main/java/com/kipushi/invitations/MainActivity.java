@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         refreshLogo();
+        CloudSync.syncAsync(this);
     }
 
     private void refreshLogo() {

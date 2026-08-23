@@ -34,7 +34,7 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
         db = new DatabaseHelper(this);
 
-        CloudSync.pushGuestsAsync(this);
+        CloudSync.syncAsync(this);
 
         adapter = new GuestAdapter();
         RecyclerView list = findViewById(R.id.guestRecycler);

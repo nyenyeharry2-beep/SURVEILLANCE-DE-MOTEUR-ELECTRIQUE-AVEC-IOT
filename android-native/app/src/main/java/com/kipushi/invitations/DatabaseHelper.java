@@ -86,6 +86,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public void replaceAllGuests(List<Guest> guests) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete("guests", null, null);
+            for (Guest g : guests) {
+                ContentValues cv = toValues(g);
+                if (g.createdAt == null || g.createdAt.isEmpty()) {
+                    cv.put("created_at", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.FRANCE).format(new Date()));
+                }
+                db.insert("guests", null, cv);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     public List<String> getDistinctTables() {
         Cursor c = getReadableDatabase().rawQuery(
             "SELECT DISTINCT table_zone FROM guests WHERE table_zone IS NOT NULL AND table_zone != '' ORDER BY table_zone",

@@ -11,26 +11,21 @@
 html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
 .poster { width:1200px; height:1700px; position:relative; }
 .bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.couple-logo {
-  position:absolute; left:50px; top:180px; width:480px; height:620px;
-  object-fit:cover; object-position:center 15%; z-index:3;
-  -webkit-mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
-  mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
+.guest-block {
+  position:absolute; top:192px; left:618px; width:520px; z-index:5;
+}
+.guest-label {
+  font-family:'Playfair',Georgia,serif; font-size:17px; color:#333;
+}
+.guest-name {
+  font-family:'Playfair',Georgia,serif; font-size:24px; font-weight:700; color:#111;
+  border-bottom:2px dotted #bbb; padding-bottom:3px; margin-top:3px;
 }
 .table-badge {
-  position:absolute; top:120px; left:50px; width:480px; text-align:center; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:28px;
+  position:absolute; top:112px; left:55px; width:470px; text-align:center; z-index:5;
+  font-family:'Playfair',Georgia,serif; font-size:24px;
 }
-.table-badge strong { color:#002366; font-size:32px; }
-.guest-name {
-  position:absolute; top:200px; left:620px; width:520px; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:30px; font-weight:700; color:#111;
-}
-.date-line {
-  position:absolute; top:620px; left:620px; z-index:5;
-  background:#333; color:#fff; padding:14px 28px; border-radius:12px;
-  font-size:26px; font-weight:700;
-}
+.table-badge strong { color:#002366; font-size:28px; }
 .qr-zone {
   position:absolute; left:50px; bottom:80px; z-index:10;
   width:{{QR_SIZE}}px; text-align:center;
@@ -52,8 +47,10 @@ html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
 <div class="poster">
   <img class="bg-affiche" src="{{POSTER_BG}}" alt="Affiche"/>
   <div class="table-badge">Table <strong>{{TABLE}}</strong></div>
-  <div class="guest-name">{{GUEST_NAME}}</div>
-  <div class="date-line">📅 {{EVENT_DATE}}</div>
+  <div class="guest-block">
+    <div class="guest-label">Mme, Mlle, M., Couple :</div>
+    <div class="guest-name">{{GUEST_NAME}}</div>
+  </div>
   <div class="qr-zone">
     <div class="qr-box"><img src="{{QR_DATA}}" alt="QR Code invitation"/></div>
     <div class="qr-label">Scannez pour valider</div>

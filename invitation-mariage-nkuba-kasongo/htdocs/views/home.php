@@ -56,6 +56,17 @@
       </div>
     </div>
 
+    <div class="card card-menu" data-nav="guests">
+      <div class="card-menu-row">
+        <div class="icon-box purple">📋</div>
+        <div class="card-menu-text">
+          <h3>Liste des invités</h3>
+          <p>Nom, téléphone, table — sync app</p>
+        </div>
+        <span class="card-menu-arrow">›</span>
+      </div>
+    </div>
+
     <div class="card card-menu" data-nav="config">
       <div class="card-menu-row">
         <div class="icon-box blue">⚙</div>
@@ -186,8 +197,36 @@
         <div class="poster-scaler" id="previewPoster"></div>
       </div>
     </div>
-    <button type="button" class="btn-wa" id="btnSendWa">Envoyer WhatsApp</button>
+    <button type="button" class="btn-wa" id="btnSendWa">Envoyer WhatsApp (message + photo)</button>
+    <button type="button" class="btn-close" id="btnToGuestList">Voir la liste des invités</button>
     <button type="button" class="btn-close" data-nav="add">Autre invité</button>
+  </div>
+</section>
+
+<section id="screen-guests" class="screen">
+  <div class="screen-inner">
+    <button type="button" class="back-link" data-nav="home">← Retour</button>
+    <h2>Liste des invités</h2>
+    <p id="guestListStats" class="subtitle">Chargement…</p>
+
+    <div class="field-row" style="margin-top:12px">
+      <div class="field" style="flex:2">
+        <input type="search" id="guestSearch" placeholder="Rechercher nom, téléphone, table…"/>
+      </div>
+      <div class="field" style="flex:1">
+        <select id="guestSort">
+          <option value="name">Tri : Nom</option>
+          <option value="phone">Tri : Téléphone</option>
+          <option value="table">Tri : Table</option>
+          <option value="recent">Tri : Récent</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" id="guestListBody" style="padding:0;overflow:hidden"></div>
+
+    <a class="btn-outline" href="api/guests.php?action=export" style="display:block;text-align:center;margin-top:12px">Exporter CSV</a>
+    <button type="button" class="btn-gold" data-nav="add" style="width:100%;margin-top:12px">+ Ajouter un invité</button>
   </div>
 </section>
 

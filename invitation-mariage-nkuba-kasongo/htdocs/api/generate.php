@@ -93,19 +93,14 @@ $blue = imagecolorallocate($canvas, 0, 35, 102);
 $accent = $isBlanche ? $blue : $purple;
 
 if ($isBlanche) {
-    coverRect($canvas, 608, 175, 560, 70, $white);
-    drawText($canvas, 28, 620, 235, $guest, $black, true, $fontsDir);
-    coverRect($canvas, 48, 100, 490, 55, $white);
-    drawTextCentered($canvas, 26, 290, 145, "Table $table", $black, true, $fontsDir);
+    drawText($canvas, 24, 625, 228, $guest, $black, true, $fontsDir);
+    drawTextCentered($canvas, 24, 290, 148, "Table $table", $black, true, $fontsDir);
     $qrX = 45;
     $qrY = $H - 285;
 } else {
-    coverRect($canvas, 498, 255, 670, 75, $white);
-    drawText($canvas, 30, 510, 315, $guest, $black, true, $fontsDir);
-    coverRect($canvas, 38, 188, 430, 55, $white);
-    drawTextCentered($canvas, 26, 255, 230, "Table $table", $accent, true, $fontsDir);
-    coverRect($canvas, 870, 1530, 300, 40, $white);
-    drawText($canvas, 17, 890, 1555, "$seats place(s) • Table $table", $accent, true, $fontsDir);
+    drawText($canvas, 26, 520, 318, $guest, $black, true, $fontsDir);
+    drawTextCentered($canvas, 24, 255, 232, "Table $table", $accent, true, $fontsDir);
+    drawText($canvas, 16, 890, 1555, "$seats place(s) • Table $table", $accent, true, $fontsDir);
     $qrX = 45;
     $qrY = $H - 285;
 }

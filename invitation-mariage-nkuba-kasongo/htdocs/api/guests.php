@@ -9,15 +9,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $action = $_GET['action'] ?? 'list';
 $method = $_SERVER['REQUEST_METHOD'];
+$sort = $_GET['sort'] ?? 'name';
+
+function sortSql(string $sort): string {
+    return match ($sort) {
+        'phone' => 'ORDER BY whatsapp ASC, full_name ASC',
+        'table' => 'ORDER BY table_zone ASC, full_name ASC',
+        'recent' => 'ORDER BY id DESC',
+        default => 'ORDER BY full_name ASC',
+    };
+}
 
 try {
     $pdo = nkuba_pdo();
 
     switch ($action) {
         case 'list':
-            $rows = $pdo->query('SELECT * FROM guests ORDER BY id DESC')->fetchAll();
+            $sql = 'SELECT * FROM guests ' . sortSql($sort);
+            $rows = $pdo->query($sql)->fetchAll();
             $guests = array_map('nkuba_guest_row_to_array', $rows);
-            echo json_encode(['success' => true, 'guests' => $guests]);
+            echo json_encode(['success' => true, 'guests' => $guests, 'sort' => $sort]);
             break;
 
         case 'sync':
@@ -80,6 +91,40 @@ try {
                 $input['styleId'] ?? 'mariage-civil',
             ]);
             echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId()]);
+            break;
+
+        case 'mark_sent':
+            if ($method !== 'POST') {
+                http_response_code(405);
+                echo json_encode(['error' => 'POST required']);
+                break;
+            }
+            $input = json_decode(file_get_contents('php://input'), true) ?: [];
+            $id = (int)($input['id'] ?? 0);
+            if ($id <= 0) {
+                http_response_code(400);
+                echo json_encode(['error' => 'ID invalide']);
+                break;
+            }
+            $pdo->prepare('UPDATE guests SET sent = 1 WHERE id = ?')->execute([$id]);
+            echo json_encode(['success' => true]);
+            break;
+
+        case 'delete':
+            if ($method !== 'POST') {
+                http_response_code(405);
+                echo json_encode(['error' => 'POST required']);
+                break;
+            }
+            $input = json_decode(file_get_contents('php://input'), true) ?: [];
+            $id = (int)($input['id'] ?? 0);
+            if ($id <= 0) {
+                http_response_code(400);
+                echo json_encode(['error' => 'ID invalide']);
+                break;
+            }
+            $pdo->prepare('DELETE FROM guests WHERE id = ?')->execute([$id]);
+            echo json_encode(['success' => true]);
             break;
 
         case 'export':

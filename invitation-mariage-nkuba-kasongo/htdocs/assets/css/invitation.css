@@ -398,48 +398,42 @@
   z-index: 0;
 }
 
-.mariage-civil-poster .guest-line {
+.mariage-civil-poster .guest-block {
   position: absolute;
-  top: 268px;
-  left: 500px;
-  width: 660px;
+  top: 272px;
+  left: 518px;
+  width: 640px;
   z-index: 5;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 4px 8px;
-  border-radius: 4px;
 }
 
 .mariage-civil-poster .guest-label {
-  font-size: 20px;
+  font-size: 19px;
   color: #333;
-  white-space: nowrap;
+  margin-bottom: 2px;
 }
 
 .mariage-civil-poster .guest-name {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 700;
   color: #1a1a1a;
-  flex: 1;
-  min-width: 200px;
-  border-bottom: 3px dotted #999;
-  padding-bottom: 2px;
+  border-bottom: 2px dotted #888;
+  padding-bottom: 3px;
+  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.2;
+  background: transparent;
 }
 
 .mariage-civil-poster .table-badge {
   position: absolute;
-  top: 200px;
-  left: 40px;
-  width: 420px;
+  top: 218px;
+  left: 55px;
+  width: 400px;
   text-align: center;
   z-index: 5;
-  font-size: 26px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px;
-  border-radius: 6px;
+  font-size: 24px;
+  background: transparent;
+  padding: 0;
 }
 
 .mariage-civil-poster .table-badge span {
@@ -454,51 +448,47 @@
   bottom: 320px;
   right: 50px;
   z-index: 5;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: #6B2D82;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 12px;
-  border-radius: 6px;
+  background: transparent;
+  padding: 0;
 }
 
-.blanche-poster .guest-line {
+.blanche-poster .guest-block {
   position: absolute;
-  top: 188px;
-  left: 610px;
-  width: 540px;
+  top: 192px;
+  left: 618px;
+  width: 520px;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 6px 10px;
-  border-radius: 4px;
 }
 
 .blanche-poster .guest-label {
-  font-size: 18px;
+  font-size: 17px;
   color: #333;
-  display: block;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .blanche-poster .guest-name {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #111;
-  display: block;
   border-bottom: 2px dotted #bbb;
-  padding-bottom: 4px;
+  padding-bottom: 3px;
+  word-break: break-word;
+  background: transparent;
 }
 
 .blanche-poster .table-badge {
   position: absolute;
-  top: 108px;
-  left: 50px;
-  width: 480px;
+  top: 112px;
+  left: 55px;
+  width: 470px;
   text-align: center;
   z-index: 5;
-  font-size: 26px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px;
+  font-size: 24px;
+  background: transparent;
+  padding: 0;
 }
 
 .blanche-poster .table-badge strong {
