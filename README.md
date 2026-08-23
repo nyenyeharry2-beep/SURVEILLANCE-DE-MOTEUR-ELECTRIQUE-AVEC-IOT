@@ -1,82 +1,80 @@
 # Invitations Moïse & Sarah
 
-Application mobile Android pour générer et envoyer des invitations de mariage personnalisées à partir d'un **modèle d'affiche fixe**.
+Application **Android native Java** + **backend PHP** pour générer des invitations personnalisées avec le **design Adrian**.
 
-## Télécharger l'APK
+## Télécharger l'APK (Java natif — v2.0.0)
 
-**Lien direct :**
+**[Télécharger invitations-moise-sarah-v2.0.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v2.0.0.apk)** (~8 Mo)
 
-[📥 Télécharger invitations-moise-sarah-v1.0.0.apk](https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/raw/cursor/invitation-generator-apk-06a4/releases/invitations-moise-sarah-v1.0.0.apk)
+> Version 2.0.0 : application **100 % Java Android native** (Material Design XML) — le design Adrian s'affiche fidèlement à l'installation.
 
-**Fichier local dans ce dépôt :** [`releases/invitations-moise-sarah-v1.0.0.apk`](releases/invitations-moise-sarah-v1.0.0.apk)
+### Installation
 
-### Installation sur téléphone Android
+1. Téléchargez l'APK sur votre téléphone Android
+2. Autorisez **Sources inconnues** si demandé
+3. Installez — icône = affiche « Invitation » Sarah & Moïse
 
-1. Téléchargez le fichier `.apk` sur votre téléphone.
-2. Ouvrez le fichier et autorisez **« Sources inconnues »** si Android le demande.
-3. Installez **Invitations Moïse & Sarah** (icône = affiche d'invitation florale violette).
-
-## Fonctionnalités
-
-| Module | Description |
-|--------|-------------|
-| **Configuration** | Date, lieu, message WhatsApp, téléversement de l'affiche HD |
-| **Invités** | Nom, WhatsApp (`243XXXXXXXXX`), places, table/zone |
-| **Contacts** | Import depuis le carnet / enregistrement dans le téléphone |
-| **Génération** | Superposition du nom, placement et QR code unique sur le modèle |
-| **WhatsApp** | Envoi via `wa.me` avec message personnalisé `{NAME}`, `{DATE}`, `{VENUE}` |
-| **Dashboard** | Liste, recherche, filtres par table, export CSV |
+---
 
 ## Stack technique
 
-- **Expo SDK 57** + **React Native** + **expo-router**
-- Rendu : `react-native-view-shot` + `react-native-qrcode-svg`
-- Stockage local : `@react-native-async-storage/async-storage`
-- Contacts : `expo-contacts`
-- WhatsApp : lien `https://wa.me/243...`
+| Composant | Technologie |
+|-----------|-------------|
+| **App mobile** | Java + Android SDK + Material Design XML |
+| **Rendu invitations** | Canvas Android + ZXing (QR code) |
+| **Stockage local** | SQLite + SharedPreferences |
+| **Backend web** | PHP 8 (API REST + dashboard) |
+| **WhatsApp** | Intent Android + lien `wa.me` |
 
-## Lancer en développement
+---
+
+## Design Adrian implémenté
+
+| Écran | Style |
+|-------|-------|
+| **Configurer l'événement** | Dark mode `#0D0D0D`, champs outlined, bouton bleu `#4A7BFF` |
+| **Ajouter un invité** | Fond crème `#F5F0EB`, cartes blanches arrondies, or/champagne, icône ⚙️ |
+| **Styles** | Kipushi Floral (Sarah), Royal Bordeaux (Adriel `~ ~ NOM ~ ~`), Ivory Prestige, Ville de Kipushi |
+| **Aperçu final** | Cadre sombre, bouton vert WhatsApp, lien bleu « Fermer » |
+
+---
+
+## Structure du projet
+
+```
+android-native/     ← App Java Android (APK)
+php-backend/          ← API PHP + dashboard web
+releases/             ← APK prêt à installer
+invitation-app/       ← Ancienne version Expo (archivée)
+```
+
+---
+
+## Backend PHP
 
 ```bash
-cd invitation-app
-npm install --legacy-peer-deps
-npm run generate-assets
-npm start
+cd php-backend
+php -S localhost:8080
 ```
 
-Scannez le QR code avec **Expo Go** sur Android.
+Ouvrez `http://localhost:8080` — dashboard avec liste invités et export CSV.
 
-## Reconstruire l'APK
+API :
+- `GET api/guests.php?action=list` — liste invités
+- `POST api/guests.php?action=sync` — synchroniser depuis l'app
+- `GET api/guests.php?action=export` — export CSV
+
+---
+
+## Reconstruire l'APK Java
 
 ```bash
-cd invitation-app
-npm install --legacy-peer-deps
-python3 scripts/generate_assets.py
-npx expo prebuild --platform android
-cd android && ./gradlew assembleRelease
+cd android-native
+export ANDROID_HOME=$HOME/android-sdk
+./gradlew assembleRelease
 ```
 
-L'APK se trouve dans :
-`invitation-app/android/app/build/outputs/apk/release/app-release.apk`
-
-Un workflow GitHub Actions (`.github/workflows/build-apk.yml`) reconstruit automatiquement l'APK à chaque push.
-
-## Structure
-
-```
-invitation-app/
-├── app/              # Écrans (config, invités, aperçu, dashboard)
-├── components/       # InvitationCanvas, GuestListItem
-├── lib/              # Types, stockage, WhatsApp, export
-├── assets/           # Modèle d'invitation + icône de l'app
-└── scripts/          # Génération des assets visuels
-```
-
-## Personnalisation du modèle
-
-1. Allez dans **Configurer l'événement**.
-2. Appuyez sur l'affiche pour téléverser votre PNG/JPG HD.
-3. Les zones de superposition (nom, QR, placement) sont définies dans `lib/types.ts` → `DEFAULT_TEMPLATE_CONFIG`.
+APK : `android-native/app/build/outputs/apk/release/app-release-unsigned.apk`
 
 ---
 

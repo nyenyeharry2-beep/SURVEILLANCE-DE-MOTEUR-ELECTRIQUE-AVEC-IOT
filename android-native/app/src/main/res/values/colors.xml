@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="config_bg">#0D0D0D</color>
+    <color name="config_text">#FFFFFF</color>
+    <color name="config_muted">#AAAAAA</color>
+    <color name="config_blue">#4A7BFF</color>
+    <color name="config_border">#555555</color>
+
+    <color name="cream_bg">#F5F0EB</color>
+    <color name="card_white">#FFFFFF</color>
+    <color name="gold">#B8956B</color>
+    <color name="gold_dark">#9A7B4F</color>
+    <color name="gold_light">#D4B896</color>
+    <color name="text_dark">#1A1A1A</color>
+    <color name="text_muted">#777777</color>
+
+    <color name="green_whatsapp">#25D366</color>
+    <color name="purple">#6B2D82</color>
+    <color name="frame_dark">#2A2A2A</color>
+    <color name="link_blue">#4A7BFF</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
