@@ -1,22 +1,16 @@
-# Tableau de bord Firebase — Surveillance Moteur
+# NYENYE — Surveillance moteur (Firebase)
 
-Interface web temps réel (Firebase Realtime Database) pour **surveillancemotornyenye.xo.je**.
+Tableau de bord Firebase tout-en-un pour **surveillancemotornyenye.xo.je**.
 
-## Déploiement InfinityFree
+## Déploiement
 
-1. File Manager → `htdocs` → upload & unzip
-2. Configurer `firebase-config.js`
-3. Ouvrir `http://surveillancemotornyenye.xo.je/`
+Uploadez uniquement **`index.html`** dans `htdocs` sur InfinityFree.
 
-## Chemins Firebase
+## Firebase
 
-| Chemin | Rôle |
-|--------|------|
-| `moteur/live` | Mesures temps réel |
-| `moteur/config` | Seuils |
-| `moteur/command` | Relais / buzzer |
-| `moteur/historique/` | Journal |
+- Projet : `surveillance-moteur-f38e1`
+- `motor/live` — mesures temps réel
+- `motor/command` — commandes moteur
+- `motor/thresholds` — seuils
 
-## ESP32
-
-Utiliser `passerelle_firebase.ino` — publication directe vers Firebase (sans PHP/MySQL).
+Pas de MySQL. Pas de Lumen. Pas de PHP.

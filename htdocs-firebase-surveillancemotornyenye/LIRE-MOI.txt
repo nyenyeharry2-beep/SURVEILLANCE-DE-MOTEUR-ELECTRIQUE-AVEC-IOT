@@ -1,38 +1,27 @@
-SURVEILLANCE MOTEUR — Firebase (surveillancemotornyenye.xo.je)
-================================================================
+NYENYE — Surveillance moteur (Firebase)
+========================================
 
-PAS de MySQL. PAS de Lumen. Uniquement Firebase Realtime Database.
+DOMAINE : http://surveillancemotornyenye.xo.je/
 
-INSTALLATION INFINITYFREE (File Manager → htdocs)
--------------------------------------------------
-1. Supprimez les anciens fichiers PHP/Lumen (mesure.php, config.php, etc.)
-2. Uploadez et décompressez CE ZIP dans htdocs (racine)
-3. Ouvrez firebase-config.js → collez vos clés Firebase
-4. Ouvrez : http://surveillancemotornyenye.xo.je/
+INSTALLATION INFINITYFREE
+-------------------------
+1. File Manager → htdocs
+2. Supprimez TOUS les anciens fichiers (Lumen, PHP, main.js, app.js…)
+3. Uploadez index.html (ce fichier seul suffit)
+4. Ouvrez http://surveillancemotornyenye.xo.je/
 
-FICHIERS DANS htdocs
---------------------
-index.html
-app.js
-firebase-config.js
-style.css
-
-FIREBASE (console.firebase.google.com)
---------------------------------------
-1. Créer un projet Firebase
-2. Activer Realtime Database (mode test)
-3. Importer la structure initiale (moteur/live, moteur/config, moteur/command)
-4. App Web → copier la config dans firebase-config.js
+FIREBASE (déjà configuré dans index.html)
+-----------------------------------------
+Projet : surveillance-moteur-f38e1
+Chemins :
+  motor/live       ← données ESP32
+  motor/command    ← marche / arrêt / urgence
+  motor/thresholds ← seuils vibMax / rpmMax
 
 ESP32
 -----
-Sketch : passerelle_firebase.ino (PAS Lumen_ESP32, PAS mesure.php)
-FIREBASE_HOST = votre databaseURL Firebase
-Publie vers : /moteur/live
+Doit publier vers motor/live (pas moteur/live, pas mesure.php)
 
-VÉRIFICATION
-------------
-- Console Firebase → Données → moteur/live se met à jour
-- Badge du site : « Uno + ESP32 en ligne »
-
-Site : http://surveillancemotornyenye.xo.je/
+FICHIERS htdocs
+---------------
+index.html   ← tout-en-un (HTML + CSS + JS + Firebase)
