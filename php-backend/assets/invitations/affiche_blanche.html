@@ -1,34 +1,12 @@
-<div class="poster-blanche invitation-hidden" id="posterBlanche">
-  <svg class="flower fl-tl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/><circle cx="40" cy="75" r="15" fill="#E0115F"/></svg>
-  <svg class="flower fl-tr" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="40" r="18" fill="#FFB6C1"/></svg>
-  <svg class="flower fl-bl" viewBox="0 0 180 180"><circle cx="50" cy="50" r="20" fill="#FFB6C1"/><circle cx="75" cy="55" r="16" fill="#FF8C65"/></svg>
-  <svg class="flower fl-br" viewBox="0 0 180 180"><circle cx="50" cy="50" r="22" fill="#FF8C65"/><circle cx="80" cy="45" r="17" fill="#E0115F"/></svg>
-  <div class="divider"></div>
-  <div class="left">
-    <div class="bronze-v"></div>
-    <div class="table-top">Table <strong data-field="table">12</strong></div>
-    <div class="couple-wrap">
-      <img src="assets/couple_photo.png" alt="Couple"/>
-    </div>
-    <div class="qr-box"><img data-field="qr" src="" alt="QR"/></div>
+<div class="poster blanche-poster">
+  <img class="bg-affiche" data-bind="poster" src="" alt="Affiche"/>
+  <div class="guest-line">
+    <span class="guest-label">Mme, Mlle, M., Couple :</span>
+    <span class="guest-name" data-bind="guest">Nom de l'invité</span>
   </div>
-  <div class="right">
-    <div class="script-title">Invitation</div>
-    <div class="gold-rule"></div>
-    <div class="guest-line">Mme, Mlle, M., Couple : <span class="name" data-field="guest">Invité</span></div>
-    <p class="intro">Les familles NKUBA et BANZA ont le réel plaisir de vous inviter à prendre part au mariage de leur fils et fille</p>
-    <div class="name-m">MOISE NKUBA</div>
-    <div class="sep">— ✦ —</div>
-    <div class="name-s">SARAH KASONGO</div>
-    <div class="date-pill">📅 <span data-field="date">Samedi 12 Septembre 2026</span></div>
-    <div class="event">
-      <h3>À 14h : Bénédiction nuptiale</h3>
-      <p>Église 30ème CPCO, paroisse Étoile du Matin, Av. du 24 novembre coin Kasumbalesa, Kipushi.</p>
-    </div>
-    <div class="event">
-      <h3>À 19h : Soirée dansante</h3>
-      <p>Salle Elvine (Chez Trésor), Av. du 30 Juin, Q/Kamarenge, Ville de Kipushi.</p>
-    </div>
-    <div class="footer">NB : Cadeau non emballé<br/>Votre présence, est notre plus beau cadeau</div>
+  <div class="table-badge">Table <strong data-bind="table">—</strong></div>
+  <div class="qr-zone">
+    <div class="qr-box"><img data-bind="qr" src="" alt="QR"/></div>
+    <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>

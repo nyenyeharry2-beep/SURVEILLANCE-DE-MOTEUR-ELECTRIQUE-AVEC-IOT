@@ -1,58 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=1200, height=1700"/>
-<style>
-@font-face { font-family: 'Great Vibes'; src: url('../fonts/GreatVibes.ttf'); }
-@font-face { font-family: 'Playfair'; src: url('../fonts/PlayfairDisplay-Regular.ttf'); }
-@font-face { font-family: 'Playfair'; font-weight: 700; src: url('../fonts/PlayfairDisplay.ttf'); }
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
-.poster { width:1200px; height:1700px; position:relative; }
-.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.couple-logo {
-  position:absolute; left:50px; top:180px; width:480px; height:1100px;
-  object-fit:cover; object-position:center 15%; z-index:3;
-  -webkit-mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
-  mask-image:linear-gradient(to bottom,#000 85%,transparent 100%);
-}
-.table-badge {
-  position:absolute; top:120px; left:50px; width:480px; text-align:center; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:28px;
-}
-.table-badge strong { color:#002366; font-size:32px; }
-.guest-name {
-  position:absolute; top:200px; left:620px; width:520px; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:30px; font-weight:700; color:#111;
-}
-.qr-zone {
-  position:absolute; left:50px; bottom:80px; z-index:10;
-  width:200px; text-align:center;
-}
-.qr-box {
-  width:200px; height:200px;
-  background:#fff; padding:10px; border-radius:14px;
-  border:3px solid #002366;
-  box-shadow:0 6px 28px rgba(0,35,102,0.3);
-}
-.qr-box img { width:100%; height:100%; display:block; }
-.qr-label {
-  margin-top:8px; font-family:'Playfair',Georgia,serif;
-  font-size:16px; font-weight:700; color:#002366;
-}
-</style>
-</head>
-<body>
-<div class="poster">
-  <img class="bg-affiche" src="../template_affiche_blanche.png" alt="Affiche"/>
-  <img class="couple-logo" src="../couple_photo.png" alt="Couple"/>
-  <div class="table-badge">Table <strong data-field="table">12</strong></div>
-  <div class="guest-name" data-field="guest">Invité</div>
+<div class="poster blanche-poster">
+  <img class="bg-affiche" data-bind="poster" src="" alt="Affiche"/>
+  <div class="guest-line">
+    <span class="guest-label">Mme, Mlle, M., Couple :</span>
+    <span class="guest-name" data-bind="guest">Nom de l'invité</span>
+  </div>
+  <div class="table-badge">Table <strong data-bind="table">—</strong></div>
   <div class="qr-zone">
-    <div class="qr-box"><img data-field="qr" src="" alt="QR Code invitation"/></div>
+    <div class="qr-box"><img data-bind="qr" src="" alt="QR"/></div>
     <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
-</body>
-</html>

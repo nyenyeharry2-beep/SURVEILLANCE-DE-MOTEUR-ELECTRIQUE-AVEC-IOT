@@ -55,6 +55,33 @@ try {
             echo json_encode(['success' => true, 'count' => count($guests)]);
             break;
 
+        case 'add':
+            if ($method !== 'POST') {
+                http_response_code(405);
+                echo json_encode(['error' => 'POST required']);
+                break;
+            }
+            $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+            $name = trim($input['fullName'] ?? '');
+            if ($name === '') {
+                http_response_code(400);
+                echo json_encode(['error' => 'Nom requis']);
+                break;
+            }
+            $st = $pdo->prepare(
+                'INSERT INTO guests (full_name, whatsapp, table_zone, seats, style_id, sent)
+                 VALUES (?, ?, ?, ?, ?, 0)'
+            );
+            $st->execute([
+                $name,
+                preg_replace('/\D/', '', $input['whatsapp'] ?? ''),
+                trim($input['tableZone'] ?? ''),
+                max(1, (int)($input['seats'] ?? 1)),
+                $input['styleId'] ?? 'mariage-civil',
+            ]);
+            echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId()]);
+            break;
+
         case 'export':
             header('Content-Type: text/csv; charset=utf-8');
             header('Content-Disposition: attachment; filename="invites-nkuba-kasongo.csv"');

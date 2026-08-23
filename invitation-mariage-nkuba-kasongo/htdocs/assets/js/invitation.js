@@ -6,24 +6,40 @@
       date: 'Vendredi, le 11 Septembre 2026',
       time: '11h00',
       venue: 'Commune de Kipushi, Ville de KIPUSHI',
-      thumb: 'assets/template_mariage_civil.png'
+      template: 'assets/invitations/mariage_civil.html'
     },
     'affiche-blanche': {
       date: 'Samedi 12 Septembre 2026',
       time: '14h00',
       venue: 'Kipushi',
-      thumb: 'assets/template_affiche_blanche.png'
+      template: 'assets/invitations/affiche_blanche.html'
     }
   };
 
   const STORAGE_KEY = 'moise_sarah_config';
-  const ASSETS = {
-    couple: 'assets/couple_photo.png',
+  let branding = {
     poster_civil: 'assets/template_mariage_civil.png',
-    poster_blanche: 'assets/template_affiche_blanche.png'
+    poster_blanche: 'assets/template_affiche_blanche.png',
+    couple: 'assets/couple_photo.png'
   };
-
   let currentStyle = 'mariage-civil';
+  let templateCache = {};
+
+  function bust(url) {
+    return url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+  }
+
+  async function loadBranding() {
+    try {
+      const res = await fetch('api/branding.php');
+      const json = await res.json();
+      if (json.success) {
+        branding = json;
+      }
+    } catch (e) { /* defaults */ }
+    updateHeroPoster();
+    refreshLogos();
+  }
 
   function loadConfig() {
     try {
@@ -34,9 +50,10 @@
       if (cfg.time) document.getElementById('cfgTime').value = cfg.time;
       if (cfg.venue) document.getElementById('cfgVenue').value = cfg.venue;
       if (cfg.message) document.getElementById('cfgMessage').value = cfg.message;
-      if (cfg.embedName !== undefined) document.getElementById('cfgEmbedName').checked = cfg.embedName;
       if (cfg.style) currentStyle = cfg.style;
     } catch (e) { /* ignore */ }
+    const embed = document.getElementById('cfgEmbedName');
+    if (embed) embed.checked = true;
   }
 
   function saveConfig() {
@@ -45,7 +62,6 @@
       time: document.getElementById('cfgTime').value,
       venue: document.getElementById('cfgVenue').value,
       message: document.getElementById('cfgMessage').value,
-      embedName: document.getElementById('cfgEmbedName').checked,
       style: currentStyle
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
@@ -53,68 +69,88 @@
   }
 
   function getFormData() {
-    const embed = document.getElementById('cfgEmbedName')?.checked !== false;
-    const guest = document.getElementById('guestName')?.value || 'Invité';
+    const guest = (document.getElementById('guestName')?.value || '').trim();
     return {
-      guest: embed ? guest : ' ',
-      table: document.getElementById('tableNum')?.value || '—',
+      guest: guest || 'Invité',
+      table: document.getElementById('tableNum')?.value?.trim() || '—',
       seats: document.getElementById('seats')?.value || '1',
+      whatsapp: document.getElementById('whatsapp')?.value?.trim() || '',
       date: document.getElementById('cfgDate')?.value || PRESETS[currentStyle].date,
       time: document.getElementById('cfgTime')?.value || PRESETS[currentStyle].time,
       venue: document.getElementById('cfgVenue')?.value || PRESETS[currentStyle].venue
     };
   }
 
+  function qrUrl(data) {
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data);
+  }
+
+  function posterUrl() {
+    return bust(currentStyle === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil);
+  }
+
+  async function loadTemplate(style) {
+    if (templateCache[style]) return templateCache[style];
+    const path = PRESETS[style].template;
+    const html = await fetch(path).then(r => r.text());
+    templateCache[style] = html;
+    return html;
+  }
+
+  async function renderHtmlPreview(targetId) {
+    const d = getFormData();
+    const host = document.getElementById(targetId);
+    if (!host) return;
+
+    const html = await loadTemplate(currentStyle);
+    host.innerHTML = html;
+
+    const qrData = 'INVITE|nom:' + d.guest + '|table:' + d.table + '|date:' + d.date + '|places:' + d.seats;
+
+    host.querySelector('[data-bind="poster"]')?.setAttribute('src', posterUrl());
+    host.querySelector('[data-bind="guest"]').textContent = d.guest;
+    host.querySelector('[data-bind="table"]').textContent = d.table;
+    host.querySelector('[data-bind="table2"]').textContent = d.table;
+    host.querySelector('[data-bind="seats"]').textContent = d.seats;
+    const qrImg = host.querySelector('[data-bind="qr"]');
+    if (qrImg) qrImg.src = qrUrl(qrData);
+
+    const label = document.getElementById('previewGuestLabel');
+    if (label) label.textContent = d.guest;
+  }
+
   function generateUrl() {
     const d = getFormData();
     const params = new URLSearchParams({
       style: currentStyle,
-      guest: d.guest.trim(),
+      guest: d.guest,
       table: d.table,
       seats: d.seats,
-      date: d.date,
-      time: d.time,
-      venue: d.venue,
       _: Date.now()
     });
     return 'api/generate.php?' + params.toString();
   }
 
-  function updatePreviewImage() {
-    const img = document.getElementById('previewImage');
-    if (img) img.src = generateUrl();
-  }
-
-  function bust(url) {
-    return url + '?v=' + Date.now();
-  }
-
   function updateHeroPoster() {
-    const posterPath = currentStyle === 'affiche-blanche'
-      ? ASSETS.poster_blanche
-      : ASSETS.poster_civil;
-    const src = bust(posterPath);
+    const src = posterUrl();
     ['heroPoster', 'configPoster'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.src = src;
     });
-    document.querySelectorAll('.style-thumb img').forEach(img => {
-      const thumb = img.closest('.style-thumb');
-      if (!thumb) return;
-      img.src = bust(thumb.dataset.style === 'affiche-blanche'
-        ? ASSETS.poster_blanche
-        : ASSETS.poster_civil);
+    document.querySelectorAll('.style-thumb').forEach(thumb => {
+      const img = thumb.querySelector('img');
+      if (!img) return;
+      const url = thumb.dataset.style === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil;
+      img.src = bust(url);
     });
   }
 
   function refreshLogos() {
-    const logoSrc = bust(ASSETS.couple);
+    const logoSrc = bust(branding.couple);
     ['homeLogo', 'configLogo'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.src = logoSrc;
     });
-    const status = document.getElementById('photoStatus');
-    if (status) status.textContent = '✓ Affiche et logo mis à jour';
   }
 
   async function uploadPhoto(input, type) {
@@ -123,25 +159,41 @@
     const fd = new FormData();
     fd.append('type', type);
     fd.append('photo', file);
+    const status = document.getElementById('photoStatus');
+    if (status) status.textContent = 'Envoi en cours…';
     try {
       const res = await fetch('api/upload.php', { method: 'POST', body: fd });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || 'Upload échoué');
-      refreshLogos();
-      updateHeroPoster();
-      const status = document.getElementById('photoStatus');
+      await loadBranding();
       if (status) status.textContent = '✓ ' + json.message;
     } catch (e) {
-      alert('Erreur upload: ' + e.message + '\n\nSur GitHub Pages, hébergez sur un serveur PHP local.');
-      /* Fallback: aperçu local immédiat */
+      if (status) status.textContent = '✗ ' + e.message;
       const url = URL.createObjectURL(file);
-      if (type === 'couple') {
-        ['homeLogo', 'configLogo'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.src = url;
-        });
-      }
+      if (type === 'couple') branding.couple = url;
+      if (type === 'poster_civil') branding.poster_civil = url;
+      if (type === 'poster_blanche') branding.poster_blanche = url;
+      updateHeroPoster();
+      refreshLogos();
+      alert('Upload serveur échoué — aperçu local uniquement.\n' + e.message);
     }
+  }
+
+  async function saveGuest() {
+    const d = getFormData();
+    try {
+      await fetch('api/guests.php?action=add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: d.guest,
+          whatsapp: d.whatsapp,
+          tableZone: d.table,
+          seats: parseInt(d.seats, 10) || 1,
+          styleId: currentStyle
+        })
+      });
+    } catch (e) { /* offline ok */ }
   }
 
   function setStyle(style) {
@@ -156,13 +208,13 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id)?.classList.add('active');
     window.scrollTo(0, 0);
-    if (id === 'preview') updatePreviewImage();
+    if (id === 'preview') renderHtmlPreview('previewPoster');
   }
 
   function formatWhatsAppMessage() {
     let msg = document.getElementById('cfgMessage')?.value || '';
     const d = getFormData();
-    return msg.replace('{NAME}', d.guest.trim())
+    return msg.replace('{NAME}', d.guest)
       .replace('{DATE}', d.date).replace('{VENUE}', d.venue)
       .replace('{TABLE}', d.table).replace('{SEATS}', d.seats);
   }
@@ -173,6 +225,17 @@
     window.open(phone ? 'https://wa.me/' + phone + '?text=' + msg : 'https://wa.me/?text=' + msg, '_blank');
   }
 
+  async function onGenerate() {
+    const name = (document.getElementById('guestName')?.value || '').trim();
+    if (!name) {
+      alert('Saisissez le nom de l\'invité');
+      document.getElementById('guestName')?.focus();
+      return;
+    }
+    await saveGuest();
+    showScreen('preview');
+  }
+
   function bindEvents() {
     document.querySelectorAll('[data-nav]').forEach(el => {
       el.addEventListener('click', () => showScreen(el.dataset.nav));
@@ -180,10 +243,10 @@
     document.querySelectorAll('.style-thumb').forEach(btn => {
       btn.addEventListener('click', () => setStyle(btn.dataset.style));
     });
-    ['guestName', 'tableNum', 'seats', 'cfgDate', 'cfgTime', 'cfgVenue'].forEach(id => {
+    ['guestName', 'tableNum', 'seats'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', () => {
         if (document.getElementById('screen-preview')?.classList.contains('active')) {
-          updatePreviewImage();
+          renderHtmlPreview('previewPoster');
         }
       });
     });
@@ -191,18 +254,18 @@
       saveConfig();
       showScreen('home');
     });
-    document.getElementById('btnGenerate')?.addEventListener('click', () => showScreen('preview'));
+    document.getElementById('btnGenerate')?.addEventListener('click', onGenerate);
     document.getElementById('btnSendWa')?.addEventListener('click', sendWhatsApp);
     document.getElementById('uploadCouple')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
     document.getElementById('uploadPosterCivil')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_civil'));
     document.getElementById('uploadPosterBlanche')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_blanche'));
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     loadConfig();
     bindEvents();
+    await loadBranding();
     setStyle(currentStyle);
-    refreshLogos();
     document.querySelectorAll('.style-thumb').forEach(t => {
       t.classList.toggle('active', t.dataset.style === currentStyle);
     });

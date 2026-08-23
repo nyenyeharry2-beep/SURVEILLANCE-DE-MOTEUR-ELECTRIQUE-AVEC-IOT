@@ -142,8 +142,8 @@
     </div>
 
     <label class="checkbox-row">
-      <input type="checkbox" id="cfgEmbedName" checked/>
-      Incruster le nom de l'invité sur l'image
+      <input type="checkbox" id="cfgEmbedName" checked disabled/>
+      Le nom de l'invité est toujours inscrit sur l'invitation
     </label>
 
     <button type="button" class="btn-blue" id="btnSaveConfig">Enregistrer et Commencer</button>
@@ -170,8 +170,9 @@
       <h3 style="font-weight:700;margin-bottom:4px">Informations invité</h3>
 
       <div class="field">
-        <label for="guestName">Nom complet</label>
-        <input type="text" id="guestName" value="M. Jean-Pierre MUKENDI"/>
+        <label for="guestName">Nom complet de l'invité</label>
+        <input type="text" id="guestName" placeholder="Ex: M. Jean-Pierre MUKENDI" required/>
+        <p class="hint">Ce nom sera inscrit automatiquement sur l'invitation</p>
       </div>
       <div class="field">
         <label for="whatsapp">Numéro WhatsApp</label>
@@ -224,10 +225,12 @@
     <button type="button" class="back-link" data-nav="add" style="align-self:flex-start">← Retour</button>
 
     <h2 style="font-size:1.35rem;font-weight:700">Aperçu final</h2>
-    <p class="subtitle">Mariage de Moïse & Sarah</p>
+    <p class="subtitle">Invitation pour : <strong id="previewGuestLabel">—</strong></p>
 
     <div class="phone-frame">
-      <img id="previewImage" alt="Invitation avec QR code" style="max-width:280px;max-height:395px;width:100%;display:block;border-radius:4px;background:#fff"/>
+      <div class="poster-viewport" style="--inv-scale:0.22">
+        <div class="poster-scaler" id="previewPoster"></div>
+      </div>
     </div>
 
     <button type="button" class="btn-wa" id="btnSendWa">Envoyer l'invitation</button>

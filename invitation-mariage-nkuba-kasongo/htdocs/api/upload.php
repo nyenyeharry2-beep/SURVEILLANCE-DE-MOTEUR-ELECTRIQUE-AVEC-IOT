@@ -1,6 +1,6 @@
 <?php
 /**
- * Upload photos — met à jour affiche + logo automatiquement
+ * Upload affiche + logo — compatible InfinityFree (écriture dans assets/uploads/)
  */
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -16,73 +16,72 @@ $uploadDir = $base . '/assets/uploads';
 $assetsDir = $base . '/assets';
 
 if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
+    @mkdir($uploadDir, 0755, true);
 }
 
 $allowed = [
-    'couple' => ['upload' => 'couple_photo.jpg', 'targets' => ['couple_photo.png', 'app-icon.png']],
-    'poster_civil' => ['upload' => 'poster_civil.jpg', 'targets' => ['template_mariage_civil.png']],
-    'poster_blanche' => ['upload' => 'poster_blanche.jpg', 'targets' => ['template_affiche_blanche.png']],
+    'couple' => 'couple_photo.jpg',
+    'poster_civil' => 'poster_civil.jpg',
+    'poster_blanche' => 'poster_blanche.jpg',
 ];
 
 $type = $_POST['type'] ?? '';
 if (!isset($allowed[$type])) {
-    respond(400, ['error' => 'Type invalide. Utilisez: couple, poster_civil, poster_blanche']);
+    respond(400, ['error' => 'Type invalide']);
 }
 
 if (!isset($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
-    respond(400, ['error' => 'Fichier photo manquant ou erreur upload']);
+    $code = $_FILES['photo']['error'] ?? -1;
+    respond(400, ['error' => 'Erreur upload fichier (code ' . $code . ')']);
 }
 
 $tmp = $_FILES['photo']['tmp_name'];
 $info = @getimagesize($tmp);
 if ($info === false) {
-    respond(400, ['error' => 'Le fichier doit être une image JPG ou PNG']);
+    respond(400, ['error' => 'Image JPG ou PNG requise']);
 }
 
 $img = loadImage($tmp, $info[2]);
 if (!$img) {
-    respond(400, ['error' => 'Format image non supporté']);
+    respond(400, ['error' => 'Format non supporté']);
 }
 
-$cfg = $allowed[$type];
-$uploadPath = $uploadDir . '/' . $cfg['upload'];
-saveJpeg($img, $uploadPath, 92);
+$filename = $allowed[$type];
+$uploadPath = $uploadDir . '/' . $filename;
 
-foreach ($cfg['targets'] as $target) {
-    savePng($img, $assetsDir . '/' . $target);
-}
-
-if ($type === 'couple') {
-    createAppIcon($img, $assetsDir . '/app-icon.png');
+if (!saveJpeg($img, $uploadPath, 90)) {
+    imagedestroy($img);
+    respond(500, ['error' => 'Impossible d\'écrire dans assets/uploads/ — vérifiez permissions 755']);
 }
 
 $logoUpdated = false;
 if ($type === 'poster_civil' || $type === 'poster_blanche') {
-    $logoUpdated = extractCoupleLogo($img, $assetsDir, $type === 'poster_blanche');
+    $logoUpdated = extractCoupleLogo($img, $uploadDir, $type === 'poster_blanche');
+    @copy($uploadPath, $uploadDir . '/couple_logo.jpg');
 }
+
+/* Copie optionnelle vers assets/ (peut échouer sur hébergement gratuit) */
+tryCopyAssets($img, $type, $assetsDir);
 
 imagedestroy($img);
 
-$msg = match ($type) {
-    'couple' => 'Photo couple enregistrée — logo et icône mis à jour',
-    'poster_civil' => 'Affiche mariage civil enregistrée — affiche + logo couple mis à jour',
-    'poster_blanche' => 'Affiche bénédiction enregistrée — affiche + logo couple mis à jour',
-};
-
+$webPath = 'assets/uploads/' . $filename;
 respond(200, [
     'success' => true,
     'type' => $type,
-    'path' => 'assets/uploads/' . $cfg['upload'],
+    'path' => $webPath,
     'logoUpdated' => $logoUpdated,
-    'message' => $msg,
+    'couple' => file_exists($uploadDir . '/couple_logo.jpg') ? 'assets/uploads/couple_logo.jpg' : $webPath,
+    'message' => match ($type) {
+        'couple' => 'Logo couple enregistré',
+        'poster_civil' => 'Affiche civil enregistrée — logo extrait automatiquement',
+        'poster_blanche' => 'Affiche bénédiction enregistrée — logo extrait',
+    },
 ]);
-
-// ── Helpers ──────────────────────────────────────────────────────────
 
 function respond(int $code, array $data): void {
     http_response_code($code);
-    header('Content-Type: application/json');
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode($data);
     exit;
 }
@@ -96,60 +95,34 @@ function loadImage(string $path, int $type): ?GdImage {
     };
 }
 
-function saveJpeg(GdImage $img, string $path, int $quality): void {
-    imagejpeg($img, $path, $quality);
+function saveJpeg(GdImage $img, string $path, int $quality): bool {
+    return @imagejpeg($img, $path, $quality);
 }
 
-function savePng(GdImage $img, string $path): void {
-    $w = imagesx($img);
-    $h = imagesy($img);
-    $out = imagecreatetruecolor($w, $h);
-    imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255));
-    imagecopy($out, $img, 0, 0, 0, 0, $w, $h);
-    imagepng($out, $path, 6);
-    imagedestroy($out);
+function tryCopyAssets(GdImage $img, string $type, string $assetsDir): void {
+    $map = [
+        'couple' => ['couple_photo.png', 'app-icon.png'],
+        'poster_civil' => ['template_mariage_civil.png'],
+        'poster_blanche' => ['template_affiche_blanche.png'],
+    ];
+    foreach ($map[$type] ?? [] as $name) {
+        @imagejpeg($img, $assetsDir . '/' . str_replace('.png', '.jpg', $name), 90);
+    }
 }
 
-/** Extrait la photo couple (colonne gauche) pour le logo */
-function extractCoupleLogo(GdImage $poster, string $assetsDir, bool $blanche): bool {
+function extractCoupleLogo(GdImage $poster, string $dir, bool $blanche): bool {
     $pw = imagesx($poster);
     $ph = imagesy($poster);
-
     $sx = $blanche ? (int)($pw * 0.04) : 0;
-    $sy = $blanche ? (int)($ph * 0.10) : (int)($ph * 0.07);
+    $sy = $blanche ? (int)($ph * 0.10) : (int)($ph * 0.05);
     $sw = (int)($pw * 0.42);
-    $sh = $blanche ? (int)($ph * 0.62) : (int)($ph * 0.88);
-
+    $sh = $blanche ? (int)($ph * 0.65) : (int)($ph * 0.90);
     if ($sw < 50 || $sh < 50) return false;
 
     $crop = imagecreatetruecolor($sw, $sh);
     imagecopy($crop, $poster, 0, 0, $sx, $sy, $sw, $sh);
-
-    savePng($crop, $assetsDir . '/couple_photo.png');
-
-    $iconSize = 512;
-    $icon = imagecreatetruecolor($iconSize, $iconSize);
-    $bg = imagecolorallocate($icon, 253, 250, 245);
-    imagefill($icon, 0, 0, $bg);
-    imagecopyresampled($icon, $crop, 0, 0, 0, 0, $iconSize, $iconSize, $sw, $sh);
-    savePng($icon, $assetsDir . '/app-icon.png');
-    imagedestroy($icon);
+    saveJpeg($crop, $dir . '/couple_logo.jpg', 90);
+    saveJpeg($crop, $dir . '/couple_photo.jpg', 90);
     imagedestroy($crop);
     return true;
-}
-
-function createAppIcon(GdImage $src, string $path): void {
-    $sw = imagesx($src);
-    $sh = imagesy($src);
-    $size = min($sw, $sh);
-    $sx = (int)(($sw - $size) / 2);
-    $sy = (int)(($sh - $size) * 0.15);
-    $size = (int)($size * 0.85);
-
-    $icon = imagecreatetruecolor(512, 512);
-    $bg = imagecolorallocate($icon, 253, 250, 245);
-    imagefill($icon, 0, 0, $bg);
-    imagecopyresampled($icon, $src, 0, 0, $sx, $sy, 512, 512, $size, $size);
-    savePng($icon, $path);
-    imagedestroy($icon);
 }

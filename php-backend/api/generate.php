@@ -1,13 +1,13 @@
 <?php
 /**
- * Génération invitation PNG — affiche officielle + nom invité + table + QR
- * L'affiche contient déjà la photo couple ; on n'ajoute que les champs dynamiques.
+ * Génération invitation PNG — affiche + nom invité + table + QR
  */
 header('Access-Control-Allow-Origin: *');
 
 $base = dirname(__DIR__);
 $uploadDir = $base . '/assets/uploads';
 $assetsDir = $base . '/assets';
+$fontsDir = $assetsDir . '/fonts';
 
 function loadImage(string $path): ?GdImage {
     if (!file_exists($path)) return null;
@@ -20,25 +20,27 @@ function loadImage(string $path): ?GdImage {
     };
 }
 
-function pickFile(string $upload, string $fallback): string {
+function pickPoster(string $upload, string $fallback): string {
     return file_exists($upload) ? $upload : $fallback;
 }
 
 function fetchQrImage(string $data, int $size): ?GdImage {
     $url = 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&data=' . rawurlencode($data);
-    $ctx = stream_context_create(['http' => ['timeout' => 10]]);
+    $ctx = stream_context_create(['http' => ['timeout' => 8], 'ssl' => ['verify_peer' => false]]);
     $raw = @file_get_contents($url, false, $ctx);
     if ($raw === false) return null;
     return @imagecreatefromstring($raw) ?: null;
 }
 
-function fontPath(bool $bold = false): ?string {
-    $path = '/usr/share/fonts/truetype/dejavu/DejaVuSerif' . ($bold ? '-Bold' : '') . '.ttf';
-    return file_exists($path) ? $path : null;
+function fontPath(bool $bold, string $fontsDir): ?string {
+    $local = $fontsDir . ($bold ? '/PlayfairDisplay.ttf' : '/PlayfairDisplay-Regular.ttf');
+    if (file_exists($local)) return $local;
+    $sys = '/usr/share/fonts/truetype/dejavu/DejaVuSerif' . ($bold ? '-Bold' : '') . '.ttf';
+    return file_exists($sys) ? $sys : null;
 }
 
-function drawText(GdImage $img, int $size, int $x, int $y, string $text, int $color, bool $bold = false): void {
-    $font = fontPath($bold);
+function drawText(GdImage $img, int $size, int $x, int $y, string $text, int $color, bool $bold, string $fontsDir): void {
+    $font = fontPath($bold, $fontsDir);
     if ($font) {
         imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
         return;
@@ -46,8 +48,8 @@ function drawText(GdImage $img, int $size, int $x, int $y, string $text, int $co
     imagestring($img, $bold ? 5 : 4, $x, $y - 14, $text, $color);
 }
 
-function drawTextCentered(GdImage $img, int $size, int $cx, int $y, string $text, int $color, bool $bold = false): void {
-    $font = fontPath($bold);
+function drawTextCentered(GdImage $img, int $size, int $cx, int $y, string $text, int $color, bool $bold, string $fontsDir): void {
+    $font = fontPath($bold, $fontsDir);
     if ($font) {
         $box = imagettfbbox($size, 0, $font, $text);
         $w = abs($box[2] - $box[0]);
@@ -72,8 +74,8 @@ $H = 1700;
 $isBlanche = ($style === 'affiche-blanche');
 
 $posterFile = $isBlanche
-    ? pickFile("$uploadDir/poster_blanche.jpg", "$assetsDir/template_affiche_blanche.png")
-    : pickFile("$uploadDir/poster_civil.jpg", "$assetsDir/template_mariage_civil.png");
+    ? pickPoster("$uploadDir/poster_blanche.jpg", "$assetsDir/template_affiche_blanche.png")
+    : pickPoster("$uploadDir/poster_civil.jpg", "$assetsDir/template_mariage_civil.png");
 
 $poster = loadImage($posterFile);
 $canvas = imagecreatetruecolor($W, $H);
@@ -91,34 +93,34 @@ $blue = imagecolorallocate($canvas, 0, 35, 102);
 $accent = $isBlanche ? $blue : $purple;
 
 if ($isBlanche) {
-    coverRect($canvas, 620, 195, 520, 55, $white);
-    drawText($canvas, 30, 620, 240, $guest, $black, true);
-    coverRect($canvas, 50, 115, 480, 50, $white);
-    drawTextCentered($canvas, 28, 290, 155, "Table $table", $black, true);
-    $qrX = 50;
-    $qrY = $H - 290;
+    coverRect($canvas, 608, 175, 560, 70, $white);
+    drawText($canvas, 28, 620, 235, $guest, $black, true, $fontsDir);
+    coverRect($canvas, 48, 100, 490, 55, $white);
+    drawTextCentered($canvas, 26, 290, 145, "Table $table", $black, true, $fontsDir);
+    $qrX = 45;
+    $qrY = $H - 285;
 } else {
-    coverRect($canvas, 490, 285, 660, 55, $white);
-    drawText($canvas, 34, 490, 330, $guest, $black, true);
-    coverRect($canvas, 60, 205, 400, 45, $white);
-    drawTextCentered($canvas, 28, 260, 240, "Table $table", $accent, true);
-    coverRect($canvas, 880, 1540, 280, 35, $white);
-    drawText($canvas, 18, 900, 1565, "$seats place(s) • Table $table", $accent, true);
-    $qrX = 50;
-    $qrY = $H - 290;
+    coverRect($canvas, 498, 255, 670, 75, $white);
+    drawText($canvas, 30, 510, 315, $guest, $black, true, $fontsDir);
+    coverRect($canvas, 38, 188, 430, 55, $white);
+    drawTextCentered($canvas, 26, 255, 230, "Table $table", $accent, true, $fontsDir);
+    coverRect($canvas, 870, 1530, 300, 40, $white);
+    drawText($canvas, 17, 890, 1555, "$seats place(s) • Table $table", $accent, true, $fontsDir);
+    $qrX = 45;
+    $qrY = $H - 285;
 }
 
 $qrData = "INVITE|nom:$guest|table:$table|places:$seats";
 $qrSize = 200;
 $qr = fetchQrImage($qrData, $qrSize);
 if ($qr) {
-    $pad = 12;
-    coverRect($canvas, $qrX - 4, $qrY - 4, $qrSize + $pad * 2 + 8, $qrSize + $pad * 2 + 36, $white);
+    $pad = 10;
+    coverRect($canvas, $qrX - 6, $qrY - 6, $qrSize + $pad * 2 + 12, $qrSize + $pad * 2 + 34, $white);
     imagefilledrectangle($canvas, $qrX - $pad, $qrY - $pad, $qrX + $qrSize + $pad, $qrY + $qrSize + $pad, $white);
     imagerectangle($canvas, $qrX - $pad, $qrY - $pad, $qrX + $qrSize + $pad, $qrY + $qrSize + $pad, $accent);
     imagecopyresampled($canvas, $qr, $qrX, $qrY, 0, 0, $qrSize, $qrSize, imagesx($qr), imagesy($qr));
     imagedestroy($qr);
-    drawTextCentered($canvas, 14, $qrX + (int)($qrSize / 2), $qrY + $qrSize + 26, 'Scannez pour valider', $accent, true);
+    drawTextCentered($canvas, 13, $qrX + (int)($qrSize / 2), $qrY + $qrSize + 24, 'Scannez pour valider', $accent, true, $fontsDir);
 }
 
 header('Content-Type: image/png');
