@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Kyrios My Boutique</string>
     <string name="webview_url">https://kyriosboutique.page.gd</string>
+    <string name="offline_url">file:///android_asset/www/index.html</string>
 </resources>
