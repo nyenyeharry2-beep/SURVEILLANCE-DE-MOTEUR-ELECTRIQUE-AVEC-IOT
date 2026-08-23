@@ -17,10 +17,10 @@
   };
 
   const STORAGE_KEY = 'moise_sarah_config';
-  const UPLOAD_CACHE = {
-    couple: 'assets/uploads/couple_photo.jpg',
-    poster_civil: 'assets/uploads/poster_civil.jpg',
-    poster_blanche: 'assets/uploads/poster_blanche.jpg'
+  const ASSETS = {
+    couple: 'assets/couple_photo.png',
+    poster_civil: 'assets/template_mariage_civil.png',
+    poster_blanche: 'assets/template_affiche_blanche.png'
   };
 
   let currentStyle = 'mariage-civil';
@@ -85,30 +85,36 @@
     if (img) img.src = generateUrl();
   }
 
+  function bust(url) {
+    return url + '?v=' + Date.now();
+  }
+
   function updateHeroPoster() {
-    const thumb = PRESETS[currentStyle]?.thumb;
-    const hero = document.getElementById('heroPoster');
-    const configPoster = document.getElementById('configPoster');
-    const posterUpload = currentStyle === 'affiche-blanche'
-      ? UPLOAD_CACHE.poster_blanche
-      : UPLOAD_CACHE.poster_civil;
-    const src = posterUpload + '?t=' + Date.now();
-    if (hero) hero.src = src;
-    if (configPoster) configPoster.src = src;
-    if (!hero?.complete) hero.onerror = () => { hero.src = thumb; };
+    const posterPath = currentStyle === 'affiche-blanche'
+      ? ASSETS.poster_blanche
+      : ASSETS.poster_civil;
+    const src = bust(posterPath);
+    ['heroPoster', 'configPoster'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.src = src;
+    });
+    document.querySelectorAll('.style-thumb img').forEach(img => {
+      const thumb = img.closest('.style-thumb');
+      if (!thumb) return;
+      img.src = bust(thumb.dataset.style === 'affiche-blanche'
+        ? ASSETS.poster_blanche
+        : ASSETS.poster_civil);
+    });
   }
 
   function refreshLogos() {
-    const logoSrc = UPLOAD_CACHE.couple + '?t=' + Date.now();
+    const logoSrc = bust(ASSETS.couple);
     ['homeLogo', 'configLogo'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) {
-        el.src = logoSrc;
-        el.onerror = () => { el.src = 'assets/couple_photo.png'; };
-      }
+      if (el) el.src = logoSrc;
     });
     const status = document.getElementById('photoStatus');
-    if (status) status.textContent = '✓ Photos chargées — logo et affiches actifs';
+    if (status) status.textContent = '✓ Affiche et logo mis à jour';
   }
 
   async function uploadPhoto(input, type) {
