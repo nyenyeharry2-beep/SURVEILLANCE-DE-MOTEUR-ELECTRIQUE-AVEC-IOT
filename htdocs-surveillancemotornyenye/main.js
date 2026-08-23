@@ -59,7 +59,7 @@ let demoTimer = null;
 let charts = { vibration: null, rpm: null };
 let toastTimer = null;
 
-const theme = localStorage.getItem("lumen-theme") || "light";
+const theme = localStorage.getItem("sm-theme") || "light";
 document.documentElement.dataset.theme = theme;
 
 window.addEventListener("error", (event) => {
@@ -207,7 +207,7 @@ function renderAuth() {
   appEl.innerHTML = `
     <section class="auth-shell">
       <aside class="brand-panel">
-        <div class="mark"><span class="mark-dot"></span> Lumen</div>
+        <div class="mark"><span class="mark-dot"></span> Surveillance Moteur</div>
         <div>
           <h1>Surveillance du moteur en temps réel.</h1>
           <p>Vibrations ADXL345, vitesse IR, état du moteur et diagnostic.</p>
@@ -322,8 +322,8 @@ function mountDashboard() {
   appEl.innerHTML = `
     <div class="shell" id="dashboard-root">
       <aside class="sidebar">
-        <div class="mark"><span class="mark-dot"></span> Lumen</div>
-        <p class="sidebar-sub">Surveillance du moteur</p>
+        <div class="mark"><span class="mark-dot"></span> Surveillance Moteur</div>
+        <p class="sidebar-sub">IoT · Temps réel</p>
         <nav>
           <button class="nav-btn" data-nav="overview">Vue d'ensemble</button>
           <button class="nav-btn" data-nav="surveillance">Surveillance</button>
@@ -341,7 +341,7 @@ function mountDashboard() {
       <main class="main">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Lumen</p>
+            <p class="eyebrow">Tableau de bord</p>
             <h1>Surveillance du moteur</h1>
           </div>
           <div class="topbar-status">
@@ -502,7 +502,7 @@ function bindDashboard() {
   document.getElementById("theme-btn")?.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    localStorage.setItem("lumen-theme", next);
+    localStorage.setItem("sm-theme", next);
     updateDashboard();
   });
 

@@ -15,7 +15,7 @@ try {
   $pdo = db();
   ensure_schema($pdo);
   echo '<!DOCTYPE html><html lang="fr"><body style="font-family:sans-serif;padding:40px">';
-  echo '<h1>Lumen — installation OK</h1>';
+  echo '<h1>Surveillance Moteur — installation OK</h1>';
   echo '<p>Les tables MySQL sont prêtes. Le compte tableau de bord a été créé.</p>';
   echo '<p>E-mail : <code>' . htmlspecialchars(APP_EMAIL, ENT_QUOTES, 'UTF-8') . '</code></p>';
   echo '<p>Mot de passe : <code>' . htmlspecialchars(APP_PASSWORD, ENT_QUOTES, 'UTF-8') . '</code></p>';

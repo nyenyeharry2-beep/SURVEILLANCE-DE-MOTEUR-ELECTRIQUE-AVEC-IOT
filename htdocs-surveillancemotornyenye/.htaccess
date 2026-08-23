@@ -1,4 +1,4 @@
-# Lumen — InfinityFree (Apache derrière nginx)
+# Surveillance Moteur — InfinityFree (Apache derrière nginx)
 Options -Indexes
 
 <IfModule mod_mime.c>
