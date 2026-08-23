@@ -109,6 +109,8 @@ public class AddGuestActivity extends AppCompatActivity implements StyleAdapter.
         long id = db.insertGuest(guest);
         prefs.setDefaultStyle(selectedStyleId);
 
+        CloudSync.pushGuestsAsync(this);
+
         Intent intent = new Intent(this, PreviewActivity.class);
         intent.putExtra("guest_id", id);
         startActivity(intent);

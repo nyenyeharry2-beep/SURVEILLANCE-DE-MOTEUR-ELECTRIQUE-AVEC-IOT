@@ -22,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new android.content.Intent(this, AddGuestActivity.class)));
         findViewById(R.id.btnDashboard).setOnClickListener(v ->
             startActivity(new android.content.Intent(this, DashboardActivity.class)));
+
+        findViewById(R.id.btnDownloadApk).setOnClickListener(v -> {
+            android.content.Intent i = new android.content.Intent(
+                android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse(AppConstants.APK_PAGE));
+            startActivity(i);
+        });
     }
 
     @Override

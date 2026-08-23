@@ -86,6 +86,7 @@ public class PreviewActivity extends AppCompatActivity {
 
             guest.sent = true;
             db.updateGuest(guest);
+            CloudSync.pushGuestsAsync(this);
         } catch (Exception e) {
             Toast.makeText(this, "Erreur partage", Toast.LENGTH_SHORT).show();
         }

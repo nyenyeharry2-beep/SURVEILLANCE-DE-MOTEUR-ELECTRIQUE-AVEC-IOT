@@ -67,6 +67,7 @@ public class ConfigActivity extends AppCompatActivity {
             prefs.setVenue(inputVenue.getText() != null ? inputVenue.getText().toString() : "");
             prefs.setMessage(inputMessage.getText() != null ? inputMessage.getText().toString() : "");
             prefs.setEmbedName(checkEmbed.isChecked());
+            CloudSync.pushGuestsAsync(this);
             startActivity(new android.content.Intent(this, AddGuestActivity.class));
             finish();
         });
