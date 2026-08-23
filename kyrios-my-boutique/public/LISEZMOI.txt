@@ -1,0 +1,63 @@
+╔══════════════════════════════════════════════════════════════╗
+║         KYRIOS MY BOUTIQUE - GUIDE INSTALLATION              ║
+║                    InfinityFree                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+ÉTAPE 1 — BASE DE DONNÉES
+─────────────────────────
+1. Panneau InfinityFree → MySQL Databases
+2. Cliquez phpMyAdmin sur: if0_42727746_kyriosboutique
+3. Onglet "Importer" → choisissez kyriosboutique-database.sql
+4. Cliquez "Exécuter"
+
+ÉTAPE 2 — FICHIERS WEB (IMPORTANT!)
+────────────────────────────────────
+1. Panneau InfinityFree → File Manager
+2. Ouvrez le dossier "htdocs"
+3. SUPPRIMEZ tout ce qu'il y a dedans (anciens fichiers)
+4. Uploadez "kyriosboutique-htdocs.zip"
+5. Clic DROIT sur le zip → "Extract" (Extraire)
+6. SUPPRIMEZ le fichier .zip après extraction
+
+ÉTAPE 3 — VÉRIFIER
+──────────────────
+Ouvrez dans le navigateur (dans cet ordre):
+
+  ① https://kyriosboutique.page.gd/test.php
+     → Doit afficher "OK - PHP fonctionne"
+
+  ② https://kyriosboutique.page.gd/check.php
+     → Doit afficher tableau tout en vert
+
+  ③ https://kyriosboutique.page.gd/login.php
+     → Page de connexion violette
+
+ÉTAPE 4 — CONNEXION TEST
+────────────────────────
+Email:    demo.client@kyrios.local
+Password: password
+
+⚠️  ERREUR 404 ?
+────────────────
+→ Les fichiers ne sont PAS dans htdocs
+→ Vérifiez que index.php est DIRECTEMENT dans htdocs
+   (pas dans un sous-dossier htdocs/public/ ou htdocs/htdocs/)
+
+Structure CORRECTE dans htdocs:
+  htdocs/
+    index.php      ← ici
+    login.php      ← ici
+    .env           ← ici
+    config/
+    src/
+    assets/
+
+Structure INCORRECTE:
+  htdocs/
+    kyriosboutique-htdocs/   ← MAUVAIS! déplacez les fichiers
+
+ÉTAPE 5 — PHP VERSION
+─────────────────────
+Panneau InfinityFree → PHP Configuration → PHP 8.0 ou 8.1
+
+══════════════════════════════════════════════════════════════
