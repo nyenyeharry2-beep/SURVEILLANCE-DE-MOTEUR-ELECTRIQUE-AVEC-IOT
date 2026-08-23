@@ -234,7 +234,11 @@ function orderProd(id){
   const p=(DB.get('products')||[]).find(x=>x.id===id);
   alert('✅ Commande passée: '+p.title+' — '+p.price+' €');
 }
-function retryServer(){location.href=SERVER+'/login.php'}
+function retryServer(){
+  if(confirm('Tenter de se connecter au serveur en ligne ?\n\n(Le site doit être déployé sur InfinityFree)')){
+    location.href=SERVER+'/login.php';
+  }
+}
 function handleBack(){
   if(chatUser){chatUser=null;page='msgs';render();return true}
   if(page!=='home'&&DB.get('session')){page='home';render();return true}

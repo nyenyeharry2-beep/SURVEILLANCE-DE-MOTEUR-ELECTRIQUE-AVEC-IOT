@@ -1,12 +1,12 @@
 package com.kyrios.myboutique
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
@@ -19,7 +19,7 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
-    private var loadedOffline = false
+    private var isOfflineMode = true
     private val serverUrl by lazy { getString(R.string.webview_url) }
     private val offlineUrl by lazy { getString(R.string.offline_url) }
 
@@ -48,8 +48,14 @@ class MainActivity : AppCompatActivity() {
             settings.allowContentAccess = true
 
             webViewClient = object : WebViewClient() {
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
+                override fun onReceivedHttpError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    errorResponse: WebResourceResponse?
+                ) {
+                    if (request?.isForMainFrame == true && !isOfflineMode) {
+                        switchToOffline()
+                    }
                 }
 
                 override fun onReceivedError(
@@ -57,9 +63,8 @@ class MainActivity : AppCompatActivity() {
                     request: WebResourceRequest?,
                     error: WebResourceError?
                 ) {
-                    if (request?.isForMainFrame == true && !loadedOffline) {
-                        loadedOffline = true
-                        view?.loadUrl(offlineUrl)
+                    if (request?.isForMainFrame == true && !isOfflineMode) {
+                        switchToOffline()
                     }
                 }
 
@@ -70,9 +75,8 @@ class MainActivity : AppCompatActivity() {
                     description: String?,
                     failingUrl: String?
                 ) {
-                    if (!loadedOffline && failingUrl == serverUrl) {
-                        loadedOffline = true
-                        view?.loadUrl(offlineUrl)
+                    if (!isOfflineMode) {
+                        switchToOffline()
                     }
                 }
 
@@ -82,6 +86,9 @@ class MainActivity : AppCompatActivity() {
                 ): Boolean {
                     val url = request?.url?.toString() ?: return false
                     if (url.startsWith("https://") || url.startsWith("file://")) {
+                        if (url.startsWith("https://") && url.contains("kyriosboutique")) {
+                            isOfflineMode = false
+                        }
                         return false
                     }
                     return true
@@ -95,7 +102,10 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState)
         } else {
-            checkServerAndLoad()
+            // Toujours démarrer en mode local (évite "Page web non disponible")
+            loadOffline()
+            // Vérifier le serveur en arrière-plan
+            checkServerInBackground()
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -121,16 +131,24 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun checkServerAndLoad() {
+    private fun loadOffline() {
+        isOfflineMode = true
+        webView.loadUrl(offlineUrl)
+    }
+
+    private fun switchToOffline() {
+        if (!isOfflineMode) {
+            isOfflineMode = true
+            webView.loadUrl(offlineUrl)
+        }
+    }
+
+    private fun checkServerInBackground() {
         thread {
-            val isOnline = isServerReachable(serverUrl)
-            runOnUiThread {
-                if (isOnline) {
-                    loadedOffline = false
+            if (isServerReachable(serverUrl)) {
+                runOnUiThread {
+                    isOfflineMode = false
                     webView.loadUrl(serverUrl)
-                } else {
-                    loadedOffline = true
-                    webView.loadUrl(offlineUrl)
                 }
             }
         }
@@ -140,8 +158,8 @@ class MainActivity : AppCompatActivity() {
         return try {
             val url = URL(urlString)
             val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 8000
-            conn.readTimeout = 8000
+            conn.connectTimeout = 6000
+            conn.readTimeout = 6000
             conn.requestMethod = "GET"
             conn.instanceFollowRedirects = true
             val code = conn.responseCode
