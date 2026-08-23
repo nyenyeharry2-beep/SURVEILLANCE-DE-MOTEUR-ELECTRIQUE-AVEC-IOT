@@ -17,10 +17,11 @@
   };
 
   const STORAGE_KEY = 'moise_sarah_config';
-  let branding = {
+  let branding = window.NKUBA_BRANDING || {
     poster_civil: 'assets/template_mariage_civil.png',
     poster_blanche: 'assets/template_affiche_blanche.png',
-    couple: 'assets/couple_photo.png'
+    couple: 'assets/couple_photo.png',
+    hasCustomPoster: false
   };
   let currentStyle = 'mariage-civil';
   let templateCache = {};
@@ -165,8 +166,9 @@
       const res = await fetch('api/upload.php', { method: 'POST', body: fd });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || 'Upload échoué');
-      await loadBranding();
-      if (status) status.textContent = '✓ ' + json.message;
+      if (status) status.textContent = '✓ ' + json.message + ' — rechargement…';
+      setTimeout(() => window.location.reload(), 800);
+      return;
     } catch (e) {
       if (status) status.textContent = '✗ ' + e.message;
       const url = URL.createObjectURL(file);
@@ -259,6 +261,9 @@
     document.getElementById('uploadCouple')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
     document.getElementById('uploadPosterCivil')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_civil'));
     document.getElementById('uploadPosterBlanche')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_blanche'));
+    document.getElementById('uploadPosterCivilHome')?.addEventListener('change', e => {
+      uploadPhoto(e.target, 'poster_civil');
+    });
   }
 
   document.addEventListener('DOMContentLoaded', async () => {

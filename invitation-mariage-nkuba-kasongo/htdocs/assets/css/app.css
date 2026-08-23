@@ -486,3 +486,31 @@ body {
   .screen-inner { max-width: 520px; }
   .btn-gold-fixed { position: static; transform: none; width: 100%; max-width: none; margin-top: 16px; }
 }
+
+.upload-alert {
+  background: #fff8e6;
+  border: 2px solid #e6a817;
+  margin-top: 12px;
+}
+
+.upload-alert h3 { color: #b45309; font-size: 1rem; margin-bottom: 6px; }
+
+.btn-upload-home {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.badge-ok {
+  text-align: center;
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
