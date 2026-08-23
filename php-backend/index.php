@@ -65,7 +65,7 @@
         <div class="card">
             <h2>📱 Application Android (Java natif)</h2>
             <p style="margin-bottom:1rem;color:#777;">Design Adrian — écrans dark/crème/or, affiche Sarah, styles Royal Bordeaux, Ivory, Kipushi.</p>
-            <a class="btn apk-link" href="../releases/invitations-moise-sarah-v2.0.0.apk">Télécharger l'APK v2.0.0</a>
+            <a class="btn apk-link" href="../releases/invitations-moise-sarah-v2.0.1.apk">Télécharger l'APK v2.0.1 (signé)</a>
         </div>
 
         <div class="card">
