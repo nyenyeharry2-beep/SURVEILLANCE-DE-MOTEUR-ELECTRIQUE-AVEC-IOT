@@ -137,12 +137,10 @@ class Auth
         return $user;
     }
 
-    public function roleLabel(string $role): string
+    public function roleLabel($role)
     {
-        return match ($role) {
-            'vendeur' => 'Vendeur',
-            'livreur' => 'Livreur',
-            default => 'Client',
-        };
+        if ($role === 'vendeur') return 'Vendeur';
+        if ($role === 'livreur') return 'Livreur';
+        return 'Client';
     }
 }

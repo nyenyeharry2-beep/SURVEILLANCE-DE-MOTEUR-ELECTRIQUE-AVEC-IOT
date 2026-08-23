@@ -44,7 +44,7 @@ class Messaging
 
         $this->db->beginTransaction();
         try {
-            $this->db->exec('INSERT INTO conversations () VALUES ()');
+            $this->db->exec('INSERT INTO conversations (id) VALUES (NULL)');
             $convId = (int) $this->db->lastInsertId();
 
             $ins = $this->db->prepare('INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?, ?)');

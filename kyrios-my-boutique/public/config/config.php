@@ -1,40 +1,54 @@
 <?php
 
-declare(strict_types=1);
-
-function loadEnv(string $path): void
+function loadEnv($path)
 {
     if (!file_exists($path)) {
         return;
     }
 
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || str_starts_with($line, '#')) {
+        if ($line === '' || $line[0] === '#') {
             continue;
         }
-        if (!str_contains($line, '=')) {
+        if (strpos($line, '=') === false) {
             continue;
         }
-        [$key, $value] = explode('=', $line, 2);
+        list($key, $value) = explode('=', $line, 2);
         $key = trim($key);
         $value = trim($value, " \t\n\r\0\x0B\"'");
         if (!array_key_exists($key, $_ENV)) {
             $_ENV[$key] = $value;
-            putenv("$key=$value");
+            putenv($key . '=' . $value);
         }
     }
 }
 
-loadEnv(__DIR__ . '/../.env');
-if (!file_exists(__DIR__ . '/../.env')) {
-    loadEnv(__DIR__ . '/.env');
+// Chercher .env à la racine htdocs
+$envPaths = [
+    dirname(__DIR__) . '/.env',
+    __DIR__ . '/.env',
+    dirname(__DIR__, 2) . '/.env',
+];
+foreach ($envPaths as $envPath) {
+    if (file_exists($envPath)) {
+        loadEnv($envPath);
+        break;
+    }
 }
 
-function env(string $key, mixed $default = null): mixed
+function env($key, $default = null)
 {
-    return $_ENV[$key] ?? getenv($key) ?: $default;
+    if (isset($_ENV[$key])) {
+        return $_ENV[$key];
+    }
+    $val = getenv($key);
+    return ($val !== false) ? $val : $default;
 }
 
 return [

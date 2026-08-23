@@ -1,33 +1,29 @@
 <?php
 
-declare(strict_types=1);
-
-require_once __DIR__ . '/config/config.php';
+$config = require __DIR__ . '/config/config.php';
 require_once __DIR__ . '/src/Database.php';
 require_once __DIR__ . '/src/Auth.php';
 require_once __DIR__ . '/src/Feed.php';
 require_once __DIR__ . '/src/Messaging.php';
 require_once __DIR__ . '/src/Product.php';
 
-$config = require __DIR__ . '/config/config.php';
-
 try {
     $db = Kyrios\Database::getInstance($config['db']);
-} catch (\PDOException $e) {
-    if ($config['debug']) {
+} catch (Exception $e) {
+    if (!empty($config['debug'])) {
         die('Erreur DB: ' . htmlspecialchars($e->getMessage()));
     }
-    die('Service temporairement indisponible.');
+    die('Service temporairement indisponible. Vérifiez la base de données.');
 }
 
 $auth = new Kyrios\Auth($db);
 
-function e(?string $value): string
+function e($value)
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function avatarUrl(?string $url, string $name): string
+function avatarUrl($url, $name)
 {
     if ($url) {
         return $url;
@@ -38,7 +34,7 @@ function avatarUrl(?string $url, string $name): string
     );
 }
 
-function timeAgo(string $datetime): string
+function timeAgo($datetime)
 {
     $time = strtotime($datetime);
     $diff = time() - $time;
@@ -50,16 +46,18 @@ function timeAgo(string $datetime): string
     return date('d/m/Y', $time);
 }
 
-function roleBadge(string $role): string
+function roleBadge($role)
 {
-    return match ($role) {
-        'vendeur' => '<span class="badge badge-seller">Vendeur</span>',
-        'livreur' => '<span class="badge badge-delivery">Livreur</span>',
-        default => '<span class="badge badge-client">Client</span>',
-    };
+    if ($role === 'vendeur') {
+        return '<span class="badge badge-seller">Vendeur</span>';
+    }
+    if ($role === 'livreur') {
+        return '<span class="badge badge-delivery">Livreur</span>';
+    }
+    return '<span class="badge badge-client">Client</span>';
 }
 
-function appConfig(): array
+function appConfig()
 {
     global $config;
     return $config;
