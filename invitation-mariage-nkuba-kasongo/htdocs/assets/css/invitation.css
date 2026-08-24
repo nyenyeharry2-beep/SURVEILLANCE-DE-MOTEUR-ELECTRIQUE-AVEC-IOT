@@ -89,15 +89,20 @@
   width: 480px;
   height: 100%;
   overflow: hidden;
+  z-index: 2;
 }
 
 .poster-civil .couple-photo {
   width: 100%;
-  height: 92%;
+  height: 100%;
   object-fit: cover;
-  object-position: center top;
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  object-position: center 18%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%),
+                      linear-gradient(to right, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%),
+              linear-gradient(to right, #000 85%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .poster-civil .table-line {
