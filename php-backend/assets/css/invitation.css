@@ -398,48 +398,51 @@
   z-index: 0;
 }
 
-.mariage-civil-poster .guest-line {
+.mariage-civil-poster .guest-block {
   position: absolute;
-  top: 268px;
-  left: 500px;
-  width: 660px;
+  top: 272px;
+  left: 518px;
+  width: 640px;
   z-index: 5;
+}
+
+.mariage-civil-poster .guest-line {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 4px 8px;
-  border-radius: 4px;
+  border-bottom: 2px dotted #888;
+  padding-bottom: 4px;
+  max-width: 100%;
 }
 
-.mariage-civil-poster .guest-label {
-  font-size: 20px;
+.mariage-civil-poster .guest-prefix {
+  font-size: 19px;
   color: #333;
   white-space: nowrap;
 }
 
 .mariage-civil-poster .guest-name {
-  font-size: 32px;
+  flex: 1;
+  min-width: 140px;
+  font-size: 26px;
   font-weight: 700;
   color: #1a1a1a;
-  flex: 1;
-  min-width: 200px;
-  border-bottom: 3px dotted #999;
-  padding-bottom: 2px;
+  word-break: break-word;
+  line-height: 1.2;
+  background: transparent;
 }
 
 .mariage-civil-poster .table-badge {
   position: absolute;
-  top: 200px;
-  left: 40px;
-  width: 420px;
+  top: 218px;
+  left: 55px;
+  width: 400px;
   text-align: center;
   z-index: 5;
-  font-size: 26px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px;
-  border-radius: 6px;
+  font-size: 24px;
+  background: transparent;
+  padding: 0;
 }
 
 .mariage-civil-poster .table-badge span {
@@ -454,51 +457,56 @@
   bottom: 320px;
   right: 50px;
   z-index: 5;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: #6B2D82;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 12px;
-  border-radius: 6px;
+  background: transparent;
+  padding: 0;
+}
+
+.blanche-poster .guest-block {
+  position: absolute;
+  top: 192px;
+  left: 618px;
+  width: 520px;
+  z-index: 5;
 }
 
 .blanche-poster .guest-line {
-  position: absolute;
-  top: 188px;
-  left: 610px;
-  width: 540px;
-  z-index: 5;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 6px 10px;
-  border-radius: 4px;
-}
-
-.blanche-poster .guest-label {
-  font-size: 18px;
-  color: #333;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.blanche-poster .guest-name {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111;
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
   border-bottom: 2px dotted #bbb;
   padding-bottom: 4px;
 }
 
+.blanche-poster .guest-prefix {
+  font-size: 17px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.blanche-poster .guest-name {
+  flex: 1;
+  min-width: 120px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111;
+  word-break: break-word;
+  background: transparent;
+}
+
 .blanche-poster .table-badge {
   position: absolute;
-  top: 108px;
-  left: 50px;
-  width: 480px;
+  top: 112px;
+  left: 55px;
+  width: 470px;
   text-align: center;
   z-index: 5;
-  font-size: 26px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px;
+  font-size: 24px;
+  background: transparent;
+  padding: 0;
 }
 
 .blanche-poster .table-badge strong {
@@ -527,7 +535,16 @@
 
 .blanche-poster .qr-box { border-color: #002366; }
 
-.poster .qr-box img { width: 100%; height: 100%; display: block; }
+.poster .qr-box img,
+.poster .qr-box canvas { width: 100% !important; height: 100% !important; display: block; }
+
+.poster .qr-canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .poster .qr-label {
   margin-top: 6px;

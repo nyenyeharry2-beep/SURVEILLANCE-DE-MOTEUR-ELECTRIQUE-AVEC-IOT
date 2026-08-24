@@ -56,6 +56,17 @@
       </div>
     </div>
 
+    <a class="card card-menu" href="generator.html" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-menu-row">
+        <div class="icon-box blue">🎨</div>
+        <div class="card-menu-text">
+          <h3>Générateur HTML/CSS/JS</h3>
+          <p>Aperçu live + QR code qrcode.js</p>
+        </div>
+        <span class="card-menu-arrow">›</span>
+      </div>
+    </a>
+
     <div class="card card-menu" data-nav="guests">
       <div class="card-menu-row">
         <div class="icon-box purple">📋</div>
@@ -165,6 +176,12 @@
           <input type="text" id="tableNum" placeholder="Table 12"/>
         </div>
       </div>
+      <div class="field">
+        <label for="qrData">Données du QR code</label>
+        <input type="text" id="qrData" placeholder="Généré automatiquement (nom + identifiant unique)"/>
+        <p class="hint">Format : INVITE|nom:…|id:…|table:…|places:… — modifiable avant envoi</p>
+        <button type="button" class="btn-outline btn-sm" id="btnRegenQr" style="margin-top:8px">↻ Nouvel identifiant QR</button>
+      </div>
     </div>
 
     <div class="style-grid">
@@ -197,7 +214,9 @@
         <div class="poster-scaler" id="previewPoster"></div>
       </div>
     </div>
+    <p class="hint qr-preview-meta">QR : <code id="qrDataPreview">—</code></p>
     <button type="button" class="btn-wa" id="btnSendWa">Envoyer WhatsApp (message + photo)</button>
+    <button type="button" class="btn-blue" id="btnDownloadPng">Télécharger PNG</button>
     <button type="button" class="btn-close" id="btnToGuestList">Voir la liste des invités</button>
     <button type="button" class="btn-close" data-nav="add">Autre invité</button>
   </div>
@@ -238,6 +257,7 @@
     hasCustomPoster: <?= $hasCustomPoster ? 'true' : 'false' ?>
   };
 </script>
+<script src="assets/js/qrcode.min.js?v=<?= $V ?>"></script>
 <script src="assets/js/invitation.js?v=<?= $V ?>"></script>
 </body>
 </html>

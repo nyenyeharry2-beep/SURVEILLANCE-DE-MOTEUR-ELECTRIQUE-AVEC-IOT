@@ -1,12 +1,14 @@
 <div class="poster blanche-poster">
   <img class="bg-affiche" data-bind="poster" src="" alt="Affiche"/>
   <div class="guest-block">
-    <div class="guest-label">Mme, Mlle, M., Couple :</div>
-    <div class="guest-name" data-bind="guest">Nom invité</div>
+    <div class="guest-line">
+      <span class="guest-prefix">Mme, Mlle, M., Couple :</span>
+      <span class="guest-name" data-bind="guest">Nom invité</span>
+    </div>
   </div>
   <div class="table-badge">Table <strong data-bind="table">—</strong></div>
   <div class="qr-zone">
-    <div class="qr-box"><img data-bind="qr" src="" alt="QR"/></div>
+    <div class="qr-box"><div data-bind="qr" class="qr-canvas" aria-label="QR Code"></div></div>
     <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>

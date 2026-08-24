@@ -337,6 +337,28 @@ body {
   cursor: pointer;
 }
 
+.btn-outline.btn-sm {
+  width: auto;
+  margin-top: 8px;
+  padding: 8px 14px;
+  font-size: 0.75rem;
+}
+
+.qr-preview-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  margin: 8px 0 12px;
+  text-align: center;
+}
+
+.qr-preview-meta code {
+  background: #f0ebe5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
 .btn-close {
   display: block;
   text-align: center;
@@ -485,4 +507,89 @@ body {
 @media (min-width: 900px) {
   .screen-inner { max-width: 520px; }
   .btn-gold-fixed { position: static; transform: none; width: 100%; max-width: none; margin-top: 16px; }
+}
+
+.upload-alert {
+  background: #fff8e6;
+  border: 2px solid #e6a817;
+  margin-top: 12px;
+}
+
+.upload-alert h3 { color: #b45309; font-size: 1rem; margin-bottom: 6px; }
+
+.btn-upload-home {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.badge-ok {
+  text-align: center;
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.guest-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  gap: 10px;
+}
+
+.guest-row-item:last-child { border-bottom: none; }
+
+.guest-row-main strong { display: block; font-size: 0.95rem; }
+
+.guest-row-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.badge-sent {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+.btn-mini {
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#guestSort {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
 }

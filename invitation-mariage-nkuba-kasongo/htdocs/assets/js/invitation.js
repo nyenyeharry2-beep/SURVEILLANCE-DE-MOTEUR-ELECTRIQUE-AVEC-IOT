@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.7.0';
+  const V = document.body.dataset.version || '2.8.0';
   const PRESETS = {
     'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
     'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
@@ -17,10 +17,24 @@
   let guestFilter = '';
   let guestsCache = [];
   let lastGuestId = null;
+  let guestUniqueId = null;
   let templateCache = {};
 
   function bust(url) {
     return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+  }
+
+  function uniqueGuestId() {
+    return Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
+
+  function ensureGuestId() {
+    if (!guestUniqueId) guestUniqueId = uniqueGuestId();
+    return guestUniqueId;
+  }
+
+  function resetGuestId(id) {
+    guestUniqueId = id || uniqueGuestId();
   }
 
   async function loadBranding() {
@@ -73,12 +87,44 @@
     };
   }
 
+  function buildDefaultQrData() {
+    const d = getFormData();
+    const id = ensureGuestId();
+    return 'INVITE|nom:' + d.guest + '|id:' + id + '|table:' + d.table + '|places:' + d.seats;
+  }
+
+  function getQrPayload() {
+    const el = document.getElementById('qrData');
+    const custom = (el?.value || '').trim();
+    if (custom) return custom;
+    return buildDefaultQrData();
+  }
+
+  function syncQrDataField(force) {
+    const el = document.getElementById('qrData');
+    if (!el) return;
+    if (force || el.dataset.manual !== '1') {
+      el.value = buildDefaultQrData();
+    }
+  }
+
   function posterUrl() {
     return bust(currentStyle === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil);
   }
 
-  function qrUrl(data) {
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data);
+  function renderQrCode(container, data) {
+    if (!container || typeof QRCode === 'undefined') return;
+    container.innerHTML = '';
+    const size = 184;
+    /* eslint-disable no-new */
+    new QRCode(container, {
+      text: data,
+      width: size,
+      height: size,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
   }
 
   function generateUrl() {
@@ -88,6 +134,7 @@
       guest: d.guest,
       table: d.table,
       seats: d.seats,
+      qr: getQrPayload(),
       _: Date.now()
     });
   }
@@ -103,16 +150,17 @@
     const host = document.getElementById(targetId);
     if (!host) return;
     host.innerHTML = await loadTemplate(currentStyle);
-    const qrData = 'INVITE|nom:' + d.guest + '|table:' + d.table + '|places:' + d.seats;
+    const qrData = getQrPayload();
     host.querySelector('[data-bind="poster"]')?.setAttribute('src', posterUrl());
     host.querySelector('[data-bind="guest"]').textContent = d.guest;
     host.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = d.table; });
     host.querySelector('[data-bind="table2"]') && (host.querySelector('[data-bind="table2"]').textContent = d.table);
     host.querySelector('[data-bind="seats"]').textContent = d.seats;
-    const qrImg = host.querySelector('[data-bind="qr"]');
-    if (qrImg) qrImg.src = qrUrl(qrData);
+    renderQrCode(host.querySelector('[data-bind="qr"]'), qrData);
     const label = document.getElementById('previewGuestLabel');
     if (label) label.textContent = d.guest;
+    const qrPreview = document.getElementById('qrDataPreview');
+    if (qrPreview) qrPreview.textContent = qrData;
   }
 
   async function fetchInvitationBlob() {
@@ -227,6 +275,12 @@
     document.getElementById('seats').value = g.seats || 1;
     currentStyle = g.styleId || 'mariage-civil';
     lastGuestId = g.id;
+    resetGuestId('G' + g.id);
+    const qrEl = document.getElementById('qrData');
+    if (qrEl) {
+      qrEl.dataset.manual = '0';
+      syncQrDataField(true);
+    }
     setStyle(currentStyle);
     showScreen('preview');
   }
@@ -306,12 +360,27 @@
     }
   }
 
+  async function downloadPng() {
+    try {
+      const blob = await fetchInvitationBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Téléchargement: ' + e.message);
+    }
+  }
+
   async function onGenerate() {
     const name = (document.getElementById('guestName')?.value || '').trim();
     if (!name) {
       alert('Saisissez le nom de l\'invité');
       return;
     }
+    syncQrDataField(true);
     await saveGuest();
     showScreen('preview');
   }
@@ -323,19 +392,39 @@
     document.querySelectorAll('.style-thumb').forEach(btn => {
       btn.addEventListener('click', () => setStyle(btn.dataset.style));
     });
-    ['guestName', 'tableNum', 'seats'].forEach(id => {
-      document.getElementById(id)?.addEventListener('input', () => {
+
+    const liveFields = ['guestName', 'tableNum', 'seats', 'qrData'];
+    liveFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        if (id === 'qrData') {
+          el.dataset.manual = el.value.trim() ? '1' : '0';
+        }
+        if (id !== 'qrData') syncQrDataField(false);
         if (document.getElementById('screen-preview')?.classList.contains('active')) {
           renderHtmlPreview('previewPoster');
         }
       });
     });
+
+    document.getElementById('btnRegenQr')?.addEventListener('click', () => {
+      resetGuestId();
+      const qrEl = document.getElementById('qrData');
+      if (qrEl) qrEl.dataset.manual = '0';
+      syncQrDataField(true);
+      if (document.getElementById('screen-preview')?.classList.contains('active')) {
+        renderHtmlPreview('previewPoster');
+      }
+    });
+
     document.getElementById('btnSaveConfig')?.addEventListener('click', async () => {
       await saveConfigToServer();
       showScreen('home');
     });
     document.getElementById('btnGenerate')?.addEventListener('click', onGenerate);
     document.getElementById('btnSendWa')?.addEventListener('click', sendWhatsApp);
+    document.getElementById('btnDownloadPng')?.addEventListener('click', downloadPng);
     document.getElementById('btnToGuestList')?.addEventListener('click', () => showScreen('guests'));
     document.getElementById('guestSearch')?.addEventListener('input', e => {
       guestFilter = e.target.value;
@@ -352,7 +441,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
+    resetGuestId();
     bindEvents();
+    syncQrDataField(true);
     await loadBranding();
     await loadConfigFromServer();
     await loadGuestList();

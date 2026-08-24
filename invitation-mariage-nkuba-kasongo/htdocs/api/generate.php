@@ -68,6 +68,10 @@ $style = $_GET['style'] ?? 'mariage-civil';
 $guest = trim($_GET['guest'] ?? 'Invité');
 $table = trim($_GET['table'] ?? '—');
 $seats = (int)($_GET['seats'] ?? 1);
+$qrData = trim($_GET['qr'] ?? '');
+if ($qrData === '') {
+    $qrData = "INVITE|nom:$guest|table:$table|places:$seats";
+}
 
 $W = 1200;
 $H = 1700;
@@ -105,7 +109,6 @@ if ($isBlanche) {
     $qrY = $H - 285;
 }
 
-$qrData = "INVITE|nom:$guest|table:$table|places:$seats";
 $qrSize = 200;
 $qr = fetchQrImage($qrData, $qrSize);
 if ($qr) {
