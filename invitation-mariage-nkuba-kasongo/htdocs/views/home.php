@@ -249,7 +249,7 @@
   window.NKUBA_BRANDING = {
     couple: <?= json_encode($couplePhoto) ?>,
     hasCustomCouple: <?= $hasCustomCouple ? 'true' : 'false' ?>,
-    renderMode: 'html'
+    renderMode: 'png'
   };
 </script>
 <script src="assets/js/qrcode.min.js?v=<?= $V ?>"></script>

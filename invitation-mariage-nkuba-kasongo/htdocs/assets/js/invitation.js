@@ -1,14 +1,15 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.9.3';
+  const V = document.body.dataset.version || '2.10.0';
   const PRESETS = {
     'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
     'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
   };
 
   let branding = window.NKUBA_BRANDING || {
-    couple: 'assets/couple_photo.jpg'
+    couple: 'assets/couple_photo.jpg',
+    renderMode: 'png'
   };
   let currentStyle = 'mariage-civil';
   let guestSort = 'name';
@@ -153,16 +154,47 @@
     });
   }
 
-  function generateUrl() {
-    const d = getFormData();
+  function usePngRenderer() {
+    return (branding.renderMode || 'png') === 'png';
+  }
+
+  function buildGenerateUrl(d, qrOverride, styleOverride) {
     return 'api/generate.php?' + new URLSearchParams({
-      style: currentStyle,
-      guest: d.guest,
-      table: d.table,
-      seats: d.seats,
-      qr: getQrPayload(),
+      style: styleOverride || currentStyle,
+      guest: d.guest || 'Invité',
+      table: d.table || '—',
+      seats: String(d.seats || '1'),
+      qr: qrOverride || getQrPayload(),
       _: Date.now()
     });
+  }
+
+  function generateUrl() {
+    return buildGenerateUrl(getFormData());
+  }
+
+  async function renderPreview(targetId, dataOverride, qrOverride, styleOverride) {
+    const d = dataOverride || getFormData();
+    const host = document.getElementById(targetId);
+    if (!host) return;
+    const qrData = qrOverride || getQrPayload();
+
+    if (usePngRenderer()) {
+      const url = buildGenerateUrl(d, qrData, styleOverride);
+      host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="1200" height="1700" alt="Invitation ' + escAttr(d.guest) + '"/>';
+    } else {
+      host.innerHTML = await loadTemplate(styleOverride || currentStyle);
+      bindPosterData(host, d, qrData);
+    }
+
+    const label = document.getElementById('previewGuestLabel');
+    if (label) label.textContent = d.guest;
+    const qrPreview = document.getElementById('qrDataPreview');
+    if (qrPreview) qrPreview.textContent = qrData;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
   async function loadTemplate(style) {
@@ -172,76 +204,39 @@
   }
 
   async function renderHtmlPreview(targetId) {
-    const d = getFormData();
-    const host = document.getElementById(targetId);
-    if (!host) return;
-    host.innerHTML = await loadTemplate(currentStyle);
-    const qrData = getQrPayload();
-    bindPosterData(host, d, qrData);
-    const label = document.getElementById('previewGuestLabel');
-    if (label) label.textContent = d.guest;
-    const qrPreview = document.getElementById('qrDataPreview');
-    if (qrPreview) qrPreview.textContent = qrData;
+    return renderPreview(targetId);
   }
 
   async function renderHeroPreview() {
     const host = document.getElementById('heroPreview');
     if (!host) return;
-    const saved = currentStyle;
-    currentStyle = 'mariage-civil';
-    host.innerHTML = await loadTemplate('mariage-civil');
-    bindPosterData(host, {
+    const demo = {
       guest: 'Nom invité',
       table: '—',
       seats: '2',
       date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
       time: document.getElementById('cfgTime')?.value || '11h00',
       venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
-    }, 'INVITE|demo|id:PREVIEW');
-    currentStyle = saved;
+    };
+    await renderPreview('heroPreview', demo, 'INVITE|demo|id:HERO', 'mariage-civil');
     await renderConfigPreview();
   }
 
   async function renderConfigPreview() {
-    const host = document.getElementById('configPreview');
-    if (!host) return;
-    host.innerHTML = await loadTemplate('mariage-civil');
-    bindPosterData(host, {
+    await renderPreview('configPreview', {
       guest: 'Nom invité',
       table: '—',
       seats: '2',
       date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
       time: document.getElementById('cfgTime')?.value || '11h00',
       venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
-    }, 'INVITE|demo|id:CONFIG');
-  }
-
-  async function capturePosterBlob() {
-    const el = document.querySelector('#previewPoster .poster');
-    if (!el) throw new Error('Aperçu introuvable');
-    if (typeof html2canvas === 'undefined') throw new Error('html2canvas non chargé');
-    const canvas = await html2canvas(el, {
-      scale: 1,
-      width: 1200,
-      height: 1700,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      onclone: (doc) => {
-        doc.querySelectorAll('.poster-scaler').forEach(n => { n.style.transform = 'none'; n.style.marginBottom = '0'; });
-      }
-    });
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 1);
-    });
+    }, 'INVITE|demo|id:CONFIG', 'mariage-civil');
   }
 
   async function fetchInvitationBlob() {
-    if (document.getElementById('screen-preview')?.classList.contains('active')) {
-      return capturePosterBlob();
-    }
-    await renderHtmlPreview('previewPoster');
-    return capturePosterBlob();
+    const res = await fetch(generateUrl());
+    if (!res.ok) throw new Error('Génération PNG échouée (HTTP ' + res.status + ')');
+    return await res.blob();
   }
 
   function updateHeroPoster() {
@@ -383,7 +378,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id)?.classList.add('active');
     window.scrollTo(0, 0);
-    if (id === 'preview') renderHtmlPreview('previewPoster');
+    if (id === 'preview') renderPreview('previewPoster');
     if (id === 'guests') loadGuestList();
     if (id === 'config') renderConfigPreview();
   }
@@ -470,7 +465,7 @@
         }
         if (id !== 'qrData') syncQrDataField(false);
         if (document.getElementById('screen-preview')?.classList.contains('active')) {
-          renderHtmlPreview('previewPoster');
+          renderPreview('previewPoster');
         }
       });
     });
@@ -481,7 +476,7 @@
       if (qrEl) qrEl.dataset.manual = '0';
       syncQrDataField(true);
       if (document.getElementById('screen-preview')?.classList.contains('active')) {
-        renderHtmlPreview('previewPoster');
+        renderPreview('previewPoster');
       }
     });
 

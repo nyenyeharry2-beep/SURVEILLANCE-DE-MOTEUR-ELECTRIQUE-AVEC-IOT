@@ -7,6 +7,12 @@
   margin-bottom: calc(-1700px * (1 - var(--inv-scale, 0.28)));
 }
 
+.poster-generated {
+  display: block;
+  width: 1200px;
+  height: 1700px;
+}
+
 .poster-viewport {
   overflow: hidden;
   width: calc(1200px * var(--inv-scale, 0.28));

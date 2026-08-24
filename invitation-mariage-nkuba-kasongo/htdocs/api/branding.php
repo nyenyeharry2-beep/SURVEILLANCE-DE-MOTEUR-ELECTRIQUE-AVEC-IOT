@@ -29,5 +29,5 @@ echo json_encode([
     'success' => true,
     'couple' => $couple,
     'has_custom_couple' => $hasCustom,
-    'render_mode' => 'html',
+    'render_mode' => 'png',
 ]);
