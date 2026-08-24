@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.8.0';
+  const V = document.body.dataset.version || '2.8.1';
   const PRESETS = {
     'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
     'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
