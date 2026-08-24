@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.9.2';
+  const V = document.body.dataset.version || '2.9.3';
   const PRESETS = {
     'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
     'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
@@ -110,12 +110,24 @@
     return bust(branding.couple || 'assets/couple_photo.jpg');
   }
 
+  function isBlankTable(val) {
+    const v = String(val || '').trim();
+    return !v || v === '—' || v === '-' || v === '...';
+  }
+
   function bindPosterData(root, d, qrData) {
+    const tableVal = d.table || '—';
     root.querySelectorAll('[data-bind="couple"]').forEach(el => { el.src = coupleUrl(); });
     root.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
-    root.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = d.table; });
-    root.querySelector('[data-bind="table2"]') && (root.querySelector('[data-bind="table2"]').textContent = d.table);
-    root.querySelector('[data-bind="seats"]') && (root.querySelector('[data-bind="seats"]').textContent = d.seats);
+    root.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = tableVal; });
+    const table2 = root.querySelector('[data-bind="table2"]');
+    if (table2) table2.textContent = tableVal;
+    const seatsEl = root.querySelector('[data-bind="seats"]');
+    if (seatsEl) seatsEl.textContent = d.seats;
+    const tableLine = root.querySelector('[data-bind-table]');
+    if (tableLine) tableLine.classList.toggle('is-empty', isBlankTable(tableVal));
+    const seatsTablePart = root.querySelector('.seats-table-part');
+    if (seatsTablePart) seatsTablePart.classList.toggle('is-empty', isBlankTable(tableVal));
     root.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
     root.querySelectorAll('[data-bind="time"]').forEach(el => { el.textContent = d.time || '11h00'; });
     root.querySelectorAll('[data-bind="venue"]').forEach(el => { el.textContent = d.venue || 'Commune de Kipushi, Ville de KIPUSHI'; });

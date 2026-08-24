@@ -2,7 +2,6 @@
   <div class="watermark"></div>
   <div class="border-frame"></div>
   <div class="border-curve"></div>
-  <div class="crest-top"></div>
 
   <img class="rose-corner rose-tl" src="assets/img/roses-corner.svg" alt=""/>
   <img class="rose-corner rose-tr" src="assets/img/roses-corner.svg" alt=""/>
@@ -13,11 +12,11 @@
 
   <div class="left-panel">
     <img class="couple-photo" data-bind="couple" src="" alt="Moïse & Sarah"/>
+    <div class="table-line" data-bind-table><span class="table-label">Table</span> <span data-bind="table">—</span></div>
   </div>
 
-  <div class="table-line">Table <span data-bind="table">—</span></div>
-
   <div class="right-panel">
+    <div class="crest-top"></div>
     <h1 class="title-invitation">Invitation</h1>
     <div class="title-underline"></div>
 
@@ -29,30 +28,30 @@
     <p class="intro">Les familles NKUBA et BANZA vous invitent<br/>à prendre part au mariage civil<br/>de leur fils et fille :</p>
 
     <div class="names-block">
-      <span class="name-line"></span>
       <div class="name-script">Moïse NKUBA</div>
       <div class="ampersand">&amp;</div>
       <div class="name-script">Sarah KASONGO</div>
-      <span class="name-line"></span>
     </div>
 
-    <div class="detail-row">
-      <span class="icon-circle icon-cal">📅</span>
-      <span><strong>Date :</strong> <span data-bind="date">Vendredi, le 11 Septembre 2026</span></span>
-    </div>
-    <div class="detail-row">
-      <span class="icon-circle icon-clock">🕐</span>
-      <span><strong>Time :</strong> <span data-bind="time">11h00</span></span>
-    </div>
-    <div class="detail-row">
-      <span class="icon-circle icon-pin">📍</span>
-      <span><strong>Address :</strong> <span data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</span></span>
+    <div class="details-block">
+      <div class="detail-row">
+        <span class="icon-circle icon-cal">📅</span>
+        <span><strong class="lbl-date">Date :</strong> <span data-bind="date">Vendredi, le 11 Septembre 2026</span></span>
+      </div>
+      <div class="detail-row">
+        <span class="icon-circle icon-clock">🕐</span>
+        <span><strong class="lbl-time">Time :</strong> <span data-bind="time">11h00</span></span>
+      </div>
+      <div class="detail-row">
+        <span class="icon-circle icon-pin">📍</span>
+        <span><strong class="lbl-address">Address :</strong> <span data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</span></span>
+      </div>
     </div>
 
     <p class="closing">Votre présence fera notre immense joie.</p>
   </div>
 
-  <div class="seats-badge"><span data-bind="seats">1</span> place(s) • Table <span data-bind="table2">—</span></div>
+  <div class="seats-badge" data-bind-seats><span data-bind="seats">1</span> place(s)<span class="seats-table-part"> • Table <span data-bind="table2">—</span></span></div>
 
   <div class="qr-zone">
     <div class="qr-box"><div data-bind="qr" class="qr-canvas" aria-label="QR Code"></div></div>

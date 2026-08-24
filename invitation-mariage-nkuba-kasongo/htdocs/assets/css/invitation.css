@@ -57,16 +57,12 @@
 }
 
 .poster-civil .crest-top {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 30px;
+  width: 90px;
+  height: 28px;
+  margin: 0 auto 8px;
   border: 2px solid #6B2D82;
   border-bottom: none;
   border-radius: 40px 40px 0 0;
-  z-index: 4;
 }
 
 .poster-civil .vine-bl,
@@ -96,32 +92,37 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
-  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%),
-                      linear-gradient(to right, #000 85%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%),
-              linear-gradient(to right, #000 85%, transparent 100%);
+  object-position: center 12%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%),
+                      linear-gradient(to right, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%),
+              linear-gradient(to right, #000 88%, transparent 100%);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
 
 .poster-civil .table-line {
   position: absolute;
-  top: 140px;
+  top: 195px;
   left: 0;
-  right: 0;
+  width: 100%;
   text-align: center;
   font-size: 24px;
   color: #333;
-  z-index: 5;
+  z-index: 6;
+  pointer-events: none;
 }
 
-.poster-civil .table-line span {
+.poster-civil .table-line .table-label { font-weight: 400; }
+
+.poster-civil .table-line span[data-bind="table"] {
   font-weight: 700;
   color: #6b2d82;
-  border-bottom: 2px dotted #999;
-  padding: 0 12px;
+  border-bottom: 3px dotted #999;
+  padding: 0 16px;
 }
+
+.poster-civil .table-line.is-empty { display: none; }
 
 .poster-civil .right-panel {
   position: absolute;
@@ -129,7 +130,8 @@
   top: 0;
   width: 720px;
   height: 100%;
-  padding: 55px 45px 40px 35px;
+  padding: 48px 40px 40px 30px;
+  z-index: 3;
 }
 
 .poster-civil .title-invitation {
@@ -160,25 +162,21 @@
 }
 
 .poster-civil .guest-row {
-  font-size: 21px;
+  font-size: 20px;
   color: #333;
-  margin: 18px 0 22px;
-  border-bottom: 2px dotted #bbb;
-  padding-bottom: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
+  margin: 14px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px dotted #888;
+  line-height: 1.35;
 }
 
-.poster-civil .guest-row .guest-prefix { white-space: nowrap; }
+.poster-civil .guest-row .guest-prefix { margin-right: 6px; }
 
 .poster-civil .guest-row .name {
-  flex: 1;
-  min-width: 120px;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: #1a1a1a;
+  word-break: break-word;
 }
 
 .poster-civil .intro {
@@ -189,13 +187,14 @@
   margin-bottom: 28px;
 }
 
-.poster-civil .names-block { text-align: center; margin: 20px 0 32px; }
+.poster-civil .names-block { text-align: center; margin: 16px 0 28px; }
 
 .poster-civil .name-script {
   font-family: 'Great Vibes', cursive;
-  font-size: 52px;
+  font-size: 56px;
   color: #d81b60;
-  line-height: 1.2;
+  line-height: 1.15;
+  text-shadow: 0 0 1px rgba(255,255,255,0.8);
 }
 
 .poster-civil .ampersand {
@@ -214,14 +213,21 @@
   margin: 0 10px;
 }
 
+.poster-civil .details-block { margin-top: 8px; }
+
 .poster-civil .detail-row {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 18px;
-  font-size: 21px;
+  gap: 14px;
+  margin-bottom: 16px;
+  font-size: 20px;
   color: #333;
+  line-height: 1.35;
 }
+
+.poster-civil .lbl-date { color: #4285f4; }
+.poster-civil .lbl-time { color: #c0392b; }
+.poster-civil .lbl-address { color: #27ae60; }
 
 .poster-civil .icon-circle {
   width: 44px;
@@ -250,9 +256,9 @@
 .poster-civil .qr-zone,
 .poster-blanche .qr-zone {
   position: absolute;
-  left: 45px;
-  bottom: 65px;
-  z-index: 10;
+  left: 38px;
+  bottom: 55px;
+  z-index: 12;
   width: 200px;
   text-align: center;
 }
@@ -303,12 +309,17 @@
 
 .poster-civil .seats-badge {
   position: absolute;
-  right: 50px;
-  bottom: 130px;
-  font-size: 16px;
+  right: 45px;
+  bottom: 95px;
+  font-size: 17px;
   color: #6b2d82;
   font-weight: 700;
+  z-index: 6;
 }
+
+.poster-civil .seats-badge .seats-table-part.is-empty { display: none; }
+
+.poster-civil .rose-corner { z-index: 8; }
 
 /* Affiche blanche */
 .poster-blanche {
