@@ -25,25 +25,27 @@
       </div>
     </div>
 
-    <?php if (!$hasCustomPoster): ?>
+    <?php if (!$hasCustomCouple): ?>
     <div class="card upload-alert">
-      <h3>⚠ Importez votre affiche officielle</h3>
-      <p>L'image générique disparaît dès que vous uploadez <strong>votre vraie affiche</strong> (violette avec Moïse & Sarah).</p>
+      <h3>📷 Importez la photo des mariés</h3>
+      <p>Le design de l'affiche est en <strong>HTML/CSS</strong> — seule la photo de Moïse & Sarah est insérée dynamiquement sur chaque invitation.</p>
       <label class="btn-upload-home">
-        🖼 Choisir mon affiche mariage civil
-        <input type="file" id="uploadPosterCivilHome" accept="image/*" hidden/>
+        📷 Choisir la photo des mariés
+        <input type="file" id="uploadCoupleHome" accept="image/*" hidden/>
       </label>
       <p id="homeUploadStatus" class="hint" style="margin-top:8px"></p>
     </div>
     <?php else: ?>
-    <p class="badge-ok">✓ Votre affiche officielle est active</p>
+    <p class="badge-ok">✓ Photo des mariés active — design HTML/CSS</p>
     <?php endif; ?>
 
-    <div class="hero-poster">
-      <img id="heroPoster" src="<?= htmlspecialchars($posterCivil) ?>" alt="Affiche officielle"/>
+    <div class="hero-poster hero-html">
+      <div class="poster-viewport" style="--inv-scale:0.22">
+        <div class="poster-scaler" id="heroPreview"></div>
+      </div>
     </div>
-    <p class="caption">Affiche officielle — Moïse NKUBA & Sarah KASONGO</p>
-    <p class="caption-gold">Mariage de Moïse & Sarah</p>
+    <p class="caption">Affiche HTML — Moïse NKUBA & Sarah KASONGO</p>
+    <p class="caption-gold">Design officiel violet • photo couple dynamique</p>
 
     <div class="card card-menu" data-nav="add">
       <div class="card-menu-row">
@@ -108,24 +110,18 @@
     </div>
 
     <p id="photoStatus" class="config-intro" style="color:#ffcc80;margin-bottom:12px">
-      Uploadez votre affiche HD — le logo est extrait automatiquement.
+      Les affiches sont en HTML/CSS. Uploadez uniquement la <strong>photo HD des mariés</strong>.
     </p>
 
     <div class="field">
-      <label>🖼 Affiche mariage civil</label>
-      <input type="file" id="uploadPosterCivil" accept="image/*"/>
-    </div>
-    <div class="field">
-      <label>🖼 Affiche bénédiction</label>
-      <input type="file" id="uploadPosterBlanche" accept="image/*"/>
-    </div>
-    <div class="field">
-      <label>📷 Photo couple (optionnel)</label>
-      <input type="file" id="uploadCouple" accept="image/*"/>
+      <label>📷 Photo des mariés (Moïse & Sarah) *</label>
+      <input type="file" id="uploadCouple" accept="image/jpeg,image/png,image/webp"/>
     </div>
 
-    <div class="config-poster-card">
-      <img id="configPoster" src="<?= htmlspecialchars($posterCivil) ?>" alt="Aperçu"/>
+    <div class="config-poster-card hero-html">
+      <div class="poster-viewport" style="--inv-scale:0.18">
+        <div class="poster-scaler" id="configPreview"></div>
+      </div>
     </div>
 
     <div class="field">
@@ -187,17 +183,17 @@
     <div class="style-grid">
       <div class="style-thumb active" data-style="mariage-civil">
         <span class="check">✓</span>
-        <div class="preview-wrap">
-          <img src="<?= htmlspecialchars($posterCivil) ?>" alt="Civil"/>
+        <div class="preview-wrap style-chip style-civil">
+          <span>Mariage Civil</span>
         </div>
-        <span class="style-name">Mariage Civil</span>
+        <span class="style-name">Violet — roses</span>
       </div>
       <div class="style-thumb" data-style="affiche-blanche">
         <span class="check">✓</span>
-        <div class="preview-wrap">
-          <img src="<?= htmlspecialchars($posterBlanche) ?>" alt="Blanche"/>
+        <div class="preview-wrap style-chip style-blanche">
+          <span>Bénédiction</span>
         </div>
-        <span class="style-name">Bénédiction</span>
+        <span class="style-name">Blanche — or</span>
       </div>
     </div>
   </div>
@@ -251,13 +247,13 @@
 
 <script>
   window.NKUBA_BRANDING = {
-    poster_civil: <?= json_encode($posterCivil) ?>,
-    poster_blanche: <?= json_encode($posterBlanche) ?>,
-    couple: <?= json_encode($coupleLogo) ?>,
-    hasCustomPoster: <?= $hasCustomPoster ? 'true' : 'false' ?>
+    couple: <?= json_encode($couplePhoto) ?>,
+    hasCustomCouple: <?= $hasCustomCouple ? 'true' : 'false' ?>,
+    renderMode: 'html'
   };
 </script>
 <script src="assets/js/qrcode.min.js?v=<?= $V ?>"></script>
+<script src="assets/js/html2canvas.min.js?v=<?= $V ?>"></script>
 <script src="assets/js/invitation.js?v=<?= $V ?>"></script>
 </body>
 </html>

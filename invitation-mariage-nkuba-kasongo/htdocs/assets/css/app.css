@@ -27,6 +27,38 @@ body {
   min-height: 100vh;
 }
 
+.hero-poster.hero-html,
+.config-poster-card.hero-html {
+  padding: 8px;
+  overflow: hidden;
+}
+
+.hero-html .poster-viewport,
+.config-poster-card.hero-html .poster-viewport {
+  margin: 0 auto;
+}
+
+.style-chip {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+.style-chip.style-civil {
+  background: linear-gradient(145deg, #6B2D82 0%, #9B59B6 100%);
+  color: #fff;
+}
+
+.style-chip.style-blanche {
+  background: linear-gradient(145deg, #fffdf9 0%, #e8dcc8 100%);
+  color: #333;
+  border: 1px solid #d4b896;
+}
+
 /* Logo — même cadre que bg_poster_border.xml (18dp, bordure or) */
 .logo-frame {
   width: 64px;

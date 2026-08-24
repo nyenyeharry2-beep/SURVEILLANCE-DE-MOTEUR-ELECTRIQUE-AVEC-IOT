@@ -41,17 +41,46 @@
   background: linear-gradient(180deg, #e8dff0, #c9b8d8, #e8dff0);
 }
 
-.poster-civil .rose-corner { position: absolute; width: 220px; height: 220px; }
+.poster-civil .rose-corner { position: absolute; width: 220px; height: 220px; pointer-events: none; z-index: 4; }
 .poster-civil .rose-tl { top: 0; left: 0; }
-.poster-civil .rose-br { bottom: 0; right: 0; transform: rotate(180deg); }
-.poster-civil .vine-bl {
+.poster-civil .rose-tr { top: 0; right: 0; transform: scaleX(-1); }
+.poster-civil .rose-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.poster-civil .rose-br { bottom: 0; right: 0; transform: scale(-1); }
+
+.poster-civil .border-frame {
   position: absolute;
-  bottom: 80px;
-  left: 20px;
-  width: 120px;
-  height: 180px;
-  opacity: 0.7;
+  inset: 18px;
+  border: 2px solid rgba(107, 45, 130, 0.45);
+  border-radius: 8px 40px 8px 40px;
+  pointer-events: none;
+  z-index: 3;
 }
+
+.poster-civil .crest-top {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 30px;
+  border: 2px solid #6B2D82;
+  border-bottom: none;
+  border-radius: 40px 40px 0 0;
+  z-index: 4;
+}
+
+.poster-civil .vine-bl,
+.poster-civil .vine-br {
+  position: absolute;
+  bottom: 60px;
+  width: 90px;
+  height: 160px;
+  opacity: 0.65;
+  z-index: 4;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 120'%3E%3Cpath d='M30 0 Q10 40 30 80 Q50 100 30 120' stroke='%236B2D82' fill='none' stroke-width='2'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+.poster-civil .vine-bl { left: 15px; }
+.poster-civil .vine-br { right: 15px; transform: scaleX(-1); }
 
 .poster-civil .left-panel {
   position: absolute;
@@ -131,10 +160,18 @@
   margin: 18px 0 22px;
   border-bottom: 2px dotted #bbb;
   padding-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
 }
 
+.poster-civil .guest-row .guest-prefix { white-space: nowrap; }
+
 .poster-civil .guest-row .name {
-  font-size: 30px;
+  flex: 1;
+  min-width: 120px;
+  font-size: 28px;
   font-weight: 700;
   color: #1a1a1a;
 }
@@ -205,21 +242,59 @@
   font-style: italic;
 }
 
-.poster-civil .qr-box {
+.poster-civil .qr-zone,
+.poster-blanche .qr-zone {
   position: absolute;
-  left: 50px;
-  bottom: 120px;
-  width: 130px;
-  height: 130px;
-  background: #fff;
-  padding: 8px;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(107, 45, 130, 0.2);
-  border: 2px solid #e8dff0;
+  left: 45px;
+  bottom: 65px;
   z-index: 10;
+  width: 200px;
+  text-align: center;
 }
 
-.poster-civil .qr-box img { width: 100%; height: 100%; display: block; }
+.poster-civil .qr-zone .qr-box,
+.poster-blanche .qr-zone .qr-box {
+  position: static;
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  border: 3px solid #6B2D82;
+  box-shadow: 0 6px 24px rgba(107, 45, 130, 0.35);
+}
+
+.poster-blanche .qr-zone .qr-box { border-color: #002366; }
+
+.poster-civil .qr-zone .qr-label,
+.poster-blanche .qr-zone .qr-label {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6B2D82;
+}
+
+.poster-blanche .qr-zone .qr-label { color: #002366; }
+
+.poster-civil .qr-box img,
+.poster-blanche .qr-box img,
+.poster-civil .qr-canvas img,
+.poster-blanche .qr-canvas img,
+.poster-civil .qr-canvas canvas,
+.poster-blanche .qr-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.poster-civil .qr-canvas,
+.poster-blanche .qr-canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .poster-civil .seats-badge {
   position: absolute;
@@ -329,9 +404,14 @@
   margin-bottom: 16px;
   border-bottom: 2px dotted #bbb;
   padding-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
 }
 
-.poster-blanche .guest-line .name { font-size: 28px; font-weight: 700; color: #111; }
+.poster-blanche .guest-line .guest-prefix { white-space: nowrap; }
+.poster-blanche .guest-line .name { font-size: 28px; font-weight: 700; color: #111; flex: 1; min-width: 100px; }
 .poster-blanche .intro { font-size: 18px; color: #333; line-height: 1.5; margin-bottom: 20px; }
 .poster-blanche .name-m { font-size: 34px; font-weight: 700; color: #002366; letter-spacing: 1px; }
 .poster-blanche .name-s { font-size: 34px; font-weight: 700; color: #ff8c00; letter-spacing: 1px; margin-top: 4px; }
@@ -364,196 +444,20 @@
 }
 
 .poster-blanche .qr-box {
-  position: absolute;
-  left: 40px;
-  bottom: 100px;
-  width: 130px;
-  height: 130px;
+  position: static;
+  width: 200px;
+  height: 200px;
   background: #fff;
-  padding: 6px;
-  border-radius: 8px;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 35, 102, 0.25);
+  border: 3px solid #002366;
   z-index: 5;
 }
 
 .poster-blanche .qr-box img { width: 100%; height: 100%; }
 
 .invitation-hidden { display: none !important; }
-
-/* ── Overlay invitation sur affiche officielle ── */
-.poster.mariage-civil-poster,
-.poster.blanche-poster {
-  width: 1200px;
-  height: 1700px;
-  position: relative;
-  font-family: 'Playfair Display', Georgia, serif;
-}
-
-.poster .bg-affiche {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-.mariage-civil-poster .guest-block {
-  position: absolute;
-  top: 272px;
-  left: 518px;
-  width: 640px;
-  z-index: 5;
-}
-
-.mariage-civil-poster .guest-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-  border-bottom: 2px dotted #888;
-  padding-bottom: 4px;
-  max-width: 100%;
-}
-
-.mariage-civil-poster .guest-prefix {
-  font-size: 19px;
-  color: #333;
-  white-space: nowrap;
-}
-
-.mariage-civil-poster .guest-name {
-  flex: 1;
-  min-width: 140px;
-  font-size: 26px;
-  font-weight: 700;
-  color: #1a1a1a;
-  word-break: break-word;
-  line-height: 1.2;
-  background: transparent;
-}
-
-.mariage-civil-poster .table-badge {
-  position: absolute;
-  top: 218px;
-  left: 55px;
-  width: 400px;
-  text-align: center;
-  z-index: 5;
-  font-size: 24px;
-  background: transparent;
-  padding: 0;
-}
-
-.mariage-civil-poster .table-badge span {
-  font-weight: 700;
-  color: #6B2D82;
-  border-bottom: 3px dotted #999;
-  padding: 0 12px;
-}
-
-.mariage-civil-poster .seats-badge {
-  position: absolute;
-  bottom: 320px;
-  right: 50px;
-  z-index: 5;
-  font-size: 17px;
-  font-weight: 700;
-  color: #6B2D82;
-  background: transparent;
-  padding: 0;
-}
-
-.blanche-poster .guest-block {
-  position: absolute;
-  top: 192px;
-  left: 618px;
-  width: 520px;
-  z-index: 5;
-}
-
-.blanche-poster .guest-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px;
-  border-bottom: 2px dotted #bbb;
-  padding-bottom: 4px;
-}
-
-.blanche-poster .guest-prefix {
-  font-size: 17px;
-  color: #333;
-  white-space: nowrap;
-}
-
-.blanche-poster .guest-name {
-  flex: 1;
-  min-width: 120px;
-  font-size: 24px;
-  font-weight: 700;
-  color: #111;
-  word-break: break-word;
-  background: transparent;
-}
-
-.blanche-poster .table-badge {
-  position: absolute;
-  top: 112px;
-  left: 55px;
-  width: 470px;
-  text-align: center;
-  z-index: 5;
-  font-size: 24px;
-  background: transparent;
-  padding: 0;
-}
-
-.blanche-poster .table-badge strong {
-  color: #002366;
-  font-size: 30px;
-}
-
-.poster .qr-zone {
-  position: absolute;
-  left: 45px;
-  bottom: 65px;
-  z-index: 10;
-  width: 200px;
-  text-align: center;
-}
-
-.poster .qr-box {
-  width: 200px;
-  height: 200px;
-  background: #fff;
-  padding: 8px;
-  border-radius: 12px;
-  border: 3px solid #6B2D82;
-  box-shadow: 0 6px 24px rgba(107, 45, 130, 0.35);
-}
-
-.blanche-poster .qr-box { border-color: #002366; }
-
-.poster .qr-box img,
-.poster .qr-box canvas { width: 100% !important; height: 100% !important; display: block; }
-
-.poster .qr-canvas {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.poster .qr-label {
-  margin-top: 6px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #6B2D82;
-}
-
-.blanche-poster .qr-label { color: #002366; }
 
 .poster-frame {
   background: #fff;

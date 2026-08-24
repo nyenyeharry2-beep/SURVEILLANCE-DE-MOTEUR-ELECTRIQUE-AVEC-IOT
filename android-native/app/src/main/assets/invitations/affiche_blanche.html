@@ -1,60 +1,46 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=1200, height=1700"/>
-<style>
-@font-face { font-family: 'Great Vibes'; src: url('file:///android_asset/fonts/GreatVibes.ttf'); }
-@font-face { font-family: 'Playfair'; src: url('file:///android_asset/fonts/PlayfairDisplay-Regular.ttf'); }
-@font-face { font-family: 'Playfair'; font-weight: 700; src: url('file:///android_asset/fonts/PlayfairDisplay.ttf'); }
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
-.poster { width:1200px; height:1700px; position:relative; }
-.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.guest-block {
-  position:absolute; top:192px; left:618px; width:520px; z-index:5;
-}
-.guest-label {
-  font-family:'Playfair',Georgia,serif; font-size:17px; color:#333;
-}
-.guest-name {
-  font-family:'Playfair',Georgia,serif; font-size:24px; font-weight:700; color:#111;
-  border-bottom:2px dotted #bbb; padding-bottom:3px; margin-top:3px;
-}
-.table-badge {
-  position:absolute; top:112px; left:55px; width:470px; text-align:center; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:24px;
-}
-.table-badge strong { color:#002366; font-size:28px; }
-.qr-zone {
-  position:absolute; left:50px; bottom:80px; z-index:10;
-  width:{{QR_SIZE}}px; text-align:center;
-}
-.qr-box {
-  width:{{QR_SIZE}}px; height:{{QR_SIZE}}px;
-  background:#fff; padding:10px; border-radius:14px;
-  border:3px solid #002366;
-  box-shadow:0 6px 28px rgba(0,35,102,0.3);
-}
-.qr-box img { width:100%; height:100%; display:block; }
-.qr-label {
-  margin-top:8px; font-family:'Playfair',Georgia,serif;
-  font-size:16px; font-weight:700; color:#002366;
-}
-</style>
-</head>
-<body>
-<div class="poster">
-  <img class="bg-affiche" src="{{POSTER_BG}}" alt="Affiche"/>
-  <div class="table-badge">Table <strong>{{TABLE}}</strong></div>
-  <div class="guest-block">
-    <div class="guest-label">Mme, Mlle, M., Couple :</div>
-    <div class="guest-name">{{GUEST_NAME}}</div>
+<div class="poster poster-blanche">
+  <img class="flower fl-tl" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="flower fl-tr" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="flower fl-bl" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="flower fl-br" src="assets/img/roses-corner.svg" alt=""/>
+  <div class="divider"></div>
+  <div class="bronze-v"></div>
+
+  <div class="left">
+    <div class="table-top">Table <strong data-bind="table">—</strong></div>
+    <div class="couple-wrap">
+      <img data-bind="couple" src="" alt="Moïse & Sarah"/>
+    </div>
   </div>
-  <div class="qr-zone">
-    <div class="qr-box"><img src="{{QR_DATA}}" alt="QR Code invitation"/></div>
+
+  <div class="right">
+    <h1 class="script-title">Bénédiction<br/>Nuptiale</h1>
+    <div class="gold-rule"></div>
+
+    <div class="guest-line">
+      <span class="guest-prefix">Mme, Mlle, M., Couple :</span>
+      <span class="name" data-bind="guest">Nom invité</span>
+    </div>
+
+    <p class="intro">Les familles NKUBA et BANZA ont l'honneur de vous inviter à la cérémonie de bénédiction nuptiale de :</p>
+
+    <div class="name-m">Moïse NKUBA</div>
+    <div class="sep">— &amp; —</div>
+    <div class="name-s">Sarah KASONGO</div>
+
+    <div class="date-pill" data-bind="date">11 Septembre 2026</div>
+
+    <div class="event">
+      <h3>Cérémonie de bénédiction</h3>
+      <p><strong>Heure :</strong> <span data-bind="time">11h00</span></p>
+      <p><strong>Lieu :</strong> <span data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</span></p>
+    </div>
+  </div>
+
+  <p class="footer">Votre présence fera notre immense joie.<br/>Que Dieu vous bénisse.</p>
+
+  <div class="qr-zone blanche-qr">
+    <div class="qr-box"><div data-bind="qr" class="qr-canvas" aria-label="QR Code"></div></div>
     <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
-</body>
-</html>

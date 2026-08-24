@@ -1,16 +1,14 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.8.1';
+  const V = document.body.dataset.version || '2.9.0';
   const PRESETS = {
     'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
     'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
   };
 
   let branding = window.NKUBA_BRANDING || {
-    poster_civil: 'assets/template_mariage_civil.png',
-    poster_blanche: 'assets/template_affiche_blanche.png',
-    couple: 'assets/couple_photo.png'
+    couple: 'assets/couple_photo.jpg'
   };
   let currentStyle = 'mariage-civil';
   let guestSort = 'name';
@@ -108,8 +106,24 @@
     }
   }
 
+  function coupleUrl() {
+    return bust(branding.couple || 'assets/couple_photo.jpg');
+  }
+
+  function bindPosterData(root, d, qrData) {
+    root.querySelectorAll('[data-bind="couple"]').forEach(el => { el.src = coupleUrl(); });
+    root.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
+    root.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = d.table; });
+    root.querySelector('[data-bind="table2"]') && (root.querySelector('[data-bind="table2"]').textContent = d.table);
+    root.querySelector('[data-bind="seats"]') && (root.querySelector('[data-bind="seats"]').textContent = d.seats);
+    root.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
+    root.querySelectorAll('[data-bind="time"]').forEach(el => { el.textContent = d.time || '11h00'; });
+    root.querySelectorAll('[data-bind="venue"]').forEach(el => { el.textContent = d.venue || 'Commune de Kipushi, Ville de KIPUSHI'; });
+    renderQrCode(root.querySelector('[data-bind="qr"]'), qrData);
+  }
+
   function posterUrl() {
-    return bust(currentStyle === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil);
+    return coupleUrl();
   }
 
   function renderQrCode(container, data) {
@@ -151,35 +165,75 @@
     if (!host) return;
     host.innerHTML = await loadTemplate(currentStyle);
     const qrData = getQrPayload();
-    host.querySelector('[data-bind="poster"]')?.setAttribute('src', posterUrl());
-    host.querySelector('[data-bind="guest"]').textContent = d.guest;
-    host.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = d.table; });
-    host.querySelector('[data-bind="table2"]') && (host.querySelector('[data-bind="table2"]').textContent = d.table);
-    host.querySelector('[data-bind="seats"]').textContent = d.seats;
-    renderQrCode(host.querySelector('[data-bind="qr"]'), qrData);
+    bindPosterData(host, d, qrData);
     const label = document.getElementById('previewGuestLabel');
     if (label) label.textContent = d.guest;
     const qrPreview = document.getElementById('qrDataPreview');
     if (qrPreview) qrPreview.textContent = qrData;
   }
 
+  async function renderHeroPreview() {
+    const host = document.getElementById('heroPreview');
+    if (!host) return;
+    const saved = currentStyle;
+    currentStyle = 'mariage-civil';
+    host.innerHTML = await loadTemplate('mariage-civil');
+    bindPosterData(host, {
+      guest: 'Nom invité',
+      table: '—',
+      seats: '2',
+      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
+      time: document.getElementById('cfgTime')?.value || '11h00',
+      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
+    }, 'INVITE|demo|id:PREVIEW');
+    currentStyle = saved;
+    await renderConfigPreview();
+  }
+
+  async function renderConfigPreview() {
+    const host = document.getElementById('configPreview');
+    if (!host) return;
+    host.innerHTML = await loadTemplate('mariage-civil');
+    bindPosterData(host, {
+      guest: 'Nom invité',
+      table: '—',
+      seats: '2',
+      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
+      time: document.getElementById('cfgTime')?.value || '11h00',
+      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
+    }, 'INVITE|demo|id:CONFIG');
+  }
+
+  async function capturePosterBlob() {
+    const el = document.querySelector('#previewPoster .poster');
+    if (!el) throw new Error('Aperçu introuvable');
+    if (typeof html2canvas === 'undefined') throw new Error('html2canvas non chargé');
+    const canvas = await html2canvas(el, {
+      scale: 1,
+      width: 1200,
+      height: 1700,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      onclone: (doc) => {
+        doc.querySelectorAll('.poster-scaler').forEach(n => { n.style.transform = 'none'; n.style.marginBottom = '0'; });
+      }
+    });
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 1);
+    });
+  }
+
   async function fetchInvitationBlob() {
-    const res = await fetch(generateUrl());
-    if (!res.ok) throw new Error('Génération image échouée');
-    return res.blob();
+    if (document.getElementById('screen-preview')?.classList.contains('active')) {
+      return capturePosterBlob();
+    }
+    await renderHtmlPreview('previewPoster');
+    return capturePosterBlob();
   }
 
   function updateHeroPoster() {
-    const src = posterUrl();
-    ['heroPoster', 'configPoster'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.src = src;
-    });
-    document.querySelectorAll('.style-thumb img').forEach(img => {
-      const thumb = img.closest('.style-thumb');
-      const url = thumb?.dataset.style === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil;
-      if (url) img.src = bust(url);
-    });
+    renderHeroPreview();
   }
 
   function refreshLogos() {
@@ -319,6 +373,7 @@
     window.scrollTo(0, 0);
     if (id === 'preview') renderHtmlPreview('previewPoster');
     if (id === 'guests') loadGuestList();
+    if (id === 'config') renderConfigPreview();
   }
 
   function formatWhatsAppMessage() {
@@ -435,9 +490,7 @@
       loadGuestList();
     });
     document.getElementById('uploadCouple')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
-    document.getElementById('uploadPosterCivil')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_civil'));
-    document.getElementById('uploadPosterBlanche')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_blanche'));
-    document.getElementById('uploadPosterCivilHome')?.addEventListener('change', e => uploadPhoto(e.target, 'poster_civil'));
+    document.getElementById('uploadCoupleHome')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -448,6 +501,7 @@
     await loadConfigFromServer();
     await loadGuestList();
     setStyle(currentStyle);
+    await renderHeroPreview();
     setInterval(loadGuestList, 30000);
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
@@ -456,4 +510,11 @@
       }
     });
   });
+
+  window.NkubaInv = {
+    renderHtmlPreview,
+    capturePosterBlob,
+    fetchInvitationBlob,
+    setStyle: (s) => { currentStyle = s; }
+  };
 })();

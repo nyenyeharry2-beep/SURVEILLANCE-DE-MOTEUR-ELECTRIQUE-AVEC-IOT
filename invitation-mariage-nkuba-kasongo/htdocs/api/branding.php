@@ -1,6 +1,6 @@
 <?php
 /**
- * URLs des assets branding (affiche + logo) — uploads prioritaire
+ * URLs branding — photo couple (affiches = HTML/CSS pur)
  */
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
@@ -9,32 +9,25 @@ $base = dirname(__DIR__);
 $uploadDir = $base . '/assets/uploads';
 $assetsDir = $base . '/assets';
 
-function urlFor(string $uploadPath, string $defaultPath): string {
-    return file_exists($uploadPath) ? $defaultPath : $defaultPath;
-}
-
-function pickUrl(string $uploadFile, string $webUpload, string $webDefault): array {
+function coupleUrl(): string {
     global $uploadDir, $assetsDir;
-    $uploadPath = $uploadDir . '/' . $uploadFile;
-    $exists = file_exists($uploadPath);
-    return [
-        'url' => $exists ? $webUpload : $webDefault,
-        'custom' => $exists,
-        'updated' => $exists ? filemtime($uploadPath) : null,
-    ];
+    foreach ([
+        [$uploadDir . '/couple_photo.jpg', 'assets/uploads/couple_photo.jpg'],
+        [$uploadDir . '/couple_logo.jpg', 'assets/uploads/couple_logo.jpg'],
+        [$assetsDir . '/couple_photo.jpg', 'assets/couple_photo.jpg'],
+        [$assetsDir . '/couple_photo.png', 'assets/couple_photo.png'],
+    ] as [$path, $web]) {
+        if (file_exists($path)) return $web;
+    }
+    return 'assets/couple_photo.jpg';
 }
 
-$civil = pickUrl('poster_civil.jpg', 'assets/uploads/poster_civil.jpg', 'assets/template_mariage_civil.png');
-$blanche = pickUrl('poster_blanche.jpg', 'assets/uploads/poster_blanche.jpg', 'assets/template_affiche_blanche.png');
-$couple = pickUrl('couple_photo.jpg', 'assets/uploads/couple_photo.jpg', 'assets/couple_photo.png');
-$logo = pickUrl('couple_logo.jpg', 'assets/uploads/couple_logo.jpg', $couple['url']);
+$couple = coupleUrl();
+$hasCustom = str_contains($couple, '/uploads/');
 
 echo json_encode([
     'success' => true,
-    'poster_civil' => $civil['url'],
-    'poster_blanche' => $blanche['url'],
-    'couple' => $couple['custom'] ? $couple['url'] : ($logo['custom'] ? $logo['url'] : 'assets/couple_photo.png'),
-    'has_custom_poster_civil' => $civil['custom'],
-    'has_custom_poster_blanche' => $blanche['custom'],
-    'has_custom_couple' => $couple['custom'] || $logo['custom'],
+    'couple' => $couple,
+    'has_custom_couple' => $hasCustom,
+    'render_mode' => 'html',
 ]);

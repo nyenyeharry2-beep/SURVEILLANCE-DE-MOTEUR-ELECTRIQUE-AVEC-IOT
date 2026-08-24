@@ -55,7 +55,10 @@ if (!saveJpeg($img, $uploadPath, 90)) {
 }
 
 $logoUpdated = false;
-if ($type === 'poster_civil' || $type === 'poster_blanche') {
+if ($type === 'couple') {
+    @copy($uploadPath, $uploadDir . '/couple_logo.jpg');
+    $logoUpdated = true;
+} elseif ($type === 'poster_civil' || $type === 'poster_blanche') {
     $logoUpdated = extractCoupleLogo($img, $uploadDir, $type === 'poster_blanche');
     @copy($uploadPath, $uploadDir . '/couple_logo.jpg');
 }
@@ -100,13 +103,9 @@ function saveJpeg(GdImage $img, string $path, int $quality): bool {
 }
 
 function tryCopyAssets(GdImage $img, string $type, string $assetsDir): void {
-    $map = [
-        'couple' => ['couple_photo.png', 'app-icon.png'],
-        'poster_civil' => ['template_mariage_civil.png'],
-        'poster_blanche' => ['template_affiche_blanche.png'],
-    ];
-    foreach ($map[$type] ?? [] as $name) {
-        @imagejpeg($img, $assetsDir . '/' . str_replace('.png', '.jpg', $name), 90);
+    if ($type === 'couple') {
+        @imagejpeg($img, $assetsDir . '/couple_photo.jpg', 90);
+        @imagejpeg($img, $assetsDir . '/app-icon.jpg', 90);
     }
 }
 

@@ -1,84 +1,61 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=1200, height=1700"/>
-<style>
-@font-face { font-family: 'Great Vibes'; src: url('file:///android_asset/fonts/GreatVibes.ttf'); }
-@font-face { font-family: 'Playfair'; src: url('file:///android_asset/fonts/PlayfairDisplay-Regular.ttf'); }
-@font-face { font-family: 'Playfair'; font-weight: 700; src: url('file:///android_asset/fonts/PlayfairDisplay.ttf'); }
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:1200px; height:1700px; overflow:hidden; background:#fff; }
-.poster { width:1200px; height:1700px; position:relative; }
-.bg-affiche { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.couple-logo {
-  position:absolute; left:40px; top:40px; width:200px; height:260px;
-  object-fit:cover; object-position:center top; z-index:3;
-  border:3px solid #D4B896; border-radius:16px; background:#fff;
-  box-shadow:0 4px 20px rgba(0,0,0,0.15);
-}
-.guest-block {
-  position:absolute; top:272px; left:518px; width:640px; z-index:5;
-}
-.guest-label {
-  font-family:'Playfair',Georgia,serif; font-size:19px; color:#333;
-}
-.guest-name {
-  font-family:'Playfair',Georgia,serif; font-size:26px; font-weight:700;
-  color:#1a1a1a; border-bottom:2px dotted #888; padding-bottom:3px;
-  margin-top:2px; line-height:1.2;
-}
-.table-badge {
-  position:absolute; top:218px; left:55px; width:400px; text-align:center; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:24px; color:#333;
-}
-.table-badge span {
-  font-weight:700; color:#6B2D82; border-bottom:3px dotted #999; padding:0 16px;
-}
-.date-line, .time-line, .venue-line {
-  position:absolute; left:490px; width:660px; z-index:5;
-  font-family:'Playfair',Georgia,serif; font-size:22px; color:#222;
-}
-.date-line { top:920px; }
-.time-line { top:980px; }
-.venue-line { top:1040px; line-height:1.4; }
-.seats-badge {
-  position:absolute; bottom:340px; right:60px; z-index:5;
-  font-size:18px; font-weight:700; color:#6B2D82;
-}
-.qr-zone {
-  position:absolute; left:50px; bottom:70px; z-index:10;
-  width:{{QR_SIZE}}px; text-align:center;
-}
-.qr-box {
-  width:{{QR_SIZE}}px; height:{{QR_SIZE}}px;
-  background:#fff; padding:10px; border-radius:14px;
-  border:3px solid #6B2D82;
-  box-shadow:0 6px 28px rgba(107,45,130,0.35);
-}
-.qr-box img { width:100%; height:100%; display:block; }
-.qr-label {
-  margin-top:8px; font-family:'Playfair',Georgia,serif;
-  font-size:16px; font-weight:700; color:#6B2D82;
-}
-</style>
-</head>
-<body>
-<div class="poster">
-  <img class="bg-affiche" src="{{POSTER_BG}}" alt="Affiche"/>
-  <div class="table-badge">Table <span>{{TABLE}}</span></div>
-  <div class="guest-block">
-    <div class="guest-label">Mme, Mlle, Mr, Couple :</div>
-    <div class="guest-name">{{GUEST_NAME}}</div>
+<div class="poster poster-civil">
+  <div class="watermark"></div>
+  <div class="border-frame"></div>
+  <div class="border-curve"></div>
+  <div class="crest-top"></div>
+
+  <img class="rose-corner rose-tl" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="rose-corner rose-tr" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="rose-corner rose-bl" src="assets/img/roses-corner.svg" alt=""/>
+  <img class="rose-corner rose-br" src="assets/img/roses-corner.svg" alt=""/>
+  <div class="vine-bl"></div>
+  <div class="vine-br"></div>
+
+  <div class="left-panel">
+    <img class="couple-photo" data-bind="couple" src="" alt="Moïse & Sarah"/>
   </div>
-  <div class="date-line"><strong>Date :</strong> {{EVENT_DATE}}</div>
-  <div class="time-line"><strong>Heure :</strong> {{EVENT_TIME}}</div>
-  <div class="venue-line"><strong>Lieu :</strong> {{EVENT_VENUE}}</div>
-  <div class="seats-badge">{{SEATS}} place(s) • Table {{TABLE}}</div>
+
+  <div class="table-line">Table <span data-bind="table">—</span></div>
+
+  <div class="right-panel">
+    <h1 class="title-invitation">Invitation</h1>
+    <div class="title-underline"></div>
+
+    <div class="guest-row">
+      <span class="guest-prefix">Mme, Mlle, Mr, Couple :</span>
+      <span class="name" data-bind="guest">Nom invité</span>
+    </div>
+
+    <p class="intro">Les familles NKUBA et BANZA vous invitent<br/>à prendre part au mariage civil<br/>de leur fils et fille :</p>
+
+    <div class="names-block">
+      <span class="name-line"></span>
+      <div class="name-script">Moïse NKUBA</div>
+      <div class="ampersand">&amp;</div>
+      <div class="name-script">Sarah KASONGO</div>
+      <span class="name-line"></span>
+    </div>
+
+    <div class="detail-row">
+      <span class="icon-circle icon-cal">📅</span>
+      <span><strong>Date :</strong> <span data-bind="date">Vendredi, le 11 Septembre 2026</span></span>
+    </div>
+    <div class="detail-row">
+      <span class="icon-circle icon-clock">🕐</span>
+      <span><strong>Time :</strong> <span data-bind="time">11h00</span></span>
+    </div>
+    <div class="detail-row">
+      <span class="icon-circle icon-pin">📍</span>
+      <span><strong>Address :</strong> <span data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</span></span>
+    </div>
+
+    <p class="closing">Votre présence fera notre immense joie.</p>
+  </div>
+
+  <div class="seats-badge"><span data-bind="seats">1</span> place(s) • Table <span data-bind="table2">—</span></div>
+
   <div class="qr-zone">
-    <div class="qr-box"><img src="{{QR_DATA}}" alt="QR Code invitation"/></div>
+    <div class="qr-box"><div data-bind="qr" class="qr-canvas" aria-label="QR Code"></div></div>
     <div class="qr-label">Scannez pour valider</div>
   </div>
 </div>
-</body>
-</html>
