@@ -6,6 +6,7 @@ import '../config/api_config.dart';
 import '../services/sms_api_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/phone_utils.dart';
+import '../widgets/app_logo.dart';
 
 class ComposeScreen extends StatefulWidget {
   const ComposeScreen({super.key});
@@ -27,13 +28,16 @@ class _ComposeScreenState extends State<ComposeScreen> {
     super.dispose();
   }
 
+  int get _numberCount =>
+      PhoneUtils.parseNumbers(_numbersController.text).length;
+
   Future<void> _importContacts() async {
     final status = await Permission.contacts.request();
     if (!status.isGranted) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Permission contacts refusée'),
+          content: Text('Autorisez l\'accès aux contacts dans les paramètres'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -54,9 +58,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
     for (final contact in selected) {
       for (final phone in contact.phones) {
         final normalized = PhoneUtils.normalize(phone.number);
-        if (normalized.length >= 9) {
-          numbers.add(normalized);
-        }
+        if (normalized.length >= 9) numbers.add(normalized);
       }
     }
 
@@ -70,10 +72,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
 
     final existing = PhoneUtils.parseNumbers(_numbersController.text);
     final merged = {...existing, ...numbers}.toList();
-
-    setState(() {
-      _numbersController.text = merged.join(', ');
-    });
+    setState(() => _numbersController.text = merged.join(', '));
   }
 
   Future<void> _sendSms() async {
@@ -81,16 +80,11 @@ class _ComposeScreenState extends State<ComposeScreen> {
     final numbers = PhoneUtils.parseNumbers(_numbersController.text);
 
     if (message.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez saisir un message')),
-      );
+      _showHelp('Écrivez votre message avant d\'envoyer');
       return;
     }
-
     if (numbers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez ajouter au moins un numéro')),
-      );
+      _showHelp('Ajoutez au moins un numéro de téléphone');
       return;
     }
 
@@ -101,30 +95,31 @@ class _ComposeScreenState extends State<ComposeScreen> {
         message: message,
         mobileNumbers: numbers,
       );
-
       if (!mounted) return;
 
-      showDialog(
+      await showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Row(
             children: [
-              Icon(Icons.check_circle, color: AppTheme.accent),
-              SizedBox(width: 8),
-              Text('SMS envoyé'),
+              Icon(Icons.check_circle, color: AppTheme.brandGreen, size: 32),
+              SizedBox(width: 10),
+              Expanded(child: Text('Message envoyé !')),
             ],
           ),
           content: Text(
-            '${results.length} message(s) envoyé(s) avec succès\n'
-            'Expéditeur: ${ApiConfig.senderId}',
+            '${results.length} SMS envoyé(s) avec succès.\n\n'
+            'Expéditeur : ${ApiConfig.senderId}',
+            style: const TextStyle(fontSize: 16, height: 1.5),
           ),
           actions: [
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: const Text('OK'),
+              child: const Text('Terminer'),
             ),
           ],
         ),
@@ -135,14 +130,17 @@ class _ComposeScreenState extends State<ComposeScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(e.toString()), backgroundColor: AppTheme.brandRed),
       );
     } finally {
       if (mounted) setState(() => _sending = false);
     }
+  }
+
+  void _showHelp(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -150,97 +148,144 @@ class _ComposeScreenState extends State<ComposeScreen> {
     final charCount = _messageController.text.length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Composer un SMS')),
+      appBar: const AppHeader(title: 'Nouveau SMS', showLogo: false),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  const Icon(Icons.badge, color: AppTheme.primary),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Expéditeur',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      Text(
-                        ApiConfig.senderId,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          _StepHeader(
+            step: 1,
+            title: 'Votre message',
+            subtitle: 'Maximum 160 caractères par SMS',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextField(
             controller: _messageController,
-            maxLines: 6,
+            maxLines: 5,
             maxLength: 160,
+            style: const TextStyle(fontSize: 16),
             onChanged: (_) => setState(() {}),
             decoration: const InputDecoration(
-              labelText: 'Message',
-              hintText: 'Tapez votre message ici...',
-              alignLabelWithHint: true,
+              hintText: 'Tapez ici votre message...',
+              counterText: '',
             ),
           ),
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '$charCount / 160 caractères',
+              '$charCount / 160',
               style: TextStyle(
-                color: charCount > 160 ? Colors.red : Colors.grey,
-                fontSize: 12,
+                fontSize: 14,
+                color: charCount > 140 ? AppTheme.brandRed : AppTheme.textSecondary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          _StepHeader(
+            step: 2,
+            title: 'Destinataires',
+            subtitle: 'Numéros séparés par virgule ou retour à la ligne',
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _numbersController,
             maxLines: 4,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'Numéros de téléphone',
-              hintText: '243890626351, 243999999999\n(un par ligne ou séparés par virgule)',
-              alignLabelWithHint: true,
+            style: const TextStyle(fontSize: 16),
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Exemple :\n243890626351\n243999999999',
+              suffixText: _numberCount > 0 ? '$_numberCount num.' : null,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           OutlinedButton.icon(
             onPressed: _sending ? null : _importContacts,
-            icon: const Icon(Icons.contacts),
-            label: const Text('Importer depuis les contacts'),
+            icon: const Icon(Icons.contacts_outlined, size: 24),
+            label: const Text('Choisir dans mes contacts'),
+          ),
+          const SizedBox(height: 28),
+          Card(
+            color: AppTheme.brandGreen.withValues(alpha: 0.08),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: AppTheme.brandGreen),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Le SMS sera envoyé au nom de : ${ApiConfig.senderId}',
+                      style: const TextStyle(fontSize: 14, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _sending ? null : _sendSms,
             icon: _sending
                 ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
-                : const Icon(Icons.send),
-            label: Text(_sending ? 'Envoi en cours...' : 'Envoyer'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 56),
-              backgroundColor: AppTheme.accent,
-            ),
+                : const Icon(Icons.send_rounded, size: 24),
+            label: Text(_sending ? 'Envoi en cours...' : 'Envoyer maintenant'),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StepHeader extends StatelessWidget {
+  final int step;
+  final String title;
+  final String subtitle;
+
+  const _StepHeader({
+    required this.step,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: AppTheme.brandRed,
+          child: Text(
+            '$step',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -269,44 +314,56 @@ class _ContactPickerDialogState extends State<_ContactPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Sélectionner des contacts'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Choisir des contacts'),
       content: SizedBox(
         width: double.maxFinite,
-        height: 400,
+        height: 420,
         child: Column(
           children: [
             TextField(
               decoration: const InputDecoration(
-                hintText: 'Rechercher...',
+                hintText: 'Rechercher un nom...',
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) => setState(() => _filter = value),
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: _filtered.length,
-                itemBuilder: (context, index) {
-                  final contact = _filtered[index];
-                  final id = contact.id;
-                  final phones = contact.phones.map((p) => p.number).join(', ');
+              child: _filtered.isEmpty
+                  ? const Center(child: Text('Aucun contact trouvé'))
+                  : ListView.builder(
+                      itemCount: _filtered.length,
+                      itemBuilder: (context, index) {
+                        final contact = _filtered[index];
+                        final id = contact.id;
+                        final phones =
+                            contact.phones.map((p) => p.number).join(', ');
 
-                  return CheckboxListTile(
-                    value: _selected.contains(id),
-                    title: Text(contact.displayName),
-                    subtitle: Text(phones, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    onChanged: (checked) {
-                      setState(() {
-                        if (checked == true) {
-                          _selected.add(id);
-                        } else {
-                          _selected.remove(id);
-                        }
-                      });
-                    },
-                  );
-                },
-              ),
+                        return CheckboxListTile(
+                          value: _selected.contains(id),
+                          title: Text(
+                            contact.displayName,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          subtitle: Text(
+                            phones,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                _selected.add(id);
+                              } else {
+                                _selected.remove(id);
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -317,12 +374,14 @@ class _ContactPickerDialogState extends State<_ContactPickerDialog> {
           child: const Text('Annuler'),
         ),
         ElevatedButton(
-          onPressed: () {
-            final picked = widget.contacts
-                .where((c) => _selected.contains(c.id))
-                .toList();
-            Navigator.pop(context, picked);
-          },
+          onPressed: _selected.isEmpty
+              ? null
+              : () {
+                  final picked = widget.contacts
+                      .where((c) => _selected.contains(c.id))
+                      .toList();
+                  Navigator.pop(context, picked);
+                },
           child: Text('Ajouter (${_selected.length})'),
         ),
       ],

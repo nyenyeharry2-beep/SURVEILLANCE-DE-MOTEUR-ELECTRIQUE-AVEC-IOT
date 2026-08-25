@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/sms_models.dart';
 import '../services/sms_api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_logo.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -48,112 +49,169 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   String _formatDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '';
-    try {
-      final parsed = DateTime.tryParse(dateStr);
-      if (parsed != null) {
-        return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
-      }
-      return dateStr;
-    } catch (_) {
-      return dateStr;
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed != null) {
+      return DateFormat('dd/MM/yyyy à HH:mm').format(parsed);
     }
+    return dateStr;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Historique'),
+      appBar: AppHeader(
+        title: 'Historique',
+        showLogo: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, size: 28),
             onPressed: _loading ? null : _loadHistory,
+            tooltip: 'Actualiser',
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator(color: AppTheme.brandRed));
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud_off, size: 64, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'Impossible de charger l\'historique',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Text(_error!, textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _loadHistory,
+                child: const Text('Réessayer'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_history.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.inbox_outlined, size: 72, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              const Text(
+                'Aucun message envoyé',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Vos SMS envoyés apparaîtront ici',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      color: AppTheme.brandRed,
+      onRefresh: _loadHistory,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _history.length,
+        itemBuilder: (context, index) {
+          final item = _history[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(_error!, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadHistory,
-                        child: const Text('Réessayer'),
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandRed.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.sms_outlined, color: AppTheme.brandRed),
                       ),
-                    ],
-                  ),
-                )
-              : _history.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.inbox, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('Aucun message envoyé'),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadHistory,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _history.length,
-                        itemBuilder: (context, index) {
-                          final item = _history[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor:
-                                    AppTheme.primary.withValues(alpha: 0.1),
-                                child: const Icon(
-                                  Icons.sms,
-                                  color: AppTheme.primary,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.mobileNumber,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (item.sentDate != null)
+                              Text(
+                                _formatDate(item.sentDate),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.textSecondary,
                                 ),
                               ),
-                              title: Text(item.mobileNumber),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    item.message,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (item.sentDate != null) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _formatDate(item.sentDate),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              trailing: item.status != null
-                                  ? Chip(
-                                      label: Text(
-                                        item.status!,
-                                        style: const TextStyle(fontSize: 10),
-                                      ),
-                                      backgroundColor:
-                                          AppTheme.accent.withValues(alpha: 0.1),
-                                    )
-                                  : null,
-                              isThreeLine: true,
-                            ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
-                    ),
+                      if (item.status != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.brandGreen.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            item.status!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.brandGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    item.message,
+                    style: const TextStyle(fontSize: 15, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
