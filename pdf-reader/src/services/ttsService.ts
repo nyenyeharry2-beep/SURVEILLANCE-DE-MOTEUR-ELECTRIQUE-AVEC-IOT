@@ -1,5 +1,22 @@
 import { Capacitor } from '@capacitor/core';
-import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import {
+  BUNDLED_FRENCH_VOICES,
+  DEFAULT_PIPER_VOICE,
+  getActivePiperVoiceId,
+  getActivePiperVoiceLabel,
+  initializePiperTts,
+  isPiperPaused,
+  isPiperSpeaking,
+  isPiperTtsAvailable,
+  pausePiperSpeech,
+  resetPiperTtsInit,
+  resumePiperSpeech,
+  speakWithPiper,
+  stopPiperSpeech,
+  type PiperInitProgress,
+} from './piperTtsService';
+
+export type { PiperInitProgress };
 
 export interface SpeakHandlers {
   onStart?: () => void;
@@ -13,30 +30,16 @@ export interface SpeakOptions {
   voiceUri: string | null;
 }
 
-export interface NativeVoiceOption {
-  index: number;
-  voiceURI: string;
-  name: string;
-  lang: string;
-  localService: boolean;
-}
+export { BUNDLED_FRENCH_VOICES, DEFAULT_PIPER_VOICE };
 
-const FRENCH_LANGUAGE_CANDIDATES = ['fr-FR', 'fr-fr', 'fr-CA', 'fr-BE', 'fr'];
-
-let initPromise: Promise<void> | null = null;
-let resolvedLanguage = 'fr-FR';
-let resolvedVoiceName: string | null = null;
-let cachedVoices: NativeVoiceOption[] = [];
-
-export function resetNativeTtsInit(): void {
-  initPromise = null;
-}
-
-let pausedOnNative = false;
 let webPaused = false;
 
 export function isNativeTtsAvailable(): boolean {
-  return Capacitor.isNativePlatform();
+  return Capacitor.isNativePlatform() && isPiperTtsAvailable();
+}
+
+export function usesBundledVoice(): boolean {
+  return Capacitor.isNativePlatform() || isPiperTtsAvailable();
 }
 
 export function getAvailableVoices(): SpeechSynthesisVoice[] {
@@ -44,6 +47,13 @@ export function getAvailableVoices(): SpeechSynthesisVoice[] {
     return [];
   }
   return window.speechSynthesis.getVoices();
+}
+
+function resolvePiperVoiceId(voiceUri: string | null) {
+  if (voiceUri && BUNDLED_FRENCH_VOICES.some((voice) => voice.id === voiceUri)) {
+    return voiceUri;
+  }
+  return DEFAULT_PIPER_VOICE;
 }
 
 function pickWebVoice(language: string, voiceUri: string | null): SpeechSynthesisVoice | null {
@@ -151,279 +161,43 @@ function chunkText(text: string, maxLength = 3200): string[] {
   return chunks.filter(Boolean);
 }
 
-async function delay(ms: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function languagePrefix(language: string): string {
-  return language.slice(0, 2).toLowerCase();
-}
-
-function scoreNativeVoice(voice: NativeVoiceOption, preferredLanguage: string): number {
-  const lang = voice.lang.toLowerCase();
-  const preferred = preferredLanguage.toLowerCase();
-  const preferredShort = languagePrefix(preferred);
-  const haystack = `${voice.voiceURI} ${voice.name}`.toLowerCase();
-
-  let score = 0;
-
-  if (lang === preferred) {
-    score += 120;
-  } else if (lang.startsWith(preferredShort)) {
-    score += 100;
-  } else if (preferredShort === 'fr' && lang.startsWith('fr')) {
-    score += 90;
-  }
-
-  if (preferred.startsWith('fr') && lang === 'fr-fr') {
-    score += 25;
-  }
-
-  if (voice.localService) {
-    score += 8;
-  }
-
-  if (haystack.includes('wavenet') || haystack.includes('neural')) {
-    score += 60;
-  }
-  if (haystack.includes('premium') || haystack.includes('enhanced') || haystack.includes('natural')) {
-    score += 45;
-  }
-  if (haystack.includes('fr-fr') || haystack.includes('fra') || haystack.includes('french')) {
-    score += 30;
-  }
-  if (haystack.includes('network')) {
-    score += 20;
-  }
-
-  return score;
-}
-
-async function loadNativeVoices(): Promise<NativeVoiceOption[]> {
-  const { voices } = await TextToSpeech.getSupportedVoices();
-  cachedVoices = voices.map((voice, index) => ({
-    index,
-    voiceURI: voice.voiceURI,
-    name: voice.name,
-    lang: voice.lang,
-    localService: voice.localService,
-  }));
-  return cachedVoices;
-}
-
-export async function getNativeVoicesForLanguage(language: string): Promise<NativeVoiceOption[]> {
-  if (!isNativeTtsAvailable()) {
-    return [];
-  }
-
-  await initializeNativeTts(language);
-  const prefix = languagePrefix(language);
-  const matching = cachedVoices.filter((voice) => voice.lang.toLowerCase().startsWith(prefix));
-
-  return matching.sort(
-    (left, right) => scoreNativeVoice(right, language) - scoreNativeVoice(left, language),
-  );
-}
-
-async function pickNativeVoice(
-  preferredLanguage: string,
-  voiceUri: string | null,
-): Promise<{ lang: string; voiceIndex: number; voiceName: string } | null> {
-  const voices = cachedVoices.length > 0 ? cachedVoices : await loadNativeVoices();
-  const prefix = languagePrefix(preferredLanguage);
-
-  if (voiceUri) {
-    const selected = voices.find((voice) => voice.voiceURI === voiceUri);
-    if (selected && selected.lang.toLowerCase().startsWith(prefix)) {
-      return {
-        lang: selected.lang,
-        voiceIndex: selected.index,
-        voiceName: selected.name,
-      };
-    }
-  }
-
-  const matching = voices
-    .filter((voice) => voice.lang.toLowerCase().startsWith(prefix))
-    .sort((left, right) => scoreNativeVoice(right, preferredLanguage) - scoreNativeVoice(left, preferredLanguage));
-
-  if (matching.length > 0) {
-    const best = matching[0];
-    return {
-      lang: best.lang,
-      voiceIndex: best.index,
-      voiceName: best.name,
-    };
-  }
-
-  return null;
-}
-
-async function isLanguageSupported(lang: string): Promise<boolean> {
-  try {
-    const result = await TextToSpeech.isLanguageSupported({ lang });
-    return result.supported;
-  } catch {
-    return false;
-  }
-}
-
-async function pickNativeLanguageTag(preferred: string): Promise<string> {
-  const prefix = languagePrefix(preferred);
-  const candidates =
-    prefix === 'fr'
-      ? [preferred, ...FRENCH_LANGUAGE_CANDIDATES]
-      : [preferred, preferred.includes('-') ? preferred.split('-')[0] : `${preferred}-${preferred.toUpperCase()}`];
-
-  const unique = [...new Set(candidates.filter(Boolean))];
-
-  for (const lang of unique) {
-    if (await isLanguageSupported(lang)) {
-      return lang;
-    }
-  }
-
-  const voices = cachedVoices.length > 0 ? cachedVoices : await loadNativeVoices();
-  const voiceMatch = voices.find((voice) => voice.lang.toLowerCase().startsWith(prefix));
-  if (voiceMatch) {
-    return voiceMatch.lang;
-  }
-
-  if (prefix === 'fr') {
-    throw new Error(
-      'Aucune voix française détectée. Installez « Google Text-to-Speech » puis la voix Français (France) via « Installer la voix ».',
-    );
-  }
-
-  return preferred;
-}
-
-export async function initializeNativeTts(preferredLanguage = 'fr-FR'): Promise<void> {
-  if (!isNativeTtsAvailable()) {
+export async function initializeNativeTts(
+  preferredLanguage = 'fr-FR',
+  onProgress?: (progress: PiperInitProgress) => void,
+): Promise<void> {
+  if (!usesBundledVoice()) {
     return;
   }
 
-  if (initPromise) {
-    return initPromise;
-  }
-
-  initPromise = (async () => {
-    for (let attempt = 0; attempt < 40; attempt += 1) {
-      try {
-        await loadNativeVoices();
-        const voice = await pickNativeVoice(preferredLanguage, null);
-        if (voice) {
-          resolvedLanguage = voice.lang;
-          resolvedVoiceName = voice.voiceName;
-          return;
-        }
-
-        resolvedLanguage = await pickNativeLanguageTag(preferredLanguage);
-        resolvedVoiceName = null;
-        return;
-      } catch (error) {
-        if (error instanceof Error && error.message.includes('Aucune voix française')) {
-          throw error;
-        }
-      }
-      await delay(200);
-    }
-
-    throw new Error(
-      'Moteur vocal non disponible. Installez « Google Text-to-Speech » et la voix française (Réglages → Installer la voix).',
-    );
-  })();
-
-  try {
-    await initPromise;
-  } catch (error) {
-    resetNativeTtsInit();
-    throw error;
-  }
-}
-
-export async function openNativeTtsInstall(): Promise<void> {
-  if (!isNativeTtsAvailable()) {
-    return;
-  }
-  await TextToSpeech.openInstall();
+  void preferredLanguage;
+  await initializePiperTts(DEFAULT_PIPER_VOICE, onProgress);
 }
 
 export function getResolvedNativeLanguage(): string {
-  return resolvedLanguage;
+  return 'fr-FR';
 }
 
-export function getResolvedNativeVoiceName(): string | null {
-  return resolvedVoiceName;
+export function getResolvedNativeVoiceName(): string {
+  return getActivePiperVoiceLabel();
 }
 
-async function speakNativeChunk(
-  text: string,
-  options: SpeakOptions,
-): Promise<void> {
-  const voice = await pickNativeVoice(options.language, options.voiceUri);
-  const lang = voice?.lang ?? (await pickNativeLanguageTag(options.language));
-  resolvedLanguage = lang;
-  resolvedVoiceName = voice?.voiceName ?? null;
+export async function openNativeTtsInstall(): Promise<void> {
+  return;
+}
 
-  const naturalRate = Math.max(0.5, Math.min(1.6, options.rate * 0.96));
+export async function getNativeVoicesForLanguage(language: string) {
+  void language;
+  return BUNDLED_FRENCH_VOICES.map((voice) => ({
+    index: 0,
+    voiceURI: voice.id,
+    name: voice.label,
+    lang: 'fr-FR',
+    localService: true,
+  }));
+}
 
-  const speakOptions: Parameters<typeof TextToSpeech.speak>[0] = {
-    text,
-    lang,
-    rate: naturalRate,
-    pitch: 1,
-    volume: 1,
-    voice: voice?.voiceIndex,
-  };
-
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    try {
-      await TextToSpeech.speak(speakOptions);
-      return;
-    } catch (error) {
-      lastError = error;
-      resetNativeTtsInit();
-      await delay(300 * (attempt + 1));
-      try {
-        await initializeNativeTts(options.language);
-        const refreshedVoice = await pickNativeVoice(options.language, options.voiceUri);
-        if (refreshedVoice) {
-          speakOptions.lang = refreshedVoice.lang;
-          speakOptions.voice = refreshedVoice.voiceIndex;
-        }
-      } catch {
-        // nouvelle tentative au prochain tour
-      }
-    }
-  }
-
-  const message =
-    lastError instanceof Error ? lastError.message : String(lastError ?? 'Erreur inconnue');
-
-  if (
-    message.includes('not supported') ||
-    message.includes('language') ||
-    message.includes('This language is not supported')
-  ) {
-    throw new Error(
-      'Voix française non installée. Allez dans Réglages → Installer la voix, puis choisissez une voix « Français ».',
-    );
-  }
-
-  if (message.includes('Not yet initialized') || message.includes('not available')) {
-    throw new Error('Moteur vocal en cours de démarrage. Réessayez dans quelques secondes.');
-  }
-
-  if (message.includes('Failed to read text')) {
-    throw new Error(
-      'Impossible de lire le texte. Choisissez une voix française dans Réglages, puis réessayez.',
-    );
-  }
-
-  throw new Error(`Synthèse vocale : ${message}`);
+export async function getNativeLanguages(): Promise<string[]> {
+  return ['fr-FR'];
 }
 
 export class TextToSpeechEngine {
@@ -435,7 +209,6 @@ export class TextToSpeechEngine {
     handlers: SpeakHandlers = {},
   ): Promise<void> {
     await this.stop();
-    pausedOnNative = false;
     webPaused = false;
 
     if (!text.trim()) {
@@ -443,28 +216,30 @@ export class TextToSpeechEngine {
       return;
     }
 
-    if (isNativeTtsAvailable()) {
+    if (usesBundledVoice()) {
       try {
-        await initializeNativeTts(options.language);
+        const voiceId = resolvePiperVoiceId(options.voiceUri);
+        await initializePiperTts(voiceId);
         handlers.onStart?.();
         this.speaking = true;
 
         const units = splitIntoSpeechUnits(text);
         for (const unit of units) {
-          if (pausedOnNative) {
+          if (isPiperPaused() || !this.speaking) {
             break;
           }
-          await speakNativeChunk(unit, options);
+          await speakWithPiper(unit, options.rate, voiceId);
         }
 
         this.speaking = false;
-        if (!pausedOnNative) {
+        if (!isPiperPaused()) {
           handlers.onEnd?.();
         }
       } catch (error) {
         this.speaking = false;
+        resetPiperTtsInit();
         handlers.onError?.(
-          error instanceof Error ? error.message : 'Erreur de synthèse vocale Android',
+          error instanceof Error ? error.message : 'Erreur de synthèse vocale',
         );
       }
       return;
@@ -503,10 +278,9 @@ export class TextToSpeechEngine {
   }
 
   async pause(): Promise<void> {
-    if (isNativeTtsAvailable()) {
-      pausedOnNative = true;
+    if (usesBundledVoice()) {
       this.speaking = false;
-      await TextToSpeech.stop();
+      await pausePiperSpeech();
       return;
     }
 
@@ -517,8 +291,9 @@ export class TextToSpeechEngine {
   }
 
   async resume(): Promise<void> {
-    if (isNativeTtsAvailable()) {
-      pausedOnNative = false;
+    if (usesBundledVoice()) {
+      await resumePiperSpeech();
+      this.speaking = isPiperSpeaking();
       return;
     }
 
@@ -529,16 +304,11 @@ export class TextToSpeechEngine {
   }
 
   async stop(): Promise<void> {
-    pausedOnNative = false;
     webPaused = false;
     this.speaking = false;
 
-    if (isNativeTtsAvailable()) {
-      try {
-        await TextToSpeech.stop();
-      } catch {
-        // ignore
-      }
+    if (usesBundledVoice()) {
+      await stopPiperSpeech();
       return;
     }
 
@@ -548,15 +318,15 @@ export class TextToSpeechEngine {
   }
 
   isSpeaking(): boolean {
-    if (isNativeTtsAvailable()) {
-      return this.speaking;
+    if (usesBundledVoice()) {
+      return isPiperSpeaking() || this.speaking;
     }
     return window.speechSynthesis?.speaking ?? false;
   }
 
   isPaused(): boolean {
-    if (isNativeTtsAvailable()) {
-      return pausedOnNative;
+    if (usesBundledVoice()) {
+      return isPiperPaused();
     }
     return window.speechSynthesis?.paused ?? webPaused;
   }
@@ -564,24 +334,6 @@ export class TextToSpeechEngine {
 
 export const ttsEngine = new TextToSpeechEngine();
 
-export async function getNativeLanguages(): Promise<string[]> {
-  if (!isNativeTtsAvailable()) {
-    return ['fr-FR', 'en-US'];
-  }
-  try {
-    await initializeNativeTts('fr-FR');
-    const french = cachedVoices
-      .map((voice) => voice.lang)
-      .filter((lang, index, list) => lang.toLowerCase().startsWith('fr') && list.indexOf(lang) === index);
-
-    if (french.length > 0) {
-      return french.sort();
-    }
-
-    const { languages } = await TextToSpeech.getSupportedLanguages();
-    const sorted = languages.filter((lang) => lang.toLowerCase().startsWith('fr'));
-    return sorted.length > 0 ? sorted : ['fr-FR', 'en-US'];
-  } catch {
-    return ['fr-FR', 'fr-CA', 'en-US'];
-  }
+export function getActiveVoiceId(): string {
+  return getActivePiperVoiceId();
 }

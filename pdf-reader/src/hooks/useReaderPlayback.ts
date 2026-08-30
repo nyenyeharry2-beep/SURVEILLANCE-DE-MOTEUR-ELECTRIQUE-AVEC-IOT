@@ -150,7 +150,7 @@ export function useReaderPlayback({
           setTtsError(
             error instanceof Error
               ? error.message
-              : 'Moteur vocal non disponible. Allez dans Réglages pour installer la voix.',
+              : 'Impossible de préparer la voix intégrée.',
           );
           return;
         }

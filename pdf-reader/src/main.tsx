@@ -8,7 +8,7 @@ import { initializeNativeTts } from './services/ttsService';
 
 if (Capacitor.isNativePlatform()) {
   void initializeNativeTts('fr-FR').catch(() => {
-    // l'utilisateur peut installer la voix depuis Réglages
+    // affiché dans Réglages si échec
   });
 }
 

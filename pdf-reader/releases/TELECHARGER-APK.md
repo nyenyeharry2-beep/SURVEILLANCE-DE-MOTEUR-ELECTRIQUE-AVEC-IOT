@@ -1,35 +1,35 @@
-# Télécharger Lumen Reader APK v1.3 (voix française naturelle)
+# Télécharger Lumen Reader APK v1.4 (voix française intégrée)
 
-## ⚠️ Important — nouvelle version v1.3
+## ⚠️ Important — nouvelle version v1.4
 
-La v1.2 pouvait lire en **anglais** avec une voix robotique. La v1.3 corrige :
-- sélection automatique d'une **voix française** (Google TTS) ;
-- menu **Voix** dans Réglages pour choisir la voix la plus naturelle ;
-- lecture **phrase par phrase** avec pauses ;
-- vitesse par défaut **0,92x** (plus naturelle).
+Plus besoin d'installer **Google Text-to-Speech** ni de télécharger une voix séparée.
 
-**Désinstallez l'ancienne version** avant d'installer la v1.3.
+La v1.4 inclut directement dans l'APK :
+- une **voix française naturelle** (Piper — Siwis) ;
+- le **moteur vocal** complet (aucun téléchargement externe) ;
+- lecture **phrase par phrase** en français.
 
-## GitHub Release v1.3 (permanent)
+**Désinstallez l'ancienne version** avant d'installer la v1.4.
 
-https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.3/lumen-reader-debug.apk
+> Note : le premier lancement peut prendre 20–40 secondes pendant la préparation de la voix intégrée (une seule fois).
 
-## Configuration recommandée
+## GitHub Release v1.4 (permanent)
 
-1. Ouvrez **Réglages**
-2. Langue : **Français (France)**
-3. Voix : choisissez une voix avec **(réseau — plus naturelle)** si vous avez Internet
-4. Vitesse : **0,85x à 1,0x**
-5. Appuyez sur **Tester la voix** — vous devez entendre du français fluide
+https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.4/lumen-reader-debug.apk
 
-## Comment utiliser la lecture audio
+## Utilisation
 
-1. **Réglages** → configurez la voix française
-2. **Bibliothèque** → **🔊 Écouter** sur un document
-3. La voix démarre automatiquement
+1. Installez l'APK v1.4
+2. Ouvrez **Réglages** → **Tester la voix** (première fois : patientez)
+3. **Bibliothèque** → **🔊 Écouter** sur un document
+
+## Réglages audio
+
+- **Voix** : Français — Siwis (intégrée)
+- **Vitesse** : 0,85x à 1,0x recommandé
 
 ## Installation
 
 1. Désinstallez l'ancienne version
-2. Installez la nouvelle APK
+2. Installez la nouvelle APK (~120 Mo — voix incluse)
 3. Autorisez sources inconnues si demandé

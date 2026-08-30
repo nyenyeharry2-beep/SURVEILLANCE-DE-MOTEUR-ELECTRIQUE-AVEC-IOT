@@ -13,6 +13,7 @@ export default defineConfig({
         'icons.svg',
         'tessdata/*.gz',
         'tesseract/*',
+        'piper/**/*',
       ],
       manifest: {
         name: 'Lumen Reader',
@@ -49,9 +50,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,gz,mjs,webp,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,gz,mjs,webp,webmanifest,onnx,json}'],
         navigateFallback: '/index.html',
-        maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 70 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === 'document',
@@ -69,7 +70,7 @@ export default defineConfig({
     }),
   ],
   optimizeDeps: {
-    include: ['pdfjs-dist', 'tesseract.js', 'dexie'],
+    include: ['pdfjs-dist', 'tesseract.js', 'dexie', '@realtimex/piper-tts-web', 'onnxruntime-web'],
   },
   build: {
     chunkSizeWarningLimit: 5000,

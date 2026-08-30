@@ -14,7 +14,7 @@ import type { UserPreferences } from '../types/document';
 const defaultPreferences: UserPreferences = {
   id: 'default',
   speed: Capacitor.isNativePlatform() ? 0.92 : 1,
-  voiceUri: null,
+  voiceUri: 'fr_FR-siwis-medium',
   language: 'fr-FR',
   autoPlay: Capacitor.isNativePlatform(),
 };
