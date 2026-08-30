@@ -1,0 +1,96 @@
+.auth-page,
+.profile-page {
+  display: grid;
+  gap: 1rem;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.auth-card {
+  display: grid;
+  gap: 0.875rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+}
+
+.auth-card h2 {
+  margin: 0;
+}
+
+.auth-card label {
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.auth-card input,
+.auth-card select {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text);
+}
+
+.auth-card button {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, var(--color-primary), #6366f1);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-error {
+  margin: 0;
+  color: #fca5a5;
+  font-size: 0.875rem;
+}
+
+.profile-email {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.profile-logout {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: #fca5a5 !important;
+}
+
+.profile-message {
+  margin: 0;
+  color: #86efac;
+  font-size: 0.875rem;
+}
+
+.profile-checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.profile-history li {
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.875rem;
+}
+
+.profile-history span {
+  color: #a5b4fc;
+  font-weight: 700;
+  margin-right: 0.375rem;
+}

@@ -1,0 +1,115 @@
+.document-card {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(79, 70, 229, 0.45);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+}
+
+.document-card__cover {
+  display: grid;
+  place-items: center;
+  min-height: 7rem;
+  border-radius: 0.875rem;
+  color: white;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.document-card__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+}
+
+.document-card__meta,
+.document-card__date,
+.document-card__tags {
+  margin: 0.375rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.document-card__tags {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
+.document-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+}
+
+.document-card__progress-bar {
+  flex: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.document-card__progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.document-card__progress-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.document-card__button {
+  display: inline-flex;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(79, 70, 229, 0.15);
+  color: #c7d2fe;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.document-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.document-card__delete {
+  padding: 0.625rem 1rem;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #fca5a5;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.document-card__button:hover {
+  background: rgba(79, 70, 229, 0.28);
+}
+
+@media (max-width: 520px) {
+  .document-card {
+    grid-template-columns: 1fr;
+  }
+
+  .document-card__cover {
+    min-height: 5rem;
+  }
+}

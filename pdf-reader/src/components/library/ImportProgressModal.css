@@ -1,0 +1,49 @@
+.import-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.import-modal__card {
+  width: min(100%, 24rem);
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+}
+
+.import-modal__card h3 {
+  margin: 0 0 0.5rem;
+}
+
+.import-modal__card p {
+  margin: 0 0 1rem;
+  color: var(--color-text-muted);
+}
+
+.import-modal__bar {
+  height: 0.625rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.import-modal__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transition: width 0.25s ease;
+}
+
+.import-modal__percent {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
