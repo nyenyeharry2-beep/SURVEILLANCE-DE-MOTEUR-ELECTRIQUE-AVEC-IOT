@@ -94,3 +94,18 @@
   font-weight: 700;
   margin-right: 0.375rem;
 }
+
+.settings-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, var(--color-primary), #6366f1);
+  color: white !important;
+  text-align: center;
+  font-weight: 700;
+}
+
+.settings-link--secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text) !important;
+}

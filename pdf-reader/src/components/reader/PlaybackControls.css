@@ -50,10 +50,9 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-.playback-controls__btn--primary {
-  border-color: transparent;
-  color: white;
-  background: linear-gradient(135deg, var(--color-primary), #6366f1);
+.playback-controls__btn--listen {
+  font-size: 1.0625rem;
+  padding: 0.875rem 1rem;
 }
 
 .playback-controls__speed {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { AiPanel } from '../components/reader/AiPanel';
 import { PdfViewer } from '../components/reader/PdfViewer';
 import { PlaybackControls } from '../components/reader/PlaybackControls';
@@ -12,6 +13,7 @@ import './ReaderPage.css';
 
 export function ReaderPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { getDocument, updateProgress, recordOpen, getSavedReadingState } = useLibrary();
   const { preferences, updatePreferences } = usePreferences();
   const document = id ? getDocument(id) : undefined;
@@ -21,6 +23,10 @@ export function ReaderPage() {
   const [searchHighlightIds, setSearchHighlightIds] = useState<string[]>([]);
 
   const segments = document?.segments ?? [];
+  const forceAutoplay =
+    searchParams.get('autoplay') === '1' ||
+    preferences.autoPlay ||
+    Capacitor.isNativePlatform();
 
   useEffect(() => {
     if (!document) {
@@ -51,6 +57,7 @@ export function ReaderPage() {
     currentSegmentIndex,
     currentSegment,
     currentPage,
+    ttsError,
     play,
     pause,
     goPrevious,
@@ -62,6 +69,7 @@ export function ReaderPage() {
     language: preferences.language,
     voiceUri: preferences.voiceUri,
     initialSegmentIndex: initialIndex,
+    autoStart: ready && forceAutoplay,
     onProgress: handleProgress,
   });
 
@@ -78,20 +86,13 @@ export function ReaderPage() {
 
   const statusLabel = useMemo(() => {
     if (playback === 'playing') {
-      return 'Lecture en cours';
+      return 'Lecture audio en cours';
     }
     if (playback === 'paused') {
-      return 'En pause';
+      return 'Audio en pause';
     }
-    return 'Prêt';
+    return 'Prêt à écouter';
   }, [playback]);
-
-  useEffect(() => {
-    if (!ready || !preferences.autoPlay || playback !== 'idle' || segments.length === 0) {
-      return;
-    }
-    play();
-  }, [ready, preferences.autoPlay, playback, segments.length, play]);
 
   if (!document) {
     return (
@@ -104,7 +105,7 @@ export function ReaderPage() {
   }
 
   if (!ready) {
-    return <p className="reader-page__loading">Chargement du lecteur…</p>;
+    return <p className="reader-page__loading">Préparation de la lecture audio…</p>;
   }
 
   return (
@@ -117,11 +118,12 @@ export function ReaderPage() {
           <h2>{document.title}</h2>
           <p>
             {document.author} · {document.pageCount} pages
-            {document.isScanned ? ' · PDF scanné (OCR)' : ' · Texte natif'}
           </p>
         </div>
         <span className="reader-page__status">{statusLabel}</span>
       </header>
+
+      {ttsError && <p className="reader-page__error">{ttsError}</p>}
 
       <div className="reader-page__layout">
         <PdfViewer
@@ -140,23 +142,28 @@ export function ReaderPage() {
         />
       </div>
 
-      <PlaybackControls
-        playback={playback}
-        speed={preferences.speed}
-        currentSegment={currentSegmentIndex}
-        totalSegments={segments.length}
-        onPlay={play}
-        onPause={pause}
-        onPrevious={goPrevious}
-        onNext={goNext}
-        onSpeedChange={(speed) => updatePreferences({ speed })}
-      />
+      <div className="reader-page__audio-bar">
+        <p className="reader-page__audio-hint">
+          Lecture audio — le passage surligné est lu à voix haute
+        </p>
+        <PlaybackControls
+          playback={playback}
+          speed={preferences.speed}
+          currentSegment={currentSegmentIndex}
+          totalSegments={segments.length}
+          onPlay={() => void play()}
+          onPause={() => void pause()}
+          onPrevious={() => void goPrevious()}
+          onNext={() => void goNext()}
+          onSpeedChange={(speed) => updatePreferences({ speed })}
+        />
+      </div>
 
       <AiPanel
         segments={segments}
         currentSegment={currentSegment}
         onJumpToSegment={(segmentId) => {
-          jumpToSegment(segmentId);
+          void jumpToSegment(segmentId);
           setSearchHighlightIds([segmentId]);
         }}
       />

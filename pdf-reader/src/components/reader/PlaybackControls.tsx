@@ -28,19 +28,19 @@ export function PlaybackControls({
   const isPlaying = playback === 'playing';
 
   return (
-    <section className="playback-controls" aria-label="Contrôles de lecture">
+    <section className="playback-controls" aria-label="Contrôles lecture audio">
       <div className="playback-controls__progress">
         <div className="playback-controls__progress-bar">
           <span style={{ width: `${progress}%` }} />
         </div>
         <p className="playback-controls__progress-text">
-          Segment {Math.min(currentSegment + 1, totalSegments)} / {totalSegments}
+          Passage {Math.min(currentSegment + 1, totalSegments)} / {totalSegments}
         </p>
       </div>
 
       <div className="playback-controls__actions">
         <button type="button" className="playback-controls__btn" onClick={onPrevious}>
-          Précédent
+          ⏮ Précédent
         </button>
 
         {isPlaying ? (
@@ -49,20 +49,20 @@ export function PlaybackControls({
             className="playback-controls__btn playback-controls__btn--primary"
             onClick={onPause}
           >
-            Pause
+            ⏸ Pause
           </button>
         ) : (
           <button
             type="button"
-            className="playback-controls__btn playback-controls__btn--primary"
+            className="playback-controls__btn playback-controls__btn--primary playback-controls__btn--listen"
             onClick={onPlay}
           >
-            Lire
+            🔊 Écouter
           </button>
         )}
 
         <button type="button" className="playback-controls__btn" onClick={onNext}>
-          Suivant
+          Suivant ⏭
         </button>
       </div>
 

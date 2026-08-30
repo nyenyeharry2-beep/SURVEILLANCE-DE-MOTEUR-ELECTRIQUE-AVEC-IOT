@@ -1,6 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { OfflineBanner } from '../common/OfflineBanner';
-import { useAuth } from '../../context/AuthContext';
 import './AppLayout.css';
 
 const navItems = [
@@ -9,8 +8,6 @@ const navItems = [
 ];
 
 export function AppLayout() {
-  const { user } = useAuth();
-
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -38,12 +35,12 @@ export function AppLayout() {
             </NavLink>
           ))}
           <NavLink
-            to={user ? '/profile' : '/login'}
+            to="/settings"
             className={({ isActive }) =>
               `app-header__link${isActive ? ' app-header__link--active' : ''}`
             }
           >
-            {user ? 'Profil' : 'Connexion'}
+            Réglages
           </NavLink>
         </nav>
       </header>
@@ -67,12 +64,12 @@ export function AppLayout() {
           </NavLink>
         ))}
         <NavLink
-          to={user ? '/profile' : '/login'}
+          to="/settings"
           className={({ isActive }) =>
             `bottom-nav__link${isActive ? ' bottom-nav__link--active' : ''}`
           }
         >
-          {user ? 'Profil' : 'Compte'}
+          Réglages
         </NavLink>
       </nav>
     </div>

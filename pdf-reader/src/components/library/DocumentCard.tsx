@@ -31,25 +31,24 @@ export function DocumentCard({ document, onDelete }: DocumentCardProps) {
         <p className="document-card__meta">
           {document.author} · {document.pageCount} pages
         </p>
-        <p className="document-card__tags">
-          {document.hasPdfBlob ? (
-            document.isScanned ? 'OCR' : 'Texte natif'
-          ) : (
-            'Démo'
-          )}
-        </p>
         <p className="document-card__date">Ajouté le {formatDate(document.addedAt)}</p>
 
         <div className="document-card__progress">
           <div className="document-card__progress-bar">
             <span style={{ width: `${document.progress}%` }} />
           </div>
-          <span className="document-card__progress-label">{document.progress}% lu</span>
+          <span className="document-card__progress-label">{document.progress}% écouté</span>
         </div>
 
         <div className="document-card__actions">
+          <Link
+            to={`/reader/${document.id}?autoplay=1`}
+            className="document-card__button document-card__button--listen"
+          >
+            🔊 Écouter
+          </Link>
           <Link to={`/reader/${document.id}`} className="document-card__button">
-            Ouvrir le lecteur
+            Lire le texte
           </Link>
           {onDelete && (
             <button type="button" className="document-card__delete" onClick={onDelete}>

@@ -1,31 +1,33 @@
-# Liens de téléchargement Lumen Reader APK
+# Télécharger Lumen Reader APK v1.1 (avec lecture audio)
 
-## Lien direct (sans GitHub) — recommandé
+## ⚠️ Important — nouvelle version v1.1
 
-**Cliquez ici pour télécharger immédiatement :**
+La v1.0 n'avait **pas de voix sur Android**. Installez la **v1.1** ci-dessous.
 
-https://tmpfiles.org/dl/1788079559.3cbd02ca8291c491/wxwNB2x2zs5U/lumen-reader-debug.apk
+## Lien direct (sans GitHub)
 
-- Taille : ~40 Mo
-- Pas de compte GitHub nécessaire
-- ⚠️ Lien temporaire (plusieurs jours)
+https://tmpfiles.org/dl/REPLACE_ME/lumen-reader-debug.apk
 
-## Lien alternatif (Gofile)
+## GitHub Release v1.1 (permanent)
 
-https://gofile.io/d/L4W4eVtG
+https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.1/lumen-reader-debug.apk
 
-1. Ouvrez le lien
-2. Cliquez sur le bouton **Download**
-3. Installez l'APK
+## Comment utiliser la lecture audio
 
-## Lien permanent (GitHub Release)
+1. Ouvrez **Bibliothèque**
+2. Appuyez sur **🔊 Écouter** sur un document
+3. La voix démarre **automatiquement**
+4. Utilisez **Pause** / **Suivant** en bas de l'écran
 
-https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.0/lumen-reader-debug.apk
+## Réglages
 
-## Installation Android
+Onglet **Réglages** (plus « Compte ») :
+- Langue de lecture
+- Vitesse
+- Lecture automatique on/off
 
-1. Téléchargez le fichier `.apk`
-2. Ouvrez **Fichiers** → **Téléchargements**
-3. Appuyez sur `lumen-reader-debug.apk`
-4. Autorisez **Installer des applications inconnues** si demandé
-5. Appuyez sur **Installer**
+## Installation
+
+1. Désinstallez l'ancienne version si installée
+2. Installez la nouvelle APK
+3. Autorisez sources inconnues si demandé

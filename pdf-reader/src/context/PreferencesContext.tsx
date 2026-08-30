@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import {
   createContext,
   useCallback,
@@ -10,6 +11,14 @@ import {
 import { getPreferences, savePreferences } from '../services/db';
 import type { UserPreferences } from '../types/document';
 
+const defaultPreferences: UserPreferences = {
+  id: 'default',
+  speed: 1,
+  voiceUri: null,
+  language: 'fr-FR',
+  autoPlay: Capacitor.isNativePlatform(),
+};
+
 interface PreferencesContextValue {
   preferences: UserPreferences;
   loading: boolean;
@@ -19,13 +28,7 @@ interface PreferencesContextValue {
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
-  const [preferences, setPreferences] = useState<UserPreferences>({
-    id: 'default',
-    speed: 1,
-    voiceUri: null,
-    language: 'fr-FR',
-    autoPlay: false,
-  });
+  const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

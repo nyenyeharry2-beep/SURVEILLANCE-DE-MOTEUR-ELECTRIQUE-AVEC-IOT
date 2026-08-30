@@ -73,14 +73,11 @@
   white-space: nowrap;
 }
 
-.document-card__button {
-  display: inline-flex;
-  padding: 0.625rem 1rem;
-  border-radius: 0.75rem;
-  background: rgba(79, 70, 229, 0.15);
-  color: #c7d2fe;
-  font-weight: 600;
-  font-size: 0.875rem;
+.document-card__button--listen {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  font-size: 1rem;
+  padding: 0.75rem 1.125rem;
 }
 
 .document-card__actions {

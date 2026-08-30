@@ -65,7 +65,7 @@ export function HomePage() {
         ) : (
           <div className="home-recent">
             {recentDocuments.map((doc) => (
-              <Link key={doc.id} to={`/reader/${doc.id}`} className="home-recent__item">
+              <Link key={doc.id} to={`/reader/${doc.id}?autoplay=1`} className="home-recent__item">
                 <span
                   className="home-recent__cover"
                   style={{ backgroundColor: doc.coverColor }}
@@ -83,7 +83,7 @@ export function HomePage() {
       <section className="home-section">
         <div className="home-section__header">
           <h3>Historique récent</h3>
-          {user && <Link to="/profile">Profil</Link>}
+          {user && <Link to="/settings">Réglages</Link>}
         </div>
         {history.length === 0 ? (
           <p className="home-empty">Aucune activité enregistrée.</p>

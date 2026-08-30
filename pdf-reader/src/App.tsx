@@ -6,7 +6,7 @@ import { PreferencesProvider } from './context/PreferencesContext';
 import { HomePage } from './routes/HomePage';
 import { LibraryPage } from './routes/LibraryPage';
 import { LoginPage } from './routes/LoginPage';
-import { ProfilePage } from './routes/ProfilePage';
+import { SettingsPage } from './routes/SettingsPage';
 import { ReaderPage } from './routes/ReaderPage';
 import { RegisterPage } from './routes/RegisterPage';
 
@@ -23,7 +23,8 @@ function App() {
                 <Route path="reader/:id" element={<ReaderPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
-                <Route path="profile" element={<ProfilePage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="profile" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>
