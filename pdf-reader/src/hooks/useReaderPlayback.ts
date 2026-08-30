@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { initializeNativeTts, isNativeTtsAvailable, ttsEngine } from '../services/ttsService';
+import { ttsEngine } from '../services/ttsService';
 import type { PlaybackState, TextSegment } from '../types/document';
 import { estimateReadingProgress } from '../services/textProcessing';
 
@@ -141,23 +141,8 @@ export function useReaderPlayback({
       return;
     }
     autoStartedRef.current = true;
-
-    void (async () => {
-      if (isNativeTtsAvailable()) {
-        try {
-          await initializeNativeTts(language);
-        } catch (error) {
-          setTtsError(
-            error instanceof Error
-              ? error.message
-              : 'Impossible de préparer la voix intégrée.',
-          );
-          return;
-        }
-      }
-      await play();
-    })();
-  }, [autoStart, segments.length, play, language]);
+    void play();
+  }, [autoStart, segments.length, play]);
 
   useEffect(() => {
     if (playback === 'playing' && ttsEngine.isSpeaking()) {

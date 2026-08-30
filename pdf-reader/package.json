@@ -15,14 +15,12 @@
     "android:release": "npm run cap:sync && cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^8.0.2",
     "@capacitor/android": "^8.5.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
-    "@diffusionstudio/piper-wasm": "^1.0.0",
-    "@realtimex/piper-tts-web": "^1.1.1",
     "dexie": "^4.4.5",
-    "onnxruntime-web": "^1.29.0",
     "pdfjs-dist": "^6.3.289",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

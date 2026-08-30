@@ -1,22 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import {
-  BUNDLED_FRENCH_VOICES,
-  DEFAULT_PIPER_VOICE,
-  getActivePiperVoiceId,
-  getActivePiperVoiceLabel,
-  initializePiperTts,
-  isPiperPaused,
-  isPiperSpeaking,
-  isPiperTtsAvailable,
-  pausePiperSpeech,
-  resetPiperTtsInit,
-  resumePiperSpeech,
-  speakWithPiper,
-  stopPiperSpeech,
-  type PiperInitProgress,
-} from './piperTtsService';
-
-export type { PiperInitProgress };
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 export interface SpeakHandlers {
   onStart?: () => void;
@@ -30,16 +13,25 @@ export interface SpeakOptions {
   voiceUri: string | null;
 }
 
-export { BUNDLED_FRENCH_VOICES, DEFAULT_PIPER_VOICE };
+export interface NativeVoiceOption {
+  index: number;
+  voiceURI: string;
+  name: string;
+  lang: string;
+  localService: boolean;
+}
 
+const FRENCH_LANGS = ['fr-FR', 'fr-CA', 'fr-BE', 'fr'];
+
+let engineReady = false;
+let resolvedLanguage = 'fr-FR';
+let resolvedVoiceName: string | null = null;
+let cachedVoices: NativeVoiceOption[] = [];
+let pausedOnNative = false;
 let webPaused = false;
 
 export function isNativeTtsAvailable(): boolean {
-  return Capacitor.isNativePlatform() && isPiperTtsAvailable();
-}
-
-export function usesBundledVoice(): boolean {
-  return Capacitor.isNativePlatform() || isPiperTtsAvailable();
+  return Capacitor.isNativePlatform();
 }
 
 export function getAvailableVoices(): SpeechSynthesisVoice[] {
@@ -47,13 +39,6 @@ export function getAvailableVoices(): SpeechSynthesisVoice[] {
     return [];
   }
   return window.speechSynthesis.getVoices();
-}
-
-function resolvePiperVoiceId(voiceUri: string | null) {
-  if (voiceUri && BUNDLED_FRENCH_VOICES.some((voice) => voice.id === voiceUri)) {
-    return voiceUri;
-  }
-  return DEFAULT_PIPER_VOICE;
 }
 
 function pickWebVoice(language: string, voiceUri: string | null): SpeechSynthesisVoice | null {
@@ -74,66 +59,20 @@ function pickWebVoice(language: string, voiceUri: string | null): SpeechSynthesi
   );
 }
 
-function prepareTextForNaturalSpeech(text: string): string {
+function prepareText(text: string): string {
   return text
     .replace(/\r\n/g, '\n')
     .replace(/\n{2,}/g, '. ')
     .replace(/\n/g, ' ')
     .replace(/\s+/g, ' ')
-    .replace(/([.!?…])(?=[A-ZÀÂÄÉÈÊËÏÎÔÙÛÜŸÇ])/g, '$1 ')
-    .replace(/([.!?…])(?!\s|$)/g, '$1 ')
-    .replace(/([;:])\s*/g, '$1 ')
-    .replace(/\s*—\s*/g, ', ')
-    .replace(/\s*\.\.\.\s*/g, '. ')
     .trim();
 }
 
-function splitIntoSpeechUnits(text: string, maxLength = 420): string[] {
-  const prepared = prepareTextForNaturalSpeech(text);
-  if (!prepared) {
+function chunkText(text: string, maxLength = 2800): string[] {
+  const trimmed = prepareText(text);
+  if (!trimmed) {
     return [];
   }
-
-  const sentences = prepared
-    .split(/(?<=[.!?…])\s+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (sentences.length === 0) {
-    return prepared.length <= maxLength ? [prepared] : chunkText(prepared, maxLength);
-  }
-
-  const units: string[] = [];
-  let buffer = '';
-
-  for (const sentence of sentences) {
-    const next = buffer ? `${buffer} ${sentence}` : sentence;
-    if (next.length <= maxLength) {
-      buffer = next;
-      continue;
-    }
-
-    if (buffer) {
-      units.push(buffer);
-    }
-
-    if (sentence.length <= maxLength) {
-      buffer = sentence;
-    } else {
-      units.push(...chunkText(sentence, maxLength));
-      buffer = '';
-    }
-  }
-
-  if (buffer) {
-    units.push(buffer);
-  }
-
-  return units;
-}
-
-function chunkText(text: string, maxLength = 3200): string[] {
-  const trimmed = text.trim();
   if (trimmed.length <= maxLength) {
     return [trimmed];
   }
@@ -161,43 +100,168 @@ function chunkText(text: string, maxLength = 3200): string[] {
   return chunks.filter(Boolean);
 }
 
-export async function initializeNativeTts(
-  preferredLanguage = 'fr-FR',
-  onProgress?: (progress: PiperInitProgress) => void,
-): Promise<void> {
-  if (!usesBundledVoice()) {
+async function delay(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForNativeEngine(): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      await TextToSpeech.getSupportedLanguages();
+      engineReady = true;
+      return;
+    } catch {
+      await delay(150);
+    }
+  }
+}
+
+async function loadNativeVoices(): Promise<NativeVoiceOption[]> {
+  await waitForNativeEngine();
+  const { voices } = await TextToSpeech.getSupportedVoices();
+  cachedVoices = voices.map((voice, index) => ({
+    index,
+    voiceURI: voice.voiceURI,
+    name: voice.name,
+    lang: voice.lang,
+    localService: voice.localService,
+  }));
+  return cachedVoices;
+}
+
+function pickFrenchVoice(voiceUri: string | null): NativeVoiceOption | null {
+  if (voiceUri) {
+    const selected = cachedVoices.find((voice) => voice.voiceURI === voiceUri);
+    if (selected?.lang.toLowerCase().startsWith('fr')) {
+      return selected;
+    }
+  }
+
+  const frenchVoices = cachedVoices.filter((voice) => voice.lang.toLowerCase().startsWith('fr'));
+  if (frenchVoices.length === 0) {
+    return null;
+  }
+
+  return frenchVoices.find((voice) => voice.lang.toLowerCase() === 'fr-fr') ?? frenchVoices[0];
+}
+
+export async function initializeNativeTts(preferredLanguage = 'fr-FR'): Promise<void> {
+  if (!isNativeTtsAvailable()) {
+    return;
+  }
+
+  await loadNativeVoices();
+  const voice = pickFrenchVoice(null);
+  if (voice) {
+    resolvedLanguage = voice.lang;
+    resolvedVoiceName = voice.name;
     return;
   }
 
   void preferredLanguage;
-  await initializePiperTts(DEFAULT_PIPER_VOICE, onProgress);
-}
-
-export function getResolvedNativeLanguage(): string {
-  return 'fr-FR';
-}
-
-export function getResolvedNativeVoiceName(): string {
-  return getActivePiperVoiceLabel();
+  resolvedLanguage = 'fr-FR';
+  resolvedVoiceName = null;
 }
 
 export async function openNativeTtsInstall(): Promise<void> {
-  return;
+  if (!isNativeTtsAvailable()) {
+    return;
+  }
+  await TextToSpeech.openInstall();
 }
 
-export async function getNativeVoicesForLanguage(language: string) {
-  void language;
-  return BUNDLED_FRENCH_VOICES.map((voice) => ({
-    index: 0,
-    voiceURI: voice.id,
-    name: voice.label,
-    lang: 'fr-FR',
-    localService: true,
-  }));
+export function getResolvedNativeLanguage(): string {
+  return resolvedLanguage;
+}
+
+export function getResolvedNativeVoiceName(): string | null {
+  return resolvedVoiceName;
+}
+
+export async function getNativeVoicesForLanguage(language: string): Promise<NativeVoiceOption[]> {
+  if (!isNativeTtsAvailable()) {
+    return [];
+  }
+  await loadNativeVoices();
+  const prefix = language.slice(0, 2).toLowerCase();
+  return cachedVoices.filter((voice) => voice.lang.toLowerCase().startsWith(prefix));
 }
 
 export async function getNativeLanguages(): Promise<string[]> {
-  return ['fr-FR'];
+  if (!isNativeTtsAvailable()) {
+    return ['fr-FR', 'en-US'];
+  }
+  try {
+    await loadNativeVoices();
+    const french = [
+      ...new Set(
+        cachedVoices
+          .map((voice) => voice.lang)
+          .filter((lang) => lang.toLowerCase().startsWith('fr')),
+      ),
+    ];
+    return french.length > 0 ? french : ['fr-FR'];
+  } catch {
+    return ['fr-FR'];
+  }
+}
+
+async function speakNative(text: string, options: SpeakOptions): Promise<void> {
+  if (!engineReady) {
+    await waitForNativeEngine();
+  }
+  if (cachedVoices.length === 0) {
+    await loadNativeVoices();
+  }
+
+  const voice = pickFrenchVoice(options.voiceUri);
+  const langCandidates = [
+    voice?.lang,
+    options.language,
+    ...FRENCH_LANGS,
+  ].filter(Boolean) as string[];
+
+  const uniqueLangs = [...new Set(langCandidates)];
+  const rate = Math.max(0.5, Math.min(1.6, options.rate));
+  const chunks = chunkText(text);
+
+  let lastError: unknown;
+
+  for (const chunk of chunks) {
+    if (pausedOnNative) {
+      return;
+    }
+
+    let spoke = false;
+    for (const lang of uniqueLangs) {
+      const voiceIndexes = voice ? [voice.index, -1] : [-1];
+      for (const voiceIndex of voiceIndexes) {
+        try {
+          await TextToSpeech.speak({
+            text: chunk,
+            lang,
+            rate,
+            pitch: 1,
+            volume: 1,
+            voice: voiceIndex,
+          });
+          resolvedLanguage = lang;
+          resolvedVoiceName = voice?.name ?? resolvedVoiceName;
+          spoke = true;
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (spoke) {
+        break;
+      }
+    }
+
+    if (!spoke) {
+      throw lastError instanceof Error ? lastError : new Error('Lecture vocale impossible');
+    }
+  }
 }
 
 export class TextToSpeechEngine {
@@ -209,6 +273,7 @@ export class TextToSpeechEngine {
     handlers: SpeakHandlers = {},
   ): Promise<void> {
     await this.stop();
+    pausedOnNative = false;
     webPaused = false;
 
     if (!text.trim()) {
@@ -216,30 +281,21 @@ export class TextToSpeechEngine {
       return;
     }
 
-    if (usesBundledVoice()) {
+    if (isNativeTtsAvailable()) {
       try {
-        const voiceId = resolvePiperVoiceId(options.voiceUri);
-        await initializePiperTts(voiceId);
         handlers.onStart?.();
         this.speaking = true;
-
-        const units = splitIntoSpeechUnits(text);
-        for (const unit of units) {
-          if (isPiperPaused() || !this.speaking) {
-            break;
-          }
-          await speakWithPiper(unit, options.rate, voiceId);
-        }
-
+        await speakNative(text, options);
         this.speaking = false;
-        if (!isPiperPaused()) {
+        if (!pausedOnNative) {
           handlers.onEnd?.();
         }
       } catch (error) {
         this.speaking = false;
-        resetPiperTtsInit();
         handlers.onError?.(
-          error instanceof Error ? error.message : 'Erreur de synthèse vocale',
+          error instanceof Error
+            ? `${error.message}. Essayez Réglages → Mettre à jour les voix du téléphone.`
+            : 'Erreur de synthèse vocale Android',
         );
       }
       return;
@@ -250,7 +306,7 @@ export class TextToSpeechEngine {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(prepareTextForNaturalSpeech(text));
+    const utterance = new SpeechSynthesisUtterance(prepareText(text));
     utterance.rate = options.rate;
     utterance.lang = options.language;
 
@@ -278,9 +334,14 @@ export class TextToSpeechEngine {
   }
 
   async pause(): Promise<void> {
-    if (usesBundledVoice()) {
+    if (isNativeTtsAvailable()) {
+      pausedOnNative = true;
       this.speaking = false;
-      await pausePiperSpeech();
+      try {
+        await TextToSpeech.stop();
+      } catch {
+        // ignore
+      }
       return;
     }
 
@@ -291,9 +352,8 @@ export class TextToSpeechEngine {
   }
 
   async resume(): Promise<void> {
-    if (usesBundledVoice()) {
-      await resumePiperSpeech();
-      this.speaking = isPiperSpeaking();
+    if (isNativeTtsAvailable()) {
+      pausedOnNative = false;
       return;
     }
 
@@ -304,11 +364,16 @@ export class TextToSpeechEngine {
   }
 
   async stop(): Promise<void> {
+    pausedOnNative = false;
     webPaused = false;
     this.speaking = false;
 
-    if (usesBundledVoice()) {
-      await stopPiperSpeech();
+    if (isNativeTtsAvailable()) {
+      try {
+        await TextToSpeech.stop();
+      } catch {
+        // ignore
+      }
       return;
     }
 
@@ -318,22 +383,18 @@ export class TextToSpeechEngine {
   }
 
   isSpeaking(): boolean {
-    if (usesBundledVoice()) {
-      return isPiperSpeaking() || this.speaking;
+    if (isNativeTtsAvailable()) {
+      return this.speaking;
     }
     return window.speechSynthesis?.speaking ?? false;
   }
 
   isPaused(): boolean {
-    if (usesBundledVoice()) {
-      return isPiperPaused();
+    if (isNativeTtsAvailable()) {
+      return pausedOnNative;
     }
     return window.speechSynthesis?.paused ?? webPaused;
   }
 }
 
 export const ttsEngine = new TextToSpeechEngine();
-
-export function getActiveVoiceId(): string {
-  return getActivePiperVoiceId();
-}
