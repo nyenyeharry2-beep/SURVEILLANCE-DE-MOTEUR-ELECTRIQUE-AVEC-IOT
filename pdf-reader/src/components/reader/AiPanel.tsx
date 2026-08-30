@@ -41,7 +41,7 @@ export function AiPanel({ segments, currentSegment, onJumpToSegment }: AiPanelPr
     <section className="ai-panel" aria-label="Assistant IA">
       <div className="ai-panel__header">
         <h3>Assistant IA</h3>
-        <span>{hasAiApiKey() ? 'API connectée' : 'Mode local'}</span>
+        <span>{hasAiApiKey() ? 'API connectée' : 'Mode hors ligne / local'}</span>
       </div>
 
       <div className="ai-panel__actions">

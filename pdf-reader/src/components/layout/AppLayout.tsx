@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { OfflineBanner } from '../common/OfflineBanner';
 import { useAuth } from '../../context/AuthContext';
 import './AppLayout.css';
 
@@ -48,6 +49,7 @@ export function AppLayout() {
       </header>
 
       <main className="app-main">
+        <OfflineBanner />
         <Outlet />
       </main>
 

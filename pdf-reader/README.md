@@ -1,69 +1,91 @@
-# Lumen Reader
+# Lumen Reader — Application hors ligne
 
-Application web complète de lecture PDF intelligente avec synthèse vocale, OCR, stockage local, authentification et assistant IA.
+Lecteur PDF **100 % autonome** : fonctionne **sans internet** après la première installation.
 
-## Installation
+## Installation (une seule fois avec internet)
 
 ```bash
 cd pdf-reader
 npm install
-npm run dev
-```
-
-Ouvrir **http://localhost:5173**
-
-### Build production
-
-```bash
 npm run build
 npm run preview
 ```
 
-### IA avancée (optionnel)
+Ouvrez l’URL affichée (ex. http://localhost:4173), puis :
 
-Créez un fichier `.env` :
+### Sur ordinateur (Chrome / Edge)
+1. Cliquez sur **Installer l'application** (bannière en haut)
+2. Ou menu navigateur → **Installer Lumen Reader**
+
+### Sur Android
+1. Ouvrez l’app dans **Chrome**
+2. Menu ⋮ → **Ajouter à l'écran d'accueil** / **Installer l'application**
+
+### Sur iPhone (Safari)
+1. Ouvrir dans Safari
+2. Bouton **Partager** → **Sur l'écran d'accueil**
+
+---
+
+## Après installation : plus besoin d'internet
+
+| Fonction | Hors ligne |
+|----------|------------|
+| Importer PDF | ✅ |
+| Afficher PDF | ✅ |
+| Extraire texte | ✅ |
+| OCR (PDF scanné) | ✅ |
+| Synthèse vocale | ✅ |
+| Progression sauvegardée | ✅ |
+| Bibliothèque | ✅ |
+| Compte / profil | ✅ |
+| IA locale (résumé basique) | ✅ |
+| IA OpenAI | ❌ (nécessite internet + clé API) |
+
+Toutes les données sont stockées **localement** dans votre appareil (IndexedDB).
+
+---
+
+## Développement
+
+```bash
+npm run dev
+```
+
+## Préparer les ressources offline (OCR)
+
+```bash
+npm run setup:offline
+```
+
+Télécharge les fichiers OCR français/anglais (~17 Mo) et copie Tesseract dans `public/`.
+
+---
+
+## Héberger sur un serveur local (sans cloud)
+
+Après `npm run build`, copiez le dossier `dist/` sur une clé USB ou un mini-serveur :
+
+```bash
+npx serve dist -p 8080
+```
+
+Installez la PWA une fois → fonctionne ensuite **sans connexion**.
+
+---
+
+## Stack offline
+
+- **PWA** + Service Worker (vite-plugin-pwa)
+- **PDF.js** — rendu et extraction locale
+- **Tesseract.js** — OCR local (fra + eng)
+- **Web Speech API** — voix système
+- **Dexie / IndexedDB** — stockage local
+
+## IA avancée (optionnel, internet requis)
 
 ```env
 VITE_OPENAI_API_KEY=sk-...
 ```
 
-Sans clé API, l'assistant IA fonctionne en **mode local** (résumé/extraction basique).
-
-## Fonctionnalités
-
-| Phase | Fonctionnalité |
-|-------|----------------|
-| Interface | Accueil, bibliothèque, lecteur, contrôles |
-| PDF | Import réel, affichage PDF.js, extraction texte, détection scanné |
-| OCR | Tesseract.js pour PDF scannés |
-| Texte | Paragraphes, titres, chapitres, segments, progression |
-| Voix | Web Speech API — Lire, Pause, Reprise, Vitesse, Suivant |
-| Sync | Texte surligné + page PDF + progression sauvegardée |
-| IA | Résumé, Q&R, explication, recherche sémantique |
-| Stockage | IndexedDB — documents, progression, préférences, historique |
-| Auth | Inscription, connexion, profil (local) |
-| PWA | Manifest installable, responsive mobile/desktop |
-
-## Utilisation
-
-1. **Importer un PDF** depuis l'accueil ou la bibliothèque
-2. Attendre l'extraction (OCR automatique si scanné)
-3. Ouvrir le **lecteur** → **Lire** pour la synthèse vocale
-4. La progression est **sauvegardée** automatiquement
-5. Créer un **compte** (Connexion → Inscription) pour le profil et préférences
-6. Utiliser le panneau **Assistant IA** en bas du lecteur
-
-## Test manuel
-
-1. Importer un PDF texte → vérifier affichage + extraction
-2. Cliquer **Lire** → entendre la voix, voir le segment surligné
-3. **Pause** / **Reprendre** / modifier la **vitesse**
-4. Fermer l'onglet, rouvrir le document → reprise au bon segment
-5. Tester **Résumé** et **Question** dans le panneau IA
-6. Créer un compte, modifier les préférences voix/langue
-
-## Stack
-
-- React 19 + TypeScript + Vite
-- PDF.js, Tesseract.js, Dexie (IndexedDB)
-- Web Speech API
+Sans clé ou sans internet : l'assistant IA utilise le **mode local**.

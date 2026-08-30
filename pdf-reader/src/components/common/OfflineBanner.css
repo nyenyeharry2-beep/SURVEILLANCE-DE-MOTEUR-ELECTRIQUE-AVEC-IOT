@@ -1,0 +1,32 @@
+.offline-banner {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.offline-banner__status,
+.offline-banner__install {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.offline-banner__status--offline {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+.offline-banner__status--installed {
+  background: rgba(13, 148, 136, 0.15);
+  color: #5eead4;
+}
+
+.offline-banner__install {
+  border: 1px solid rgba(79, 70, 229, 0.45);
+  background: rgba(79, 70, 229, 0.15);
+  color: #c7d2fe;
+  cursor: pointer;
+  text-align: left;
+}

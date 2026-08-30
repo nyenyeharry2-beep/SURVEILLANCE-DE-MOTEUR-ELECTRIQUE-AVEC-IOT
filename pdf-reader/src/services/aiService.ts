@@ -2,6 +2,10 @@ import type { TextSegment } from '../types/document';
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
 
+function isOnline(): boolean {
+  return typeof navigator === 'undefined' ? false : navigator.onLine;
+}
+
 function buildDocumentContext(segments: TextSegment[], maxChars = 12000): string {
   return segments
     .map((segment) => segment.content)
@@ -13,7 +17,7 @@ async function callOpenAi(
   systemPrompt: string,
   userPrompt: string,
 ): Promise<string | null> {
-  if (!OPENAI_API_KEY) {
+  if (!OPENAI_API_KEY || !isOnline()) {
     return null;
   }
 
@@ -160,5 +164,5 @@ export async function semanticSearch(
 }
 
 export function hasAiApiKey(): boolean {
-  return Boolean(OPENAI_API_KEY);
+  return Boolean(OPENAI_API_KEY) && isOnline();
 }
