@@ -24,11 +24,11 @@ export function HomePage() {
     <div className="home-page">
       <section className="hero-card">
         <div className="hero-card__content">
-          <p className="hero-card__badge">Lumen Reader — Complet</p>
-          <h2>Lisez, écoutez et comprenez vos PDF</h2>
+          <p className="hero-card__badge">100 % hors ligne après installation</p>
+          <h2>Lisez, écoutez et comprenez vos PDF sans internet</h2>
           <p>
-            Importez un PDF, extrayez le texte (OCR si scanné), écoutez avec synthèse vocale,
-            reprenez votre progression et utilisez l&apos;assistant IA.
+            Installez l&apos;application une fois, puis utilisez-la partout : import PDF,
+            OCR, synthèse vocale, progression et bibliothèque — tout est stocké sur votre appareil.
           </p>
           <div className="hero-card__actions">
             <ImportButton />
