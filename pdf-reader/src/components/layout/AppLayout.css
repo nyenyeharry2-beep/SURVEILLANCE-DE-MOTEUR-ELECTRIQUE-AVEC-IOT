@@ -1,0 +1,128 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 40%),
+    radial-gradient(circle at top right, rgba(13, 148, 136, 0.1), transparent 35%),
+    var(--color-bg);
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.app-header__logo {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  font-size: 1.25rem;
+}
+
+.app-header__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.app-header__title {
+  margin: 0.125rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.app-header__nav {
+  display: none;
+  gap: 0.5rem;
+}
+
+.app-header__link {
+  padding: 0.625rem 1rem;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+
+.app-header__link:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.app-header__link--active {
+  color: white;
+  background: var(--color-primary);
+}
+
+.app-main {
+  flex: 1;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 5.5rem;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+}
+
+.bottom-nav__link {
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+  border-radius: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.bottom-nav__link--active {
+  color: white;
+  background: rgba(79, 70, 229, 0.25);
+}
+
+@media (min-width: 768px) {
+  .app-header__nav {
+    display: flex;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .app-main {
+    padding-bottom: 2rem;
+  }
+}
