@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { getHistory } from '../services/db';
-import { getNativeLanguages, isNativeTtsAvailable } from '../services/ttsService';
+import {
+  getNativeLanguages,
+  getResolvedNativeLanguage,
+  initializeNativeTts,
+  isNativeTtsAvailable,
+  openNativeTtsInstall,
+  ttsEngine,
+} from '../services/ttsService';
 import type { HistoryEntry } from '../types/document';
 import './AuthPages.css';
 
@@ -14,6 +21,8 @@ export function SettingsPage() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [languages, setLanguages] = useState<string[]>(['fr-FR', 'en-US', 'es-ES']);
+  const [resolvedLang, setResolvedLang] = useState<string | null>(null);
+  const [ttsStatus, setTtsStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -24,9 +33,21 @@ export function SettingsPage() {
   useEffect(() => {
     getHistory(10).then(setHistory);
     if (isNativeTtsAvailable()) {
-      getNativeLanguages().then(setLanguages);
+      void initializeNativeTts(preferences.language)
+        .then(() => getNativeLanguages())
+        .then((langs) => {
+          setLanguages(langs);
+          setResolvedLang(getResolvedNativeLanguage());
+        })
+        .catch((error) => {
+          setTtsStatus(
+            error instanceof Error
+              ? error.message
+              : 'Moteur vocal non disponible sur cet appareil.',
+          );
+        });
     }
-  }, []);
+  }, [preferences.language]);
 
   return (
     <div className="profile-page">
@@ -69,6 +90,37 @@ export function SettingsPage() {
           />
           Démarrer l&apos;audio automatiquement à l&apos;ouverture d&apos;un document
         </label>
+        {isNativeTtsAvailable() && (
+          <>
+            {resolvedLang && (
+              <p className="profile-email">Voix active : {resolvedLang}</p>
+            )}
+            {ttsStatus && <p className="profile-message">{ttsStatus}</p>}
+            <button
+              type="button"
+              onClick={() => void openNativeTtsInstall()}
+            >
+              Installer / mettre à jour la voix
+            </button>
+            <button
+              type="button"
+              className="settings-link settings-link--secondary"
+              onClick={() => {
+                void ttsEngine.speak(
+                  'Bonjour. Lumen Reader est prêt à lire vos documents.',
+                  { rate: preferences.speed, language: preferences.language, voiceUri: null },
+                  {
+                    onStart: () => setTtsStatus('Test en cours…'),
+                    onEnd: () => setTtsStatus('Test réussi — la voix fonctionne.'),
+                    onError: (message) => setTtsStatus(message),
+                  },
+                );
+              }}
+            >
+              Tester la voix
+            </button>
+          </>
+        )}
       </section>
 
       {user ? (
