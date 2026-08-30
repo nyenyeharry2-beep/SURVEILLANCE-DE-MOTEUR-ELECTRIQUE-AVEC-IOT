@@ -50,6 +50,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,gz,mjs,webp,webmanifest}'],
+        globIgnores: ['**/piper/**'],
         navigateFallback: '/index.html',
         maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
         runtimeCaching: [

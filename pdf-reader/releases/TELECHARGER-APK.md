@@ -1,25 +1,22 @@
-# Télécharger Lumen Reader APK v1.5 (légère et rapide)
+# Télécharger Lumen Reader APK v1.6 (voix intégrée, sans configuration)
 
-## ⚠️ v1.5 — retour à une app légère (~41 Mo)
+## v1.6 — tout est dans l'app
 
-Les versions v1.4/v1.4.1 (126 Mo, moteur Piper) étaient trop lourdes et instables.
-La **v1.5** utilise à nouveau la **voix native du téléphone** — démarrage rapide.
+- **Voix française intégrée** — aucune mise à jour du téléphone requise
+- **Pas de Google Text-to-Speech** à installer
+- APK ~72 Mo (modèle vocal inclus)
+- Premier test vocal : ~5–10 secondes (une seule fois)
 
-**Désinstallez** l'ancienne version avant d'installer.
+**Désinstallez** les anciennes versions (v1.5, v1.4…) avant d'installer.
 
 ## Téléchargement
 
-https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.5/lumen-reader-debug.apk
+https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.6/lumen-reader-debug.apk
 
-## Utilisation audio
+## Utilisation
 
-1. Installez la v1.5
-2. **Réglages** → **Tester la voix**
-3. Si la voix ne parle pas en français → **Mettre à jour les voix du téléphone** → installez **Français (France)**
-4. **Bibliothèque** → **🔊 Écouter**
+1. Installez la v1.6
+2. **Réglages** → **Tester la voix** (patientez quelques secondes la 1ère fois)
+3. **Bibliothèque** → **🔊 Écouter**
 
-## Notes
-
-- APK ~41 Mo (au lieu de 126 Mo)
-- Démarrage immédiat (plus d'attente de 20–40 s)
-- La voix dépend du moteur TTS déjà présent sur votre téléphone
+Aucune étape « mettre à jour les voix du téléphone ».
