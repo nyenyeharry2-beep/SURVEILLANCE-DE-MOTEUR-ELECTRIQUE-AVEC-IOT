@@ -13,7 +13,7 @@ import type { UserPreferences } from '../types/document';
 
 const defaultPreferences: UserPreferences = {
   id: 'default',
-  speed: 1,
+  speed: Capacitor.isNativePlatform() ? 0.92 : 1,
   voiceUri: null,
   language: 'fr-FR',
   autoPlay: Capacitor.isNativePlatform(),

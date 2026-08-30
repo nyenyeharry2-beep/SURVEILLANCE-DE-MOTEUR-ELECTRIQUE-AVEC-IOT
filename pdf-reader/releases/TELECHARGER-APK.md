@@ -1,39 +1,35 @@
-# Télécharger Lumen Reader APK v1.2 (correction synthèse vocale)
+# Télécharger Lumen Reader APK v1.3 (voix française naturelle)
 
-## ⚠️ Important — nouvelle version v1.2
+## ⚠️ Important — nouvelle version v1.3
 
-La v1.1 affichait parfois **« Erreur de synthèse vocale Android »**. La v1.2 corrige :
-- attente du moteur vocal avant la lecture automatique ;
-- choix automatique d'une langue disponible (fr-FR → fr → en-US) ;
-- messages d'erreur plus clairs ;
-- bouton **Installer / mettre à jour la voix** dans Réglages ;
-- bouton **Tester la voix** dans Réglages.
+La v1.2 pouvait lire en **anglais** avec une voix robotique. La v1.3 corrige :
+- sélection automatique d'une **voix française** (Google TTS) ;
+- menu **Voix** dans Réglages pour choisir la voix la plus naturelle ;
+- lecture **phrase par phrase** avec pauses ;
+- vitesse par défaut **0,92x** (plus naturelle).
 
-**Désinstallez l'ancienne version** avant d'installer la v1.2.
+**Désinstallez l'ancienne version** avant d'installer la v1.3.
 
-## GitHub Release v1.2 (permanent)
+## GitHub Release v1.3 (permanent)
 
-https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.2/lumen-reader-debug.apk
+https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.3/lumen-reader-debug.apk
+
+## Configuration recommandée
+
+1. Ouvrez **Réglages**
+2. Langue : **Français (France)**
+3. Voix : choisissez une voix avec **(réseau — plus naturelle)** si vous avez Internet
+4. Vitesse : **0,85x à 1,0x**
+5. Appuyez sur **Tester la voix** — vous devez entendre du français fluide
 
 ## Comment utiliser la lecture audio
 
-1. Ouvrez **Réglages** → appuyez sur **Tester la voix** (première fois)
-2. Si besoin : **Installer / mettre à jour la voix** → installez la voix **Français**
-3. Ouvrez **Bibliothèque**
-4. Appuyez sur **🔊 Écouter** sur un document
-5. La voix démarre **automatiquement**
-
-## Réglages
-
-Onglet **Réglages** :
-- Langue de lecture
-- Vitesse
-- Lecture automatique on/off
-- Installer / mettre à jour la voix
-- Tester la voix
+1. **Réglages** → configurez la voix française
+2. **Bibliothèque** → **🔊 Écouter** sur un document
+3. La voix démarre automatiquement
 
 ## Installation
 
-1. Désinstallez l'ancienne version si installée
+1. Désinstallez l'ancienne version
 2. Installez la nouvelle APK
 3. Autorisez sources inconnues si demandé
