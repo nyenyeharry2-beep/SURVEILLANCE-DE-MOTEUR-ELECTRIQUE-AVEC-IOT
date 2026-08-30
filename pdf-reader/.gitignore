@@ -28,4 +28,11 @@ dev-dist
 public/tesseract/
 public/tessdata/
 
-.env
+# Android
+android/.gradle
+android/app/build
+android/build
+android/local.properties
+android/capacitor-cordova-android-plugins
+*.aab
+!releases/*.apk
