@@ -47,3 +47,9 @@
   color: var(--color-text-muted);
   font-size: 0.8125rem;
 }
+
+.import-button__error {
+  margin: 0.75rem 0 0;
+  color: #fca5a5;
+  font-size: 0.8125rem;
+}

@@ -1,30 +1,8 @@
 # Lumen Reader
 
-Application lecteur PDF intelligente — **Phase 2 : Interface** (données fictives).
+Application web complète de lecture PDF intelligente avec synthèse vocale, OCR, stockage local, authentification et assistant IA.
 
-## Fonctionnalités actuelles
-
-- Accueil avec statistiques et reprise de lecture
-- Bibliothèque de documents fictifs
-- Import PDF simulé (ajoute un document mock)
-- Lecteur avec aperçu PDF placeholder, panneau texte et contrôles
-- Simulation de lecture (segment suivant, pause, vitesse)
-
-## Prochaines phases
-
-| Phase | Contenu |
-|-------|---------|
-| 3 | Import PDF réel, affichage PDF.js, extraction texte |
-| 4 | OCR |
-| 5 | Traitement texte (paragraphes, chapitres, segments) |
-| 6 | Synthèse vocale |
-| 7 | Synchronisation texte / audio / page |
-| 8 | IA |
-| 9 | Stockage persistant |
-| 10 | Authentification |
-| 11 | Optimisation |
-
-## Démarrage
+## Installation
 
 ```bash
 cd pdf-reader
@@ -32,18 +10,60 @@ npm install
 npm run dev
 ```
 
-Ouvrir l’URL affichée (généralement http://localhost:5173).
+Ouvrir **http://localhost:5173**
 
-## Test manuel (Phase 2)
+### Build production
 
-1. **Accueil** — vérifier les stats et les documents récents
-2. **Bibliothèque** — parcourir les 3 documents fictifs
-3. **Import** — cliquer « Importer un PDF », choisir un fichier → redirection vers le lecteur
-4. **Lecteur** — Lire / Pause / Précédent / Suivant / vitesse
-5. **Segment actif** — le passage en cours est surligné dans le panneau texte
-6. **Mobile** — navigation bas de page (Accueil / Bibliothèque)
+```bash
+npm run build
+npm run preview
+```
+
+### IA avancée (optionnel)
+
+Créez un fichier `.env` :
+
+```env
+VITE_OPENAI_API_KEY=sk-...
+```
+
+Sans clé API, l'assistant IA fonctionne en **mode local** (résumé/extraction basique).
+
+## Fonctionnalités
+
+| Phase | Fonctionnalité |
+|-------|----------------|
+| Interface | Accueil, bibliothèque, lecteur, contrôles |
+| PDF | Import réel, affichage PDF.js, extraction texte, détection scanné |
+| OCR | Tesseract.js pour PDF scannés |
+| Texte | Paragraphes, titres, chapitres, segments, progression |
+| Voix | Web Speech API — Lire, Pause, Reprise, Vitesse, Suivant |
+| Sync | Texte surligné + page PDF + progression sauvegardée |
+| IA | Résumé, Q&R, explication, recherche sémantique |
+| Stockage | IndexedDB — documents, progression, préférences, historique |
+| Auth | Inscription, connexion, profil (local) |
+| PWA | Manifest installable, responsive mobile/desktop |
+
+## Utilisation
+
+1. **Importer un PDF** depuis l'accueil ou la bibliothèque
+2. Attendre l'extraction (OCR automatique si scanné)
+3. Ouvrir le **lecteur** → **Lire** pour la synthèse vocale
+4. La progression est **sauvegardée** automatiquement
+5. Créer un **compte** (Connexion → Inscription) pour le profil et préférences
+6. Utiliser le panneau **Assistant IA** en bas du lecteur
+
+## Test manuel
+
+1. Importer un PDF texte → vérifier affichage + extraction
+2. Cliquer **Lire** → entendre la voix, voir le segment surligné
+3. **Pause** / **Reprendre** / modifier la **vitesse**
+4. Fermer l'onglet, rouvrir le document → reprise au bon segment
+5. Tester **Résumé** et **Question** dans le panneau IA
+6. Créer un compte, modifier les préférences voix/langue
 
 ## Stack
 
 - React 19 + TypeScript + Vite
-- React Router v6
+- PDF.js, Tesseract.js, Dexie (IndexedDB)
+- Web Speech API

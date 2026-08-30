@@ -57,6 +57,10 @@
   gap: 1rem;
 }
 
+.reader-page__loading {
+  color: var(--color-text-muted);
+}
+
 @media (min-width: 960px) {
   .reader-page__layout {
     grid-template-columns: 1fr 1fr;

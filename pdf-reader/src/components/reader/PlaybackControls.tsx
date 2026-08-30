@@ -77,10 +77,6 @@ export function PlaybackControls({
           onChange={(event) => onSpeedChange(Number(event.target.value))}
         />
       </label>
-
-      <p className="playback-controls__hint">
-        Phase 2 : simulation visuelle. La synthèse vocale arrive en Phase 6.
-      </p>
     </section>
   );
 }

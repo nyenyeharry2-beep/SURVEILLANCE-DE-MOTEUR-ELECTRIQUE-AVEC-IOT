@@ -1,78 +1,111 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { AiPanel } from '../components/reader/AiPanel';
+import { PdfViewer } from '../components/reader/PdfViewer';
 import { PlaybackControls } from '../components/reader/PlaybackControls';
-import { PdfViewerPlaceholder } from '../components/reader/PdfViewerPlaceholder';
 import { TextPanel } from '../components/reader/TextPanel';
 import { useLibrary } from '../context/LibraryContext';
-import type { PlaybackState } from '../types/document';
+import { usePreferences } from '../context/PreferencesContext';
+import { useReaderPlayback } from '../hooks/useReaderPlayback';
+import { estimateReadingProgress } from '../services/textProcessing';
 import './ReaderPage.css';
 
 export function ReaderPage() {
   const { id } = useParams<{ id: string }>();
-  const { getDocument, updateProgress } = useLibrary();
+  const { getDocument, updateProgress, recordOpen, getSavedReadingState } = useLibrary();
+  const { preferences, updatePreferences } = usePreferences();
   const document = id ? getDocument(id) : undefined;
 
-  const [playback, setPlayback] = useState<PlaybackState>('idle');
-  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
-  const [speed, setSpeed] = useState(1);
+  const [ready, setReady] = useState(false);
+  const [initialIndex, setInitialIndex] = useState(0);
+  const [searchHighlightIds, setSearchHighlightIds] = useState<string[]>([]);
 
   const segments = document?.segments ?? [];
-  const totalSegments = segments.length;
-
-  const currentPage = useMemo(() => {
-    return segments[currentSegmentIndex]?.page ?? 1;
-  }, [segments, currentSegmentIndex]);
 
   useEffect(() => {
-    if (!document || totalSegments === 0) {
+    if (!document) {
       return;
     }
 
-    const progress = Math.round(((currentSegmentIndex + 1) / totalSegments) * 100);
-    updateProgress(document.id, progress);
-  }, [currentSegmentIndex, document, totalSegments, updateProgress]);
+    recordOpen(document);
+    getSavedReadingState(document.id).then((state) => {
+      if (state) {
+        setInitialIndex(state.segmentIndex);
+      }
+      setReady(true);
+    });
+  }, [document, getSavedReadingState, recordOpen]);
+
+  const handleProgress = useCallback(
+    (progress: number, segmentIndex: number, page: number) => {
+      if (!document) {
+        return;
+      }
+      updateProgress(document.id, progress, segmentIndex, page);
+    },
+    [document, updateProgress],
+  );
+
+  const {
+    playback,
+    currentSegmentIndex,
+    currentSegment,
+    currentPage,
+    play,
+    pause,
+    goPrevious,
+    goNext,
+    jumpToSegment,
+  } = useReaderPlayback({
+    segments,
+    speed: preferences.speed,
+    language: preferences.language,
+    voiceUri: preferences.voiceUri,
+    initialSegmentIndex: initialIndex,
+    onProgress: handleProgress,
+  });
 
   useEffect(() => {
-    if (playback !== 'playing' || totalSegments === 0) {
+    if (!document || segments.length === 0) {
       return;
     }
+    handleProgress(
+      estimateReadingProgress(currentSegmentIndex, segments.length),
+      currentSegmentIndex,
+      currentPage,
+    );
+  }, [currentSegmentIndex, currentPage, document, handleProgress, segments.length]);
 
-    const intervalMs = Math.max(800, 2800 / speed);
-    const timer = window.setInterval(() => {
-      setCurrentSegmentIndex((index) => {
-        if (index >= totalSegments - 1) {
-          setPlayback('idle');
-          return index;
-        }
-        return index + 1;
-      });
-    }, intervalMs);
+  const statusLabel = useMemo(() => {
+    if (playback === 'playing') {
+      return 'Lecture en cours';
+    }
+    if (playback === 'paused') {
+      return 'En pause';
+    }
+    return 'Prêt';
+  }, [playback]);
 
-    return () => window.clearInterval(timer);
-  }, [playback, speed, totalSegments]);
+  useEffect(() => {
+    if (!ready || !preferences.autoPlay || playback !== 'idle' || segments.length === 0) {
+      return;
+    }
+    play();
+  }, [ready, preferences.autoPlay, playback, segments.length, play]);
 
   if (!document) {
     return (
       <div className="reader-page reader-page--empty">
         <h2>Document introuvable</h2>
-        <p>Ce document n&apos;existe pas dans la bibliothèque fictive.</p>
+        <p>Ce document n&apos;existe pas dans votre bibliothèque.</p>
         <Link to="/library">Retour à la bibliothèque</Link>
       </div>
     );
   }
 
-  const handlePlay = () => setPlayback('playing');
-  const handlePause = () => setPlayback('paused');
-
-  const handlePrevious = () => {
-    setPlayback('paused');
-    setCurrentSegmentIndex((index) => Math.max(0, index - 1));
-  };
-
-  const handleNext = () => {
-    setPlayback('paused');
-    setCurrentSegmentIndex((index) => Math.min(totalSegments - 1, index + 1));
-  };
+  if (!ready) {
+    return <p className="reader-page__loading">Chargement du lecteur…</p>;
+  }
 
   return (
     <div className="reader-page">
@@ -82,32 +115,50 @@ export function ReaderPage() {
             ← Bibliothèque
           </Link>
           <h2>{document.title}</h2>
-          <p>{document.author} · {document.pageCount} pages</p>
+          <p>
+            {document.author} · {document.pageCount} pages
+            {document.isScanned ? ' · PDF scanné (OCR)' : ' · Texte natif'}
+          </p>
         </div>
-        <span className="reader-page__status">
-          {playback === 'playing' ? 'Lecture simulée' : playback === 'paused' ? 'En pause' : 'Prêt'}
-        </span>
+        <span className="reader-page__status">{statusLabel}</span>
       </header>
 
       <div className="reader-page__layout">
-        <PdfViewerPlaceholder
+        <PdfViewer
+          documentId={document.id}
+          hasPdfBlob={document.hasPdfBlob}
           title={document.title}
           pageCount={document.pageCount}
           currentPage={currentPage}
+          isScanned={document.isScanned}
+          pdfSource={document.pdfSource}
         />
-        <TextPanel segments={segments} currentSegmentIndex={currentSegmentIndex} />
+        <TextPanel
+          segments={segments}
+          currentSegmentIndex={currentSegmentIndex}
+          searchHighlightIds={searchHighlightIds}
+        />
       </div>
 
       <PlaybackControls
         playback={playback}
-        speed={speed}
+        speed={preferences.speed}
         currentSegment={currentSegmentIndex}
-        totalSegments={totalSegments}
-        onPlay={handlePlay}
-        onPause={handlePause}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-        onSpeedChange={setSpeed}
+        totalSegments={segments.length}
+        onPlay={play}
+        onPause={pause}
+        onPrevious={goPrevious}
+        onNext={goNext}
+        onSpeedChange={(speed) => updatePreferences({ speed })}
+      />
+
+      <AiPanel
+        segments={segments}
+        currentSegment={currentSegment}
+        onJumpToSegment={(segmentId) => {
+          jumpToSegment(segmentId);
+          setSearchHighlightIds([segmentId]);
+        }}
       />
     </div>
   );

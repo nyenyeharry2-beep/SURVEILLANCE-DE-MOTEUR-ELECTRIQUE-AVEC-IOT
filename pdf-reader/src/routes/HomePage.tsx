@@ -1,22 +1,34 @@
 import { Link } from 'react-router-dom';
 import { ImportButton } from '../components/library/ImportButton';
+import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
+import { getHistory } from '../services/db';
+import { useEffect, useState } from 'react';
+import type { HistoryEntry } from '../types/document';
 import './HomePage.css';
 
 export function HomePage() {
-  const { documents } = useLibrary();
+  const { documents, loading } = useLibrary();
+  const { user } = useAuth();
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
   const recentDocuments = documents.slice(0, 2);
   const inProgress = documents.filter((doc) => doc.progress > 0 && doc.progress < 100);
+  const realPdfCount = documents.filter((doc) => doc.hasPdfBlob).length;
+
+  useEffect(() => {
+    getHistory(5).then(setHistory);
+  }, [documents]);
 
   return (
     <div className="home-page">
       <section className="hero-card">
         <div className="hero-card__content">
-          <p className="hero-card__badge">Phase 2 — Interface</p>
-          <h2>Lisez vos PDF avec une expérience moderne</h2>
+          <p className="hero-card__badge">Lumen Reader — Complet</p>
+          <h2>Lisez, écoutez et comprenez vos PDF</h2>
           <p>
-            Importez vos documents, parcourez votre bibliothèque et ouvrez le lecteur avec
-            contrôles de lecture. Les données sont fictives pour l&apos;instant.
+            Importez un PDF, extrayez le texte (OCR si scanné), écoutez avec synthèse vocale,
+            reprenez votre progression et utilisez l&apos;assistant IA.
           </p>
           <div className="hero-card__actions">
             <ImportButton />
@@ -28,7 +40,7 @@ export function HomePage() {
 
         <div className="hero-card__stats">
           <article>
-            <strong>{documents.length}</strong>
+            <strong>{loading ? '…' : documents.length}</strong>
             <span>Documents</span>
           </article>
           <article>
@@ -36,8 +48,8 @@ export function HomePage() {
             <span>En cours</span>
           </article>
           <article>
-            <strong>0</strong>
-            <span>PDF réels</span>
+            <strong>{realPdfCount}</strong>
+            <span>PDF importés</span>
           </article>
         </div>
       </section>
@@ -69,21 +81,22 @@ export function HomePage() {
       </section>
 
       <section className="home-section">
-        <h3>Fonctionnalités à venir</h3>
-        <div className="feature-grid">
-          <article>
-            <h4>Phase 3</h4>
-            <p>Import PDF réel, affichage et extraction de texte.</p>
-          </article>
-          <article>
-            <h4>Phase 6</h4>
-            <p>Synthèse vocale avec pause, reprise et vitesse.</p>
-          </article>
-          <article>
-            <h4>Phase 8</h4>
-            <p>Questions, résumés et recherche sémantique.</p>
-          </article>
+        <div className="home-section__header">
+          <h3>Historique récent</h3>
+          {user && <Link to="/profile">Profil</Link>}
         </div>
+        {history.length === 0 ? (
+          <p className="home-empty">Aucune activité enregistrée.</p>
+        ) : (
+          <ul className="home-history">
+            {history.map((entry) => (
+              <li key={entry.id}>
+                <span>{entry.action}</span>
+                <strong>{entry.documentTitle}</strong>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

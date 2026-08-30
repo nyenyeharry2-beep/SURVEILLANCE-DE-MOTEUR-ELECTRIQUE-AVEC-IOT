@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './AppLayout.css';
 
 const navItems = [
@@ -7,6 +8,8 @@ const navItems = [
 ];
 
 export function AppLayout() {
+  const { user } = useAuth();
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -33,6 +36,14 @@ export function AppLayout() {
               {item.label}
             </NavLink>
           ))}
+          <NavLink
+            to={user ? '/profile' : '/login'}
+            className={({ isActive }) =>
+              `app-header__link${isActive ? ' app-header__link--active' : ''}`
+            }
+          >
+            {user ? 'Profil' : 'Connexion'}
+          </NavLink>
         </nav>
       </header>
 
@@ -53,6 +64,14 @@ export function AppLayout() {
             {item.label}
           </NavLink>
         ))}
+        <NavLink
+          to={user ? '/profile' : '/login'}
+          className={({ isActive }) =>
+            `bottom-nav__link${isActive ? ' bottom-nav__link--active' : ''}`
+          }
+        >
+          {user ? 'Profil' : 'Compte'}
+        </NavLink>
       </nav>
     </div>
   );

@@ -81,3 +81,8 @@
   background: rgba(79, 70, 229, 0.25);
   color: #c7d2fe;
 }
+
+.text-panel__segment--search:not(.text-panel__segment--active) {
+  border-color: rgba(13, 148, 136, 0.35);
+  background: rgba(13, 148, 136, 0.08);
+}
