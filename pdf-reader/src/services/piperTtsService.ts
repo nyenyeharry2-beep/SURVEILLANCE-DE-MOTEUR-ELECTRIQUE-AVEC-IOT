@@ -1,4 +1,6 @@
 import { HF_BASE, PATH_MAP, TtsSession, stored, type VoiceId } from '@realtimex/piper-tts-web';
+import * as ortModule from 'onnxruntime-web';
+import { assertAppAsset, resolveAppAsset, resolveAppAssetDir } from '../utils/assetUrl';
 
 export const DEFAULT_PIPER_VOICE: VoiceId = 'fr_FR-siwis-medium';
 
@@ -12,6 +14,8 @@ export interface PiperInitProgress {
   percent?: number;
 }
 
+const ort = ortModule;
+
 let session: TtsSession | null = null;
 let initPromise: Promise<void> | null = null;
 let currentVoiceId: VoiceId = DEFAULT_PIPER_VOICE;
@@ -20,6 +24,31 @@ let currentObjectUrl: string | null = null;
 let speaking = false;
 let paused = false;
 let stopRequested = false;
+
+function getWasmPaths() {
+  const wasmDir = resolveAppAssetDir('piper/wasm');
+  return {
+    onnxWasm: wasmDir,
+    piperWasm: resolveAppAsset('piper/wasm/piper_phonemize.wasm'),
+    piperData: resolveAppAsset('piper/wasm/piper_phonemize.data'),
+  };
+}
+
+async function prepareOnnxRuntime(): Promise<void> {
+  const wasmDir = resolveAppAssetDir('piper/wasm');
+
+  await Promise.all([
+    assertAppAsset('piper/wasm/ort-wasm-simd-threaded.jsep.mjs'),
+    assertAppAsset('piper/wasm/ort-wasm-simd-threaded.jsep.wasm'),
+    assertAppAsset('piper/wasm/piper_phonemize.wasm'),
+    assertAppAsset('piper/wasm/piper_phonemize.data'),
+  ]);
+
+  ort.env.wasm.wasmPaths = wasmDir;
+  ort.env.wasm.numThreads = 1;
+  ort.env.wasm.simd = true;
+  ort.env.wasm.proxy = false;
+}
 
 async function writeOpfsBlob(url: string, blob: Blob): Promise<void> {
   const root = await navigator.storage.getDirectory();
@@ -58,8 +87,8 @@ async function seedBundledVoice(
   });
 
   const [modelResponse, jsonResponse] = await Promise.all([
-    fetch(`./piper/models/${voiceId}.onnx`),
-    fetch(`./piper/models/${voiceId}.onnx.json`),
+    fetch(resolveAppAsset(`piper/models/${voiceId}.onnx`)),
+    fetch(resolveAppAsset(`piper/models/${voiceId}.onnx.json`)),
   ]);
 
   if (!modelResponse.ok || !jsonResponse.ok) {
@@ -162,6 +191,7 @@ export async function initializePiperTts(
       percent: 5,
     });
 
+    await prepareOnnxRuntime();
     await seedBundledVoice(voiceId, onProgress);
 
     onProgress?.({
@@ -170,15 +200,13 @@ export async function initializePiperTts(
       percent: 92,
     });
 
+    const wasmPaths = getWasmPaths();
+
     session = await TtsSession.create({
       voiceId,
       allowLocalModels: true,
       fallbackStrategy: 'local',
-      wasmPaths: {
-        onnxWasm: './piper/wasm/',
-        piperWasm: './piper/wasm/piper_phonemize.wasm',
-        piperData: './piper/wasm/piper_phonemize.data',
-      },
+      wasmPaths,
       progress: (progress) => {
         if (progress.total > 0) {
           onProgress?.({
@@ -189,6 +217,8 @@ export async function initializePiperTts(
         }
       },
     });
+
+    ort.env.wasm.numThreads = 1;
 
     onProgress?.({
       stage: 'ready',

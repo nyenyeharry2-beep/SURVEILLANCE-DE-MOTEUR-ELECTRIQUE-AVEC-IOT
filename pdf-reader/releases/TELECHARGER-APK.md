@@ -1,35 +1,25 @@
-# Télécharger Lumen Reader APK v1.4 (voix française intégrée)
+# Télécharger Lumen Reader APK v1.4.1 (correction moteur vocal)
 
-## ⚠️ Important — nouvelle version v1.4
+## ⚠️ Important — v1.4.1 corrige l'erreur WASM
 
-Plus besoin d'installer **Google Text-to-Speech** ni de télécharger une voix séparée.
+Si vous aviez l'erreur `Failed to fetch ort-wasm-simd-threaded.jsep.mjs`, installez la **v1.4.1**.
 
-La v1.4 inclut directement dans l'APK :
-- une **voix française naturelle** (Piper — Siwis) ;
-- le **moteur vocal** complet (aucun téléchargement externe) ;
-- lecture **phrase par phrase** en français.
+La voix française reste **intégrée** — aucun téléchargement externe.
 
-**Désinstallez l'ancienne version** avant d'installer la v1.4.
+## GitHub Release v1.4.1 (permanent)
 
-> Note : le premier lancement peut prendre 20–40 secondes pendant la préparation de la voix intégrée (une seule fois).
+https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.4.1/lumen-reader-debug.apk
 
-## GitHub Release v1.4 (permanent)
+## v1.4 — voix intégrée
 
-https://github.com/nyenyeharry2-beep/SURVEILLANCE-DE-MOTEUR-ELECTRIQUE-AVEC-IOT/releases/download/lumen-reader-v1.4/lumen-reader-debug.apk
-
-## Utilisation
-
-1. Installez l'APK v1.4
-2. Ouvrez **Réglages** → **Tester la voix** (première fois : patientez)
-3. **Bibliothèque** → **🔊 Écouter** sur un document
-
-## Réglages audio
-
-- **Voix** : Français — Siwis (intégrée)
-- **Vitesse** : 0,85x à 1,0x recommandé
+- Voix française Piper (Siwis) incluse dans l'APK
+- Plus besoin de Google Text-to-Speech
+- Premier lancement : préparation 20–40 s (une seule fois)
 
 ## Installation
 
-1. Désinstallez l'ancienne version
-2. Installez la nouvelle APK (~120 Mo — voix incluse)
-3. Autorisez sources inconnues si demandé
+1. **Désinstallez** l'ancienne version
+2. Installez la v1.4.1 (~126 Mo)
+3. **Réglages** → **Tester la voix**
+4. **Bibliothèque** → **🔊 Écouter**
+
