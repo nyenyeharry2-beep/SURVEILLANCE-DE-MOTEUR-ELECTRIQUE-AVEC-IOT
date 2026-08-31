@@ -396,6 +396,11 @@ bool parseTelemetry(const String& line) {
   tel.motorOn = jsonGetLong(line, "m") == 1;
   tel.updatedAt = millis();
   tel.valid = true;
+
+  // === MONITEUR SERIE ESP32 USB @ 115200 ===
+  Serial.println(F("--- ESP32 MONITOR ---"));
+  Serial.println(formatDashboardCore());
+  Serial.println();
   return true;
 }
 
@@ -405,7 +410,7 @@ void readUnoSerial() {
     if (c == '\n') {
       unoLineBuf.trim();
       if (unoLineBuf.length() > 0) {
-        Serial.print(F("<< "));
+        Serial.print(F("[UART Uno] "));
         Serial.println(unoLineBuf);
         parseTelemetry(unoLineBuf);
       }
@@ -417,22 +422,23 @@ void readUnoSerial() {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);  // MONITEUR 2 — USB ESP32
   delay(200);
-  Serial.println(F("ESP32 Telegram Dashboard (sans ArduinoJson / config.h)"));
+  Serial.println(F("=== MONITEUR ESP32 USB 115200 ==="));
+  Serial.println(F("UART Uno : GPIO16=RX GPIO17=TX @9600"));
 
   for (int i = 0; i < HIST_SIZE; i++) hist[i].used = false;
 
-  // UART : RX=GPIO16 ← Uno D4, TX=GPIO17 → Uno D3
   UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
   connectWifi();
 
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-  // securedClient.setInsecure(); // si certificat en echec
+  // securedClient.setInsecure();
 
   String boot = "Bot pret.\nIP: " + WiFi.localIP().toString() + "\n/dashboard";
   bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, boot, "");
   pushHistory("ESP32 boot OK");
+  Serial.println(boot);
 }
 
 void loop() {
