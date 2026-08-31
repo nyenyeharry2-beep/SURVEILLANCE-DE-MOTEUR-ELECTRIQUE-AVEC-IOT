@@ -1,11 +1,12 @@
 /*
  * Arduino Uno — Surveillance moteur
- * Capteurs : ACS712, LM35, tension, IR 3 pins (D2), ADXL345 (I2C A4/A5)
+ * Capteurs : IR 3 pins (D2), ADXL345 (I2C A4/A5)
  * UART ESP32 : SoftwareSerial RX=D3 TX=D4 @ 9600
  *
- * AFFICHAGE :
- *  - Moniteur série USB (D0/D1) @ 115200  ← visible dans l'IDE
- *  - SoftSerial vers ESP32 @ 9600         ← même JSON envoyé
+ * Envoi JSON : ax ay az rms vrms rpm imp freq urg alerte m
+ * (plus de impt / courant / température / tension)
+ *
+ * Affichage : Serial USB 115200 + SoftSerial ESP32
  */
 
 #include <Arduino.h>
@@ -13,36 +14,27 @@
 #include <SoftwareSerial.h>
 #include <math.h>
 
-const int PIN_CURRENT = A0;
-const int PIN_TEMP    = A1;
-const int PIN_VOLTAGE = A2;
-const int PIN_IR_OUT  = 2;
-const int PIN_ESP_RX  = 3;   // ← ESP32 GPIO17
-const int PIN_ESP_TX  = 4;   // → ESP32 GPIO16 (diviseur 1k/2k)
-const int PIN_RELAY   = 8;
-const int PIN_LED     = 13;
+const int PIN_IR_OUT = 2;
+const int PIN_ESP_RX = 3;   // ← ESP32 GPIO17
+const int PIN_ESP_TX = 4;   // → ESP32 GPIO16 (diviseur 1k/2k)
+const int PIN_RELAY  = 8;
+const int PIN_LED    = 13;
 
 SoftwareSerial EspSerial(PIN_ESP_RX, PIN_ESP_TX);
 
-const float ACS712_SENSITIVITY = 100.0;
-const float ACS712_VREF        = 2.5;
-const float VOLTAGE_DIVIDER    = 5.0;
 const int PULSES_PER_REV = 1;
 const unsigned long IR_DEBOUNCE_US = 2000;
 
 const uint8_t ADXL345_ADDR = 0x53;
 const float ADXL_SCALE = 0.0039f;
 
-const float TEMP_MAX_C    = 70.0f;
-const float CURRENT_MAX_A = 8.0f;
-const float RMS_ALERT_G   = 0.25f;
-const float RMS_URGENT_G  = 0.50f;
-const float VRMS_ALERT    = 4.0f;
-const float VRMS_URGENT   = 8.0f;
+const float RMS_ALERT_G  = 0.25f;
+const float RMS_URGENT_G = 0.50f;
+const float VRMS_ALERT   = 4.0f;
+const float VRMS_URGENT  = 8.0f;
 
 volatile unsigned long rpmPulses = 0;
 volatile unsigned long lastIrUs  = 0;
-volatile unsigned long totalImpulses = 0;
 
 unsigned long lastRpmMs = 0;
 float lastRpm = 0;
@@ -60,10 +52,9 @@ unsigned long lastSendMs = 0;
 const unsigned long SEND_INTERVAL_MS = 2000;
 const int ADXL_SAMPLES = 16;
 
-/** Envoie la même ligne sur USB (Serial) ET vers ESP32 (EspSerial) */
 void sendBoth(const String& line) {
-  Serial.println(line);      // moniteur série Uno USB @ 115200
-  EspSerial.println(line);   // ESP32 SoftSerial @ 9600
+  Serial.println(line);
+  EspSerial.println(line);
 }
 
 void irRpmIsr() {
@@ -71,7 +62,6 @@ void irRpmIsr() {
   if (now - lastIrUs < IR_DEBOUNCE_US) return;
   lastIrUs = now;
   rpmPulses++;
-  totalImpulses++;
 }
 
 bool adxlWrite(uint8_t reg, uint8_t val) {
@@ -140,8 +130,7 @@ void updateVibrationRms() {
     acc2 += dx * dx + dy * dy + dz * dz;
   }
   rmsG = sqrt(acc2 / ADXL_SAMPLES);
-  float f = lastFreqHz;
-  if (f < 0.5f) f = 1.0f;
+  float f = lastFreqHz < 0.5f ? 1.0f : lastFreqHz;
   vrmsMms = (rmsG * 9806.65f) / (2.0f * 3.1415926f * f);
 }
 
@@ -159,37 +148,14 @@ void computeRpmFreq() {
   lastRpmMs = now;
 }
 
-void evaluateUrgency(float temp, float current) {
+void evaluateUrgency() {
   urgLevel = 0;
   alerteFlag = 0;
-  bool aRmsUrgent = rmsG >= RMS_URGENT_G;
-  bool vRmsUrgent = vrmsMms >= VRMS_URGENT;
-  bool overTemp = temp > TEMP_MAX_C;
-  bool overCurr = current > CURRENT_MAX_A;
-  bool aRmsAlert = rmsG >= RMS_ALERT_G;
-  bool vRmsAlert = vrmsMms >= VRMS_ALERT;
-  if (aRmsUrgent || vRmsUrgent || overTemp || overCurr) {
+  if (rmsG >= RMS_URGENT_G || vrmsMms >= VRMS_URGENT) {
     urgLevel = 2; alerteFlag = 1;
-  } else if (aRmsAlert || vRmsAlert) {
+  } else if (rmsG >= RMS_ALERT_G || vrmsMms >= VRMS_ALERT) {
     urgLevel = 1; alerteFlag = 1;
   }
-}
-
-float readCurrentA() {
-  long sum = 0;
-  for (int i = 0; i < 20; i++) { sum += analogRead(PIN_CURRENT); delay(2); }
-  float volts = ((sum / 20.0f) / 1023.0f) * 5.0f;
-  float amps = (volts - ACS712_VREF) * 1000.0f / ACS712_SENSITIVITY;
-  if (fabs(amps) < 0.05f) amps = 0;
-  return fabs(amps);
-}
-
-float readTempC() {
-  return (analogRead(PIN_TEMP) / 1023.0f) * 5.0f * 100.0f;
-}
-
-float readVoltageV() {
-  return (analogRead(PIN_VOLTAGE) / 1023.0f) * 5.0f * VOLTAGE_DIVIDER;
 }
 
 void setMotor(bool on) {
@@ -201,16 +167,9 @@ void setMotor(bool on) {
 void sendTelemetry() {
   computeRpmFreq();
   updateVibrationRms();
-  float current = readCurrentA();
-  float temp = readTempC();
-  float voltage = readVoltageV();
-  evaluateUrgency(temp, current);
+  evaluateUrgency();
 
-  noInterrupts();
-  unsigned long impTotal = totalImpulses;
-  interrupts();
-
-  // Construit UNE ligne JSON → USB + ESP32
+  // JSON : ax ay az rms vrms rpm imp freq urg alerte m
   String line = "{";
   line += "\"ax\":"; line += String(axG, 3);
   line += ",\"ay\":"; line += String(ayG, 3);
@@ -219,19 +178,14 @@ void sendTelemetry() {
   line += ",\"vrms\":"; line += String(vrmsMms, 2);
   line += ",\"rpm\":"; line += String(lastRpm, 0);
   line += ",\"imp\":"; line += String(lastWindowImp);
-  line += ",\"impt\":"; line += String(impTotal);
   line += ",\"freq\":"; line += String(lastFreqHz, 2);
   line += ",\"urg\":"; line += String(urgLevel);
   line += ",\"alerte\":"; line += String(alerteFlag);
-  line += ",\"c\":"; line += String(current, 2);
-  line += ",\"t\":"; line += String(temp, 1);
-  line += ",\"v\":"; line += String(voltage, 1);
   line += ",\"m\":"; line += String(motorOn ? 1 : 0);
   line += "}";
 
   sendBoth(line);
 
-  // Affichage lisible aussi sur moniteur USB
   Serial.println(F("--- UNO MONITOR ---"));
   Serial.print(F("ax=")); Serial.print(axG, 3);
   Serial.print(F(" ay=")); Serial.print(ayG, 3);
@@ -243,11 +197,8 @@ void sendTelemetry() {
   Serial.print(F("  freq=")); Serial.print(lastFreqHz, 2);
   Serial.print(F(" Hz  imp=")); Serial.println(lastWindowImp);
   Serial.print(F("Urgence=")); Serial.print(urgLevel);
-  Serial.print(F("  Alerte=")); Serial.println(alerteFlag ? "OUI" : "NON");
-  Serial.print(F("I=")); Serial.print(current, 2);
-  Serial.print(F("A  U=")); Serial.print(voltage, 1);
-  Serial.print(F("V  T=")); Serial.print(temp, 1);
-  Serial.print(F("C  Moteur=")); Serial.println(motorOn ? "ON" : "OFF");
+  Serial.print(F("  Alerte=")); Serial.print(alerteFlag ? "OUI" : "NON");
+  Serial.print(F("  Moteur=")); Serial.println(motorOn ? "ON" : "OFF");
   Serial.println();
 
   if (urgLevel >= 2 && motorOn) {
@@ -260,7 +211,6 @@ void sendTelemetry() {
 void processCommand(String line) {
   line.trim();
   if (line.length() == 0) return;
-
   Serial.print(F("[CMD ESP32] "));
   Serial.println(line);
 
@@ -288,8 +238,8 @@ void setup() {
   Wire.begin();
   adxlOk = adxlBegin();
 
-  Serial.begin(115200);   // MONITEUR 1 — USB Uno
-  EspSerial.begin(9600);  // vers ESP32
+  Serial.begin(115200);
+  EspSerial.begin(9600);
   delay(500);
 
   String ready = "{\"evt\":\"UNO_READY\",\"adxl\":";
