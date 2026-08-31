@@ -63,8 +63,27 @@ class SmsHistoryItem {
       senderId: json['SenderId']?.toString() ?? '',
       message: json['Message']?.toString() ?? '',
       messageId: json['MessageId']?.toString() ?? '',
-      sentDate: json['SentDate']?.toString() ?? json['Date']?.toString(),
+      sentDate: json['SubmitDate']?.toString() ??
+          json['DoneDate']?.toString() ??
+          json['SentDate']?.toString() ??
+          json['Date']?.toString(),
       status: json['Status']?.toString() ?? json['DeliveryStatus']?.toString(),
     );
+  }
+
+  String get statusLabel {
+    switch (status?.toUpperCase()) {
+      case 'DELIVRD':
+        return 'Livré';
+      case 'SUBMITTED':
+        return 'Envoyé';
+      case 'FAILED':
+      case 'REJECTD':
+        return 'Échec';
+      case 'PENDING':
+        return 'En attente';
+      default:
+        return status ?? '';
+    }
   }
 }

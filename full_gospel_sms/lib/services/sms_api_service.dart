@@ -111,13 +111,19 @@ class SmsApiService {
         '12/31/${now.year}';
 
     final response = await http
-        .get(_uri('/SMS', {
+        .get(_uri('/GetSMS', {
           'start': start.toString(),
           'length': length.toString(),
           'fromdate': from,
           'enddate': to,
         }))
         .timeout(_timeout);
+
+    if (response.statusCode != 200) {
+      throw SmsApiException(
+        'Impossible de charger l\'historique (HTTP ${response.statusCode})',
+      );
+    }
 
     final json = _parseBody(response.body);
     _ensureSuccess(json);
