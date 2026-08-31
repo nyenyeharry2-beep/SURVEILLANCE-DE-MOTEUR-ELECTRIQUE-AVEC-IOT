@@ -34,7 +34,11 @@ Pour un groupe : ajoutez le bot au groupe, envoyez un message, et relisez `getUp
 cp esp32/motor_telegram/config.example.h esp32/motor_telegram/config.h
 ```
 
-Éditer `config.h` : SSID, mot de passe Wi‑Fi, token bot, chat id, seuils.
+Éditer `config.h` :
+- `WIFI_SSID` / `WIFI_PASSWORD`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_ADMIN_CHAT_ID` — chat admin (boutons ON/OFF + historique)
+- `TELEGRAM_VIEWER_CHAT_ID` — chat observateur (optionnel, `""` pour désactiver)
 
 ## 4. Flasher l’Arduino Uno
 

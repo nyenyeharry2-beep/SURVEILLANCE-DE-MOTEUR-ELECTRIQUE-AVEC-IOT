@@ -1,49 +1,44 @@
-# Protocole UART Arduino Uno ↔ ESP32
+# Protocole UART + Tableau de bord Telegram
 
-**Baud :** 9600 8N1 — Uno TX/RX ↔ ESP32 GPIO16/17 — une ligne JSON + `\n`
+**Baud :** 9600 8N1 — Uno ↔ ESP32 GPIO16/17
 
-## 1. Télémétrie (Uno → ESP32)
-
-Toutes les ~2 s, ou sur `STATUS`.
+## Télémétrie Uno → ESP32
 
 ```json
-{"c":1.23,"t":45.6,"v":220.1,"vib":0,"ax":0.020,"ay":-0.015,"az":0.980,"mag":0.025,"rpm":1450,"m":1}
+{"ax":0.02,"ay":-0.01,"az":0.98,"rms":0.12,"vrms":2.45,"rpm":1450,"imp":24,"impt":12040,"freq":24.10,"urg":0,"alerte":0,"c":1.2,"t":42.0,"v":220.0,"m":1}
 ```
 
-| Champ | Type  | Unité | Source / description                |
-|-------|-------|-------|-------------------------------------|
-| `c`   | float | A     | ACS712                              |
-| `t`   | float | °C    | LM35                                |
-| `v`   | float | V     | Module tension                      |
-| `vib` | int   | 0/1   | 1 si `mag` ≥ seuil ADXL345          |
-| `ax`  | float | g     | ADXL345 axe X                       |
-| `ay`  | float | g     | ADXL345 axe Y                       |
-| `az`  | float | g     | ADXL345 axe Z                       |
-| `mag` | float | g     | `‖a‖ − 1` (composante vibratoire)   |
-| `rpm` | float | tr/min| Capteur **IR 3 pins** (pulses/s)    |
-| `m`   | int   | 0/1   | Relais moteur                       |
+| Champ | Unité | Description |
+|-------|-------|-------------|
+| `ax` `ay` `az` | g | Accélération ADXL345 (moyenne) |
+| `rms` | g | RMS accélération dynamique |
+| `vrms` | mm/s | vRMS approximé `a/(2πf)` |
+| `rpm` | tr/min | Vitesse (IR) — MPR |
+| `imp` | — | Impulsions sur la fenêtre |
+| `impt` | — | Impulsions totales |
+| `freq` | Hz | Fréquence d’impulsions IR |
+| `urg` | 0/1/2 | 0=OK, 1=ALERTE, 2=URGENCE |
+| `alerte` | 0/1 | Drapeau alerte |
+| `c` `t` `v` `m` | A/°C/V/0-1 | Courant, temp, tension, moteur |
 
-## 2. Événements (Uno → ESP32)
+## Rôles Telegram
 
-```json
-{"evt":"UNO_READY","adxl":1,"ir":1}
-{"evt":"PONG"}
-{"evt":"MOTOR_ON","ok":1}
-{"evt":"MOTOR_OFF","ok":1}
-{"evt":"SAFE_STOP"}
-```
+### Administrateur (`TELEGRAM_ADMIN_CHAT_ID`)
 
-| Événement   | Signification                                                |
-|-------------|--------------------------------------------------------------|
-| `UNO_READY` | Démarrage ; `adxl` 1/0 = ADXL345 détecté ou non              |
-| `PONG`      | Réponse à `PING`                                             |
-| `SAFE_STOP` | Coupure locale (température, courant **ou vibration**)       |
+Commandes et **boutons inline** :
 
-## 3. Commandes (ESP32 → Uno)
+| Action | Bouton / commande |
+|--------|-------------------|
+| Tableau de bord | `/dashboard` |
+| ON / OFF moteur | boutons **ON** **OFF** ou `/on` `/off` |
+| Historique | bouton **Historique** ou `/historique` |
+| Stop urgence | bouton **URGENCE STOP** ou `/urgence` |
+| Actualiser / Alertes | boutons dédiés |
 
-| Commande   | Action                |
-|------------|-----------------------|
-| `MOTOR_ON` | Relais ON             |
-| `MOTOR_OFF`| Relais OFF            |
-| `STATUS`   | Force une télémétrie  |
-| `PING`     | → `PONG`              |
+### Observateur (`TELEGRAM_VIEWER_CHAT_ID`, optionnel)
+
+Mêmes métriques affichées :
+
+`ax ay az rms vrms rpm impulsions frequence urgence alerte`
+
+**Sans** ON/OFF, sans historique, sans urgence.

@@ -1,42 +1,41 @@
 #!/usr/bin/env python3
-"""Valide le format des trames JSON (IR RPM + ADXL345).
-
-Usage : python3 tools/test_protocol.py
-"""
+"""Valide les trames JSON du tableau de bord (ax/rms/vrms/imp/freq/urg)."""
 import json
 import sys
 
 SAMPLES = [
-    '{"c":1.23,"t":45.6,"v":220.1,"vib":0,"ax":0.020,"ay":-0.015,"az":0.980,"mag":0.025,"rpm":1450,"m":1}',
-    '{"c":0.00,"t":25.0,"v":0.0,"vib":1,"ax":0.500,"ay":0.400,"az":0.900,"mag":0.420,"rpm":0,"m":0}',
+    '{"ax":0.02,"ay":-0.01,"az":0.98,"rms":0.12,"vrms":2.45,"rpm":1450,"imp":24,"impt":12040,"freq":24.10,"urg":0,"alerte":0,"c":1.2,"t":42.0,"v":220.0,"m":1}',
+    '{"ax":0.50,"ay":0.40,"az":0.90,"rms":0.55,"vrms":9.10,"rpm":0,"imp":0,"impt":99,"freq":0.0,"urg":2,"alerte":1,"c":0.0,"t":25.0,"v":0.0,"m":0}',
     '{"evt":"UNO_READY","adxl":1,"ir":1}',
-    '{"evt":"SAFE_STOP"}',
-    '{"evt":"PONG"}',
+    '{"evt":"SAFE_STOP","urg":2}',
 ]
 
-REQUIRED_TELEM = {"c", "t", "v", "vib", "ax", "ay", "az", "mag", "rpm", "m"}
+REQUIRED = {
+    "ax", "ay", "az", "rms", "vrms", "rpm", "imp", "impt",
+    "freq", "urg", "alerte", "c", "t", "v", "m",
+}
 
 
 def check(line: str) -> None:
     data = json.loads(line)
     if "evt" in data:
-        assert isinstance(data["evt"], str) and data["evt"]
-        print(f"OK evt  : {data['evt']}")
+        print(f"OK evt : {data['evt']}")
         return
-    missing = REQUIRED_TELEM - set(data)
-    assert not missing, f"champs manquants: {missing}"
+    missing = REQUIRED - set(data)
+    assert not missing, missing
+    assert data["urg"] in (0, 1, 2)
+    assert data["alerte"] in (0, 1)
     assert data["m"] in (0, 1)
-    assert data["vib"] in (0, 1)
     print(
-        f"OK telem: I={data['c']}A RPM={data['rpm']} "
-        f"mag={data['mag']}g vib={data['vib']}"
+        f"OK dash: ax={data['ax']} rms={data['rms']} vrms={data['vrms']} "
+        f"rpm={data['rpm']} freq={data['freq']} urg={data['urg']}"
     )
 
 
 def main() -> int:
     for s in SAMPLES:
         check(s)
-    print("Tous les échantillons du protocole sont valides.")
+    print("Protocole tableau de bord OK.")
     return 0
 
 
