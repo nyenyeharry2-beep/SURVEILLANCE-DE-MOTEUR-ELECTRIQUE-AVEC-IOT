@@ -41,7 +41,8 @@ Ouvrir `esp32/motor_telegram/motor_telegram.ino` et remplir en haut du fichier :
 2. Carte : **Arduino Uno**.
 3. Port série USB correspondant.
 4. Téléverser.
-5. Ouvrir le moniteur série à **9600** baud → message `{"evt":"UNO_READY"}`.
+5. Ouvrir le moniteur série USB à **115200** baud → `Uno pret — UART ESP32 sur D3(RX)/D4(TX)`.
+   (La télémétrie JSON part sur SoftSerial D3/D4 @ 9600 vers l’ESP32.)
 
 > UART ESP32 sur **D3/D4** (SoftwareSerial) : le flash USB sur D0/D1 n’est plus bloqué.
 
