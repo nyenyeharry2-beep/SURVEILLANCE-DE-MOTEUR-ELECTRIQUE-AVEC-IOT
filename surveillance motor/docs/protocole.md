@@ -1,6 +1,6 @@
 # Protocole UART + Tableau de bord Telegram
 
-**Baud :** 9600 8N1 — Uno ↔ ESP32 GPIO16/17
+**Baud :** 9600 8N1 — Uno **D4/D3** (SoftwareSerial) ↔ ESP32 **GPIO16/17**
 
 ## Télémétrie Uno → ESP32
 

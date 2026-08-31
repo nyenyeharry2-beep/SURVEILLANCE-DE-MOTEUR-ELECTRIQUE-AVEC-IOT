@@ -48,7 +48,7 @@ cp esp32/motor_telegram/config.example.h esp32/motor_telegram/config.h
 4. Téléverser.
 5. Ouvrir le moniteur série à **9600** baud → message `{"evt":"UNO_READY"}`.
 
-> Débrancher temporairement les fils TX/RX vers l’ESP32 pendant le flash USB (conflit sur D0/D1).
+> UART ESP32 sur **D3/D4** (SoftwareSerial) : le flash USB sur D0/D1 n’est plus bloqué.
 
 ## 5. Flasher l’ESP32
 
@@ -63,8 +63,8 @@ Vous devez recevoir sur Telegram : `ESP32 connecte...`.
 
 | Arduino Uno | ESP32   | Note                          |
 |-------------|---------|-------------------------------|
-| TX (D1)     | GPIO16  | Via diviseur 1k/2k (5 V→3.3 V)|
-| RX (D0)     | GPIO17  | Direct                         |
+| TX (**D4**) | GPIO16  | Via diviseur 1k/2k (5 V→3.3 V)|
+| RX (**D3**) | GPIO17  | Direct                         |
 | GND         | GND     | Masse commune                 |
 
 Puis alimenter les deux cartes et tester `/ping` puis `/status` sur Telegram.

@@ -462,6 +462,7 @@ void setup() {
 
   for (int i = 0; i < HIST_SIZE; i++) hist[i].used = false;
 
+  // UART vers Uno : RX=GPIO16 ← D4, TX=GPIO17 → D3
   UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
   connectWifi();
 

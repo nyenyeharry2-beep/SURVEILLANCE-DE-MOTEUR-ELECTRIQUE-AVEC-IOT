@@ -61,7 +61,7 @@ Mêmes métriques : ax ay az rms vrms rpm impulsions fréquence urgence alerte �
 ## Sécurité
 
 - Alimentation **moteur séparée** ; l’Arduino ne pilote que le **relais**.
-- Diviseur de tension sur TX Uno → RX ESP32 (niveaux 5 V / 3.3 V).
+- UART : Uno **D4→GPIO16** (diviseur 1k/2k), **D3←GPIO17**, GND commun.
 - Ne publiez jamais `config.h` avec de vrais tokens sur un dépôt public.
 
 ## Licence

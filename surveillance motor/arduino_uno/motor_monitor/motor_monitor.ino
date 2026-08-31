@@ -8,14 +8,20 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <SoftwareSerial.h>
 #include <math.h>
 
 const int PIN_CURRENT = A0;
 const int PIN_TEMP    = A1;
 const int PIN_VOLTAGE = A2;
 const int PIN_IR_OUT  = 2;   // IR OUT → D2 (INT0)
+const int PIN_ESP_RX  = 3;   // ← ESP32 GPIO17 (TX2)
+const int PIN_ESP_TX  = 4;   // → ESP32 GPIO16 (RX2) via diviseur 1k/2k
 const int PIN_RELAY   = 8;
 const int PIN_LED     = 13;
+
+// UART logiciel vers ESP32 (laisse D0/D1 libres pour le flash USB)
+SoftwareSerial EspSerial(PIN_ESP_RX, PIN_ESP_TX); // RX=D3, TX=D4
 
 const float ACS712_SENSITIVITY = 100.0;
 const float ACS712_VREF        = 2.5;
@@ -225,41 +231,41 @@ void sendTelemetry() {
 
   // Champs tableau de bord :
   // ax ay az rms vrms rpm(mpr) imp freq urg alerte + c t v m
-  Serial.print(F("{\"ax\":"));
-  Serial.print(axG, 3);
-  Serial.print(F(",\"ay\":"));
-  Serial.print(ayG, 3);
-  Serial.print(F(",\"az\":"));
-  Serial.print(azG, 3);
-  Serial.print(F(",\"rms\":"));
-  Serial.print(rmsG, 3);
-  Serial.print(F(",\"vrms\":"));
-  Serial.print(vrmsMms, 2);
-  Serial.print(F(",\"rpm\":"));
-  Serial.print(lastRpm, 0);
-  Serial.print(F(",\"imp\":"));
-  Serial.print(lastWindowImp);
-  Serial.print(F(",\"impt\":"));
-  Serial.print(impTotal);
-  Serial.print(F(",\"freq\":"));
-  Serial.print(lastFreqHz, 2);
-  Serial.print(F(",\"urg\":"));
-  Serial.print(urgLevel);
-  Serial.print(F(",\"alerte\":"));
-  Serial.print(alerteFlag);
-  Serial.print(F(",\"c\":"));
-  Serial.print(current, 2);
-  Serial.print(F(",\"t\":"));
-  Serial.print(temp, 1);
-  Serial.print(F(",\"v\":"));
-  Serial.print(voltage, 1);
-  Serial.print(F(",\"m\":"));
-  Serial.print(motorOn ? 1 : 0);
-  Serial.println(F("}"));
+  EspSerial.print(F("{\"ax\":"));
+  EspSerial.print(axG, 3);
+  EspSerial.print(F(",\"ay\":"));
+  EspSerial.print(ayG, 3);
+  EspSerial.print(F(",\"az\":"));
+  EspSerial.print(azG, 3);
+  EspSerial.print(F(",\"rms\":"));
+  EspSerial.print(rmsG, 3);
+  EspSerial.print(F(",\"vrms\":"));
+  EspSerial.print(vrmsMms, 2);
+  EspSerial.print(F(",\"rpm\":"));
+  EspSerial.print(lastRpm, 0);
+  EspSerial.print(F(",\"imp\":"));
+  EspSerial.print(lastWindowImp);
+  EspSerial.print(F(",\"impt\":"));
+  EspSerial.print(impTotal);
+  EspSerial.print(F(",\"freq\":"));
+  EspSerial.print(lastFreqHz, 2);
+  EspSerial.print(F(",\"urg\":"));
+  EspSerial.print(urgLevel);
+  EspSerial.print(F(",\"alerte\":"));
+  EspSerial.print(alerteFlag);
+  EspSerial.print(F(",\"c\":"));
+  EspSerial.print(current, 2);
+  EspSerial.print(F(",\"t\":"));
+  EspSerial.print(temp, 1);
+  EspSerial.print(F(",\"v\":"));
+  EspSerial.print(voltage, 1);
+  EspSerial.print(F(",\"m\":"));
+  EspSerial.print(motorOn ? 1 : 0);
+  EspSerial.println(F("}"));
 
   if (urgLevel >= 2 && motorOn) {
     setMotor(false);
-    Serial.println(F("{\"evt\":\"SAFE_STOP\",\"urg\":2}"));
+    EspSerial.println(F("{\"evt\":\"SAFE_STOP\",\"urg\":2}"));
   }
 }
 
@@ -269,14 +275,14 @@ void processCommand(String line) {
 
   if (line == "MOTOR_ON") {
     setMotor(true);
-    Serial.println(F("{\"evt\":\"MOTOR_ON\",\"ok\":1}"));
+    EspSerial.println(F("{\"evt\":\"MOTOR_ON\",\"ok\":1}"));
   } else if (line == "MOTOR_OFF") {
     setMotor(false);
-    Serial.println(F("{\"evt\":\"MOTOR_OFF\",\"ok\":1}"));
+    EspSerial.println(F("{\"evt\":\"MOTOR_OFF\",\"ok\":1}"));
   } else if (line == "STATUS") {
     sendTelemetry();
   } else if (line == "PING") {
-    Serial.println(F("{\"evt\":\"PONG\"}"));
+    EspSerial.println(F("{\"evt\":\"PONG\"}"));
   }
 }
 
@@ -291,19 +297,22 @@ void setup() {
   Wire.begin();
   adxlOk = adxlBegin();
 
-  Serial.begin(9600);
+  // USB debug optionnel (D0/D1 libres — pas de conflit flash)
+  Serial.begin(115200);
+  EspSerial.begin(9600);
   delay(500);
-  Serial.print(F("{\"evt\":\"UNO_READY\",\"adxl\":"));
-  Serial.print(adxlOk ? 1 : 0);
-  Serial.println(F(",\"ir\":1}"));
+  EspSerial.print(F("{\"evt\":\"UNO_READY\",\"adxl\":"));
+  EspSerial.print(adxlOk ? 1 : 0);
+  EspSerial.println(F(",\"ir\":1}"));
+  Serial.println(F("Uno pret — UART ESP32 sur D3(RX)/D4(TX) @9600"));
 
   lastRpmMs = millis();
   lastSendMs = millis();
 }
 
 void loop() {
-  while (Serial.available()) {
-    processCommand(Serial.readStringUntil('\n'));
+  while (EspSerial.available()) {
+    processCommand(EspSerial.readStringUntil('\n'));
   }
 
   unsigned long now = millis();

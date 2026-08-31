@@ -22,11 +22,11 @@
   Relais moteur ◄───│ D8                                  │
   LED statut ◄──────│ D13                                 │
                     │                                     │
-                    │ TX (D1) ──diviseur──► GPIO16 ESP32  │
-                    │ RX (D0) ◄──────────── GPIO17 ESP32  │
+                    │ TX (D4) ──diviseur──► GPIO16 ESP32  │
+                    │ RX (D3) ◄──────────── GPIO17 ESP32  │
                     │ GND ───────────────── GND           │
                     └─────────────────────────────────────┘
-                                      │ UART 9600
+                                      │ UART 9600 (SoftSerial)
                                       ▼
                                  ESP32 → Telegram
 ```
@@ -74,24 +74,28 @@ Mesure utilisée : `mag = ||a|| − 1g` (écart à la gravité). Si `mag ≥ VIB
 | A0     | CURRENT    | ACS712                 |
 | A1     | TEMP       | LM35                   |
 | A2     | VOLTAGE    | Module 0–25 V          |
+| D3     | ESP_RX     | ← ESP32 GPIO17 (TX2)   |
+| D4     | ESP_TX     | → ESP32 GPIO16 (RX2) via diviseur |
 | D8     | RELAY      | Module relais          |
 | D13    | STATUS_LED | LED intégrée           |
-| D1/D0  | UART       | ↔ ESP32 GPIO16/17      |
 
 ## ESP32
 
-| Broche  | Connexion                         |
-|---------|-----------------------------------|
-| GPIO16  | ← TX Uno (via diviseur 1k + 2k)   |
-| GPIO17  | → RX Uno                          |
-| GND     | Masse commune                     |
+| Broche  | Connexion                              |
+|---------|----------------------------------------|
+| GPIO16  | ← Uno **D4** (TX) via diviseur 1k + 2k |
+| GPIO17  | → Uno **D3** (RX)                      |
+| GND     | Masse commune                          |
 
 ```
-Arduino TX (5 V) ───[1 kΩ]───┬─── ESP32 RX (≈3.3 V)
-                             │
-                           [2 kΩ]
-                             │
-                            GND
+Arduino D4 TX (5 V) ───[1 kΩ]───┬─── ESP32 GPIO16 RX (≈3.3 V)
+                                │
+                              [2 kΩ]
+                                │
+                               GND
+
+Arduino D3 RX (5 V tolère 3.3 V) ◄── ESP32 GPIO17 TX
+Arduino GND ────────────────────────── ESP32 GND
 ```
 
 ## Sécurité
