@@ -1,0 +1,15 @@
+# Secrets & fichiers locaux
+esp32/motor_telegram/config.h
+
+# Arduino / IDE
+*.hex
+*.elf
+*.bin
+.pio/
+.vscode/
+.idea/
+*.DS_Store
+
+# Build
+build/
+**/__pycache__/
