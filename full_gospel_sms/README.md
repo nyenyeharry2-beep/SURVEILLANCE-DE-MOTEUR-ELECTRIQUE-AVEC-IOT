@@ -20,7 +20,7 @@ Application mobile Android pour envoyer des SMS via l'API SMS du compte Full Gos
 Endpoints intégrés :
 - `GET /Balance` — solde crédits
 - `POST /SendSMS` — envoi de messages
-- `GET /SMS` — historique des envois
+- `GET /GetSMS` — historique des envois
 
 ## Prérequis
 

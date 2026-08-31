@@ -49,11 +49,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   String _formatDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '';
-    final parsed = DateTime.tryParse(dateStr);
-    if (parsed != null) {
+    try {
+      final parsed = DateTime.tryParse(dateStr) ??
+          DateFormat('dd MMM yyyy HH:mm:ss', 'en').parseLoose(dateStr);
       return DateFormat('dd/MM/yyyy à HH:mm').format(parsed);
+    } catch (_) {
+      return dateStr;
     }
-    return dateStr;
   }
 
   @override
@@ -191,7 +193,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            item.status!,
+                            item.statusLabel,
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppTheme.brandGreen,
