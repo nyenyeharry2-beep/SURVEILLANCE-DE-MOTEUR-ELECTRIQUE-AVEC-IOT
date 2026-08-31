@@ -1,5 +1,5 @@
 # Secrets & fichiers locaux
-esp32/motor_telegram/config.h
+# (config WiFi/Telegram est maintenant dans motor_telegram.ino)
 
 # Arduino / IDE
 *.hex

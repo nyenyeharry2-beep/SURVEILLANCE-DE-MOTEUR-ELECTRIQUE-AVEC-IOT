@@ -23,9 +23,7 @@ surveillance motor/
 ├── README.md
 ├── arduino_uno/motor_monitor/     # Firmware Arduino Uno
 ├── esp32/motor_telegram/          # Firmware ESP32 + Telegram
-│   ├── motor_telegram.ino
-│   ├── config.example.h
-│   └── config.h                   # Secrets locaux (gitignoré)
+│   └── motor_telegram.ino         # Wi‑Fi / token / chat id en haut du fichier
 ├── docs/
 │   ├── schema-cablage.md
 │   ├── protocole.md
@@ -38,7 +36,7 @@ surveillance motor/
 
 1. Lire [docs/mise-en-service.md](docs/mise-en-service.md)
 2. Câbler selon [docs/schema-cablage.md](docs/schema-cablage.md)
-3. Créer un bot via @BotFather, renseigner `esp32/motor_telegram/config.h`
+3. Créer un bot via @BotFather, renseigner Wi‑Fi/token/chat id **dans** `motor_telegram.ino`
 4. Flasher l’Uno puis l’ESP32
 5. Sur Telegram : `/dashboard` (admin) ou `/status`
 
@@ -62,7 +60,7 @@ Mêmes métriques : ax ay az rms vrms rpm impulsions fréquence urgence alerte �
 
 - Alimentation **moteur séparée** ; l’Arduino ne pilote que le **relais**.
 - UART : Uno **D4→GPIO16** (diviseur 1k/2k), **D3←GPIO17**, GND commun.
-- Ne publiez jamais `config.h` avec de vrais tokens sur un dépôt public.
+- Ne publiez jamais de vrais tokens Wi‑Fi/Telegram sur un dépôt public.
 
 ## Licence
 

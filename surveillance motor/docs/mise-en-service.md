@@ -24,21 +24,16 @@ Pour un groupe : ajoutez le bot au groupe, envoyez un message, et relisez `getUp
      `https://espressif.github.io/arduino-esp32/package_esp32_index.json`
    - Outils → Type de carte → Gestionnaire → installer **esp32** by Espressif.
 3. Bibliothèques (Outils → Gérer les bibliothèques) :
-   - **UniversalTelegramBot** (Brian Lough)
-   - **ArduinoJson** v6 (Benoit Blanchon)
-4. Côté **Arduino Uno** : seule la lib **Wire** (intégrée) est nécessaire pour l’ADXL345.
+   - **UniversalTelegramBot** (Brian Lough) uniquement
+4. Côté **Arduino Uno** : lib **Wire** + **SoftwareSerial** (intégrées).
 
 ## 3. Configurer l’ESP32
 
-```bash
-cp esp32/motor_telegram/config.example.h esp32/motor_telegram/config.h
-```
-
-Éditer `config.h` :
+Ouvrir `esp32/motor_telegram/motor_telegram.ino` et remplir en haut du fichier :
 - `WIFI_SSID` / `WIFI_PASSWORD`
 - `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_ADMIN_CHAT_ID` — chat admin (boutons ON/OFF + historique)
-- `TELEGRAM_VIEWER_CHAT_ID` — chat observateur (optionnel, `""` pour désactiver)
+- `TELEGRAM_ADMIN_CHAT_ID`
+- `TELEGRAM_VIEWER_CHAT_ID` (optionnel)
 
 ## 4. Flasher l’Arduino Uno
 

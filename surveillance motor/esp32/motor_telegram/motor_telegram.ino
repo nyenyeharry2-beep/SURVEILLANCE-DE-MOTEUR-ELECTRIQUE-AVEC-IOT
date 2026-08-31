@@ -1,21 +1,22 @@
 /*
  * ESP32 — Tableau de bord Telegram (admin + observateur)
- *
- * Admin  : métriques + historique + boutons ON/OFF / URGENCE / Actualiser
- * Autre  : mêmes métriques (ax ay az rms vrms rpm impulsion frequence
- *          urgence alerte) — sans commandes moteur ni historique
- *
- * Libs : UniversalTelegramBot, ArduinoJson v6
+ * Libs : WiFi + UniversalTelegramBot uniquement
+ * (pas ArduinoJson, pas config.h)
  */
 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
-#include <ArduinoJson.h>
-#include "config.h"
+
+// ========== CONFIG À REMPLIR ==========
+const char* WIFI_SSID             = "VOTRE_SSID";
+const char* WIFI_PASSWORD         = "VOTRE_MOT_DE_PASSE";
+const char* TELEGRAM_BOT_TOKEN    = "123456:ABC-DEF_votre_token";
+const char* TELEGRAM_ADMIN_CHAT_ID = "123456789";
+const char* TELEGRAM_VIEWER_CHAT_ID = "";  // optionnel
+// =====================================
 
 HardwareSerial& UnoSerial = Serial2;
-
 WiFiClientSecure securedClient;
 UniversalTelegramBot bot(TELEGRAM_BOT_TOKEN, securedClient);
 
@@ -32,7 +33,6 @@ struct Telemetry {
   bool valid = false;
 } tel;
 
-// ---- Historique alertes (admin) ----
 const int HIST_SIZE = 12;
 struct HistEntry {
   char text[72];
@@ -45,8 +45,41 @@ unsigned long lastBotCheck = 0;
 unsigned long lastAlertMs = 0;
 const unsigned long BOT_INTERVAL_MS = 800;
 const unsigned long ALERT_COOLDOWN_MS = 45000;
-
 String unoLineBuf;
+
+// ---- Parse JSON simple (sans ArduinoJson) ----
+bool jsonHasKey(const String& line, const char* key) {
+  String pat = String("\"") + key + "\"";
+  return line.indexOf(pat) >= 0;
+}
+
+float jsonGetFloat(const String& line, const char* key, float defVal = 0) {
+  String pat = String("\"") + key + "\":";
+  int i = line.indexOf(pat);
+  if (i < 0) return defVal;
+  i += pat.length();
+  while (i < (int)line.length() && (line[i] == ' ')) i++;
+  return line.substring(i).toFloat();
+}
+
+long jsonGetLong(const String& line, const char* key, long defVal = 0) {
+  String pat = String("\"") + key + "\":";
+  int i = line.indexOf(pat);
+  if (i < 0) return defVal;
+  i += pat.length();
+  while (i < (int)line.length() && (line[i] == ' ')) i++;
+  return line.substring(i).toInt();
+}
+
+String jsonGetString(const String& line, const char* key) {
+  String pat = String("\"") + key + "\":\"";
+  int i = line.indexOf(pat);
+  if (i < 0) return "";
+  i += pat.length();
+  int j = line.indexOf('"', i);
+  if (j < 0) return "";
+  return line.substring(i, j);
+}
 
 void pushHistory(const String& line) {
   HistEntry& e = hist[histHead];
@@ -69,10 +102,8 @@ bool isAdmin(const String& chatId) {
 
 bool isViewer(const String& chatId) {
   if (isAdmin(chatId)) return true;
-#ifdef TELEGRAM_VIEWER_CHAT_ID
-  if (String(TELEGRAM_VIEWER_CHAT_ID).length() > 0 &&
+  if (TELEGRAM_VIEWER_CHAT_ID[0] != '\0' &&
       chatId == String(TELEGRAM_VIEWER_CHAT_ID)) return true;
-#endif
   return false;
 }
 
@@ -102,7 +133,6 @@ void sendToUno(const char* cmd) {
   Serial.println(cmd);
 }
 
-/** Tableau commun : ax ay az rms vrms rpm(mpr) impulsions frequence urgence alerte */
 String formatDashboardCore() {
   if (!tel.valid) {
     return String("Aucune donnee Uno.\nVerifiez UART / capteurs.");
@@ -111,76 +141,42 @@ String formatDashboardCore() {
   s.reserve(420);
   s += "TABLEAU DE BORD MOTEUR\n";
   s += "=====================\n";
-  s += "ax   : ";
-  s += String(tel.ax, 3);
-  s += " g\n";
-  s += "ay   : ";
-  s += String(tel.ay, 3);
-  s += " g\n";
-  s += "az   : ";
-  s += String(tel.az, 3);
-  s += " g\n";
-  s += "RMS  : ";
-  s += String(tel.rms, 3);
-  s += " g\n";
-  s += "vRMS : ";
-  s += String(tel.vrms, 2);
-  s += " mm/s\n";
-  s += "RPM  : ";
-  s += String(tel.rpm, 0);
-  s += " tr/min\n";
-  s += "Impulsions : ";
-  s += String(tel.imp);
-  s += " (fenetre) / ";
-  s += String(tel.impt);
-  s += " (total)\n";
-  s += "Frequence  : ";
-  s += String(tel.freq, 2);
-  s += " Hz\n";
-  s += "Urgence : ";
-  s += urgLabel(tel.urg);
-  s += " (";
-  s += String(tel.urg);
-  s += ")\n";
-  s += "Alerte  : ";
-  s += tel.alerte ? "OUI" : "NON";
-  s += "\n";
+  s += "ax   : "; s += String(tel.ax, 3); s += " g\n";
+  s += "ay   : "; s += String(tel.ay, 3); s += " g\n";
+  s += "az   : "; s += String(tel.az, 3); s += " g\n";
+  s += "RMS  : "; s += String(tel.rms, 3); s += " g\n";
+  s += "vRMS : "; s += String(tel.vrms, 2); s += " mm/s\n";
+  s += "RPM  : "; s += String(tel.rpm, 0); s += " tr/min\n";
+  s += "Impulsions : "; s += String(tel.imp);
+  s += " (fenetre) / "; s += String(tel.impt); s += " (total)\n";
+  s += "Frequence  : "; s += String(tel.freq, 2); s += " Hz\n";
+  s += "Urgence : "; s += urgLabel(tel.urg);
+  s += " ("; s += String(tel.urg); s += ")\n";
+  s += "Alerte  : "; s += tel.alerte ? "OUI" : "NON"; s += "\n";
   s += "---------------------\n";
-  s += "I=";
-  s += String(tel.current, 2);
-  s += "A  U=";
-  s += String(tel.voltage, 1);
-  s += "V  T=";
-  s += String(tel.temp, 1);
-  s += "C\n";
-  s += "Moteur : ";
-  s += tel.motorOn ? "ON" : "OFF";
-  s += "\nMaj : ";
-  s += String((millis() - tel.updatedAt) / 1000);
-  s += " s";
+  s += "I="; s += String(tel.current, 2);
+  s += "A  U="; s += String(tel.voltage, 1);
+  s += "V  T="; s += String(tel.temp, 1); s += "C\n";
+  s += "Moteur : "; s += tel.motorOn ? "ON" : "OFF";
+  s += "\nMaj : "; s += String((millis() - tel.updatedAt) / 1000); s += " s";
   return s;
 }
 
 String formatHistory() {
   String s = "HISTORIQUE ALERTES\n==================\n";
   int shown = 0;
-  // Plus récent en premier
   for (int i = 0; i < HIST_SIZE; i++) {
     int idx = (histHead - 1 - i + HIST_SIZE * 2) % HIST_SIZE;
     if (!hist[idx].used) continue;
     unsigned long ageSec = (millis() - hist[idx].ms) / 1000;
-    s += "- [";
-    s += String(ageSec);
-    s += "s] ";
-    s += hist[idx].text;
-    s += "\n";
+    s += "- ["; s += String(ageSec); s += "s] ";
+    s += hist[idx].text; s += "\n";
     shown++;
   }
   if (shown == 0) s += "(vide)\n";
   return s;
 }
 
-/** Clavier inline ADMIN : ON OFF + Actualiser Historique Urgence */
 String adminKeyboardJson() {
   return String(
     "[[{\"text\":\"ON\",\"callback_data\":\"motor_on\"},"
@@ -192,7 +188,6 @@ String adminKeyboardJson() {
   );
 }
 
-/** Clavier observateur : lecture seule */
 String viewerKeyboardJson() {
   return String(
     "[[{\"text\":\"Actualiser\",\"callback_data\":\"refresh\"},"
@@ -203,24 +198,20 @@ String viewerKeyboardJson() {
 void sendAdminDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  String text = "ADMIN\n" + formatDashboardCore();
-  bot.sendMessageWithInlineKeyboard(chatId, text, "", adminKeyboardJson());
+  bot.sendMessageWithInlineKeyboard(chatId, "ADMIN\n" + formatDashboardCore(), "", adminKeyboardJson());
 }
 
 void sendViewerDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  String text = "OBSERVATEUR\n" + formatDashboardCore();
-  bot.sendMessageWithInlineKeyboard(chatId, text, "", viewerKeyboardJson());
+  bot.sendMessageWithInlineKeyboard(chatId, "OBSERVATEUR\n" + formatDashboardCore(), "", viewerKeyboardJson());
 }
 
 void notifyChats(const String& msg) {
   bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, msg, "");
-#ifdef TELEGRAM_VIEWER_CHAT_ID
-  if (String(TELEGRAM_VIEWER_CHAT_ID).length() > 0) {
+  if (TELEGRAM_VIEWER_CHAT_ID[0] != '\0') {
     bot.sendMessage(TELEGRAM_VIEWER_CHAT_ID, msg, "");
   }
-#endif
 }
 
 void handleCallback(telegramMessage& msg) {
@@ -240,8 +231,7 @@ void handleCallback(telegramMessage& msg) {
   }
 
   if (data == "alerts") {
-    String a = "Etat alertes\n";
-    a += "Urgence : ";
+    String a = "Etat alertes\nUrgence : ";
     a += urgLabel(tel.urg);
     a += "\nAlerte  : ";
     a += tel.alerte ? "OUI" : "NON";
@@ -250,15 +240,11 @@ void handleCallback(telegramMessage& msg) {
     a += "g vRMS=";
     a += String(tel.vrms, 2);
     a += " mm/s";
-    if (isAdmin(chat)) {
-      bot.sendMessageWithInlineKeyboard(chat, a, "", adminKeyboardJson());
-    } else {
-      bot.sendMessageWithInlineKeyboard(chat, a, "", viewerKeyboardJson());
-    }
+    bot.sendMessageWithInlineKeyboard(
+      chat, a, "", isAdmin(chat) ? adminKeyboardJson() : viewerKeyboardJson());
     return;
   }
 
-  // ---- Réservé ADMIN ----
   if (!isAdmin(chat)) {
     bot.sendMessage(chat, "Reserve a l'administrateur.", "");
     return;
@@ -285,7 +271,6 @@ void handleCallback(telegramMessage& msg) {
 void handleTelegramMessage(telegramMessage& msg) {
   String chat = msg.chat_id;
 
-  // Callback boutons
   if (msg.type == "callback_query") {
     handleCallback(msg);
     return;
@@ -302,22 +287,11 @@ void handleTelegramMessage(telegramMessage& msg) {
   if (text == "/start" || text == "/help" || text == "/dashboard") {
     if (isAdmin(chat)) {
       bot.sendMessage(chat,
-        "Tableau de bord ADMIN\n"
-        "/dashboard - panneau + boutons\n"
-        "/status    - metriques\n"
-        "/historique - historique\n"
-        "/on /off   - moteur\n"
-        "/urgence   - stop immediat",
-        "");
+        "Tableau de bord ADMIN\n/dashboard /status /historique /on /off /urgence", "");
       sendAdminDashboard(chat);
     } else {
       bot.sendMessage(chat,
-        "Tableau de bord OBSERVATEUR\n"
-        "Metriques : ax ay az rms vrms rpm impulsions frequence urgence alerte\n"
-        "/dashboard - panneau\n"
-        "/status    - metriques\n"
-        "(pas de commande moteur)",
-        "");
+        "Tableau de bord OBSERVATEUR\n/dashboard /status", "");
       sendViewerDashboard(chat);
     }
   } else if (text == "/status") {
@@ -331,32 +305,22 @@ void handleTelegramMessage(telegramMessage& msg) {
     }
     bot.sendMessage(chat, formatHistory(), "");
   } else if (text == "/on") {
-    if (!isAdmin(chat)) {
-      bot.sendMessage(chat, "Reserve admin.", "");
-      return;
-    }
+    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
     sendToUno("MOTOR_ON");
     pushHistory("CMD /on");
     bot.sendMessage(chat, "MOTOR ON", "");
   } else if (text == "/off") {
-    if (!isAdmin(chat)) {
-      bot.sendMessage(chat, "Reserve admin.", "");
-      return;
-    }
+    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /off");
     bot.sendMessage(chat, "MOTOR OFF", "");
   } else if (text == "/urgence" || text == "/emergency") {
-    if (!isAdmin(chat)) {
-      bot.sendMessage(chat, "Reserve admin.", "");
-      return;
-    }
+    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /urgence");
     notifyChats("URGENCE : arret moteur.");
   } else if (text == "/ping") {
-    if (!isAdmin(chat)) return;
-    sendToUno("PING");
+    if (isAdmin(chat)) sendToUno("PING");
   } else {
     bot.sendMessage(chat, "Commande inconnue. /help", "");
   }
@@ -392,23 +356,20 @@ void maybeAlert() {
 }
 
 bool parseTelemetry(const String& line) {
-  StaticJsonDocument<512> doc;
-  if (deserializeJson(doc, line)) return false;
-
-  if (doc.containsKey("evt")) {
-    const char* evt = doc["evt"];
+  if (jsonHasKey(line, "evt")) {
+    String evt = jsonGetString(line, "evt");
     Serial.print(F("Evt: "));
     Serial.println(evt);
-    if (strcmp(evt, "SAFE_STOP") == 0) {
+    if (evt == "SAFE_STOP") {
       pushHistory("SAFE_STOP Uno (urgence)");
       notifyChats("STOP SECURITE Uno — moteur coupe.");
-    } else if (strcmp(evt, "PONG") == 0) {
+    } else if (evt == "PONG") {
       bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, "Uno : PONG", "");
-    } else if (strcmp(evt, "MOTOR_ON") == 0 || strcmp(evt, "MOTOR_OFF") == 0) {
+    } else if (evt == "MOTOR_ON" || evt == "MOTOR_OFF") {
       pushHistory(String("Uno ") + evt);
       notifyChats(String("Uno : ") + evt);
-    } else if (strcmp(evt, "UNO_READY") == 0) {
-      int adxl = doc["adxl"] | 0;
+    } else if (evt == "UNO_READY") {
+      int adxl = (int)jsonGetLong(line, "adxl", 0);
       String m = adxl ? "Uno pret — ADXL345 OK" : "Uno pret — ADXL345 ABSENT";
       pushHistory(m);
       bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, m, "");
@@ -416,23 +377,23 @@ bool parseTelemetry(const String& line) {
     return true;
   }
 
-  if (!doc.containsKey("ax")) return false;
+  if (!jsonHasKey(line, "ax")) return false;
 
-  tel.ax = doc["ax"] | 0.0;
-  tel.ay = doc["ay"] | 0.0;
-  tel.az = doc["az"] | 0.0;
-  tel.rms = doc["rms"] | 0.0;
-  tel.vrms = doc["vrms"] | 0.0;
-  tel.rpm = doc["rpm"] | 0.0;
-  tel.imp = doc["imp"] | 0;
-  tel.impt = doc["impt"] | 0;
-  tel.freq = doc["freq"] | 0.0;
-  tel.urg = doc["urg"] | 0;
-  tel.alerte = doc["alerte"] | 0;
-  tel.current = doc["c"] | 0.0;
-  tel.temp = doc["t"] | 0.0;
-  tel.voltage = doc["v"] | 0.0;
-  tel.motorOn = (doc["m"] | 0) == 1;
+  tel.ax = jsonGetFloat(line, "ax");
+  tel.ay = jsonGetFloat(line, "ay");
+  tel.az = jsonGetFloat(line, "az");
+  tel.rms = jsonGetFloat(line, "rms");
+  tel.vrms = jsonGetFloat(line, "vrms");
+  tel.rpm = jsonGetFloat(line, "rpm");
+  tel.imp = (unsigned long)jsonGetLong(line, "imp");
+  tel.impt = (unsigned long)jsonGetLong(line, "impt");
+  tel.freq = jsonGetFloat(line, "freq");
+  tel.urg = (int)jsonGetLong(line, "urg");
+  tel.alerte = (int)jsonGetLong(line, "alerte");
+  tel.current = jsonGetFloat(line, "c");
+  tel.temp = jsonGetFloat(line, "t");
+  tel.voltage = jsonGetFloat(line, "v");
+  tel.motorOn = jsonGetLong(line, "m") == 1;
   tel.updatedAt = millis();
   tel.valid = true;
   return true;
@@ -458,19 +419,18 @@ void readUnoSerial() {
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("ESP32 Telegram Dashboard ADMIN/VIEWER"));
+  Serial.println(F("ESP32 Telegram Dashboard (sans ArduinoJson / config.h)"));
 
   for (int i = 0; i < HIST_SIZE; i++) hist[i].used = false;
 
-  // UART vers Uno : RX=GPIO16 ← D4, TX=GPIO17 → D3
+  // UART : RX=GPIO16 ← Uno D4, TX=GPIO17 → Uno D3
   UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
   connectWifi();
 
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-  // securedClient.setInsecure();
+  // securedClient.setInsecure(); // si certificat en echec
 
-  String boot = "Bot tableau de bord pret.\nIP: " + WiFi.localIP().toString() +
-                "\nEnvoyez /dashboard";
+  String boot = "Bot pret.\nIP: " + WiFi.localIP().toString() + "\n/dashboard";
   bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, boot, "");
   pushHistory("ESP32 boot OK");
 }
