@@ -10,11 +10,12 @@ Capteurs ──► Arduino Uno ──UART──► ESP32 ──Wi‑Fi──► 
 
 ## Fonctionnalités
 
-- Mesure **courant** (ACS712), **température** (LM35), **tension**, **vibration**, **RPM**
-- Envoi périodique de télémétrie Uno → ESP32 (JSON sur UART)
-- Bot Telegram : `/status`, `/on`, `/off`, `/ping`, `/help`
-- Alertes automatiques (surchauffe, surintensité, vibration, sous-tension)
-- Coupure de sécurité locale sur l’Uno si seuils critiques
+- Mesure **courant** (ACS712), **température** (LM35), **tension**
+- **RPM** via **capteur IR 3 broches** (VCC / GND / OUT → D2)
+- **Vibration** via **ADXL345** (I2C A4/A5) : axes `ax/ay/az` + magnitude
+- Télémétrie Uno → ESP32 (JSON UART) + bot Telegram `/status`, `/on`, `/off`, `/ping`
+- Alertes (surchauffe, surintensité, vibration ADXL345, sous-tension)
+- Coupure de sécurité locale Uno (temp / courant / vibration)
 
 ## Structure du dépôt
 

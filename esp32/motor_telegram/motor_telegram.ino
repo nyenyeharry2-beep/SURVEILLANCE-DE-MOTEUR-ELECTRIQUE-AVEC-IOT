@@ -3,8 +3,9 @@
  * - Wi-Fi
  * - Bot Telegram (alertes + commandes)
  * - Pont UART avec Arduino Uno (Serial2)
+ * - Affiche RPM (IR 3 pins) + vibration ADXL345 (ax/ay/az/mag)
  *
- * Bibliothèque requise (Arduino IDE / Library Manager) :
+ * Bibliothèques (Library Manager) :
  *   UniversalTelegramBot by Brian Lough
  *   ArduinoJson by Benoit Blanchon (v6)
  *
@@ -17,18 +18,17 @@
 #include <ArduinoJson.h>
 #include "config.h"
 
-// UART vers Arduino Uno
 HardwareSerial& UnoSerial = Serial2; // RX=16, TX=17
 
 WiFiClientSecure securedClient;
 UniversalTelegramBot bot(TELEGRAM_BOT_TOKEN, securedClient);
 
-// Dernière télémétrie
 struct Telemetry {
   float current = 0;
   float temp = 0;
   float voltage = 0;
   int vib = 0;
+  float ax = 0, ay = 0, az = 0, mag = 0;
   float rpm = 0;
   bool motorOn = false;
   unsigned long updatedAt = 0;
@@ -38,7 +38,7 @@ struct Telemetry {
 unsigned long lastBotCheck = 0;
 unsigned long lastAlertMs = 0;
 const unsigned long BOT_INTERVAL_MS = 1000;
-const unsigned long ALERT_COOLDOWN_MS = 60000; // 1 min entre alertes
+const unsigned long ALERT_COOLDOWN_MS = 60000;
 
 String unoLineBuf;
 
@@ -69,10 +69,10 @@ bool authorized(const String& chatId) {
 
 String formatStatus() {
   if (!tel.valid) {
-    return String("Aucune donnée du Uno pour le moment.\nVérifiez le câblage UART.");
+    return String("Aucune donnee du Uno.\nVerifiez UART / alimentation.");
   }
   String s;
-  s.reserve(256);
+  s.reserve(320);
   s += "Surveillance moteur\n";
   s += "-------------------\n";
   s += "Moteur : ";
@@ -83,10 +83,19 @@ String formatStatus() {
   s += String(tel.voltage, 1);
   s += " V\nTemp. : ";
   s += String(tel.temp, 1);
-  s += " C\nVibration : ";
-  s += tel.vib ? "DETECTEE" : "OK";
-  s += "\nRPM : ";
+  s += " C\nRPM (IR) : ";
   s += String(tel.rpm, 0);
+  s += "\nADXL345 :\n";
+  s += "  ax=";
+  s += String(tel.ax, 3);
+  s += " g  ay=";
+  s += String(tel.ay, 3);
+  s += " g  az=";
+  s += String(tel.az, 3);
+  s += " g\n  |a|-1g = ";
+  s += String(tel.mag, 3);
+  s += " g\n  Vib : ";
+  s += tel.vib ? "ALARME" : "OK";
   s += "\nMaj : ";
   s += String((millis() - tel.updatedAt) / 1000);
   s += " s";
@@ -112,7 +121,7 @@ void handleTelegramMessage(const telegramMessage& msg) {
   if (text == "/start" || text == "/help") {
     String help =
       "Commandes moteur IoT\n"
-      "/status  - etat capteurs\n"
+      "/status  - capteurs (IR + ADXL345)\n"
       "/on      - demarrer moteur\n"
       "/off     - arreter moteur\n"
       "/ping    - test Uno\n"
@@ -120,7 +129,7 @@ void handleTelegramMessage(const telegramMessage& msg) {
     bot.sendMessage(chat, help, "");
   } else if (text == "/status") {
     sendToUno("STATUS");
-    delay(300);
+    delay(400);
     bot.sendMessage(chat, formatStatus(), "");
   } else if (text == "/on") {
     sendToUno("MOTOR_ON");
@@ -162,8 +171,10 @@ void maybeAlert() {
     reason += String(tel.current, 2);
     reason += " A\n";
   }
-  if (tel.vib && VIB_ALERT_ENABLE) {
-    reason += "Vibration detectee\n";
+  if (VIB_ALERT_ENABLE && (tel.vib || tel.mag >= VIB_MAG_MAX_G)) {
+    reason += "Vibration ADXL345: mag=";
+    reason += String(tel.mag, 3);
+    reason += " g\n";
   }
   if (tel.voltage > 0 && tel.voltage < VOLTAGE_MIN_V) {
     reason += "Tension basse: ";
@@ -180,8 +191,7 @@ void maybeAlert() {
 }
 
 bool parseTelemetry(const String& line) {
-  // {"c":1.23,"t":45.6,"v":220.1,"vib":0,"rpm":1450,"m":1}
-  StaticJsonDocument<256> doc;
+  StaticJsonDocument<384> doc;
   DeserializationError err = deserializeJson(doc, line);
   if (err) return false;
 
@@ -191,12 +201,17 @@ bool parseTelemetry(const String& line) {
     Serial.println(evt);
     if (strcmp(evt, "SAFE_STOP") == 0) {
       bot.sendMessage(TELEGRAM_CHAT_ID,
-                      "STOP SECURITE : seuil depasse, moteur coupe par le Uno.",
+                      "STOP SECURITE : seuil depasse (temp/courant/vibration), moteur coupe.",
                       "");
     } else if (strcmp(evt, "PONG") == 0) {
       bot.sendMessage(TELEGRAM_CHAT_ID, "Uno repond : PONG", "");
     } else if (strcmp(evt, "MOTOR_ON") == 0 || strcmp(evt, "MOTOR_OFF") == 0) {
-      String m = String("Uno : ") + evt;
+      bot.sendMessage(TELEGRAM_CHAT_ID, String("Uno : ") + evt, "");
+    } else if (strcmp(evt, "UNO_READY") == 0) {
+      int adxl = doc["adxl"] | -1;
+      String m = "Uno pret.";
+      if (adxl == 1) m += " ADXL345 OK.";
+      else if (adxl == 0) m += " ADXL345 NON DETECTE (I2C).";
       bot.sendMessage(TELEGRAM_CHAT_ID, m, "");
     }
     return true;
@@ -208,6 +223,10 @@ bool parseTelemetry(const String& line) {
   tel.temp     = doc["t"] | 0.0;
   tel.voltage  = doc["v"] | 0.0;
   tel.vib      = doc["vib"] | 0;
+  tel.ax       = doc["ax"] | 0.0;
+  tel.ay       = doc["ay"] | 0.0;
+  tel.az       = doc["az"] | 0.0;
+  tel.mag      = doc["mag"] | 0.0;
   tel.rpm      = doc["rpm"] | 0.0;
   tel.motorOn  = (doc["m"] | 0) == 1;
   tel.updatedAt = millis();
@@ -227,7 +246,7 @@ void readUnoSerial() {
       }
       unoLineBuf = "";
     } else if (c != '\r') {
-      if (unoLineBuf.length() < 300) unoLineBuf += c;
+      if (unoLineBuf.length() < 360) unoLineBuf += c;
     }
   }
 }
@@ -235,18 +254,17 @@ void readUnoSerial() {
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("ESP32 Motor Monitor + Telegram"));
+  Serial.println(F("ESP32 Motor Monitor + Telegram (IR + ADXL345)"));
 
-  UnoSerial.begin(9600, SERIAL_8N1, 16, 17); // RX=16, TX=17
+  UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
 
   connectWifi();
 
-  // Telegram HTTPS
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-  // Si certificats posent probleme en test : securedClient.setInsecure();
+  // securedClient.setInsecure(); // décommenter si souci de certificat en test
 
   String boot = "ESP32 connecte.\nIP: " + WiFi.localIP().toString() +
-                "\nBot pret. Envoyez /help";
+                "\nBot pret (IR RPM + ADXL345). /help";
   bot.sendMessage(TELEGRAM_CHAT_ID, boot, "");
 }
 

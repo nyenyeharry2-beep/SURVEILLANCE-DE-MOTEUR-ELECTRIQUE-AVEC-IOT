@@ -26,6 +26,7 @@ Pour un groupe : ajoutez le bot au groupe, envoyez un message, et relisez `getUp
 3. Bibliothèques (Outils → Gérer les bibliothèques) :
    - **UniversalTelegramBot** (Brian Lough)
    - **ArduinoJson** v6 (Benoit Blanchon)
+4. Côté **Arduino Uno** : seule la lib **Wire** (intégrée) est nécessaire pour l’ADXL345.
 
 ## 3. Configurer l’ESP32
 
@@ -70,15 +71,30 @@ Puis alimenter les deux cartes et tester `/ping` puis `/status` sur Telegram.
 2. Ajuster `ACS712_VREF` dans le sketch Uno.
 3. Vérifier `ACS712_SENSITIVITY` selon le modèle (5A/20A/30A).
 
-## 8. Tests fonctionnels
+## 8. Réglage capteur IR 3 pins (RPM)
+
+1. Câbler **VCC→5V**, **GND→GND**, **OUT→D2**.
+2. Coller une marque réfléchissante sur l’arbre.
+3. Tourner le potentiomètre du module : la LED doit clignoter à chaque tour.
+4. Ajuster `PULSES_PER_REV` si plusieurs marques.
+5. Si RPM reste à 0 : inverser ISR `FALLING` ↔ `RISING` dans le sketch.
+
+## 9. Vérification ADXL345
+
+1. Câbler I2C : **SDA→A4**, **SCL→A5**, **VCC→3.3V**, **GND→GND**, **SDO→GND** (addr `0x53`).
+2. Au boot, le message `UNO_READY` doit contenir `"adxl":1`.
+3. Au repos, `/status` montre `az ≈ 1 g` (ou un autre axe ≈ 1 selon l’orientation) et `mag` faible.
+4. Secouer le module → `mag` monte, éventuellement `vib: ALARME`.
+
+## 10. Tests fonctionnels
 
 | Test              | Attendu                                      |
 |-------------------|----------------------------------------------|
 | `/ping`           | « Uno repond : PONG »                        |
-| `/status`         | Valeurs c, t, v, vib, rpm, m                 |
-| `/on`             | Relais + LED D13                             |
-| `/off`            | Relais coupe                                 |
-| Chauffe simulée   | Alerte Telegram + éventuel `SAFE_STOP`       |
+| `/status`         | c, t, v, rpm IR, ax/ay/az/mag ADXL345        |
+| Rotation arbre    | `rpm` non nul                                |
+| Secousse ADXL345  | `mag` ↑ / alerte vibration                   |
+| `/on` / `/off`    | Relais + LED D13                             |
 
 ## Dépannage
 
@@ -87,5 +103,7 @@ Puis alimenter les deux cartes et tester `/ping` puis `/status` sur Telegram.
 | Pas de Wi‑Fi                | SSID/mdp, bande 2.4 GHz                    |
 | Bot ne répond pas           | Token, chat id, `/start` au bot            |
 | Pas de données Uno          | Baud 9600, TX/RX croisés, GND commun       |
+| `adxl:0` au boot            | 3.3 V, SDA/A4 SCL/A5, adresse 0x53/0x1D    |
+| RPM toujours 0              | Pot. IR, distance, FALLING/RISING, D2      |
 | Certificat SSL Telegram     | `securedClient.setInsecure();` en test     |
 | Flash Uno échoue            | Débrancher UART vers ESP32                 |

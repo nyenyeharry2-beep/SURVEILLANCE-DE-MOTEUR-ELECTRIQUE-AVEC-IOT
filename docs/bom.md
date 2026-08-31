@@ -1,21 +1,22 @@
 # Nomenclature (BOM)
 
-| Qté | Référence              | Rôle                              | Notes                          |
-|-----|------------------------|-----------------------------------|--------------------------------|
-| 1   | Arduino Uno R3         | Acquisition capteurs + relais     | Clone OK                       |
-| 1   | ESP32 DevKit (30/38p)  | Wi‑Fi + bot Telegram              | Dual core, 3.3 V               |
-| 1   | ACS712 (20A recommandé)| Courant moteur                    | Sensibilité 100 mV/A           |
-| 1   | LM35                   | Température                       | Ou DHT22 (adapter le code)     |
-| 1   | Module tension 0–25 V  | Tension (optionnel)               | Diviseur intégré               |
-| 1   | SW-420                 | Vibration                         | Sortie digitale                |
-| 1   | Capteur IR / hall      | RPM                               | + disque à fente / aimant      |
-| 1   | Module relais 5 V      | Coupure / démarrage moteur        | Contact dimensionné au moteur  |
-| 2   | Résistances 1 kΩ, 2 kΩ | Diviseur TX 5 V → 3.3 V           | Obligatoire pour long terme    |
-| —   | Fils Dupont, breadboard| Prototypage                       | —                              |
-| 1   | Alimentation moteur    | Séparée                           | Fusible / disjoncteur          |
+| Qté | Référence                    | Rôle                         | Notes                                      |
+|-----|------------------------------|------------------------------|--------------------------------------------|
+| 1   | Arduino Uno R3               | Capteurs + relais            | Clone OK                                   |
+| 1   | ESP32 DevKit                 | Wi‑Fi + Telegram             |                                            |
+| 1   | **Capteur IR 3 pins**        | **RPM**                      | VCC / GND / OUT + pot. sensibilité         |
+| 1   | **ADXL345** (GY-291…)        | **Vibration / accélération** | I2C, alimenter en **3.3 V**                |
+| 1   | ACS712 (20A recommandé)      | Courant moteur               | 100 mV/A                                   |
+| 1   | LM35                         | Température                  |                                            |
+| 1   | Module tension 0–25 V        | Tension (optionnel)          |                                            |
+| 1   | Module relais 5 V            | ON/OFF moteur                | Contact adapté au courant moteur           |
+| 2   | Résistances 1 kΩ, 2 kΩ       | Diviseur TX 5 V → 3.3 V      |                                            |
+| —   | Bande réfléchissante / disque| Pour le RPM IR               | 1 marque = `PULSES_PER_REV 1`              |
+| 1   | Alim. moteur séparée         | Puissance                    | Avec protection                            |
 
-## Variantes
+## Remplacé par rapport à l’ancienne nomenclature
 
-- **Sans RPM :** laisser D4 libre ; la valeur restera à 0.
-- **Sans module tension :** A2 flottant → filtrer ou ignorer `v` côté alertes (`VOLTAGE_MIN_V = 0` côté logique métier).
-- **Moteur triphasé / forte puissance :** utiliser un contacteur + transformateur de courant (CT) à la place de l’ACS712 hobby.
+| Ancien        | Nouveau              |
+|---------------|----------------------|
+| SW-420        | **ADXL345** (I2C)    |
+| Capteur IR vague / hall | **IR 3 broches** (VCC, GND, OUT) |

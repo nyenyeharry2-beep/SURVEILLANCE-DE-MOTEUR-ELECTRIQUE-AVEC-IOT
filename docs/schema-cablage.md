@@ -9,63 +9,82 @@
   ACS712 ──────────►│ A0  (courant)                       │
   LM35 ────────────►│ A1  (température)                   │
   Module tension ──►│ A2  (tension)                       │
-  Capteur IR RPM ──►│ D2  (vitesse, INT0)                 │
-  SW-420 ──────────►│ D3  (vibration)                     │
-  Relais moteur ◄───│ D8  (commande ON/OFF)               │
+                    │                                     │
+  IR 3 pins OUT ───►│ D2  (RPM, INT0)                     │
+  IR VCC ──────────►│ 5V                                  │
+  IR GND ──────────►│ GND                                 │
+                    │                                     │
+  ADXL345 SDA ─────►│ A4  (I2C)                           │
+  ADXL345 SCL ─────►│ A5  (I2C)                           │
+  ADXL345 VCC ─────►│ 3.3V  (pas 5V si module sans régul.)│
+  ADXL345 GND ─────►│ GND                                 │
+                    │                                     │
+  Relais moteur ◄───│ D8                                  │
   LED statut ◄──────│ D13                                 │
                     │                                     │
-                    │ TX (D1) ──────► RX2 (GPIO16) ESP32  │
-                    │ RX (D0) ◄────── TX2 (GPIO17) ESP32  │
-                    │ GND ─────────── GND                 │
+                    │ TX (D1) ──diviseur──► GPIO16 ESP32  │
+                    │ RX (D0) ◄──────────── GPIO17 ESP32  │
+                    │ GND ───────────────── GND           │
                     └─────────────────────────────────────┘
-                                      │
-                                      │ UART 9600 baud
+                                      │ UART 9600
                                       ▼
-                    ┌─────────────────────────────────────┐
-                    │              ESP32                  │
-                    │  Wi-Fi ──► Internet ──► Telegram    │
-                    └─────────────────────────────────────┘
+                                 ESP32 → Telegram
 ```
 
-## Alimentation
+## Capteur IR 3 broches (RPM)
 
-| Composant     | Alimentation      | Notes                                      |
-|---------------|-------------------|--------------------------------------------|
-| Arduino Uno   | USB 5 V ou jack   | Ne pas alimenter le moteur via l'Arduino   |
-| ESP32         | USB 5 V / 3.3 V   | Niveau logique 3.3 V                       |
-| Relais        | 5 V               | Bobine sur D8, **contact** vers le moteur  |
-| Moteur        | Alim. séparée     | Via contact NO du relais                   |
-| ACS712        | 5 V               | Sortie analogique vers A0                  |
+Module obstacle / réflexion typique (souvent bleu) :
 
-> **Important :** Arduino (5 V) et ESP32 (3.3 V) — pour une liaison série durable, utiliser un **diviseur de tension** sur la ligne TX Arduino → RX ESP32 (résistances 1 kΩ + 2 kΩ), ou un module level-shifter.
+| Broche module | Arduino Uno | Rôle                          |
+|---------------|-------------|-------------------------------|
+| **VCC**       | 5V          | Alimentation                  |
+| **GND**       | GND         | Masse                         |
+| **OUT**       | **D2**      | Signal digital (interruption) |
 
-## Broches détaillées
+### Montage mécanique RPM
 
-### Arduino Uno
+1. Coller **1 bande réfléchissante** (ou plus) sur l’arbre / un disque.
+2. Placer le module IR face à la zone (distance ~1–5 cm).
+3. Régler le **potentiomètre** du module jusqu’à ce que la LED bascule clairement à chaque passage.
+4. Dans le code : `PULSES_PER_REV` = nombre de marques par tour.
 
-| Broche | Signal        | Composant              |
-|--------|---------------|------------------------|
-| A0     | CURRENT       | ACS712 5A/20A/30A      |
-| A1     | TEMP          | LM35                   |
-| A2     | VOLTAGE       | Module détecteur 0–25 V|
-| D2     | RPM_PULSE     | Capteur IR / hall (INT0)|
-| D3     | VIBRATION     | SW-420 (sortie DO)     |
-| D8     | RELAY         | Module relais (IN)     |
-| D13    | STATUS_LED    | LED intégrée           |
-| D1/TX  | SERIAL_TX     | → GPIO16 ESP32         |
-| D0/RX  | SERIAL_RX     | ← GPIO17 ESP32         |
-| GND    | GND           | Masse commune          |
+> Polarité : beaucoup de modules sortent **LOW** à la détection → ISR en `FALLING`. Si le vôtre est actif HIGH, passer l’ISR en `RISING` dans `motor_monitor.ino`.
 
-### ESP32
+## Accéléromètre ADXL345 (vibration)
 
-| Broche   | Signal     | Connexion              |
-|----------|------------|------------------------|
-| GPIO16   | RX2        | ← TX Arduino (via diviseur) |
-| GPIO17   | TX2        | → RX Arduino           |
-| GND      | GND        | Masse commune          |
-| 3V3/5V   | Alim.      | USB                    |
+Bus **I2C** (Uno) :
 
-## Diviseur de tension (TX Uno → RX ESP32)
+| Broche ADXL345 | Arduino Uno | Notes                                      |
+|----------------|-------------|--------------------------------------------|
+| **VCC**        | **3.3V**    | Obligatoire si pas de régulateur sur le module |
+| **GND**        | GND         |                                            |
+| **SDA**        | **A4**      |                                            |
+| **SCL**        | **A5**      |                                            |
+| **SDO / ALT**  | GND         | Adresse I2C **0x53** (défaut du sketch)    |
+| **CS**         | 3.3V        | Mode I2C (sur certains breakouts)          |
+
+Adresse alternative `0x1D` si SDO → VCC : modifier `ADXL345_ADDR` dans le sketch.
+
+Mesure utilisée : `mag = ||a|| − 1g` (écart à la gravité). Si `mag ≥ VIB_MAG_ALARM` → `vib=1` + éventuel `SAFE_STOP`.
+
+## Autres broches
+
+| Broche | Signal     | Composant              |
+|--------|------------|------------------------|
+| A0     | CURRENT    | ACS712                 |
+| A1     | TEMP       | LM35                   |
+| A2     | VOLTAGE    | Module 0–25 V          |
+| D8     | RELAY      | Module relais          |
+| D13    | STATUS_LED | LED intégrée           |
+| D1/D0  | UART       | ↔ ESP32 GPIO16/17      |
+
+## ESP32
+
+| Broche  | Connexion                         |
+|---------|-----------------------------------|
+| GPIO16  | ← TX Uno (via diviseur 1k + 2k)   |
+| GPIO17  | → RX Uno                          |
+| GND     | Masse commune                     |
 
 ```
 Arduino TX (5 V) ───[1 kΩ]───┬─── ESP32 RX (≈3.3 V)
@@ -75,9 +94,8 @@ Arduino TX (5 V) ───[1 kΩ]───┬─── ESP32 RX (≈3.3 V)
                             GND
 ```
 
-## Sécurité électrique
+## Sécurité
 
-1. Ne jamais brancher directement un moteur secteur sur une broche Arduino/ESP32.
-2. Utiliser un **relais** (ou SSR) dimensionné pour le courant moteur.
-3. Prévoir une **protection** (fusible, disjoncteur) sur l'alimentation moteur.
-4. Masse commune entre Uno et ESP32 uniquement pour le signal série — pas pour la puissance moteur.
+1. Moteur alimenté **via le contact du relais**, jamais directement depuis l’Arduino.
+2. Fusible / disjoncteur sur l’alimentation moteur.
+3. ADXL345 en **3.3 V** sauf module explicitement 5 V tolérant.
