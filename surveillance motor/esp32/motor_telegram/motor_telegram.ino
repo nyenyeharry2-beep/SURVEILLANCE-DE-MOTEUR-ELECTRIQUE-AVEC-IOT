@@ -140,9 +140,9 @@ String formatDashboardCore() {
   s.reserve(420);
   s += "TABLEAU DE BORD MOTEUR\n";
   s += "=====================\n";
-  s += "ax   : "; s += String(tel.ax, 3); s += " g\n";
-  s += "ay   : "; s += String(tel.ay, 3); s += " g\n";
-  s += "az   : "; s += String(tel.az, 3); s += " g\n";
+  s += "ax (dyn) : "; s += String(tel.ax, 3); s += " g\n";
+  s += "ay (dyn) : "; s += String(tel.ay, 3); s += " g\n";
+  s += "az (dyn) : "; s += String(tel.az, 3); s += " g\n";
   s += "RMS  : "; s += String(tel.rms, 3); s += " g\n";
   s += "vRMS : "; s += String(tel.vrms, 2); s += " mm/s\n";
   s += "RPM  : "; s += String(tel.rpm, 0); s += " tr/min\n";
