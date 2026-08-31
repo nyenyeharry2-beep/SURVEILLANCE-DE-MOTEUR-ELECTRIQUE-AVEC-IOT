@@ -2,6 +2,6 @@
 
 Le projet complet se trouve dans le dossier :
 
-**[`surveillance moteur/`](surveillance%20moteur/)**
+**[`surveillance motor/`](surveillance%20motor/)**
 
 Contenu : firmware Arduino Uno, ESP32 + Telegram (tableau de bord admin), documentation et outils.

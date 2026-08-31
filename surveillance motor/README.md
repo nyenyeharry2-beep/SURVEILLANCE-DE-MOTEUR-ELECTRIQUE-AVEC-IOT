@@ -19,7 +19,7 @@ Capteurs ──► Arduino Uno ──UART──► ESP32 ──Wi‑Fi──► 
 ## Structure du dossier
 
 ```
-surveillance moteur/
+surveillance motor/
 ├── README.md
 ├── arduino_uno/motor_monitor/     # Firmware Arduino Uno
 ├── esp32/motor_telegram/          # Firmware ESP32 + Telegram
@@ -40,7 +40,7 @@ surveillance moteur/
 2. Câbler selon [docs/schema-cablage.md](docs/schema-cablage.md)
 3. Créer un bot via @BotFather, renseigner `esp32/motor_telegram/config.h`
 4. Flasher l’Uno puis l’ESP32
-5. Sur Telegram : `/start` puis `/status`
+5. Sur Telegram : `/dashboard` (admin) ou `/status`
 
 ## Commandes Telegram
 
