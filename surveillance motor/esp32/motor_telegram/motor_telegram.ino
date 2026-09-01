@@ -506,16 +506,17 @@ bool parseTelemetry(const String& line) {
       pushHistory("SAFE_STOP Uno (urgence)");
       notifyChats("STOP SECURITE Uno — moteur coupe.");
     } else if (evt == "PONG") {
-      bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, "Uno : PONG", "");
+      bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, "Uno : PONG", "", adminKeyboardJson());
     } else if (evt == "MOTOR_ON" || evt == "MOTOR_OFF") {
       pushHistory(String("Uno ") + evt);
       notifyChats(String("Uno : ") + evt);
-    }     else if (evt == "UNO_READY") {
+    } else if (evt == "UNO_READY") {
       int adxl = (int)jsonGetLong(line, "adxl", 0);
       String m = adxl ? "Uno pret — ADXL345 OK" : "Uno pret — ADXL345 ABSENT";
-      pushHistory(m); bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, m, "");
+      pushHistory(m);
+      bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, m, "", adminKeyboardJson());
     } else if (evt == "CALIB_OK") {
-      bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, "Calibration ADXL OK", "");
+      bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, "Calibration ADXL OK", "", adminKeyboardJson());
     }
     return true;
   }
@@ -578,7 +579,7 @@ void setup() {
   String boot = "Bot pret.\nIP: " + WiFi.localIP().toString();
   boot += "\nDate: " + nowDateStr() + " " + nowTimeStr();
   boot += "\n/dashboard";
-  bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, boot, "");
+  bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, boot, "", adminKeyboardJson());
   pushHistory("ESP32 boot OK");
   Serial.println(boot);
 }
