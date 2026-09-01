@@ -306,8 +306,11 @@ void sendTelemetry() {
   Serial.print(F("RMS=")); Serial.print(rmsG, 3);
   Serial.print(F(" g  vRMS=")); Serial.print(vrmsMms, 2);
   Serial.println(F(" mm/s"));
+  Serial.print(F("RPM=")); Serial.print(lastRpm, 0);
+  Serial.print(F("  freq=")); Serial.print(lastFreqHz, 2);
+  Serial.print(F(" Hz  imp=")); Serial.println(lastWindowImp);
   Serial.print(F("Niveau=")); Serial.print(niveauAlerte, 1);
-  Serial.print(F("  Seuil alerte=")); Serial.print(SEUIL_ALERTE, 0);
+  Serial.print(F(" / Seuil=")); Serial.print(SEUIL_ALERTE, 0);
   Serial.print(F("  Urgence=")); Serial.print(urgLevel);
   Serial.print(F("  Alerte=")); Serial.print(alerteFlag ? "OUI" : "NON");
   Serial.print(F("  Moteur=")); Serial.println(motorOn ? "ON" : "OFF");

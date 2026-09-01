@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+#include <time.h>
 
 // ========== CONFIG À REMPLIR ==========
 const char* WIFI_SSID             = "VOTRE_SSID";
@@ -14,6 +15,9 @@ const char* WIFI_PASSWORD         = "VOTRE_MOT_DE_PASSE";
 const char* TELEGRAM_BOT_TOKEN    = "123456:ABC-DEF_votre_token";
 const char* TELEGRAM_ADMIN_CHAT_ID = "123456789";
 const char* TELEGRAM_VIEWER_CHAT_ID = "";  // optionnel
+// Fuseau horaire : UTC+1 (Afrique Centrale / WAT). Changer si besoin.
+const long GMT_OFFSET_SEC = 3600;
+const int  DAYLIGHT_OFFSET_SEC = 0;
 // =====================================
 
 HardwareSerial& UnoSerial = Serial2;
@@ -32,13 +36,21 @@ struct Telemetry {
   bool valid = false;
 } tel;
 
-const int HIST_SIZE = 12;
+// Historique avec date, heure et données
+const int HIST_SIZE = 10;
 struct HistEntry {
-  char text[72];
-  unsigned long ms;
+  char dateStr[12];   // JJ/MM/AAAA
+  char timeStr[10];   // HH:MM:SS
+  char event[48];
+  float ax, ay, az, rms, vrms, rpm, freq;
+  unsigned long imp;
+  int urg, alerte;
+  bool motorOn;
+  bool hasData;
   bool used;
 } hist[HIST_SIZE];
 int histHead = 0;
+bool timeOk = false;
 
 unsigned long lastBotCheck = 0;
 unsigned long lastAlertMs = 0;
@@ -80,13 +92,67 @@ String jsonGetString(const String& line, const char* key) {
   return line.substring(i, j);
 }
 
-void pushHistory(const String& line) {
+void syncTime() {
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org", "time.google.com");
+  Serial.print(F("NTP"));
+  struct tm ti;
+  int tries = 0;
+  while (!getLocalTime(&ti) && tries < 20) {
+    delay(500);
+    Serial.print('.');
+    tries++;
+  }
+  Serial.println();
+  timeOk = getLocalTime(&ti);
+  if (timeOk) {
+    Serial.printf("Date/heure: %02d/%02d/%04d %02d:%02d:%02d\n",
+                  ti.tm_mday, ti.tm_mon + 1, ti.tm_year + 1900,
+                  ti.tm_hour, ti.tm_min, ti.tm_sec);
+  } else {
+    Serial.println(F("NTP echec — historique sans horloge reseau"));
+  }
+}
+
+String nowDateStr() {
+  struct tm ti;
+  if (!getLocalTime(&ti)) return "--/--/----";
+  char buf[12];
+  snprintf(buf, sizeof(buf), "%02d/%02d/%04d", ti.tm_mday, ti.tm_mon + 1, ti.tm_year + 1900);
+  return String(buf);
+}
+
+String nowTimeStr() {
+  struct tm ti;
+  if (!getLocalTime(&ti)) return "--:--:--";
+  char buf[10];
+  snprintf(buf, sizeof(buf), "%02d:%02d:%02d", ti.tm_hour, ti.tm_min, ti.tm_sec);
+  return String(buf);
+}
+
+void pushHistory(const String& event) {
   HistEntry& e = hist[histHead];
-  strncpy(e.text, line.c_str(), sizeof(e.text) - 1);
-  e.text[sizeof(e.text) - 1] = '\0';
-  e.ms = millis();
+  String d = nowDateStr();
+  String t = nowTimeStr();
+  strncpy(e.dateStr, d.c_str(), sizeof(e.dateStr) - 1);
+  e.dateStr[sizeof(e.dateStr) - 1] = '\0';
+  strncpy(e.timeStr, t.c_str(), sizeof(e.timeStr) - 1);
+  e.timeStr[sizeof(e.timeStr) - 1] = '\0';
+  strncpy(e.event, event.c_str(), sizeof(e.event) - 1);
+  e.event[sizeof(e.event) - 1] = '\0';
+
+  e.hasData = tel.valid;
+  e.ax = tel.ax; e.ay = tel.ay; e.az = tel.az;
+  e.rms = tel.rms; e.vrms = tel.vrms;
+  e.rpm = tel.rpm; e.freq = tel.freq; e.imp = tel.imp;
+  e.urg = tel.urg; e.alerte = tel.alerte;
+  e.motorOn = tel.motorOn;
   e.used = true;
   histHead = (histHead + 1) % HIST_SIZE;
+
+  Serial.print(F("[HIST] "));
+  Serial.print(e.dateStr); Serial.print(' ');
+  Serial.print(e.timeStr); Serial.print(" | ");
+  Serial.println(e.event);
 }
 
 String urgLabel(int u) {
@@ -158,14 +224,37 @@ String formatDashboardCore() {
 }
 
 String formatHistory() {
-  String s = "HISTORIQUE ALERTES\n==================\n";
+  String s = "HISTORIQUE\n";
+  s += "==========\n";
   int shown = 0;
   for (int i = 0; i < HIST_SIZE; i++) {
     int idx = (histHead - 1 - i + HIST_SIZE * 2) % HIST_SIZE;
     if (!hist[idx].used) continue;
-    unsigned long ageSec = (millis() - hist[idx].ms) / 1000;
-    s += "- ["; s += String(ageSec); s += "s] ";
-    s += hist[idx].text; s += "\n";
+    const HistEntry& e = hist[idx];
+    s += "\n";
+    s += e.dateStr;
+    s += "  ";
+    s += e.timeStr;
+    s += "\nEvenement : ";
+    s += e.event;
+    s += "\n";
+    if (e.hasData) {
+      s += "ax="; s += String(e.ax, 3);
+      s += " ay="; s += String(e.ay, 3);
+      s += " az="; s += String(e.az, 3); s += " g\n";
+      s += "RMS="; s += String(e.rms, 3);
+      s += "g vRMS="; s += String(e.vrms, 2); s += " mm/s\n";
+      s += "RPM="; s += String(e.rpm, 0);
+      s += " freq="; s += String(e.freq, 2);
+      s += "Hz imp="; s += String(e.imp); s += "\n";
+      s += "Urgence="; s += urgLabel(e.urg);
+      s += " Alerte="; s += e.alerte ? "OUI" : "NON";
+      s += " Moteur="; s += e.motorOn ? "ON" : "OFF";
+      s += "\n";
+    } else {
+      s += "(pas de donnees capteurs)\n";
+    }
+    s += "--------------------\n";
     shown++;
   }
   if (shown == 0) s += "(vide)\n";
@@ -423,11 +512,14 @@ void setup() {
 
   UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
   connectWifi();
+  syncTime();
 
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   // securedClient.setInsecure();
 
-  String boot = "Bot pret.\nIP: " + WiFi.localIP().toString() + "\n/dashboard";
+  String boot = "Bot pret.\nIP: " + WiFi.localIP().toString();
+  boot += "\nDate: " + nowDateStr() + " " + nowTimeStr();
+  boot += "\n/dashboard";
   bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, boot, "");
   pushHistory("ESP32 boot OK");
   Serial.println(boot);
