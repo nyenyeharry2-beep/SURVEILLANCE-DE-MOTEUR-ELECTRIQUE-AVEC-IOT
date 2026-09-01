@@ -198,66 +198,100 @@ void sendToUno(const char* cmd) {
   Serial.println(cmd);
 }
 
+String htmlEscape(const String& in) {
+  String o;
+  o.reserve(in.length() + 8);
+  for (unsigned i = 0; i < in.length(); i++) {
+    char c = in[i];
+    if (c == '&') o += F("&amp;");
+    else if (c == '<') o += F("&lt;");
+    else if (c == '>') o += F("&gt;");
+    else o += c;
+  }
+  return o;
+}
+
+String padCell(const String& s, int w) {
+  String o = s;
+  if ((int)o.length() > w) return o.substring(0, w);
+  while ((int)o.length() < w) o += ' ';
+  return o;
+}
+
+String tableRow(const String& a, const String& b) {
+  return "| " + padCell(a, 12) + " | " + padCell(b, 14) + " |\n";
+}
+
+String tableSep() {
+  return "+--------------+----------------+\n";
+}
+
+/** Tableau de bord en forme de tableau (HTML <pre> pour Telegram) */
 String formatDashboardCore() {
   if (!tel.valid) {
-    return String("Aucune donnee Uno.\nVerifiez UART / capteurs.");
+    return F("<pre>Aucune donnee Uno.\nVerifiez UART / capteurs.</pre>");
   }
   String s;
-  s.reserve(420);
-  s += "TABLEAU DE BORD MOTEUR\n";
-  s += "=====================\n";
-  s += "ax (dyn) : "; s += String(tel.ax, 3); s += " g\n";
-  s += "ay (dyn) : "; s += String(tel.ay, 3); s += " g\n";
-  s += "az (dyn) : "; s += String(tel.az, 3); s += " g\n";
-  s += "RMS  : "; s += String(tel.rms, 3); s += " g\n";
-  s += "vRMS : "; s += String(tel.vrms, 2); s += " mm/s\n";
-  s += "RPM  : "; s += String(tel.rpm, 0); s += " tr/min\n";
-  s += "Impulsions : "; s += String(tel.imp); s += "\n";
-  s += "Frequence  : "; s += String(tel.freq, 2); s += " Hz\n";
-  s += "Urgence : "; s += urgLabel(tel.urg);
-  s += " ("; s += String(tel.urg); s += ")\n";
-  s += "Alerte  : "; s += tel.alerte ? "OUI" : "NON"; s += "\n";
-  s += "---------------------\n";
-  s += "Moteur : "; s += tel.motorOn ? "ON" : "OFF";
-  s += "\nMaj : "; s += String((millis() - tel.updatedAt) / 1000); s += " s";
+  s.reserve(700);
+  s += F("<pre>");
+  s += F("TABLEAU DE BORD\n");
+  s += tableSep();
+  s += tableRow("Champ", "Valeur");
+  s += tableSep();
+  s += tableRow("Date", nowDateStr());
+  s += tableRow("Heure", nowTimeStr());
+  s += tableRow("ax", String(tel.ax, 3) + " g");
+  s += tableRow("ay", String(tel.ay, 3) + " g");
+  s += tableRow("az", String(tel.az, 3) + " g");
+  s += tableRow("RMS", String(tel.rms, 3) + " g");
+  s += tableRow("vRMS", String(tel.vrms, 2) + " mm/s");
+  s += tableRow("RPM", String(tel.rpm, 0) + " tr/min");
+  s += tableRow("Impulsions", String(tel.imp));
+  s += tableRow("Frequence", String(tel.freq, 2) + " Hz");
+  s += tableRow("Urgence", urgLabel(tel.urg));
+  s += tableRow("Alerte", tel.alerte ? "OUI" : "NON");
+  s += tableRow("Moteur", tel.motorOn ? "ON" : "OFF");
+  s += tableSep();
+  s += F("</pre>");
   return s;
 }
 
+/** Historique : chaque evenement = tableau date/heure/donnees */
 String formatHistory() {
-  String s = "HISTORIQUE\n";
-  s += "==========\n";
+  String s;
+  s.reserve(2500);
+  s += F("<pre>HISTORIQUE\n");
   int shown = 0;
   for (int i = 0; i < HIST_SIZE; i++) {
     int idx = (histHead - 1 - i + HIST_SIZE * 2) % HIST_SIZE;
     if (!hist[idx].used) continue;
     const HistEntry& e = hist[idx];
-    s += "\n";
-    s += e.dateStr;
-    s += "  ";
-    s += e.timeStr;
-    s += "\nEvenement : ";
-    s += e.event;
-    s += "\n";
+    s += '\n';
+    s += tableSep();
+    s += tableRow("Date", String(e.dateStr));
+    s += tableRow("Heure", String(e.timeStr));
+    s += tableRow("Evenement", htmlEscape(String(e.event)));
     if (e.hasData) {
-      s += "ax="; s += String(e.ax, 3);
-      s += " ay="; s += String(e.ay, 3);
-      s += " az="; s += String(e.az, 3); s += " g\n";
-      s += "RMS="; s += String(e.rms, 3);
-      s += "g vRMS="; s += String(e.vrms, 2); s += " mm/s\n";
-      s += "RPM="; s += String(e.rpm, 0);
-      s += " freq="; s += String(e.freq, 2);
-      s += "Hz imp="; s += String(e.imp); s += "\n";
-      s += "Urgence="; s += urgLabel(e.urg);
-      s += " Alerte="; s += e.alerte ? "OUI" : "NON";
-      s += " Moteur="; s += e.motorOn ? "ON" : "OFF";
-      s += "\n";
+      s += tableSep();
+      s += tableRow("ax", String(e.ax, 3) + " g");
+      s += tableRow("ay", String(e.ay, 3) + " g");
+      s += tableRow("az", String(e.az, 3) + " g");
+      s += tableRow("RMS", String(e.rms, 3) + " g");
+      s += tableRow("vRMS", String(e.vrms, 2) + " mm/s");
+      s += tableRow("RPM", String(e.rpm, 0));
+      s += tableRow("Frequence", String(e.freq, 2) + " Hz");
+      s += tableRow("Impulsions", String(e.imp));
+      s += tableRow("Urgence", urgLabel(e.urg));
+      s += tableRow("Alerte", e.alerte ? "OUI" : "NON");
+      s += tableRow("Moteur", e.motorOn ? "ON" : "OFF");
     } else {
-      s += "(pas de donnees capteurs)\n";
+      s += tableRow("Donnees", "(aucune)");
     }
-    s += "--------------------\n";
+    s += tableSep();
     shown++;
   }
   if (shown == 0) s += "(vide)\n";
+  s += F("</pre>");
   return s;
 }
 
@@ -282,13 +316,13 @@ String viewerKeyboardJson() {
 void sendAdminDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  bot.sendMessageWithInlineKeyboard(chatId, "ADMIN\n" + formatDashboardCore(), "", adminKeyboardJson());
+  bot.sendMessageWithInlineKeyboard(chatId, "<b>ADMIN</b>\n" + formatDashboardCore(), "HTML", adminKeyboardJson());
 }
 
 void sendViewerDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  bot.sendMessageWithInlineKeyboard(chatId, "OBSERVATEUR\n" + formatDashboardCore(), "", viewerKeyboardJson());
+  bot.sendMessageWithInlineKeyboard(chatId, "<b>OBSERVATEUR</b>\n" + formatDashboardCore(), "HTML", viewerKeyboardJson());
 }
 
 void notifyChats(const String& msg) {
@@ -348,7 +382,7 @@ void handleCallback(telegramMessage& msg) {
     notifyChats("URGENCE : arret moteur demande par admin.");
     bot.sendMessageWithInlineKeyboard(chat, "URGENCE STOP execute.", "", adminKeyboardJson());
   } else if (data == "history") {
-    bot.sendMessageWithInlineKeyboard(chat, formatHistory(), "", adminKeyboardJson());
+    bot.sendMessageWithInlineKeyboard(chat, formatHistory(), "HTML", adminKeyboardJson());
   }
 }
 
@@ -381,13 +415,13 @@ void handleTelegramMessage(telegramMessage& msg) {
   } else if (text == "/status") {
     sendToUno("STATUS");
     delay(350);
-    bot.sendMessage(chat, formatDashboardCore(), "");
+    bot.sendMessage(chat, formatDashboardCore(), "HTML");
   } else if (text == "/historique" || text == "/history") {
     if (!isAdmin(chat)) {
       bot.sendMessage(chat, "Historique reserve a l'admin.", "");
       return;
     }
-    bot.sendMessage(chat, formatHistory(), "");
+    bot.sendMessage(chat, formatHistory(), "HTML");
   } else if (text == "/on") {
     if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
     sendToUno("MOTOR_ON");
@@ -436,7 +470,9 @@ void maybeAlert() {
   reason += String(tel.rpm, 0);
 
   pushHistory(reason);
-  notifyChats(reason + "\n\n" + formatDashboardCore());
+  notifyChats(reason);
+  // Tableau detaille en HTML
+  bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, formatDashboardCore(), "HTML");
 }
 
 bool parseTelemetry(const String& line) {
