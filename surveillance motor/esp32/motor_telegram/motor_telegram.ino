@@ -363,11 +363,12 @@ bool parseTelemetry(const String& line) {
     } else if (evt == "MOTOR_ON" || evt == "MOTOR_OFF") {
       pushHistory(String("Uno ") + evt);
       notifyChats(String("Uno : ") + evt);
-    } else if (evt == "UNO_READY") {
+    }     else if (evt == "UNO_READY") {
       int adxl = (int)jsonGetLong(line, "adxl", 0);
       String m = adxl ? "Uno pret — ADXL345 OK" : "Uno pret — ADXL345 ABSENT";
-      pushHistory(m);
-      bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, m, "");
+      pushHistory(m); bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, m, "");
+    } else if (evt == "CALIB_OK") {
+      bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, "Calibration ADXL OK", "");
     }
     return true;
   }

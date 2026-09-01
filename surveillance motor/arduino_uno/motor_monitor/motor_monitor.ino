@@ -20,32 +20,31 @@
 const int PIN_IR_OUT = 2;
 const int PIN_ESP_RX = 3;
 const int PIN_ESP_TX = 4;
-const int PIN_RELAY  = 8;
+const int PIN_RELAY  = 8;   // module relais (souvent actif LOW)
 const int PIN_LED    = 13;
 
 SoftwareSerial EspSerial(PIN_ESP_RX, PIN_ESP_TX);
 
+// true  = la plupart des modules 5V (IN à LOW = relais ON)
+// false = relais actif HIGH
+const bool RELAY_ACTIVE_LOW = true;
+
 // ---- IR / RPM ----
-// 1 marque réfléchissante par tour. Augmenter si plusieurs bandes.
 const int PULSES_PER_REV = 1;
-// Anti-rebond : ignore tout pulse < 8 ms (~7500 RPM max théorique)
 const unsigned long IR_DEBOUNCE_US = 8000;
-// RPM max crédible pour ton moteur (au-delà = bruit → ignoré)
 const float RPM_MAX_PLAUSIBLE = 4000.0f;
-// Fenêtre de mesure RPM (ms)
 const unsigned long RPM_WINDOW_MS = 1000;
 
 // ---- ADXL345 ----
 const uint8_t ADXL345_ADDR = 0x53;
-const float ADXL_SCALE = 0.0039f; // g/LSB ±2g full-res
+const float ADXL_SCALE = 0.0039f;
 const int ADXL_SAMPLES = 25;
-const float EMA_ALPHA = 0.25f;    // lissage ax/ay/az affichés
+const float EMA_ALPHA = 0.25f;
 
-// Seuils vibration (g dynamique / mm/s)
-const float RMS_ALERT_G  = 0.15f;
-const float RMS_URGENT_G = 0.40f;
-const float VRMS_ALERT   = 2.5f;
-const float VRMS_URGENT  = 6.0f;
+// Seuil d'alerte = 10  (niveau = RMS_g * 100 → 0.10 g donne 10)
+const float SEUIL_ALERTE = 10.0f;
+const float SEUIL_URGENCE = 20.0f; // 2× le seuil alerte
+
 
 volatile unsigned long rpmPulses = 0;
 volatile unsigned long lastIrUs  = 0;
@@ -61,6 +60,7 @@ float g0x = 0, g0y = 0, g0z = 1.0f; // gravité calibrée au repos
 float axG = 0, ayG = 0, azG = 0;     // accélération totale filtrée
 float axDyn = 0, ayDyn = 0, azDyn = 0; // sans gravité
 float rmsG = 0, vrmsMms = 0;
+float niveauAlerte = 0; // RMS*100 — comparé au seuil 10
 int urgLevel = 0;
 int alerteFlag = 0;
 
@@ -240,20 +240,29 @@ void computeRpmFreq() {
 }
 
 void evaluateUrgency() {
+  // Niveau = RMS (g) × 100  →  seuil d'alerte = 10
+  niveauAlerte = rmsG * 100.0f;
   urgLevel = 0;
   alerteFlag = 0;
-  if (rmsG >= RMS_URGENT_G || vrmsMms >= VRMS_URGENT) {
-    urgLevel = 2; alerteFlag = 1;
-  } else if (rmsG >= RMS_ALERT_G || vrmsMms >= VRMS_ALERT) {
-    urgLevel = 1; alerteFlag = 1;
+  if (niveauAlerte >= SEUIL_URGENCE) {
+    urgLevel = 2;
+    alerteFlag = 1;
+  } else if (niveauAlerte >= SEUIL_ALERTE) {
+    urgLevel = 1;
+    alerteFlag = 1;
   }
 }
 
 void setMotor(bool on) {
   motorOn = on;
-  digitalWrite(PIN_RELAY, on ? HIGH : LOW);
-  digitalWrite(PIN_LED, on ? HIGH : LOW);
-  // Reset compteurs IR au changement d'état
+  // ON  → relais ALLUMÉ | OFF → relais ÉTEINT
+  if (RELAY_ACTIVE_LOW) {
+    digitalWrite(PIN_RELAY, on ? LOW : HIGH);   // LOW = bobine excitée
+  } else {
+    digitalWrite(PIN_RELAY, on ? HIGH : LOW);
+  }
+  digitalWrite(PIN_LED, on ? HIGH : LOW);       // LED D13 suit le relais
+
   noInterrupts();
   rpmPulses = 0;
   interrupts();
@@ -261,6 +270,9 @@ void setMotor(bool on) {
   lastFreqHz = 0;
   lastWindowImp = 0;
   lastRpmMs = millis();
+
+  Serial.print(F(">>> RELAIS "));
+  Serial.println(on ? F("ALLUME (ON)") : F("ETEINT (OFF)"));
 }
 
 void sendTelemetry() {
@@ -292,12 +304,11 @@ void sendTelemetry() {
   Serial.print(F(" z=")); Serial.print(azG, 3);
   Serial.print(F(" |a|=")); Serial.println(sqrt(axG*axG+ayG*ayG+azG*azG), 3);
   Serial.print(F("RMS=")); Serial.print(rmsG, 3);
-  Serial.print(F(" g   vRMS=")); Serial.print(vrmsMms, 2);
+  Serial.print(F(" g  vRMS=")); Serial.print(vrmsMms, 2);
   Serial.println(F(" mm/s"));
-  Serial.print(F("RPM=")); Serial.print(lastRpm, 0);
-  Serial.print(F("  freq=")); Serial.print(lastFreqHz, 2);
-  Serial.print(F(" Hz  imp=")); Serial.println(lastWindowImp);
-  Serial.print(F("Urgence=")); Serial.print(urgLevel);
+  Serial.print(F("Niveau=")); Serial.print(niveauAlerte, 1);
+  Serial.print(F("  Seuil alerte=")); Serial.print(SEUIL_ALERTE, 0);
+  Serial.print(F("  Urgence=")); Serial.print(urgLevel);
   Serial.print(F("  Alerte=")); Serial.print(alerteFlag ? "OUI" : "NON");
   Serial.print(F("  Moteur=")); Serial.println(motorOn ? "ON" : "OFF");
   Serial.println();
@@ -331,10 +342,14 @@ void processCommand(String line) {
 }
 
 void setup() {
-  pinMode(PIN_IR_OUT, INPUT); // modules IR ont souvent pull-up interne
+  pinMode(PIN_IR_OUT, INPUT);
   pinMode(PIN_RELAY, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
-  setMotor(false);
+  // Relais ÉTEINT au boot
+  if (RELAY_ACTIVE_LOW) digitalWrite(PIN_RELAY, HIGH);
+  else digitalWrite(PIN_RELAY, LOW);
+  digitalWrite(PIN_LED, LOW);
+  motorOn = false;
 
   lastIrLevel = digitalRead(PIN_IR_OUT);
   attachInterrupt(digitalPinToInterrupt(PIN_IR_OUT), irRpmIsr, CHANGE);
@@ -345,9 +360,13 @@ void setup() {
   delay(300);
 
   adxlOk = adxlBegin();
-  Serial.println(F("=== UNO MESURES REELLES ==="));
+  Serial.println(F("=== UNO : ON=relais ALLUME / OFF=relais ETEINT ==="));
   Serial.print(F("ADXL345: "));
   Serial.println(adxlOk ? "OK" : "ABSENT");
+  Serial.print(F("Relais actif "));
+  Serial.println(RELAY_ACTIVE_LOW ? F("LOW") : F("HIGH"));
+  Serial.print(F("Seuil alerte = "));
+  Serial.println(SEUIL_ALERTE, 0);
 
   if (adxlOk) {
     Serial.println(F("Immobile 1s pour calibrer gravite..."));
@@ -359,6 +378,7 @@ void setup() {
   ready += adxlOk ? "1" : "0";
   ready += ",\"ir\":1}";
   sendBoth(ready);
+  Serial.println(F(">>> RELAIS ETEINT (OFF) au boot"));
 
   lastRpmMs = millis();
   lastSendMs = millis();
