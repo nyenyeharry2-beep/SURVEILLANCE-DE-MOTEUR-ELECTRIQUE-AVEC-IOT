@@ -309,26 +309,37 @@ String adminKeyboardJson() {
 String viewerKeyboardJson() {
   return String(
     "[[{\"text\":\"Actualiser\",\"callback_data\":\"refresh\"},"
-    "{\"text\":\"Alertes\",\"callback_data\":\"alerts\"}]]"
+    "{\"text\":\"Historique\",\"callback_data\":\"history\"}],"
+    "[{\"text\":\"Alertes\",\"callback_data\":\"alerts\"},"
+    "{\"text\":\"Tableau\",\"callback_data\":\"refresh\"}]]"
   );
+}
+
+/** Toujours renvoyer les boutons en bas de la reponse */
+void replyWithButtons(const String& chat, const String& text, const String& parseMode = "") {
+  if (isAdmin(chat)) {
+    bot.sendMessageWithInlineKeyboard(chat, text, parseMode, adminKeyboardJson());
+  } else {
+    bot.sendMessageWithInlineKeyboard(chat, text, parseMode, viewerKeyboardJson());
+  }
 }
 
 void sendAdminDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  bot.sendMessageWithInlineKeyboard(chatId, "<b>ADMIN</b>\n" + formatDashboardCore(), "HTML", adminKeyboardJson());
+  replyWithButtons(chatId, "<b>ADMIN</b>\n" + formatDashboardCore(), "HTML");
 }
 
 void sendViewerDashboard(const String& chatId) {
   sendToUno("STATUS");
   delay(350);
-  bot.sendMessageWithInlineKeyboard(chatId, "<b>OBSERVATEUR</b>\n" + formatDashboardCore(), "HTML", viewerKeyboardJson());
+  replyWithButtons(chatId, "<b>OBSERVATEUR</b>\n" + formatDashboardCore(), "HTML");
 }
 
 void notifyChats(const String& msg) {
-  bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, msg, "");
+  bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, msg, "", adminKeyboardJson());
   if (TELEGRAM_VIEWER_CHAT_ID[0] != '\0') {
-    bot.sendMessage(TELEGRAM_VIEWER_CHAT_ID, msg, "");
+    bot.sendMessageWithInlineKeyboard(TELEGRAM_VIEWER_CHAT_ID, msg, "", viewerKeyboardJson());
   }
 }
 
@@ -349,40 +360,47 @@ void handleCallback(telegramMessage& msg) {
   }
 
   if (data == "alerts") {
-    String a = "Etat alertes\nUrgence : ";
-    a += urgLabel(tel.urg);
-    a += "\nAlerte  : ";
-    a += tel.alerte ? "OUI" : "NON";
-    a += "\nRMS=";
-    a += String(tel.rms, 3);
-    a += "g vRMS=";
-    a += String(tel.vrms, 2);
-    a += " mm/s";
-    bot.sendMessageWithInlineKeyboard(
-      chat, a, "", isAdmin(chat) ? adminKeyboardJson() : viewerKeyboardJson());
+    String a = "<pre>";
+    a += tableSep();
+    a += tableRow("Champ", "Valeur");
+    a += tableSep();
+    a += tableRow("Urgence", urgLabel(tel.urg));
+    a += tableRow("Alerte", tel.alerte ? "OUI" : "NON");
+    a += tableRow("RMS", String(tel.rms, 3) + " g");
+    a += tableRow("vRMS", String(tel.vrms, 2) + " mm/s");
+    a += tableSep();
+    a += "</pre>";
+    replyWithButtons(chat, a, "HTML");
+    return;
+  }
+
+  if (data == "history") {
+    if (!isAdmin(chat)) {
+      replyWithButtons(chat, "Historique reserve a l'administrateur.");
+      return;
+    }
+    replyWithButtons(chat, formatHistory(), "HTML");
     return;
   }
 
   if (!isAdmin(chat)) {
-    bot.sendMessage(chat, "Reserve a l'administrateur.", "");
+    replyWithButtons(chat, "Reserve a l'administrateur.");
     return;
   }
 
   if (data == "motor_on") {
     sendToUno("MOTOR_ON");
     pushHistory("CMD admin: MOTOR ON");
-    bot.sendMessageWithInlineKeyboard(chat, "Commande ON envoyee.", "", adminKeyboardJson());
+    replyWithButtons(chat, "Commande <b>ON</b> envoyee.\n>>> RELAIS ALLUME", "HTML");
   } else if (data == "motor_off") {
     sendToUno("MOTOR_OFF");
     pushHistory("CMD admin: MOTOR OFF");
-    bot.sendMessageWithInlineKeyboard(chat, "Commande OFF envoyee.", "", adminKeyboardJson());
+    replyWithButtons(chat, "Commande <b>OFF</b> envoyee.\n>>> RELAIS ETEINT", "HTML");
   } else if (data == "emergency") {
     sendToUno("MOTOR_OFF");
     pushHistory("URGENCE STOP admin");
     notifyChats("URGENCE : arret moteur demande par admin.");
-    bot.sendMessageWithInlineKeyboard(chat, "URGENCE STOP execute.", "", adminKeyboardJson());
-  } else if (data == "history") {
-    bot.sendMessageWithInlineKeyboard(chat, formatHistory(), "HTML", adminKeyboardJson());
+    replyWithButtons(chat, "<b>URGENCE STOP</b> execute.\n>>> RELAIS ETEINT", "HTML");
   }
 }
 
@@ -404,43 +422,47 @@ void handleTelegramMessage(telegramMessage& msg) {
 
   if (text == "/start" || text == "/help" || text == "/dashboard") {
     if (isAdmin(chat)) {
-      bot.sendMessage(chat,
-        "Tableau de bord ADMIN\n/dashboard /status /historique /on /off /urgence", "");
+      replyWithButtons(chat,
+        "Tableau de bord <b>ADMIN</b>\nUtilisez les boutons ci-dessous.", "HTML");
       sendAdminDashboard(chat);
     } else {
-      bot.sendMessage(chat,
-        "Tableau de bord OBSERVATEUR\n/dashboard /status", "");
+      replyWithButtons(chat,
+        "Tableau de bord <b>OBSERVATEUR</b>\nUtilisez les boutons ci-dessous.", "HTML");
       sendViewerDashboard(chat);
     }
   } else if (text == "/status") {
     sendToUno("STATUS");
     delay(350);
-    bot.sendMessage(chat, formatDashboardCore(), "HTML");
+    replyWithButtons(chat, formatDashboardCore(), "HTML");
   } else if (text == "/historique" || text == "/history") {
     if (!isAdmin(chat)) {
-      bot.sendMessage(chat, "Historique reserve a l'admin.", "");
+      replyWithButtons(chat, "Historique reserve a l'admin.");
       return;
     }
-    bot.sendMessage(chat, formatHistory(), "HTML");
+    replyWithButtons(chat, formatHistory(), "HTML");
   } else if (text == "/on") {
-    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
+    if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_ON");
     pushHistory("CMD /on");
-    bot.sendMessage(chat, "MOTOR ON", "");
+    replyWithButtons(chat, "<b>MOTOR ON</b>\n>>> RELAIS ALLUME", "HTML");
   } else if (text == "/off") {
-    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
+    if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /off");
-    bot.sendMessage(chat, "MOTOR OFF", "");
+    replyWithButtons(chat, "<b>MOTOR OFF</b>\n>>> RELAIS ETEINT", "HTML");
   } else if (text == "/urgence" || text == "/emergency") {
-    if (!isAdmin(chat)) { bot.sendMessage(chat, "Reserve admin.", ""); return; }
+    if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /urgence");
     notifyChats("URGENCE : arret moteur.");
+    replyWithButtons(chat, "<b>URGENCE STOP</b>\n>>> RELAIS ETEINT", "HTML");
   } else if (text == "/ping") {
-    if (isAdmin(chat)) sendToUno("PING");
+    if (isAdmin(chat)) {
+      sendToUno("PING");
+      replyWithButtons(chat, "PING envoye au Uno.");
+    }
   } else {
-    bot.sendMessage(chat, "Commande inconnue. /help", "");
+    replyWithButtons(chat, "Commande inconnue. Utilisez les boutons ou /help");
   }
 }
 
@@ -471,8 +493,8 @@ void maybeAlert() {
 
   pushHistory(reason);
   notifyChats(reason);
-  // Tableau detaille en HTML
-  bot.sendMessage(TELEGRAM_ADMIN_CHAT_ID, formatDashboardCore(), "HTML");
+  bot.sendMessageWithInlineKeyboard(
+    TELEGRAM_ADMIN_CHAT_ID, formatDashboardCore(), "HTML", adminKeyboardJson());
 }
 
 bool parseTelemetry(const String& line) {
