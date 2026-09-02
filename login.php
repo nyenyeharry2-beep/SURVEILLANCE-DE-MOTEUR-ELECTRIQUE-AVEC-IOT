@@ -29,7 +29,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="login-card card p-4 mx-3">
         <div class="text-center mb-4">
             <i class="bi bi-capsule-pill text-primary" style="font-size: 3rem;"></i>
-            <h2 class="mt-2 mb-0">PharmaGest</h2>
+            <h2 class="mt-2 mb-0"><?= e(appName()) ?></h2>
             <p class="text-muted">Gestion de pharmacie</p>
         </div>
 

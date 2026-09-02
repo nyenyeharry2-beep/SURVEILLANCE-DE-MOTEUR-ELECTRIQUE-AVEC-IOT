@@ -1,5 +1,19 @@
 <?php
 
+function appName(): string
+{
+    if (defined('APP_NAME')) {
+        return APP_NAME;
+    }
+
+    $configPath = __DIR__ . '/../config/config.php';
+    if (file_exists($configPath)) {
+        require_once $configPath;
+    }
+
+    return defined('APP_NAME') ? APP_NAME : 'Nouvelle Eve';
+}
+
 function e(?string $value): string
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');

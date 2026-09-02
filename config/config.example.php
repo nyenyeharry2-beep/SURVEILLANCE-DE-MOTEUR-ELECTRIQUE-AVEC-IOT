@@ -10,7 +10,7 @@ define('DB_USER', 'if0_XXXXXXXX');             // Utilisateur MySQL
 define('DB_PASS', 'votre_mot_de_passe');       // Mot de passe MySQL
 define('DB_CHARSET', 'utf8mb4');
 
-define('APP_NAME', 'PharmaGest');
+define('APP_NAME', 'Nouvelle Eve');
 define('APP_URL', 'https://votre-site.infinityfreeapp.com'); // URL de votre site
 define('TIMEZONE', 'Africa/Kinshasa'); // Fuseau horaire RDC
 

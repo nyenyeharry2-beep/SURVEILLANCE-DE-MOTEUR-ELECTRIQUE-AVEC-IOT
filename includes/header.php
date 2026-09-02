@@ -7,7 +7,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($pageTitle ?? 'PharmaGest') ?> — PharmaGest</title>
+    <title><?= e($pageTitle ?? appName()) ?> — <?= e(appName()) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="assets/css/app.css" rel="stylesheet">
@@ -18,7 +18,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <nav id="sidebar" class="bg-dark text-white">
         <div class="sidebar-brand p-3 border-bottom border-secondary">
             <i class="bi bi-capsule-pill me-2"></i>
-            <strong>PharmaGest</strong>
+            <strong><?= e(appName()) ?></strong>
         </div>
         <ul class="nav flex-column p-2">
             <li class="nav-item">

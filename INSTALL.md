@@ -1,4 +1,4 @@
-# Guide d'installation — PharmaGest sur InfinityFree
+# Guide d'installation — Nouvelle Eve sur InfinityFree
 
 Site : **https://mapharmaciepk.xo.je**
 
@@ -114,7 +114,7 @@ define('DB_USER', 'if0_42810781');
 define('DB_PASS', 'VOTRE_MOT_DE_PASSE_MYSQL');
 define('DB_CHARSET', 'utf8mb4');
 
-define('APP_NAME', 'PharmaGest');
+define('APP_NAME', 'Nouvelle Eve');
 define('APP_URL', 'https://mapharmaciepk.xo.je');
 define('TIMEZONE', 'Africa/Abidjan');
 

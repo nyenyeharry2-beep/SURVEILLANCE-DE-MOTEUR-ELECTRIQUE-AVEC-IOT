@@ -1,16 +1,12 @@
-PHARMAGEST — Fichiers pour InfinityFree File Manager
-====================================================
+NOUVELLE EVE — Fichiers pour InfinityFree File Manager
+======================================================
 
 1. Uploadez "pharmagest-filemanager.zip" dans le dossier htdocs
-2. Extrayez le ZIP (clic droit > Extract)
-3. Déplacez le CONTENU du dossier "pharmagest-htdocs" directement dans htdocs
-   (index.php doit être à la racine de htdocs, pas dans un sous-dossier)
+2. Extrayez (Extract) directement dans htdocs
+3. Ouvrez https://mapharmaciepk.xo.je/login.php
 
-4. Éditez config/config.php :
-   Remplacez METTEZ_VOTRE_MOT_DE_PASSE_ICI par votre mot de passe MySQL
+Connexion :
+  Email : admin@pharmagest.local
+  Mot de passe : admin123
 
-5. Ouvrez : https://mapharmaciepk.xo.je/login.php
-   Email : admin@pharmagest.local
-   Mot de passe : admin123
-
-IMPORTANT : La base de données doit déjà être importée (schema.sql via phpMyAdmin)
+IMPORTANT : Importez database/schema.sql dans phpMyAdmin AVANT de tester.

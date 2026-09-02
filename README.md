@@ -1,4 +1,4 @@
-# PharmaGest — Gestion de pharmacie
+# Nouvelle Eve — Gestion de pharmacie
 
 Application web de gestion de pharmacie développée en **PHP + MySQL**, optimisée pour un déploiement gratuit sur **[InfinityFree](https://www.infinityfree.com/)**.
 

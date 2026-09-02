@@ -1,4 +1,4 @@
--- PharmaGest - Schéma de base de données
+-- Nouvelle Eve - Schéma de base de données
 -- Importez ce fichier via phpMyAdmin sur InfinityFree
 
 SET NAMES utf8mb4;
