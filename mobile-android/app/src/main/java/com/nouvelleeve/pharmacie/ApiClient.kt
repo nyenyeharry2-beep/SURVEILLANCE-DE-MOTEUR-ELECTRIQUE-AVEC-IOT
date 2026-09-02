@@ -88,10 +88,20 @@ class ApiClient(
     ): JSONObject {
         cookieHelper.ensureCookie()
         var result = rawRequest(method, urlString, body, auth)
-        if (InfinityFreeCookieHelper.isInfinityFreeChallenge(result.body)) {
-            cookieHelper.ensureCookie()
+
+        if (InfinityFreeChallenge.isChallenge(result.body)) {
+            if (!InfinityFreeChallenge.solveAndStore(result.body)) {
+                cookieHelper.ensureCookie()
+            }
             result = rawRequest(method, urlString, body, auth)
         }
+
+        if (InfinityFreeChallenge.isChallenge(result.body)) {
+            if (InfinityFreeChallenge.solveAndStore(result.body)) {
+                result = rawRequest(method, urlString, body, auth)
+            }
+        }
+
         return parseResponse(result.code, result.body)
     }
 
@@ -124,10 +134,10 @@ class ApiClient(
     }
 
     private fun parseResponse(responseCode: Int, text: String): JSONObject {
-        if (InfinityFreeCookieHelper.isInfinityFreeChallenge(text)) {
+        if (InfinityFreeChallenge.isChallenge(text)) {
             throw ApiException(
                 responseCode,
-                "Protection InfinityFree active. Réessayez dans quelques secondes."
+                "Connexion bloquée par InfinityFree. Installez l'APK v1.3.1 et réessayez."
             )
         }
 

@@ -24,6 +24,15 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.textVersion.text = "Version 1.3.1"
+
+        lifecycleScope.launch {
+            binding.textLoginError.visibility = View.GONE
+            try {
+                ApiClient(applicationContext).ping()
+            } catch (_: Exception) {
+            }
+        }
 
         binding.btnLogin.setOnClickListener {
             binding.textLoginError.visibility = View.GONE
