@@ -11,6 +11,14 @@ Téléchargez : `deploy/nouvelle-eve-mobile.apk`
 - **Rapports** : rapport du jour et du mois + export PDF
 - **Alertes** : stock faible, produits à écouler, expirés
 
+## Important — hébergement InfinityFree
+
+InfinityFree **bloque les applications mobiles** avec une page JavaScript (`aes.js`). Ce n'est **pas** un problème de dossier `api/` manquant.
+
+L'APK **v1.3.0+** contourne cette protection automatiquement via un WebView invisible (cookie `__test`).
+
+Si la connexion échoue encore, attendez 5 secondes et réessayez.
+
 ## Installation
 
 1. **Désinstallez** l’ancienne version de l’app si elle est déjà installée

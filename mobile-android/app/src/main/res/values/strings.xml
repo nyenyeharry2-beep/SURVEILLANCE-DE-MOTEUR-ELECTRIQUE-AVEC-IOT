@@ -4,6 +4,7 @@
     <string name="email_hint">Email</string>
     <string name="password_hint">Mot de passe</string>
     <string name="btn_login">Se connecter</string>
+    <string name="connecting">Connexion au serveur…</string>
     <string name="login_fields_required">Email et mot de passe obligatoires.</string>
     <string name="login_error">Identifiants incorrects.</string>
     <string name="login_network_error">Connexion impossible. Vérifiez Internet.</string>

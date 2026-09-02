@@ -3340,7 +3340,7 @@ id inputEmail
 id inputPassword
 id inputQuantite
 id inputSearchMed
-id inputServerUrl
+id inputSearchStock
 id invisible
 id inward
 id is_pooling_container_tag
@@ -3420,6 +3420,7 @@ id mtrl_view_tag_bottom_padding
 id multiply
 id nav_alertes
 id nav_rapports
+id nav_stock
 id nav_ventes
 id navigation_bar_item_active_indicator_view
 id navigation_bar_item_icon_container
@@ -3483,6 +3484,7 @@ id radioUsd
 id ratio
 id rectangles
 id recyclerAlertes
+id recyclerStock
 id report_drawn
 id reverseSawtooth
 id right
@@ -3579,6 +3581,7 @@ id textRapport
 id textSpacerNoButtons
 id textSpacerNoTitle
 id textStart
+id textStock
 id textTop
 id textVenteResult
 id text_input_end_icon
@@ -3767,10 +3770,12 @@ layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout fragment_alertes
 layout fragment_rapports
+layout fragment_stock
 layout fragment_ventes
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
 layout item_alerte
+layout item_stock
 layout m3_alert_dialog
 layout m3_alert_dialog_actions
 layout m3_alert_dialog_title
@@ -3885,6 +3890,7 @@ string character_counter_content_description
 string character_counter_overflowed_content_description
 string character_counter_pattern
 string clear_text_end_icon_content_description
+string connecting
 string email_hint
 string error_a11y_label
 string error_icon_content_description
@@ -3896,8 +3902,10 @@ string hide_bottom_view_on_scroll_behavior
 string icon_content_description
 string item_view_role_description
 string loading
+string login_error
+string login_fields_required
+string login_network_error
 string login_subtitle
-string login_title
 string logout
 string m3_exceed_max_badge_text_suffix
 string m3_ref_typeface_brand_medium
@@ -4001,6 +4009,7 @@ string mtrl_timepicker_cancel
 string mtrl_timepicker_confirm
 string nav_alertes
 string nav_rapports
+string nav_stock
 string nav_ventes
 string no_data
 string password_hint
@@ -4017,11 +4026,12 @@ string search_menu_title
 string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
 string searchview_navigation_content_description
-string server_url_hint
 string share_pdf
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior
 string status_bar_notification_info_overflow
+string stock_search_hint
+string vendor_greeting
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog

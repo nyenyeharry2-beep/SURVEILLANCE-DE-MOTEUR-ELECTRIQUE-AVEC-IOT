@@ -6,7 +6,11 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.nouvelleeve.pharmacie.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,19 +68,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun lifecycleScopeLogout() {
-        Thread {
-            try {
-                ApiClient(session.token).logout()
-            } catch (_: Exception) {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    ApiClient(applicationContext, session.token).logout()
+                } catch (_: Exception) {
+                }
             }
-            runOnUiThread {
-                session.clear()
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-        }.start()
+            session.clear()
+            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+            finish()
+        }
     }
 
-    fun api(): ApiClient = ApiClient(session.token)
+    fun api(): ApiClient = ApiClient(applicationContext, session.token)
     fun sessionManager(): SessionManager = session
 }

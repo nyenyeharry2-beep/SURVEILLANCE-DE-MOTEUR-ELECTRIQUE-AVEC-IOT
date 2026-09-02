@@ -5,16 +5,20 @@
     <color name="brand_teal">#1E6B7A</color>
     <color name="brand_teal_dark">#134952</color>
     <color name="white">#FFFFFF</color>
-    <string name="app_name">Nouvelle Eve</string>
+    <string name="app_name">Nouvelle Eve Vendeur</string>
     <string name="btn_login">Se connecter</string>
+    <string name="connecting">Connexion au serveur…</string>
     <string name="email_hint">Email</string>
     <string name="export_pdf">Exporter PDF</string>
     <string name="loading">Chargement…</string>
-    <string name="login_subtitle">Pharmacie Nouvelle Eve</string>
-    <string name="login_title">Connexion</string>
+    <string name="login_error">Identifiants incorrects.</string>
+    <string name="login_fields_required">Email et mot de passe obligatoires.</string>
+    <string name="login_network_error">Connexion impossible. Vérifiez Internet.</string>
+    <string name="login_subtitle">Ventes · Stock · Rapports · Alertes</string>
     <string name="logout">Déconnexion</string>
     <string name="nav_alertes">Alertes</string>
     <string name="nav_rapports">Rapports</string>
+    <string name="nav_stock">Stock</string>
     <string name="nav_ventes">Ventes</string>
     <string name="no_data">Aucune donnée</string>
     <string name="password_hint">Mot de passe</string>
@@ -22,8 +26,9 @@
     <string name="rapport_jour">Rapport du jour</string>
     <string name="rapport_mois">Rapport du mois</string>
     <string name="sale_success">Vente enregistrée</string>
-    <string name="server_url_hint">URL serveur (ex: https://mapharmaciepk.xo.je/api/)</string>
     <string name="share_pdf">Partager le PDF</string>
+    <string name="stock_search_hint">Rechercher un produit</string>
+    <string name="vendor_greeting">Vendeur : %1$s</string>
     <style name="Theme.NouvelleEvePharmacie" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/brand_green</item>
         <item name="colorPrimaryDark">@color/brand_teal_dark</item>

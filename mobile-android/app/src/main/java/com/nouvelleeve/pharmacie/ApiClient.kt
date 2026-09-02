@@ -1,5 +1,6 @@
 package com.nouvelleeve.pharmacie
 
+import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -14,12 +15,17 @@ object ApiConfig {
     const val BASE = "https://mapharmaciepk.xo.je/api"
 }
 
-class ApiClient(private val token: String? = null) {
+class ApiClient(
+    private val appContext: Context,
+    private val token: String? = null
+) {
+    private val cookieHelper = InfinityFreeCookieHelper(appContext)
 
-    fun ping(): JSONObject = get("${ApiConfig.BASE}/ping.php")
+    suspend fun ping(): JSONObject = execute("GET", "${ApiConfig.BASE}/ping.php", null)
 
-    fun login(email: String, password: String): JSONObject {
-        return post(
+    suspend fun login(email: String, password: String): JSONObject {
+        return execute(
+            "POST",
             "${ApiConfig.BASE}/login.php",
             JSONObject().apply {
                 put("email", email)
@@ -29,28 +35,29 @@ class ApiClient(private val token: String? = null) {
         )
     }
 
-    fun logout(): JSONObject = post("${ApiConfig.BASE}/logout.php", JSONObject())
+    suspend fun logout(): JSONObject = execute("POST", "${ApiConfig.BASE}/logout.php", JSONObject())
 
-    fun getMedicaments(query: String = ""): JSONObject {
+    suspend fun getMedicaments(query: String = ""): JSONObject {
         val url = if (query.isBlank()) {
             "${ApiConfig.BASE}/medicaments.php"
         } else {
             "${ApiConfig.BASE}/medicaments.php?q=${encode(query)}"
         }
-        return get(url)
+        return execute("GET", url, null)
     }
 
-    fun getStock(query: String = ""): JSONObject {
+    suspend fun getStock(query: String = ""): JSONObject {
         val url = if (query.isBlank()) {
             "${ApiConfig.BASE}/stock.php"
         } else {
             "${ApiConfig.BASE}/stock.php?q=${encode(query)}"
         }
-        return get(url)
+        return execute("GET", url, null)
     }
 
-    fun createVente(medicamentId: Int, quantite: Int, devise: String, clientNom: String): JSONObject {
-        return post(
+    suspend fun createVente(medicamentId: Int, quantite: Int, devise: String, clientNom: String): JSONObject {
+        return execute(
+            "POST",
             "${ApiConfig.BASE}/ventes.php",
             JSONObject().apply {
                 put("medicament_id", medicamentId)
@@ -61,31 +68,44 @@ class ApiClient(private val token: String? = null) {
         )
     }
 
-    fun rapportJour(date: String): JSONObject =
-        get("${ApiConfig.BASE}/rapports.php?type=jour&date=$date")
+    suspend fun rapportJour(date: String): JSONObject =
+        execute("GET", "${ApiConfig.BASE}/rapports.php?type=jour&date=$date", null)
 
-    fun rapportMois(annee: Int, mois: Int): JSONObject =
-        get("${ApiConfig.BASE}/rapports.php?type=mois&annee=$annee&mois=$mois")
+    suspend fun rapportMois(annee: Int, mois: Int): JSONObject =
+        execute("GET", "${ApiConfig.BASE}/rapports.php?type=mois&annee=$annee&mois=$mois", null)
 
-    fun getAlertes(type: String = "all"): JSONObject =
-        get("${ApiConfig.BASE}/alertes.php?type=${encode(type)}")
+    suspend fun getAlertes(type: String = "all"): JSONObject =
+        execute("GET", "${ApiConfig.BASE}/alertes.php?type=${encode(type)}", null)
 
     private fun encode(value: String): String =
         java.net.URLEncoder.encode(value, Charsets.UTF_8.name())
 
-    private fun get(url: String): JSONObject = request("GET", url, null)
+    private suspend fun execute(
+        method: String,
+        urlString: String,
+        body: JSONObject?,
+        auth: Boolean = true
+    ): JSONObject {
+        cookieHelper.ensureCookie()
+        var result = rawRequest(method, urlString, body, auth)
+        if (InfinityFreeCookieHelper.isInfinityFreeChallenge(result.body)) {
+            cookieHelper.ensureCookie()
+            result = rawRequest(method, urlString, body, auth)
+        }
+        return parseResponse(result.code, result.body)
+    }
 
-    private fun post(url: String, body: JSONObject, auth: Boolean = true): JSONObject =
-        request("POST", url, body, auth)
+    private data class HttpResult(val code: Int, val body: String)
 
-    private fun request(method: String, urlString: String, body: JSONObject?, auth: Boolean = true): JSONObject {
+    private fun rawRequest(method: String, urlString: String, body: JSONObject?, auth: Boolean): HttpResult {
         val conn = (URL(urlString).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             connectTimeout = 30000
             readTimeout = 30000
             setRequestProperty("Content-Type", "application/json; charset=utf-8")
             setRequestProperty("Accept", "application/json")
-            setRequestProperty("User-Agent", "NouvelleEve-Android/1.2.2")
+            setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile")
+            cookieHelper.cookieHeader()?.let { setRequestProperty("Cookie", it) }
             if (auth && !token.isNullOrBlank()) {
                 setRequestProperty("Authorization", "Bearer $token")
             }
@@ -100,17 +120,21 @@ class ApiClient(private val token: String? = null) {
         val stream = if (responseCode in 200..299) conn.inputStream else conn.errorStream
         val text = BufferedReader(InputStreamReader(stream ?: conn.inputStream, Charsets.UTF_8)).use { it.readText() }
         conn.disconnect()
+        return HttpResult(responseCode, text)
+    }
+
+    private fun parseResponse(responseCode: Int, text: String): JSONObject {
+        if (InfinityFreeCookieHelper.isInfinityFreeChallenge(text)) {
+            throw ApiException(
+                responseCode,
+                "Protection InfinityFree active. Réessayez dans quelques secondes."
+            )
+        }
 
         val json = try {
             JSONObject(text)
         } catch (_: Exception) {
-            val preview = text.replace("\n", " ").take(120)
-            val message = when {
-                text.isBlank() -> "Serveur injoignable. Vérifiez Internet."
-                text.trimStart().startsWith("<") -> "Le serveur a renvoyé une page web au lieu de l'API. Vérifiez que le dossier api/ est bien dans htdocs."
-                else -> "Réponse invalide ($responseCode): $preview"
-            }
-            throw ApiException(responseCode, message)
+            throw ApiException(responseCode, "Réponse serveur invalide ($responseCode)")
         }
 
         if (!json.optBoolean("success", false)) {

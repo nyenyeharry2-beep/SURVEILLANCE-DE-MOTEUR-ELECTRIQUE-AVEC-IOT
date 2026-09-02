@@ -6,9 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.nouvelleeve.pharmacie.databinding.ActivityLoginBinding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
@@ -41,9 +39,8 @@ class LoginActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 try {
-                    val data = withContext(Dispatchers.IO) {
-                        ApiClient().login(email, password)
-                    }
+                    binding.btnLogin.text = getString(R.string.connecting)
+                    val data = ApiClient(applicationContext).login(email, password)
                     session.token = data.optString("token")
                     session.userName = data.optJSONObject("user")?.optString("nom")
                     goMain()
@@ -53,6 +50,7 @@ class LoginActivity : AppCompatActivity() {
                     showError(getString(R.string.login_network_error))
                 } finally {
                     binding.btnLogin.isEnabled = true
+                    binding.btnLogin.text = getString(R.string.btn_login)
                 }
             }
         }

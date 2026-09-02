@@ -31,19 +31,15 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextInputEditText inputPassword;
 
   @NonNull
-  public final TextInputEditText inputServerUrl;
-
-  @NonNull
   public final TextView textLoginError;
 
   private ActivityLoginBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnLogin,
       @NonNull TextInputEditText inputEmail, @NonNull TextInputEditText inputPassword,
-      @NonNull TextInputEditText inputServerUrl, @NonNull TextView textLoginError) {
+      @NonNull TextView textLoginError) {
     this.rootView = rootView;
     this.btnLogin = btnLogin;
     this.inputEmail = inputEmail;
     this.inputPassword = inputPassword;
-    this.inputServerUrl = inputServerUrl;
     this.textLoginError = textLoginError;
   }
 
@@ -92,12 +88,6 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.inputServerUrl;
-      TextInputEditText inputServerUrl = ViewBindings.findChildViewById(rootView, id);
-      if (inputServerUrl == null) {
-        break missingId;
-      }
-
       id = R.id.textLoginError;
       TextView textLoginError = ViewBindings.findChildViewById(rootView, id);
       if (textLoginError == null) {
@@ -105,7 +95,7 @@ public final class ActivityLoginBinding implements ViewBinding {
       }
 
       return new ActivityLoginBinding((ScrollView) rootView, btnLogin, inputEmail, inputPassword,
-          inputServerUrl, textLoginError);
+          textLoginError);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

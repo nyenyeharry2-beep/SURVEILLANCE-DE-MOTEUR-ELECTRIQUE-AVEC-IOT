@@ -5,6 +5,10 @@
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/nav_ventes" />
     <item
+        android:id="@+id/nav_stock"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="@string/nav_stock" />
+    <item
         android:id="@+id/nav_rapports"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/nav_rapports" />
