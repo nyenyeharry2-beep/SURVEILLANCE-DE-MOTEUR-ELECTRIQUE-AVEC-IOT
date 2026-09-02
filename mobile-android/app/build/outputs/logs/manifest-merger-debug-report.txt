@@ -1,20 +1,20 @@
 -- Merging decision tree log ---
 provider#androidx.core.content.FileProvider
-INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:30:9-38:20
+INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:35:9-43:20
 	android:grantUriPermissions
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:34:13-47
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:39:13-47
 	android:authorities
 		INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:32:13-64
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:37:13-64
 	android:exported
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:33:13-37
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:38:13-37
 	android:name
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:31:13-62
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:36:13-62
 manifest
-ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-40:12
-INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-40:12
-INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-40:12
-INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-40:12
+ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:2:1-45:12
 MERGED from [androidx.databinding:viewbinding:8.5.2] /home/ubuntu/.gradle/caches/transforms-4/c55ba565e7002d28baa4a5bbef2c5721/transformed/viewbinding-8.5.2/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] /home/ubuntu/.gradle/caches/transforms-4/30dbe09adc47a6fa3161e128d9fbb6b2/transformed/material-1.12.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/ubuntu/.gradle/caches/transforms-4/269c9730016da6647904e71bb7dfb67f/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
@@ -75,8 +75,8 @@ ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:4:5-67
 	android:name
 		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:4:22-64
 application
-ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:6:5-39:19
-INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:6:5-39:19
+ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:6:5-44:19
+INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:6:5-44:19
 MERGED from [com.google.android.material:material:1.12.0] /home/ubuntu/.gradle/caches/transforms-4/30dbe09adc47a6fa3161e128d9fbb6b2/transformed/material-1.12.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] /home/ubuntu/.gradle/caches/transforms-4/30dbe09adc47a6fa3161e128d9fbb6b2/transformed/material-1.12.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/ubuntu/.gradle/caches/transforms-4/269c9730016da6647904e71bb7dfb67f/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -137,12 +137,20 @@ ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:26:9-28:40
 		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:28:13-37
 	android:name
 		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:27:13-41
-meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:35:13-37:54
-	android:resource
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:37:17-51
+activity#com.nouvelleeve.pharmacie.RecuActivity
+ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:30:9-33:58
+	android:parentActivityName
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:33:13-55
+	android:exported
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:32:13-37
 	android:name
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:36:17-67
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:31:13-41
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:40:13-42:54
+	android:resource
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:42:17-51
+	android:name
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:41:17-67
 uses-sdk
 INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /workspace/mobile-android/app/src/main/AndroidManifest.xml

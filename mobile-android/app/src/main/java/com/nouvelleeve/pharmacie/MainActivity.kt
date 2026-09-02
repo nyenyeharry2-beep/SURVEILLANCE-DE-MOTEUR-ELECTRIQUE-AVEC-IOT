@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    ApiClient(applicationContext, session.token).logout()
+                    ApiClient(applicationContext, session.token, session.sessionId).logout()
                 } catch (_: Exception) {
                 }
             }
@@ -81,6 +81,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun api(): ApiClient = ApiClient(applicationContext, session.token)
+    fun api(): ApiClient = ApiClient(applicationContext, session.token, session.sessionId)
     fun sessionManager(): SessionManager = session
 }

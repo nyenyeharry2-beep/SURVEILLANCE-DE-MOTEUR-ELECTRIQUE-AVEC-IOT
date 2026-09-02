@@ -10,9 +10,10 @@ APPLICATION MOBILE VENDEUR (APK) :
 - Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
 - Connexion : email + mot de passe seulement (URL déjà intégrée)
 - Fonctions : Ventes, Stock, Rapports, Alertes
-- Version 1.4.1 — désinstallez l’ancienne app avant d’installer
-- En bas de l’écran de connexion vous devez voir « Version 1.4.1 »
-- Fonctions vendeur : Ventes + Reçus + Historique + Rapports (situation fin de journée) + Stock + Alertes
+MISE À JOUR OBLIGATOIRE (site + app) :
+- Uploadez deploy/api-mobile-fix.zip dans htdocs/api/ puis extrayez
+- Lisez deploy/API_MISE_A_JOUR.txt
+- Version app 1.4.2 — désinstallez l'ancienne avant d'installer
 - Créez un compte vendeur (caissier) dans Utilisateurs sur le site web
 
 Connexion :

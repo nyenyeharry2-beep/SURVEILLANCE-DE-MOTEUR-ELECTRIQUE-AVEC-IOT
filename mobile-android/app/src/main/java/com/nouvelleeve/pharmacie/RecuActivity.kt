@@ -38,7 +38,7 @@ class RecuActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val data = withContext(Dispatchers.IO) {
-                    ApiClient(applicationContext, SessionManager(this@RecuActivity).token).getRecu(venteId)
+                    ApiClient(applicationContext, SessionManager(this@RecuActivity).token, SessionManager(this@RecuActivity).sessionId).getRecu(venteId)
                 }
                 recuData = data
                 binding.textRecu.text = formatRecuText(data)

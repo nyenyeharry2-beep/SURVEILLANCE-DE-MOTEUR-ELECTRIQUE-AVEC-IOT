@@ -19,16 +19,23 @@ object ApiConfig {
 
 class ApiClient(
     private val appContext: Context,
-    private val token: String? = null
+    private val token: String? = null,
+    private val sessionId: String? = null
 ) {
     private val cookieHelper = InfinityFreeCookieHelper(appContext)
 
     private fun authToken(): String? = token?.trim()?.takeIf { it.isNotBlank() }
+    private fun authSessionId(): String? = sessionId?.trim()?.takeIf { it.isNotBlank() }
 
     private fun withAuthQuery(url: String): String {
-        val t = authToken() ?: return url
-        val sep = if (url.contains('?')) '&' else '?'
-        return "$url${sep}token=${encode(t)}"
+        val sb = StringBuilder(url)
+        fun appendParam(name: String, value: String) {
+            sb.append(if (sb.contains('?')) '&' else '?')
+            sb.append(name).append('=').append(encode(value))
+        }
+        authToken()?.let { appendParam("token", it) }
+        authSessionId()?.let { appendParam("sid", it) }
+        return sb.toString()
     }
 
     suspend fun ping(): JSONObject = execute("GET", "${ApiConfig.BASE}/ping.php", null)
@@ -48,6 +55,7 @@ class ApiClient(
     suspend fun logout(): JSONObject {
         val body = JSONObject().apply {
             authToken()?.let { put("token", it) }
+            authSessionId()?.let { put("sid", it) }
         }
         return execute("POST", withAuthQuery("${ApiConfig.BASE}/logout.php"), body)
     }
@@ -124,8 +132,11 @@ class ApiClient(
         }
 
         val requestBody = when {
-            body != null && auth && authToken() != null ->
-                JSONObject(body.toString()).apply { put("token", authToken()) }
+            body != null && (authToken() != null || authSessionId() != null) ->
+                JSONObject(body.toString()).apply {
+                    authToken()?.let { put("token", it) }
+                    authSessionId()?.let { put("sid", it) }
+                }
             else -> body
         }
 
@@ -164,6 +175,9 @@ class ApiClient(
                 setRequestProperty("Authorization", "Bearer $t")
                 setRequestProperty("X-Auth-Token", t)
             }
+            authSessionId()?.let { sid ->
+                setRequestProperty("X-Session-Id", sid)
+            }
             doInput = true
             if (body != null && method != "GET") {
                 doOutput = true
@@ -174,8 +188,24 @@ class ApiClient(
         val responseCode = conn.responseCode
         val stream = if (responseCode in 200..299) conn.inputStream else conn.errorStream
         val text = BufferedReader(InputStreamReader(stream ?: conn.inputStream, Charsets.UTF_8)).use { it.readText() }
+        captureSessionCookie(conn)
         conn.disconnect()
         return HttpResult(responseCode, text)
+    }
+
+    private fun captureSessionCookie(conn: HttpURLConnection) {
+        val setCookies = conn.headerFields?.entries
+            ?.filter { it.key.equals("Set-Cookie", ignoreCase = true) }
+            ?.flatMap { it.value }
+            ?: return
+
+        for (header in setCookies) {
+            val match = Regex("PHPSESSID=([^;]+)", RegexOption.IGNORE_CASE).find(header) ?: continue
+            val sid = match.groupValues[1]
+            if (sid.isNotBlank()) {
+                SessionManager(appContext).sessionId = sid
+            }
+        }
     }
 
     private fun parseResponse(responseCode: Int, text: String): JSONObject {

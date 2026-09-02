@@ -7,6 +7,7 @@ require_once __DIR__ . '/bootstrap.php';
 try {
     $db = getDB();
     ensureApiSchema($db);
+    apiEnsureSession();
 } catch (Throwable $e) {
     apiError('Connexion base de données impossible.', 500);
 }
@@ -37,9 +38,11 @@ try {
         }
 
         $token = createApiToken($db, (int) $user['id']);
+        $sessionId = apiSetUserSession($user);
 
         apiJson(true, [
             'token' => $token,
+            'session_id' => $sessionId,
             'user' => [
                 'id' => (int) $user['id'],
                 'nom' => $user['nom'],
@@ -54,7 +57,7 @@ try {
 
     if ($route === 'auth/logout' && $method === 'POST') {
         $user = requireApiAuth($db);
-        $db->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([$user['id']]);
+        apiClearUserSession($db, $user);
         apiJson(true, null, 'Déconnexion réussie.');
     }
 

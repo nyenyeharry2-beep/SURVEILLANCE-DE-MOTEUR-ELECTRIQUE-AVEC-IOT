@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.textVersion.text = "Version 1.4.1"
+        binding.textVersion.text = "Version 1.4.2"
 
         lifecycleScope.launch {
             binding.textLoginError.visibility = View.GONE
@@ -51,12 +51,24 @@ class LoginActivity : AppCompatActivity() {
                     binding.btnLogin.text = getString(R.string.connecting)
                     val data = ApiClient(applicationContext).login(email, password)
                     val token = data.optString("token").trim()
-                    if (token.isBlank()) {
-                        showError("Connexion échouée : token serveur manquant. Mettez à jour api/ sur le site.")
+                    val sessionId = data.optString("session_id").trim()
+                    if (token.isBlank() && sessionId.isBlank()) {
+                        showError("Connexion échouée. Mettez à jour le dossier api/ sur le site web.")
                         return@launch
                     }
-                    session.token = token
+                    session.token = token.ifBlank { null }
+                    session.sessionId = sessionId.ifBlank { null }
                     session.userName = data.optJSONObject("user")?.optString("nom")
+
+                    try {
+                        ApiClient(applicationContext, session.token, session.sessionId).getStock()
+                    } catch (e: ApiException) {
+                        session.clear()
+                        showError(
+                            e.message ?: "Accès refusé après connexion. Uploadez api/bootstrap.php et api/index.php sur le site."
+                        )
+                        return@launch
+                    }
                     goMain()
                 } catch (e: ApiException) {
                     showError(e.message ?: getString(R.string.login_error))

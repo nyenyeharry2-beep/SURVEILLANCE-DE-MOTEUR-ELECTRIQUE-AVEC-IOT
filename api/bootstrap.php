@@ -9,7 +9,7 @@ if (!defined('NOUVELLE_EVE_API')) {
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token, X-Session-Id');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -18,6 +18,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
+function apiEnsureSession(): void
+{
+    static $ready = false;
+    if ($ready) {
+        return;
+    }
+
+    $sid = null;
+    foreach (['sid', 'session_id'] as $key) {
+        if (!empty($_GET[$key])) {
+            $sid = trim((string) $_GET[$key]);
+            break;
+        }
+    }
+
+    if ($sid === null && !empty($_SERVER['HTTP_X_SESSION_ID'])) {
+        $sid = trim((string) $_SERVER['HTTP_X_SESSION_ID']);
+    }
+
+    if ($sid === null) {
+        $body = apiBody();
+        if (!empty($body['sid'])) {
+            $sid = trim((string) $body['sid']);
+        } elseif (!empty($body['session_id'])) {
+            $sid = trim((string) $body['session_id']);
+        }
+    }
+
+    if ($sid !== null && preg_match('/^[a-z0-9,-]{16,128}$/i', $sid)) {
+        session_id($sid);
+    }
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $ready = true;
+}
+
+function apiSetUserSession(array $user): string
+{
+    apiEnsureSession();
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = (int) $user['id'];
+    $_SESSION['user_nom'] = (string) $user['nom'];
+    $_SESSION['user_email'] = (string) $user['email'];
+    $_SESSION['user_role'] = (string) $user['role'];
+    $_SESSION['api_mobile'] = true;
+
+    return session_id();
+}
+
+function apiCurrentSessionUser(PDO $db): ?array
+{
+    apiEnsureSession();
+    if (empty($_SESSION['user_id'])) {
+        return null;
+    }
+
+    $stmt = $db->prepare('
+        SELECT id, nom, email, role
+        FROM utilisateurs
+        WHERE id = ? AND actif = 1
+        LIMIT 1
+    ');
+    $stmt->execute([(int) $_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    return $user ?: null;
+}
+
+function apiClearUserSession(PDO $db, array $user): void
+{
+    apiEnsureSession();
+    $db->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([(int) $user['id']]);
+    $_SESSION = [];
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
+}
 
 function apiJson(bool $success, $data = null, ?string $message = null, int $code = 200): void
 {
@@ -151,9 +232,14 @@ function apiExtractToken(): ?string
 
 function requireApiAuth(PDO $db): array
 {
+    $sessionUser = apiCurrentSessionUser($db);
+    if ($sessionUser !== null) {
+        return $sessionUser;
+    }
+
     $token = apiExtractToken();
     if ($token === null) {
-        apiError('Token manquant.', 401);
+        apiError('Token manquant. Uploadez api/bootstrap.php sur le site puis reconnectez-vous.', 401);
     }
 
     $stmt = $db->prepare('
