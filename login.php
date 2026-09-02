@@ -28,7 +28,8 @@ require_once __DIR__ . '/includes/header.php';
 <div class="login-page">
     <div class="login-card card p-4 mx-3">
         <div class="text-center mb-4">
-            <img src="<?= e(appLogo()) ?>" alt="Pharmacie Nouvelle Eve" class="login-logo mb-3">
+            <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="login-logo mb-2" width="90" height="90">
+            <h1 class="login-title mb-1"><?= e(appName()) ?></h1>
             <p class="login-tagline mb-0"><?= e(appTagline()) ?></p>
         </div>
 

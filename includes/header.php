@@ -17,10 +17,10 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <?php if ($user): ?>
 <div class="d-flex" id="wrapper">
     <nav id="sidebar" class="sidebar-dark">
-        <div class="sidebar-brand py-2 px-3">
-            <a href="dashboard.php" class="text-decoration-none d-flex align-items-center gap-2">
-                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo-sidebar" width="32" height="32">
+        <div class="sidebar-brand py-3 px-3">
+            <a href="dashboard.php" class="text-decoration-none">
                 <span class="sidebar-brand-text"><?= e(appName()) ?></span>
+                <small class="sidebar-brand-tagline d-block"><?= e(appTagline()) ?></small>
             </a>
         </div>
         <ul class="nav flex-column p-2">
@@ -85,6 +85,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         </div>
     </nav>
     <main id="page-content" class="flex-grow-1">
+        <header class="app-topbar d-flex align-items-center justify-content-between px-4 py-2">
+            <h1 class="app-topbar-title mb-0"><?= e($pageTitle ?? appName()) ?></h1>
+            <div class="app-topbar-logo-wrap">
+                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-topbar-logo" width="40" height="40">
+            </div>
+        </header>
         <div class="container-fluid p-4">
             <?php $flash = getFlash(); if ($flash): ?>
             <div class="alert alert-<?= e($flash['type']) ?> alert-dismissible fade show" role="alert">

@@ -13,7 +13,9 @@ define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'Nouvelle Eve');
 define('APP_TAGLINE', 'Votre santé, notre priorité');
 define('APP_LOGO', 'assets/img/logo.jpg');
-define('APP_URL', 'https://votre-site.infinityfreeapp.com'); // URL de votre site
+define('APP_URL', 'https://votre-site.infinityfreeapp.com');
+define('APP_ADDRESS', 'Kinshasa, République Démocratique du Congo');
+define('APP_PHONE', '+243 XXX XXX XXX');
 define('TIMEZONE', 'Africa/Kinshasa'); // Fuseau horaire RDC
 
 // 1 USD = X Francs Congolais (CDF)

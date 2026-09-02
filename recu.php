@@ -34,6 +34,11 @@ $lignes->execute([$id]);
 $details = $lignes->fetchAll();
 
 $devise = normalizeDevise($vente['devise'] ?? 'CDF');
+$montant = (float) $vente['montant_total'];
+$client = trim($vente['client_nom'] ?? '') ?: 'Client comptant';
+$produits = array_map(static fn ($l) => e($l['nom']) . ' x' . (int) $l['quantite'], $details);
+$produitsTexte = $produits ? implode(', ', $produits) : 'médicaments';
+
 $pageTitle = 'Reçu ' . $vente['numero'];
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -43,69 +48,71 @@ require_once __DIR__ . '/includes/header.php';
     <button type="button" class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
 </div>
 
-<div class="receipt-paper card mx-auto">
+<div class="receipt-paper mx-auto">
     <div class="receipt-header text-center">
-        <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="receipt-logo">
-        <h2 class="receipt-title mb-0">PHARMACIE <?= e(strtoupper(appName())) ?></h2>
-        <p class="receipt-tagline mb-1"><?= e(appTagline()) ?></p>
-        <p class="receipt-url mb-0">mapharmaciepk.xo.je</p>
-    </div>
-
-    <hr class="receipt-divider">
-
-    <div class="receipt-meta">
-        <div><strong>N° reçu :</strong> <?= e($vente['numero']) ?></div>
-        <div><strong>Date :</strong> <?= date('d/m/Y H:i', strtotime($vente['date_vente'])) ?></div>
-        <div><strong>Vendeur :</strong> <?= e($vente['vendeur']) ?></div>
-        <?php if ($vente['client_nom']): ?>
-        <div><strong>Client :</strong> <?= e($vente['client_nom']) ?></div>
+        <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="receipt-logo" width="56" height="56">
+        <div class="receipt-brand">Pharmacie <?= e(appName()) ?></div>
+        <div class="receipt-tagline"><?= e(appTagline()) ?></div>
+        <?php if (appAddress()): ?>
+        <div class="receipt-contact"><?= e(appAddress()) ?></div>
+        <?php endif; ?>
+        <?php if (appPhone()): ?>
+        <div class="receipt-contact"><?= e(appPhone()) ?></div>
+        <?php endif; ?>
+        <?php if (appUrl()): ?>
+        <div class="receipt-contact"><?= e(preg_replace('#^https?://#', '', appUrl())) ?></div>
         <?php endif; ?>
     </div>
 
-    <table class="table table-sm receipt-table mt-3 mb-3">
-        <thead>
-            <tr>
-                <th>Produit</th>
-                <th class="text-center">Qté</th>
-                <th class="text-end">P.U.</th>
-                <th class="text-end">Total</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="receipt-title-block text-center">
+        <div class="receipt-doc-title">RECU DE VENTE</div>
+        <div class="receipt-doc-subtitle">CAISSE</div>
+    </div>
+
+    <div class="receipt-separator">----------------------------------------</div>
+
+    <div class="receipt-meta">
+        <div><span class="receipt-label">REFERENCE</span> : <?= e($vente['numero']) ?></div>
+        <div><span class="receipt-label">DATE</span> : <?= date('d/m/Y H:i', strtotime($vente['date_vente'])) ?></div>
+        <div><span class="receipt-label">VENDEUR</span> : <?= e($vente['vendeur']) ?></div>
+        <div><span class="receipt-label">CLIENT</span> : <?= e($client) ?></div>
+    </div>
+
+    <div class="receipt-separator">----------------------------------------</div>
+
+    <p class="receipt-body">
+        Nous avons reçu la somme de <strong><?= formatMoneyPlain($montant, $devise) ?></strong>
+        (<?= e(montantEnLettres($montant, $devise)) ?>), comptant pour l'achat de
+        <?= $produitsTexte ?> pour <?= e($client) ?>.
+    </p>
+
+    <div class="receipt-items">
         <?php foreach ($details as $l): ?>
-        <tr>
-            <td>
-                <small class="text-muted"><?= e($l['code']) ?></small><br>
-                <?= e($l['nom']) ?>
-            </td>
-            <td class="text-center"><?= $l['quantite'] ?></td>
-            <td class="text-end"><?= formatMoney((float) $l['prix_unitaire'], $devise) ?></td>
-            <td class="text-end"><?= formatMoney((float) $l['sous_total'], $devise) ?></td>
-        </tr>
+        <div class="receipt-item">- <?= e($l['nom']) ?> x<?= (int) $l['quantite'] ?></div>
         <?php endforeach; ?>
-        </tbody>
-        <tfoot>
-            <tr class="receipt-total">
-                <td colspan="3" class="text-end"><strong>TOTAL (<?= e($devise) ?>)</strong></td>
-                <td class="text-end"><strong><?= formatMoney((float) $vente['montant_total'], $devise) ?></strong></td>
-            </tr>
-            <tr>
-                <td colspan="4" class="text-end text-muted small">
-                    Équivalent : <?= formatDualMoney((float) $vente['montant_total'], $devise) ?>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+    </div>
+
+    <div class="receipt-separator">----------------------------------------</div>
+
+    <div class="receipt-total-line">
+        <strong>MONTANT : <?= formatMoneyPlain($montant, $devise) ?></strong>
+    </div>
+    <div class="receipt-equiv">
+        Équivalent : <?= formatDualMoney($montant, $devise) ?>
+    </div>
 
     <?php if ($vente['notes']): ?>
-    <p class="small mb-2"><strong>Notes :</strong> <?= e($vente['notes']) ?></p>
+    <div class="receipt-note"><strong>Note :</strong> <?= e($vente['notes']) ?></div>
     <?php endif; ?>
 
-    <hr class="receipt-divider">
+    <div class="receipt-separator">----------------------------------------</div>
 
-    <p class="receipt-footer text-center mb-0">
-        Merci pour votre confiance !<br>
-        <small>Conservez ce reçu.</small>
+    <p class="receipt-footer text-center">
+        En cas de réclamation, veuillez présenter ce reçu.<br>
+        Merci pour votre confiance !
+    </p>
+    <p class="receipt-credit text-center">
+        Imprimé par <?= e(appName()) ?> — <?= e(appUrl() ?: 'mapharmaciepk.xo.je') ?>
     </p>
 </div>
 

@@ -42,6 +42,120 @@ function appLogo(): string
     return defined('APP_LOGO') ? APP_LOGO : 'assets/img/logo.jpg';
 }
 
+function appUrl(): string
+{
+    if (defined('APP_URL')) {
+        return APP_URL;
+    }
+
+    return '';
+}
+
+function appAddress(): string
+{
+    if (defined('APP_ADDRESS')) {
+        return APP_ADDRESS;
+    }
+
+    return '';
+}
+
+function appPhone(): string
+{
+    if (defined('APP_PHONE')) {
+        return APP_PHONE;
+    }
+
+    return '';
+}
+
+function nombreEnLettresFr(int $n): string
+{
+    if ($n === 0) {
+        return 'zéro';
+    }
+
+    $units = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix',
+        'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+    $tens = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+
+    $under100 = static function (int $num) use ($units, $tens): string {
+        if ($num < 20) {
+            return $units[$num];
+        }
+        if ($num < 70) {
+            $ten = intdiv($num, 10);
+            $unit = $num % 10;
+            if ($unit === 1 && $ten !== 8) {
+                return $tens[$ten] . ' et un';
+            }
+            return $tens[$ten] . ($unit ? '-' . $units[$unit] : ($ten === 8 ? 's' : ''));
+        }
+        if ($num < 80) {
+            return 'soixante-' . $units[$num - 60];
+        }
+        if ($num < 100) {
+            $rest = $num - 80;
+            return 'quatre-vingt' . ($rest ? '-' . $units[$rest] : 's');
+        }
+        return '';
+    };
+
+    $under1000 = static function (int $num) use ($under100): string {
+        if ($num < 100) {
+            return $under100($num);
+        }
+        $hundreds = intdiv($num, 100);
+        $rest = $num % 100;
+        $text = $hundreds === 1 ? 'cent' : $units[$hundreds] . ' cent';
+        if ($hundreds > 1 && $rest === 0) {
+            $text .= 's';
+        }
+        return $rest ? $text . ' ' . $under100($rest) : $text;
+    };
+
+    if ($n < 1000) {
+        return $under1000($n);
+    }
+
+    if ($n < 1000000) {
+        $thousands = intdiv($n, 1000);
+        $rest = $n % 1000;
+        $text = $thousands === 1 ? 'mille' : $under1000($thousands) . ' mille';
+        return $rest ? $text . ' ' . $under1000($rest) : $text;
+    }
+
+    return number_format($n, 0, ',', ' ');
+}
+
+function montantEnLettres(float $montant, string $devise): string
+{
+    $devise = normalizeDevise($devise);
+
+    if ($devise === 'USD') {
+        $entier = (int) floor($montant);
+        $centimes = (int) round(($montant - $entier) * 100);
+        $texte = nombreEnLettresFr($entier) . ' dollar' . ($entier > 1 ? 's' : '') . ' américain' . ($entier > 1 ? 's' : '');
+        if ($centimes > 0) {
+            $texte .= ' et ' . nombreEnLettresFr($centimes) . ' centime' . ($centimes > 1 ? 's' : '');
+        }
+        return $texte;
+    }
+
+    $entier = (int) round($montant);
+    return nombreEnLettresFr($entier) . ' franc' . ($entier > 1 ? 's' : '') . ' congolais';
+}
+
+function formatMoneyPlain(float $amount, string $devise = 'CDF'): string
+{
+    $devise = normalizeDevise($devise);
+    if ($devise === 'USD') {
+        return number_format($amount, 2, '.', ' ') . ' USD';
+    }
+
+    return number_format($amount, 0, ',', ' ') . ' FC';
+}
+
 function e(?string $value): string
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
