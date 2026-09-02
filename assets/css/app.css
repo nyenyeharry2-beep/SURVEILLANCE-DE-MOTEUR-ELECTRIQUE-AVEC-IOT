@@ -65,23 +65,35 @@ body {
 .sidebar-brand {
     background-color: #0f3540;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 56px;
+    overflow: hidden;
 }
 
-.app-logo-sidebar {
-    width: 42px;
-    height: 42px;
+.sidebar-brand a {
+    min-height: 0;
+}
+
+#sidebar .sidebar-brand img.app-logo-sidebar {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     object-fit: contain;
     border-radius: 0.35rem;
     background: #ffffff;
     padding: 2px;
     flex-shrink: 0;
+    display: block;
 }
 
 .sidebar-brand-text {
     color: #ffffff !important;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sidebar-brand .app-logo {
@@ -203,8 +215,9 @@ body {
 }
 
 .login-logo {
-    max-width: 140px;
-    width: 100%;
+    max-width: 100px;
+    max-height: 100px;
+    width: auto;
     height: auto;
     object-fit: contain;
 }
@@ -322,8 +335,10 @@ body {
         position: relative;
     }
 
-    .sidebar-brand .app-logo-sidebar {
-        width: 36px;
-        height: 36px;
+    #sidebar .sidebar-brand img.app-logo-sidebar {
+        width: 28px !important;
+        height: 28px !important;
+        max-width: 28px !important;
+        max-height: 28px !important;
     }
 }

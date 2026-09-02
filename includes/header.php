@@ -19,7 +19,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <nav id="sidebar" class="sidebar-dark">
         <div class="sidebar-brand py-2 px-3">
             <a href="dashboard.php" class="text-decoration-none d-flex align-items-center gap-2">
-                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo-sidebar">
+                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo-sidebar" width="32" height="32">
                 <span class="sidebar-brand-text"><?= e(appName()) ?></span>
             </a>
         </div>
