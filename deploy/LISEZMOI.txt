@@ -6,10 +6,11 @@ NOUVELLE EVE — Fichiers pour InfinityFree File Manager
 3. Importez database/migration_api_tokens.sql dans phpMyAdmin
 4. Ouvrez https://mapharmaciepk.xo.je/login.php
 
-APPLICATION MOBILE (APK) :
+APPLICATION MOBILE VENDEUR (APK) :
 - Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
-- Installez sur Android, URL : https://mapharmaciepk.xo.je/api/
-- Voir MOBILE.md pour les détails
+- Connexion : email + mot de passe seulement (URL déjà intégrée)
+- Fonctions : Ventes, Rapports, Alertes
+- Créez un compte vendeur (caissier) dans Utilisateurs sur le site web
 
 Connexion :
   Email : admin@pharmagest.local

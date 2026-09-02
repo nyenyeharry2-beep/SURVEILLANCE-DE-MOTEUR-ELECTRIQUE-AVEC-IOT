@@ -3,7 +3,6 @@ package com.nouvelleeve.pharmacie
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.nouvelleeve.pharmacie.databinding.ActivityLoginBinding
@@ -28,21 +27,16 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.inputServerUrl.setText(session.serverUrl)
-        binding.inputEmail.setText("admin@pharmagest.local")
-
         binding.btnLogin.setOnClickListener {
             binding.textLoginError.visibility = View.GONE
-            val server = binding.inputServerUrl.text?.toString()?.trim().orEmpty()
             val email = binding.inputEmail.text?.toString()?.trim().orEmpty()
             val password = binding.inputPassword.text?.toString().orEmpty()
 
-            if (server.isBlank() || email.isBlank() || password.isBlank()) {
-                showError("Remplissez tous les champs.")
+            if (email.isBlank() || password.isBlank()) {
+                showError(getString(R.string.login_fields_required))
                 return@setOnClickListener
             }
 
-            session.serverUrl = server
             binding.btnLogin.isEnabled = false
 
             lifecycleScope.launch {
@@ -54,9 +48,9 @@ class LoginActivity : AppCompatActivity() {
                     session.userName = data.optJSONObject("user")?.optString("nom")
                     goMain()
                 } catch (e: ApiException) {
-                    showError(e.message ?: "Erreur de connexion")
-                } catch (e: Exception) {
-                    showError("Impossible de joindre le serveur.")
+                    showError(e.message ?: getString(R.string.login_error))
+                } catch (_: Exception) {
+                    showError(getString(R.string.login_network_error))
                 } finally {
                     binding.btnLogin.isEnabled = true
                 }

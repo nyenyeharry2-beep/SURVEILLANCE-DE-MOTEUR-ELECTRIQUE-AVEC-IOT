@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.subtitle = session.userName?.let { getString(R.string.vendor_greeting, it) }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {

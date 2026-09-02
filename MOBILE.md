@@ -17,17 +17,23 @@ Téléchargez : `deploy/nouvelle-eve-mobile.apk`
 2. Transférez et ouvrez `nouvelle-eve-mobile.apk`
 3. Installez l'application **Nouvelle Eve**
 
-## Configuration serveur
+## Configuration
 
-1. Uploadez d'abord le site web (ZIP) sur InfinityFree
-2. Importez `database/migration_api_tokens.sql` dans phpMyAdmin (table `api_tokens`)
-3. Dans l'app, URL serveur par défaut :
-   ```
-   https://mapharmaciepk.xo.je/api/
-   ```
-4. Connexion : `admin@pharmagest.local` / `admin123`
+1. Uploadez le site web (ZIP) sur InfinityFree
+2. Importez `database/migration_api_tokens.sql` dans phpMyAdmin
+3. Installez l’APK sur le téléphone du vendeur
+4. Connexion : **email + mot de passe** uniquement (pas d’URL à saisir)
+5. L’app se connecte automatiquement à `https://mapharmaciepk.xo.je/api/`
 
-## API REST
+Créez un compte **caissier** ou **pharmacien** dans le site web (Utilisateurs) pour chaque vendeur.
+
+## Fonctionnalités (vendeurs uniquement)
+
+- **Ventes** : enregistrer une vente
+- **Rapports** : jour et mois + export PDF
+- **Alertes** : stock faible et dates d’expiration
+
+Aucune autre fonction (pas de gestion médicaments, utilisateurs, etc.) — réservée au site web admin.
 
 | Méthode | Route | Description |
 |---------|-------|-------------|

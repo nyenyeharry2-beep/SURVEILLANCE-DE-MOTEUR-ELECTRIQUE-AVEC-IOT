@@ -9,9 +9,8 @@ class SessionManager(context: Context) {
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
 
-    var serverUrl: String
-        get() = prefs.getString(KEY_SERVER, DEFAULT_SERVER) ?: DEFAULT_SERVER
-        set(value) = prefs.edit().putString(KEY_SERVER, normalizeUrl(value)).apply()
+    val serverUrl: String
+        get() = API_URL
 
     var userName: String?
         get() = prefs.getString(KEY_USER_NAME, null)
@@ -20,23 +19,13 @@ class SessionManager(context: Context) {
     fun isLoggedIn(): Boolean = !token.isNullOrBlank()
 
     fun clear() {
-        prefs.edit().clear().apply()
-    }
-
-    private fun normalizeUrl(url: String): String {
-        var u = url.trim()
-        if (!u.endsWith("/")) u += "/"
-        if (!u.contains("/api")) {
-            u = if (u.endsWith("/")) u + "api/" else u + "/api/"
-        }
-        return u
+        prefs.edit().remove(KEY_TOKEN).remove(KEY_USER_NAME).apply()
     }
 
     companion object {
         private const val PREFS = "nouvelle_eve_session"
         private const val KEY_TOKEN = "token"
-        private const val KEY_SERVER = "server_url"
         private const val KEY_USER_NAME = "user_name"
-        const val DEFAULT_SERVER = "https://mapharmaciepk.xo.je/api/"
+        const val API_URL = "https://mapharmaciepk.xo.je/api/"
     }
 }

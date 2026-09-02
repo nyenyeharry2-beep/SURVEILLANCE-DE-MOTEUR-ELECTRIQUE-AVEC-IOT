@@ -1,11 +1,13 @@
 <resources>
-    <string name="app_name">Nouvelle Eve</string>
-    <string name="login_title">Connexion</string>
-    <string name="login_subtitle">Pharmacie Nouvelle Eve</string>
-    <string name="server_url_hint">URL serveur (ex: https://mapharmaciepk.xo.je/api/)</string>
+    <string name="app_name">Nouvelle Eve Vendeur</string>
+    <string name="login_subtitle">Ventes · Rapports · Alertes</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Mot de passe</string>
     <string name="btn_login">Se connecter</string>
+    <string name="login_fields_required">Email et mot de passe obligatoires.</string>
+    <string name="login_error">Identifiants incorrects.</string>
+    <string name="login_network_error">Connexion impossible. Vérifiez Internet.</string>
+    <string name="vendor_greeting">Vendeur : %1$s</string>
     <string name="nav_ventes">Ventes</string>
     <string name="nav_rapports">Rapports</string>
     <string name="nav_alertes">Alertes</string>
