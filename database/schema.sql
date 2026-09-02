@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS medicaments (
     prix_vente DECIMAL(12, 2) NOT NULL DEFAULT 0,
     quantite_stock INT NOT NULL DEFAULT 0,
     seuil_alerte INT NOT NULL DEFAULT 10,
+    date_fabrication DATE,
     date_expiration DATE,
     description TEXT,
     actif TINYINT(1) NOT NULL DEFAULT 1,
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS achat_lignes (
     medicament_id INT NOT NULL,
     quantite INT NOT NULL,
     prix_unitaire DECIMAL(12, 2) NOT NULL,
+    date_fabrication DATE,
     date_expiration DATE,
     FOREIGN KEY (achat_id) REFERENCES achats(id) ON DELETE CASCADE,
     FOREIGN KEY (medicament_id) REFERENCES medicaments(id)
@@ -149,11 +151,11 @@ INSERT INTO fournisseurs (nom, contact, telephone, email) VALUES
 ('Labo Pharma CI', 'M. Koné', '+225 07 00 00 01', 'contact@labopharma.ci'),
 ('DistribMed Afrique', 'Mme Diallo', '+225 07 00 00 02', 'info@distribmed.ci');
 
-INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, quantite_stock, seuil_alerte, date_expiration) VALUES
-('MED-001', 'Paracétamol 500mg', 2, 1, 150, 300, 500, 50, '2027-06-30'),
-('MED-002', 'Amoxicilline 500mg', 1, 1, 800, 1500, 120, 20, '2026-12-31'),
-('MED-003', 'Vitamine C 1000mg', 3, 2, 400, 750, 8, 15, '2027-03-15'),
-('MED-004', 'Artéméther-Luméfantrine', 4, 2, 1200, 2500, 45, 10, '2026-08-20'),
-('MED-005', 'Crème hydrocortisone 1%', 5, 1, 600, 1200, 3, 10, '2026-05-01');
+INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, quantite_stock, seuil_alerte, date_fabrication, date_expiration) VALUES
+('MED-001', 'Paracétamol 500mg', 2, 1, 150, 300, 500, 50, '2024-06-01', '2027-06-30'),
+('MED-002', 'Amoxicilline 500mg', 1, 1, 800, 1500, 120, 20, '2025-01-15', '2026-12-31'),
+('MED-003', 'Vitamine C 1000mg', 3, 2, 400, 750, 8, 15, '2025-08-01', '2027-03-15'),
+('MED-004', 'Artéméther-Luméfantrine', 4, 2, 1200, 2500, 45, 10, '2025-02-01', '2026-08-20'),
+('MED-005', 'Crème hydrocortisone 1%', 5, 1, 600, 1200, 3, 10, '2024-11-01', '2026-05-01');
 
 SET FOREIGN_KEY_CHECKS = 1;

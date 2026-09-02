@@ -160,3 +160,71 @@ function daysUntilExpiry(?string $date): ?int
     }
     return (int) floor((strtotime($date) - strtotime('today')) / 86400);
 }
+
+function getAlerteExpirationMois(): int
+{
+    return defined('ALERTE_EXPIRATION_MOIS') ? max(1, (int) ALERTE_EXPIRATION_MOIS) : 5;
+}
+
+function isExpiringSoon(?string $date): bool
+{
+    if (!$date || isExpired($date)) {
+        return false;
+    }
+    $limit = (new DateTime('today'))->modify('+' . getAlerteExpirationMois() . ' months');
+    return new DateTime($date) <= $limit;
+}
+
+function moisRestantsExpiration(?string $date): ?int
+{
+    if (!$date || isExpired($date)) {
+        return null;
+    }
+    $exp = new DateTime($date);
+    $now = new DateTime('today');
+    $diff = $now->diff($exp);
+    $mois = $diff->y * 12 + $diff->m;
+    if ($diff->d >= 15) {
+        $mois++;
+    }
+    return max(0, $mois);
+}
+
+function expirationStatus(?string $date): string
+{
+    if (!$date) {
+        return 'none';
+    }
+    if (isExpired($date)) {
+        return 'expired';
+    }
+    if (isExpiringSoon($date)) {
+        return 'soon';
+    }
+    return 'ok';
+}
+
+function expirationStatusLabel(?string $date): string
+{
+    return match (expirationStatus($date)) {
+        'expired' => 'Expiré',
+        'soon'    => 'À écouler (' . moisRestantsExpiration($date) . ' mois)',
+        'ok'      => 'OK',
+        default   => '—',
+    };
+}
+
+function expirationStatusClass(?string $date): string
+{
+    return match (expirationStatus($date)) {
+        'expired' => 'badge-expired',
+        'soon'    => 'badge-warning-expiry',
+        'ok'      => 'bg-success',
+        default   => 'bg-secondary',
+    };
+}
+
+function sqlIntervalExpirationAlerte(): string
+{
+    return getAlerteExpirationMois() . ' MONTH';
+}

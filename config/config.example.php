@@ -20,4 +20,7 @@ define('TAUX_USD_CDF', 2850);
 // Devise par défaut pour les prix des médicaments
 define('DEVISE_DEFAUT', 'CDF');
 
+// Alerte expiration : nombre de mois avant la date pour prévenir (écouler le stock)
+define('ALERTE_EXPIRATION_MOIS', 5);
+
 date_default_timezone_set(TIMEZONE);

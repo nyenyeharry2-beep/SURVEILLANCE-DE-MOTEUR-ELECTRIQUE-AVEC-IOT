@@ -12,11 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prixUnitaire = (float) ($_POST['prix_unitaire'] ?? 0);
     $fournisseurId = $_POST['fournisseur_id'] ?: null;
     $dateAchat = $_POST['date_achat'] ?? date('Y-m-d');
+    $dateFabrication = $_POST['date_fabrication'] ?: null;
     $dateExpiration = $_POST['date_expiration'] ?: null;
     $notes = trim($_POST['notes'] ?? '');
 
     if ($medicamentId <= 0 || $quantite <= 0) {
         flash('danger', 'Médicament et quantité obligatoires.');
+        redirect('achats.php');
+    }
+
+    if ($dateFabrication && $dateExpiration && $dateFabrication > $dateExpiration) {
+        flash('danger', 'La date de fabrication doit être antérieure à la date d\'expiration.');
         redirect('achats.php');
     }
 
@@ -29,11 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            ->execute([$fournisseurId, currentUser()['id'], $dateAchat, $montantTotal, $notes]);
         $achatId = (int) $db->lastInsertId();
 
-        $db->prepare('INSERT INTO achat_lignes (achat_id, medicament_id, quantite, prix_unitaire, date_expiration) VALUES (?,?,?,?,?)')
-           ->execute([$achatId, $medicamentId, $quantite, $prixUnitaire, $dateExpiration]);
+        $db->prepare('INSERT INTO achat_lignes (achat_id, medicament_id, quantite, prix_unitaire, date_fabrication, date_expiration) VALUES (?,?,?,?,?,?)')
+           ->execute([$achatId, $medicamentId, $quantite, $prixUnitaire, $dateFabrication, $dateExpiration]);
 
         $updateSql = 'UPDATE medicaments SET quantite_stock = quantite_stock + ?';
         $params = [$quantite];
+        if ($dateFabrication) {
+            $updateSql .= ', date_fabrication = ?';
+            $params[] = $dateFabrication;
+        }
         if ($dateExpiration) {
             $updateSql .= ', date_expiration = ?';
             $params[] = $dateExpiration;

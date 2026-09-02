@@ -19,22 +19,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'prix_vente'       => (float) ($_POST['prix_vente'] ?? 0),
             'quantite_stock'   => (int) ($_POST['quantite_stock'] ?? 0),
             'seuil_alerte'     => (int) ($_POST['seuil_alerte'] ?? 10),
+            'date_fabrication' => $_POST['date_fabrication'] ?: null,
             'date_expiration'  => $_POST['date_expiration'] ?: null,
             'description'      => trim($_POST['description'] ?? ''),
         ];
 
         if ($data['code'] === '' || $data['nom'] === '') {
             flash('danger', 'Le code et le nom sont obligatoires.');
+        } elseif ($data['date_fabrication'] && $data['date_expiration'] && $data['date_fabrication'] > $data['date_expiration']) {
+            flash('danger', 'La date de fabrication doit être antérieure à la date d\'expiration.');
         } else {
             try {
                 if ($action === 'create') {
-                    $stmt = $db->prepare('INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, quantite_stock, seuil_alerte, date_expiration, description) VALUES (?,?,?,?,?,?,?,?,?,?)');
-                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_expiration'], $data['description']]);
+                    $stmt = $db->prepare('INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, quantite_stock, seuil_alerte, date_fabrication, date_expiration, description) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description']]);
                     flash('success', 'Médicament ajouté avec succès.');
                 } else {
                     $id = (int) $_POST['id'];
-                    $stmt = $db->prepare('UPDATE medicaments SET code=?, nom=?, categorie_id=?, fournisseur_id=?, prix_achat=?, prix_vente=?, quantite_stock=?, seuil_alerte=?, date_expiration=?, description=? WHERE id=?');
-                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_expiration'], $data['description'], $id]);
+                    $stmt = $db->prepare('UPDATE medicaments SET code=?, nom=?, categorie_id=?, fournisseur_id=?, prix_achat=?, prix_vente=?, quantite_stock=?, seuil_alerte=?, date_fabrication=?, date_expiration=?, description=? WHERE id=?');
+                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description'], $id]);
                     flash('success', 'Médicament mis à jour.');
                 }
             } catch (PDOException $e) {
@@ -110,7 +113,7 @@ require_once __DIR__ . '/includes/header.php';
             <thead class="table-light">
                 <tr>
                     <th>Code</th><th>Nom</th><th>Catégorie</th><th>Prix vente</th>
-                    <th>Stock</th><th>Expiration</th><th class="table-actions">Actions</th>
+                    <th>Stock</th><th>Fabrication</th><th>Expiration</th><th>Statut</th><th class="table-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -131,12 +134,21 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
                 </td>
                 <td>
+                    <?= $m['date_fabrication'] ? formatDate($m['date_fabrication']) : '—' ?>
+                </td>
+                <td>
                     <?php if ($m['date_expiration']): ?>
                         <?= formatDate($m['date_expiration']) ?>
-                        <?php if (isExpired($m['date_expiration'])): ?>
-                        <span class="badge badge-expired ms-1">Expiré</span>
-                        <?php endif; ?>
                     <?php else: ?>—<?php endif; ?>
+                </td>
+                <td>
+                    <?php if ($m['date_expiration']): ?>
+                    <span class="badge <?= expirationStatusClass($m['date_expiration']) ?>">
+                        <?= e(expirationStatusLabel($m['date_expiration'])) ?>
+                    </span>
+                    <?php else: ?>
+                    <span class="badge bg-secondary">Non renseigné</span>
+                    <?php endif; ?>
                 </td>
                 <td class="table-actions">
                     <a href="?edit=<?= $m['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
@@ -150,7 +162,7 @@ require_once __DIR__ . '/includes/header.php';
             </tr>
             <?php endforeach; ?>
             <?php if (empty($medicaments)): ?>
-            <tr><td colspan="7" class="text-center text-muted py-4">Aucun médicament trouvé.</td></tr>
+            <tr><td colspan="9" class="text-center text-muted py-4">Aucun médicament trouvé.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
@@ -213,8 +225,13 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="number" name="seuil_alerte" class="form-control" value="<?= e($editMed['seuil_alerte'] ?? '10') ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Date expiration</label>
+                            <label class="form-label">Date fabrication</label>
+                            <input type="date" name="date_fabrication" class="form-control" value="<?= e($editMed['date_fabrication'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date expiration *</label>
                             <input type="date" name="date_expiration" class="form-control" value="<?= e($editMed['date_expiration'] ?? '') ?>">
+                            <small class="text-muted">Alerte <?= getAlerteExpirationMois() ?> mois avant</small>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Description</label>

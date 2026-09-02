@@ -3,12 +3,15 @@ require_once __DIR__ . '/includes/auth.php';
 requireLogin();
 
 $db = getDB();
+$interval = sqlIntervalExpirationAlerte();
+$moisAlerte = getAlerteExpirationMois();
 
 $stats = [
     'medicaments' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1')->fetchColumn(),
     'stock_faible' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND quantite_stock <= seuil_alerte')->fetchColumn(),
-    'expires_bientot' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND date_expiration >= CURDATE()")->fetchColumn(),
+    'a_ecouler' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration >= CURDATE() AND date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})")->fetchColumn(),
     'expires' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration < CURDATE()")->fetchColumn(),
+    'sans_dates' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND (date_expiration IS NULL OR date_fabrication IS NULL)')->fetchColumn(),
 ];
 
 $ventesJour = sommeVentesDual($db, 'DATE(date_vente) = CURDATE()');
@@ -28,7 +31,8 @@ $alertesExpiration = $db->query("
     FROM medicaments m
     LEFT JOIN categories c ON c.id = m.categorie_id
     WHERE m.actif = 1 AND m.date_expiration IS NOT NULL
-      AND m.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+      AND m.date_expiration >= CURDATE()
+      AND m.date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})
     ORDER BY m.date_expiration ASC
     LIMIT 5
 ")->fetchAll();
@@ -64,12 +68,25 @@ require_once __DIR__ . '/includes/header.php';
     <div class="col-md-4 col-lg-2">
         <div class="card stat-card h-100">
             <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
                     <i class="bi bi-exclamation-triangle"></i>
                 </div>
                 <div>
                     <div class="text-muted small">Stock faible</div>
                     <div class="h4 mb-0"><?= $stats['stock_faible'] ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">À écouler (<?= $moisAlerte ?> mois)</div>
+                    <div class="h4 mb-0"><?= $stats['a_ecouler'] ?></div>
                 </div>
             </div>
         </div>
@@ -149,28 +166,23 @@ require_once __DIR__ . '/includes/header.php';
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong><i class="bi bi-calendar-event text-danger me-1"></i> Expirations proches</strong>
-                <a href="stock.php?tab=expiration" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                <strong><i class="bi bi-hourglass-split text-warning me-1"></i> À écouler (<?= $moisAlerte ?> mois)</strong>
+                <a href="stock.php?tab=ecouler" class="btn btn-sm btn-outline-primary">Voir tout</a>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($alertesExpiration)): ?>
-                <p class="text-muted p-3 mb-0">Aucune expiration dans les 30 prochains jours.</p>
+                <p class="text-muted p-3 mb-0">Aucun produit à écouler dans les <?= $moisAlerte ?> prochains mois.</p>
                 <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
-                        <thead><tr><th>Médicament</th><th>Expiration</th><th>Statut</th></tr></thead>
+                        <thead><tr><th>Médicament</th><th>Stock</th><th>Expiration</th><th>Mois restants</th></tr></thead>
                         <tbody>
                         <?php foreach ($alertesExpiration as $m): ?>
                         <tr>
                             <td><?= e($m['nom']) ?></td>
+                            <td><?= $m['quantite_stock'] ?></td>
                             <td><?= formatDate($m['date_expiration']) ?></td>
-                            <td>
-                                <?php if (isExpired($m['date_expiration'])): ?>
-                                <span class="badge badge-expired">Expiré</span>
-                                <?php else: ?>
-                                <span class="badge badge-warning-expiry"><?= daysUntilExpiry($m['date_expiration']) ?> jours</span>
-                                <?php endif; ?>
-                            </td>
+                            <td><span class="badge badge-warning-expiry"><?= moisRestantsExpiration($m['date_expiration']) ?> mois</span></td>
                         </tr>
                         <?php endforeach; ?>
                         </tbody>
