@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Nouvelle Eve</string>
+    <string name="login_title">Connexion</string>
+    <string name="login_subtitle">Pharmacie Nouvelle Eve</string>
+    <string name="server_url_hint">URL serveur (ex: https://mapharmaciepk.xo.je/api/)</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Mot de passe</string>
+    <string name="btn_login">Se connecter</string>
+    <string name="nav_ventes">Ventes</string>
+    <string name="nav_rapports">Rapports</string>
+    <string name="nav_alertes">Alertes</string>
+    <string name="logout">Déconnexion</string>
+    <string name="export_pdf">Exporter PDF</string>
+    <string name="rapport_jour">Rapport du jour</string>
+    <string name="rapport_mois">Rapport du mois</string>
+    <string name="loading">Chargement…</string>
+    <string name="no_data">Aucune donnée</string>
+    <string name="sale_success">Vente enregistrée</string>
+    <string name="pdf_saved">PDF enregistré</string>
+    <string name="share_pdf">Partager le PDF</string>
+</resources>

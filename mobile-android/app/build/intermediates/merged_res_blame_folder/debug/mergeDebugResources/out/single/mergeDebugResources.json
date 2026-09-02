@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/xml_file_paths.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/drawable_ic_app.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/drawable/ic_app.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_rapports.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_rapports.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_item_alerte.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/item_alerte.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/menu_bottom_nav.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/menu/bottom_nav.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_alertes.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_alertes.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/xml_network_security_config.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_activity_main.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/menu_main_menu.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/menu/main_menu.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_activity_login.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_ventes.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_ventes.xml"
+    }
+]

@@ -3,15 +3,19 @@ NOUVELLE EVE — Fichiers pour InfinityFree File Manager
 
 1. Uploadez "pharmagest-filemanager.zip" dans le dossier htdocs
 2. Extrayez (Extract) directement dans htdocs
-3. Ouvrez https://mapharmaciepk.xo.je/login.php
+3. Importez database/migration_api_tokens.sql dans phpMyAdmin
+4. Ouvrez https://mapharmaciepk.xo.je/login.php
+
+APPLICATION MOBILE (APK) :
+- Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
+- Installez sur Android, URL : https://mapharmaciepk.xo.je/api/
+- Voir MOBILE.md pour les détails
 
 Connexion :
   Email : admin@pharmagest.local
   Mot de passe : admin123
 
 IMPORTANT :
-- Importez database/schema_nouvelle_eve.sql dans phpMyAdmin (nouvelle installation)
-  ou database/migration_complete.sql (mise à jour)
-- Modifiez config/config.php : adresse et téléphone pour le reçu (APP_ADDRESS, APP_PHONE)
-- Logo : page de connexion + en haut à droite après ouverture
-- Reçu : format ticket thermique (80 mm) inspiré du modèle fourni
+- Importez database/schema_nouvelle_eve.sql (nouvelle installation)
+  ou database/migration_complete.sql + migration_api_tokens.sql (mise à jour)
+- Modifiez config/config.php : adresse et téléphone pour le reçu

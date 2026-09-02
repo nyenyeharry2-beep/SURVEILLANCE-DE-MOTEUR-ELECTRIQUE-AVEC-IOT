@@ -15,6 +15,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Supprimer les anciennes tables (installation propre)
 DROP TABLE IF EXISTS journal_produits;
 DROP TABLE IF EXISTS journaux_quotidiens;
+DROP TABLE IF EXISTS api_tokens;
 DROP TABLE IF EXISTS vente_lignes;
 DROP TABLE IF EXISTS ventes;
 DROP TABLE IF EXISTS achat_lignes;
@@ -155,6 +156,17 @@ CREATE TABLE journal_produits (
     FOREIGN KEY (medicament_id) REFERENCES medicaments(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE api_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    INDEX idx_token (token),
+    INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Compte administrateur (mot de passe : admin123)
 INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES
 ('Administrateur', 'admin@pharmagest.local', '$2y$10$mc4enZqnMCVwApE7EvTeZ.aRdFDafB3ycsLFAQs5KwJOwl1aMpGdG', 'admin');
@@ -180,8 +192,8 @@ INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, pr
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
--- 10 tables créées :
+-- 11 tables créées :
 --   utilisateurs, categories, fournisseurs, medicaments
 --   achats, achat_lignes, ventes, vente_lignes
---   journaux_quotidiens, journal_produits
+--   journaux_quotidiens, journal_produits, api_tokens
 -- ============================================================
