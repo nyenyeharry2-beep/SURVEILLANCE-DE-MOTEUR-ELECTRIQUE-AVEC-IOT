@@ -5,6 +5,10 @@ import android.content.Context
 class SessionManager(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
+    init {
+        prefs.edit().remove(LEGACY_SERVER_KEY).apply()
+    }
+
     var token: String?
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
@@ -26,6 +30,7 @@ class SessionManager(context: Context) {
         private const val PREFS = "nouvelle_eve_session"
         private const val KEY_TOKEN = "token"
         private const val KEY_USER_NAME = "user_name"
+        private const val LEGACY_SERVER_KEY = "server_url"
         const val API_URL = "https://mapharmaciepk.xo.je/api/"
     }
 }

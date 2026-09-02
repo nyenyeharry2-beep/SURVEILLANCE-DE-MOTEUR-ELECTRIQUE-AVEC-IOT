@@ -27,6 +27,11 @@ class ApiClient(private val baseUrl: String, private val token: String? = null) 
         return get("medicaments$q")
     }
 
+    fun getStock(query: String = ""): JSONObject {
+        val q = if (query.isBlank()) "" else "?q=" + URLEncoder.encode(query, "UTF-8")
+        return get("stock$q")
+    }
+
     fun createVente(
         medicamentId: Int,
         quantite: Int,

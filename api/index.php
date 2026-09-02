@@ -38,7 +38,6 @@ try {
             ],
             'app' => [
                 'name' => appName(),
-                'url' => appUrl(),
             ],
         ], 'Connexion réussie.');
     }
@@ -72,6 +71,49 @@ try {
         }
 
         apiJson(true, ['medicaments' => $stmt->fetchAll()]);
+    }
+
+    if ($route === 'stock' && $method === 'GET') {
+        requireApiAuth($db);
+        $q = trim($_GET['q'] ?? '');
+        if ($q !== '') {
+            $stmt = $db->prepare('
+                SELECT m.id, m.code, m.nom, m.prix_vente, m.quantite_stock, m.seuil_alerte,
+                       m.date_expiration, c.nom AS categorie_nom
+                FROM medicaments m
+                LEFT JOIN categories c ON c.id = m.categorie_id
+                WHERE m.actif = 1 AND (m.nom LIKE ? OR m.code LIKE ?)
+                ORDER BY m.nom LIMIT 200
+            ');
+            $like = '%' . $q . '%';
+            $stmt->execute([$like, $like]);
+        } else {
+            $stmt = $db->query('
+                SELECT m.id, m.code, m.nom, m.prix_vente, m.quantite_stock, m.seuil_alerte,
+                       m.date_expiration, c.nom AS categorie_nom
+                FROM medicaments m
+                LEFT JOIN categories c ON c.id = m.categorie_id
+                WHERE m.actif = 1
+                ORDER BY m.nom
+            ');
+        }
+
+        $rows = array_map(static function (array $row): array {
+            return [
+                'id' => (int) $row['id'],
+                'code' => $row['code'],
+                'nom' => $row['nom'],
+                'categorie' => $row['categorie_nom'],
+                'prix_vente' => (float) $row['prix_vente'],
+                'quantite_stock' => (int) $row['quantite_stock'],
+                'seuil_alerte' => (int) $row['seuil_alerte'],
+                'date_expiration' => $row['date_expiration'],
+                'stock_faible' => (int) $row['quantite_stock'] <= (int) $row['seuil_alerte'],
+                'statut_expiration' => expirationStatusLabel($row['date_expiration']),
+            ];
+        }, $stmt->fetchAll());
+
+        apiJson(true, ['stock' => $rows]);
     }
 
     if ($route === 'ventes' && $method === 'POST') {
