@@ -11,14 +11,17 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="assets/css/app.css" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="<?= e(appLogo()) ?>">
 </head>
 <body>
 <?php if ($user): ?>
 <div class="d-flex" id="wrapper">
-    <nav id="sidebar" class="bg-dark text-white">
-        <div class="sidebar-brand p-3 border-bottom border-secondary">
-            <i class="bi bi-capsule-pill me-2"></i>
-            <strong><?= e(appName()) ?></strong>
+    <nav id="sidebar" class="text-white">
+        <div class="sidebar-brand p-3 border-bottom border-secondary border-opacity-25">
+            <a href="dashboard.php" class="text-decoration-none">
+                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo d-block mx-auto">
+            </a>
+            <div class="brand-tagline mt-2"><?= e(appTagline()) ?></div>
         </div>
         <ul class="nav flex-column p-2">
             <li class="nav-item">

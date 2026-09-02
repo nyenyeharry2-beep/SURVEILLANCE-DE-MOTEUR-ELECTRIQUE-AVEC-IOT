@@ -11,6 +11,8 @@ define('DB_PASS', 'votre_mot_de_passe');       // Mot de passe MySQL
 define('DB_CHARSET', 'utf8mb4');
 
 define('APP_NAME', 'Nouvelle Eve');
+define('APP_TAGLINE', 'Votre santé, notre priorité');
+define('APP_LOGO', 'assets/img/logo.jpg');
 define('APP_URL', 'https://votre-site.infinityfreeapp.com'); // URL de votre site
 define('TIMEZONE', 'Africa/Kinshasa'); // Fuseau horaire RDC
 

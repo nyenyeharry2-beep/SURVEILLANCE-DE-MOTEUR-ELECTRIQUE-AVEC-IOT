@@ -113,13 +113,19 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="number" step="0.01" name="prix_unitaire" class="form-control" id="achat-prix" value="0">
                         </div>
                     </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Date fabrication (lot)</label>
+                            <input type="date" name="date_fabrication" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Date expiration (lot)</label>
+                            <input type="date" name="date_expiration" class="form-control">
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Date achat</label>
                         <input type="date" name="date_achat" class="form-control" value="<?= date('Y-m-d') ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Date expiration (lot)</label>
-                        <input type="date" name="date_expiration" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Notes</label>
