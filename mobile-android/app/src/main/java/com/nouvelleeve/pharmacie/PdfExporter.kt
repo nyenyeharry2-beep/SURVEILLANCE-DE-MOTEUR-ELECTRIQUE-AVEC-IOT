@@ -1,6 +1,8 @@
 package com.nouvelleeve.pharmacie
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
@@ -16,30 +18,37 @@ import java.util.Locale
 object PdfExporter {
 
     fun exportRapport(context: Context, title: String, report: JSONObject): Uri {
-        val lines = buildReportLines(title, report)
-        return writePdf(context, "rapport_${System.currentTimeMillis()}.pdf", title, lines)
+        val lines = buildReportLines(report)
+        return writeTextPdf(context, "rapport_${System.currentTimeMillis()}.pdf", title, lines, logo = null)
     }
 
     fun exportRecu(context: Context, recu: JSONObject): Uri {
         val vente = recu.optJSONObject("vente") ?: JSONObject()
         val title = "Reçu ${vente.optString("numero")}"
         val lines = RecuActivity.formatRecuText(recu).lines()
-        return writePdf(context, "recu_${vente.optString("numero")}.pdf", title, lines)
+        val logo = BitmapFactory.decodeResource(context.resources, R.drawable.logo)
+        return writeTextPdf(context, "recu_${vente.optString("numero")}.pdf", title, lines, logo)
     }
 
-    private fun writePdf(context: Context, fileName: String, title: String, lines: List<String>): Uri {
+    private fun writeTextPdf(
+        context: Context,
+        fileName: String,
+        title: String,
+        lines: List<String>,
+        logo: Bitmap?
+    ): Uri {
         val document = PdfDocument()
         val pageWidth = 595
         val pageHeight = 842
         val margin = 40f
-        val lineHeight = 18f
+        val lineHeight = 16f
         val paint = Paint().apply {
             color = Color.BLACK
-            textSize = 11f
+            textSize = 10f
             isAntiAlias = true
         }
         val titlePaint = Paint(paint).apply {
-            textSize = 16f
+            textSize = 14f
             isFakeBoldText = true
         }
 
@@ -58,13 +67,29 @@ object PdfExporter {
             y = margin
         }
 
+        fun ensureSpace(extra: Float) {
+            if (y + extra > pageHeight - margin) {
+                newPage()
+            }
+        }
+
+        logo?.let { bitmap ->
+            val logoSize = 56f
+            val scaled = Bitmap.createScaledBitmap(bitmap, logoSize.toInt(), logoSize.toInt(), true)
+            val logoX = (pageWidth - logoSize) / 2f
+            canvas.drawBitmap(scaled, logoX, y, null)
+            y += logoSize + 12f
+            if (scaled !== bitmap) {
+                scaled.recycle()
+            }
+        }
+
+        ensureSpace(lineHeight * 2)
         canvas.drawText(title, margin, y, titlePaint)
         y += lineHeight * 2
 
         lines.forEach { line ->
-            if (y > pageHeight - margin) {
-                newPage()
-            }
+            ensureSpace(lineHeight)
             canvas.drawText(line, margin, y, paint)
             y += lineHeight
         }
@@ -83,7 +108,7 @@ object PdfExporter {
         )
     }
 
-    private fun buildReportLines(reportTitle: String, report: JSONObject): List<String> {
+    private fun buildReportLines(report: JSONObject): List<String> {
         val lines = mutableListOf<String>()
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE)
         lines.add("Pharmacie Nouvelle Eve")
