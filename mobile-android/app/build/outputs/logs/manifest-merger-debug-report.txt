@@ -102,9 +102,9 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/ubuntu/.gradle/caches
 	android:label
 		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:9:9-41
 	android:roundIcon
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:11:9-45
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:11:9-54
 	android:icon
-		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:8:9-40
+		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:8:9-43
 	android:allowBackup
 		ADDED from /workspace/mobile-android/app/src/main/AndroidManifest.xml:7:9-35
 	android:theme

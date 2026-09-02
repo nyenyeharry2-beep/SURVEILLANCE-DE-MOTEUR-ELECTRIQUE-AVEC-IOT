@@ -5,7 +5,9 @@ color brand_green
 color brand_teal
 color brand_teal_dark
 color white
-drawable ic_app
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable logo
 id action_logout
 id bottomNav
 id btnExportPdf
@@ -44,6 +46,8 @@ layout fragment_ventes
 layout item_alerte
 menu bottom_nav
 menu main_menu
+mipmap ic_launcher
+mipmap ic_launcher_round
 string app_name
 string btn_login
 string email_hint
