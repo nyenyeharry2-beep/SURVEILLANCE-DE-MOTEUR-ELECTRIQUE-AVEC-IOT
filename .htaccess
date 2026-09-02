@@ -15,6 +15,4 @@ DirectoryIndex index.php
     Header set X-Frame-Options "SAMEORIGIN"
 </IfModule>
 
-# Désactiver l'affichage des erreurs en production (InfinityFree)
-php_flag display_errors Off
-php_value error_reporting 0
+# NOTE : php_flag/php_value retirés — provoquent erreur 500 sur InfinityFree
