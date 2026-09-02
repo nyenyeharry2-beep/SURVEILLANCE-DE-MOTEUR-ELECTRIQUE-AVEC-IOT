@@ -182,8 +182,127 @@ function createVente(PDO $db, array $user, array $body): array
     ];
 }
 
+function venteDetailsSql(): string
+{
+    return '(SELECT GROUP_CONCAT(CONCAT(m.nom, " x", vl.quantite) SEPARATOR ", ")
+             FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
+             WHERE vl.vente_id = v.id) AS details';
+}
+
+function enrichVenteRow(array $row): array
+{
+    $devise = normalizeDevise($row['devise'] ?? 'CDF');
+    $montant = (float) $row['montant_total'];
+
+    return [
+        'id' => (int) $row['id'],
+        'numero' => $row['numero'],
+        'date_vente' => $row['date_vente'],
+        'montant_total' => $montant,
+        'devise' => $devise,
+        'client_nom' => $row['client_nom'],
+        'vendeur' => $row['vendeur'] ?? null,
+        'details' => $row['details'] ?? null,
+        'notes' => $row['notes'] ?? null,
+        'montant_cdf' => convertirDevise($montant, $devise, 'CDF'),
+        'montant_usd' => convertirDevise($montant, $devise, 'USD'),
+    ];
+}
+
+function fetchVentesListe(PDO $db, ?string $date = null, int $limit = 50): array
+{
+    $limit = max(1, min(200, $limit));
+    $detailsSql = venteDetailsSql();
+
+    if ($date !== null && $date !== '') {
+        $stmt = $db->prepare("
+            SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
+                   v.client_nom, v.notes, u.nom AS vendeur, {$detailsSql}
+            FROM ventes v
+            JOIN utilisateurs u ON u.id = v.utilisateur_id
+            WHERE DATE(v.date_vente) = ?
+            ORDER BY v.date_vente DESC
+            LIMIT {$limit}
+        ");
+        $stmt->execute([$date]);
+    } else {
+        $stmt = $db->query("
+            SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
+                   v.client_nom, v.notes, u.nom AS vendeur, {$detailsSql}
+            FROM ventes v
+            JOIN utilisateurs u ON u.id = v.utilisateur_id
+            ORDER BY v.date_vente DESC
+            LIMIT {$limit}
+        ");
+    }
+
+    return array_map('enrichVenteRow', $stmt->fetchAll());
+}
+
+function fetchVenteRecu(PDO $db, int $id): array
+{
+    $stmt = $db->prepare('
+        SELECT v.*, u.nom AS vendeur
+        FROM ventes v
+        JOIN utilisateurs u ON u.id = v.utilisateur_id
+        WHERE v.id = ?
+    ');
+    $stmt->execute([$id]);
+    $vente = $stmt->fetch();
+
+    if (!$vente) {
+        apiError('Reçu introuvable.', 404);
+    }
+
+    $lignes = $db->prepare('
+        SELECT vl.*, m.code, m.nom
+        FROM vente_lignes vl
+        JOIN medicaments m ON m.id = vl.medicament_id
+        WHERE vl.vente_id = ?
+    ');
+    $lignes->execute([$id]);
+    $details = $lignes->fetchAll();
+
+    $devise = normalizeDevise($vente['devise'] ?? 'CDF');
+    $montant = (float) $vente['montant_total'];
+
+    return [
+        'vente' => [
+            'id' => (int) $vente['id'],
+            'numero' => $vente['numero'],
+            'date_vente' => $vente['date_vente'],
+            'montant_total' => $montant,
+            'devise' => $devise,
+            'client_nom' => $vente['client_nom'],
+            'notes' => $vente['notes'],
+            'vendeur' => $vente['vendeur'],
+            'montant_lettres' => montantEnLettres($montant, $devise),
+            'montant_cdf' => convertirDevise($montant, $devise, 'CDF'),
+            'montant_usd' => convertirDevise($montant, $devise, 'USD'),
+            'equivalent' => formatDualMoney($montant, $devise),
+        ],
+        'lignes' => array_map(static function (array $l): array {
+            return [
+                'code' => $l['code'],
+                'nom' => $l['nom'],
+                'quantite' => (int) $l['quantite'],
+                'prix_unitaire' => (float) $l['prix_unitaire'],
+                'sous_total' => (float) $l['sous_total'],
+            ];
+        }, $details),
+        'pharmacie' => [
+            'nom' => appName(),
+            'tagline' => appTagline(),
+            'adresse' => appAddress(),
+            'telephone' => appPhone(),
+            'url' => appUrl(),
+        ],
+    ];
+}
+
 function reportSummary(PDO $db, string $debut, string $fin): array
 {
+    $taux = getTauxUsdCdf();
     $totaux = sommeVentesDual($db, 'DATE(date_vente) BETWEEN ? AND ?', [$debut, $fin]);
 
     $stmt = $db->prepare('
@@ -193,21 +312,34 @@ function reportSummary(PDO $db, string $debut, string $fin): array
         GROUP BY COALESCE(devise, "CDF")
     ');
     $stmt->execute([$debut, $fin]);
-    $parDevise = $stmt->fetchAll();
+    $parDevise = array_map(static function (array $row) use ($taux): array {
+        $devise = normalizeDevise($row['devise']);
+        $total = (float) $row['total'];
 
-    $stmt = $db->prepare('
-        SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, "CDF") AS devise,
-               v.client_nom, u.nom AS vendeur
+        return [
+            'devise' => $devise,
+            'nb_ventes' => (int) $row['nb_ventes'],
+            'total' => $total,
+            'equivalent_cdf' => convertirDevise($total, $devise, 'CDF'),
+            'equivalent_usd' => convertirDevise($total, $devise, 'USD'),
+        ];
+    }, $stmt->fetchAll());
+
+    $detailsSql = venteDetailsSql();
+    $stmt = $db->prepare("
+        SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
+               v.client_nom, v.notes, u.nom AS vendeur, {$detailsSql}
         FROM ventes v
         JOIN utilisateurs u ON u.id = v.utilisateur_id
         WHERE DATE(v.date_vente) BETWEEN ? AND ?
         ORDER BY v.date_vente DESC
-    ');
+    ");
     $stmt->execute([$debut, $fin]);
-    $ventes = $stmt->fetchAll();
+    $ventes = array_map('enrichVenteRow', $stmt->fetchAll());
 
     return [
         'periode' => ['debut' => $debut, 'fin' => $fin],
+        'taux_usd_cdf' => $taux,
         'totaux' => [
             'cdf_brut' => (float) $totaux['total_cdf_brut'],
             'usd_brut' => (float) $totaux['total_usd_brut'],

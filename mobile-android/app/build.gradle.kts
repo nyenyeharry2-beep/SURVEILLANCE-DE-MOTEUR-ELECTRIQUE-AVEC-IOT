@@ -11,8 +11,8 @@ android {
         applicationId = "com.nouvelleeve.pharmacie"
         minSdk = 24
         targetSdk = 34
-        versionCode = 8
-        versionName = "1.3.2"
+        versionCode = 9
+        versionName = "1.4.0"
     }
 
     buildTypes {

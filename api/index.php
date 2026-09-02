@@ -134,9 +134,23 @@ try {
 
     if ($route === 'ventes' && $method === 'GET') {
         requireApiAuth($db);
+        if (($_GET['liste'] ?? '') === '1') {
+            $date = trim($_GET['date'] ?? '') ?: null;
+            $limit = (int) ($_GET['limit'] ?? 50);
+            apiJson(true, ['ventes' => fetchVentesListe($db, $date, $limit)]);
+        }
         $debut = $_GET['debut'] ?? date('Y-m-d');
         $fin = $_GET['fin'] ?? date('Y-m-d');
         apiJson(true, reportSummary($db, $debut, $fin));
+    }
+
+    if ($route === 'recu' && $method === 'GET') {
+        requireApiAuth($db);
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            apiError('Identifiant de vente requis.');
+        }
+        apiJson(true, fetchVenteRecu($db, $id));
     }
 
     if ($route === 'rapports/jour' && $method === 'GET') {

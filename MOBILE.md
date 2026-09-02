@@ -4,12 +4,23 @@
 
 Téléchargez : `deploy/nouvelle-eve-mobile.apk`
 
-## Fonctionnalités
+## Fonctionnalités vendeur (v1.4.0)
 
-- **Ventes** : enregistrer une vente (médicament, quantité, CDF ou USD)
-- **Stock** : consulter les quantités en stock de tous les produits
-- **Rapports** : rapport du jour et du mois + export PDF
-- **Alertes** : stock faible, produits à écouler, expirés
+- **Ventes** : enregistrer une vente (identique au site web — même base de données)
+- **Reçu** : imprimer / partager le reçu PDF après chaque vente (comme `recu.php` sur le site)
+- **Historique** : liste des ventes récentes avec accès au reçu
+- **Rapports** : situation du jour (fin de journée) et rapport du mois — mêmes totaux que `rapports.php`
+- **Stock** : consulter les quantités
+- **Alertes** : stock faible et expiration
+
+**Non inclus** (réservé au site web admin) : médicaments, catégories, fournisseurs, achats, journal comptable, utilisateurs, configuration.
+
+## Important — synchronisation
+
+Toute vente faite sur l’application apparaît **immédiatement** sur le site :
+- `ventes.php` (historique)
+- `rapports.php` (rapports)
+- `recu.php` (reçu imprimable)
 
 ## Important — hébergement InfinityFree
 
@@ -17,7 +28,7 @@ InfinityFree **bloque les applications mobiles** avec une page JavaScript (`aes.
 
 L'APK **v1.3.0+** contourne cette protection automatiquement (cookie `__test` via WebView + déchiffrement AES).
 
-**v1.3.2** corrige l'erreur « Connexion impossible » alors que le mot de passe est correct (requêtes réseau sur thread secondaire).
+**v1.4.0** : reçus PDF, historique ventes, rapports alignés site (situation fin de journée).
 
 Si la connexion échoue encore, attendez 5 secondes et réessayez.
 
@@ -25,8 +36,8 @@ Si la connexion échoue encore, attendez 5 secondes et réessayez.
 
 1. **Désinstallez** l’ancienne version de l’app si elle est déjà installée
 2. Sur le téléphone Android : autorisez **Sources inconnues**
-3. Transférez et ouvrez `nouvelle-eve-mobile.apk` (version **1.3.2**)
-4. Installez **Nouvelle Eve Vendeur** — vérifiez « Version 1.3.2 » en bas de l'écran de connexion
+3. Transférez et ouvrez `nouvelle-eve-mobile.apk` (version **1.4.0**)
+4. Installez **Nouvelle Eve Vendeur** — vérifiez « Version 1.4.0 » en bas de l'écran de connexion
 
 ## Configuration
 

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Nouvelle Eve Vendeur</string>
-    <string name="login_subtitle">Ventes · Stock · Rapports · Alertes</string>
+    <string name="login_subtitle">Ventes · Reçus · Rapports · Stock</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Mot de passe</string>
     <string name="btn_login">Se connecter</string>
@@ -16,8 +16,23 @@
     <string name="nav_alertes">Alertes</string>
     <string name="logout">Déconnexion</string>
     <string name="export_pdf">Exporter PDF</string>
-    <string name="rapport_jour">Rapport du jour</string>
+    <string name="rapport_jour">Situation du jour</string>
     <string name="rapport_mois">Rapport du mois</string>
+    <string name="tab_new_sale">Nouvelle vente</string>
+    <string name="tab_history">Historique</string>
+    <string name="search_medicament">Rechercher médicament</string>
+    <string name="quantity_hint">Quantité</string>
+    <string name="client_hint">Client (optionnel)</string>
+    <string name="notes_hint">Notes (optionnel)</string>
+    <string name="save_sale">Enregistrer la vente</string>
+    <string name="view_receipt">Voir / imprimer le reçu</string>
+    <string name="receipt">Reçu</string>
+    <string name="share_receipt">Partager PDF</string>
+    <string name="print_receipt">Imprimer</string>
+    <string name="receipt_title">Reçu de vente</string>
+    <string name="end_of_day">Situation fin de journée</string>
+    <string name="no_sales">Aucune vente sur cette période.</string>
+    <string name="receipt_sync_hint">Cette vente apparaît aussi sur le site web (Ventes et Rapports).</string>
     <string name="loading">Chargement…</string>
     <string name="no_data">Aucune donnée</string>
     <string name="sale_success">Vente enregistrée</string>

@@ -1,7 +1,6 @@
 package com.nouvelleeve.pharmacie
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
@@ -17,7 +16,18 @@ import java.util.Locale
 object PdfExporter {
 
     fun exportRapport(context: Context, title: String, report: JSONObject): Uri {
-        val lines = buildLines(title, report)
+        val lines = buildReportLines(title, report)
+        return writePdf(context, "rapport_${System.currentTimeMillis()}.pdf", title, lines)
+    }
+
+    fun exportRecu(context: Context, recu: JSONObject): Uri {
+        val vente = recu.optJSONObject("vente") ?: JSONObject()
+        val title = "Reçu ${vente.optString("numero")}"
+        val lines = RecuActivity.formatRecuText(recu).lines()
+        return writePdf(context, "recu_${vente.optString("numero")}.pdf", title, lines)
+    }
+
+    private fun writePdf(context: Context, fileName: String, title: String, lines: List<String>): Uri {
         val document = PdfDocument()
         val pageWidth = 595
         val pageHeight = 842
@@ -62,7 +72,6 @@ object PdfExporter {
         document.finishPage(page)
 
         val dir = File(context.cacheDir, "reports").apply { mkdirs() }
-        val fileName = "rapport_${System.currentTimeMillis()}.pdf"
         val file = File(dir, fileName)
         FileOutputStream(file).use { document.writeTo(it) }
         document.close()
@@ -74,7 +83,7 @@ object PdfExporter {
         )
     }
 
-    private fun buildLines(title: String, report: JSONObject): List<String> {
+    private fun buildReportLines(reportTitle: String, report: JSONObject): List<String> {
         val lines = mutableListOf<String>()
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE)
         lines.add("Pharmacie Nouvelle Eve")
@@ -86,15 +95,30 @@ object PdfExporter {
             lines.add("Période : ${periode.optString("debut")} → ${periode.optString("fin")}")
         }
 
+        report.optDouble("taux_usd_cdf").takeIf { it > 0 }?.let {
+            lines.add("Taux : 1 USD = ${String.format(Locale.FRANCE, "%,.0f", it)} FC")
+        }
+
         val totaux = report.optJSONObject("totaux")
         if (totaux != null) {
             lines.add("")
             lines.add("--- TOTAUX ---")
             lines.add("Nombre de ventes : ${totaux.optInt("nb_ventes")}")
-            lines.add("Total CDF : ${formatNum(totaux.optDouble("cdf_brut"))} FC")
-            lines.add("Total USD : $${formatNum(totaux.optDouble("usd_brut"))}")
-            lines.add("Converti CDF : ${formatNum(totaux.optDouble("cdf_converti"))} FC")
-            lines.add("Converti USD : $${formatNum(totaux.optDouble("usd_converti"))}")
+            lines.add("Total CDF brut : ${formatNum(totaux.optDouble("cdf_brut"))} FC")
+            lines.add("Total USD brut : $${formatNum(totaux.optDouble("usd_brut"))}")
+            lines.add("Total converti CDF : ${formatNum(totaux.optDouble("cdf_converti"))} FC")
+            lines.add("Total converti USD : $${formatNum(totaux.optDouble("usd_converti"))}")
+        }
+
+        val parDevise = report.optJSONArray("par_devise")
+        if (parDevise != null && parDevise.length() > 0) {
+            lines.add("")
+            lines.add("--- PAR DEVISE ---")
+            for (i in 0 until parDevise.length()) {
+                val row = parDevise.getJSONObject(i)
+                lines.add("${row.optString("devise")} : ${row.optInt("nb_ventes")} ventes | ${formatNum(row.optDouble("total"))}")
+                lines.add("  Équiv. ${formatNum(row.optDouble("equivalent_cdf"))} FC / $${formatNum(row.optDouble("equivalent_usd"))}")
+            }
         }
 
         val ventes = report.optJSONArray("ventes")
@@ -103,10 +127,11 @@ object PdfExporter {
             lines.add("--- DÉTAIL DES VENTES ---")
             for (i in 0 until ventes.length()) {
                 val v = ventes.getJSONObject(i)
-                val montant = v.optDouble("montant_total")
                 val devise = v.optString("devise", "CDF")
+                val montant = v.optDouble("montant_total")
                 val montantStr = if (devise == "USD") "$${formatNum(montant)}" else "${formatNum(montant)} FC"
                 lines.add("${v.optString("numero")} | ${v.optString("date_vente")} | $montantStr")
+                lines.add("  ${v.optString("details", "—")}")
                 lines.add("  Client: ${v.optString("client_nom", "—")} | Vendeur: ${v.optString("vendeur")}")
             }
         }

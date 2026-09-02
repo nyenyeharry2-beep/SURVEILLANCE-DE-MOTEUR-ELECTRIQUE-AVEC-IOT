@@ -57,7 +57,13 @@ class ApiClient(
         return execute("GET", url, null)
     }
 
-    suspend fun createVente(medicamentId: Int, quantite: Int, devise: String, clientNom: String): JSONObject {
+    suspend fun createVente(
+        medicamentId: Int,
+        quantite: Int,
+        devise: String,
+        clientNom: String,
+        notes: String = ""
+    ): JSONObject {
         return execute(
             "POST",
             "${ApiConfig.BASE}/ventes.php",
@@ -66,9 +72,21 @@ class ApiClient(
                 put("quantite", quantite)
                 put("devise", devise)
                 put("client_nom", clientNom)
+                if (notes.isNotBlank()) put("notes", notes)
             }
         )
     }
+
+    suspend fun getHistoriqueVentes(date: String? = null, limit: Int = 50): JSONObject {
+        val params = buildString {
+            append("${ApiConfig.BASE}/ventes.php?liste=1&limit=$limit")
+            if (!date.isNullOrBlank()) append("&date=${encode(date)}")
+        }
+        return execute("GET", params, null)
+    }
+
+    suspend fun getRecu(venteId: Int): JSONObject =
+        execute("GET", "${ApiConfig.BASE}/recu.php?id=$venteId", null)
 
     suspend fun rapportJour(date: String): JSONObject =
         execute("GET", "${ApiConfig.BASE}/rapports.php?type=jour&date=$date", null)

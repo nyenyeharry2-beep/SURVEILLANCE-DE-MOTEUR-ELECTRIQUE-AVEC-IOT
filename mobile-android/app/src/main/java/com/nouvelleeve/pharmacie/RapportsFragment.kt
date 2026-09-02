@@ -2,9 +2,6 @@ package com.nouvelleeve.pharmacie
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -25,12 +22,16 @@ class RapportsFragment : Fragment() {
     private var currentReport: JSONObject? = null
     private var currentTitle: String = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: Bundle?
+    ): android.view.View {
         _binding = FragmentRapportsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnRapportJour.setOnClickListener { loadJour() }
@@ -45,7 +46,7 @@ class RapportsFragment : Fragment() {
 
     private fun loadJour() {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().time)
-        currentTitle = "Rapport du jour — $date"
+        currentTitle = getString(R.string.end_of_day) + " — $date"
         loadReport {
             mainActivity().api().rapportJour(date)
         }
@@ -80,34 +81,71 @@ class RapportsFragment : Fragment() {
         val sb = StringBuilder()
         val periode = data.optJSONObject("periode")
         if (periode != null) {
-            sb.append("Période: ${periode.optString("debut")} → ${periode.optString("fin")}\n\n")
+            sb.append("Période: ${periode.optString("debut")}")
+            if (periode.optString("debut") != periode.optString("fin")) {
+                sb.append(" → ${periode.optString("fin")}")
+            }
+            sb.append("\n\n")
+        }
+
+        data.optDouble("taux_usd_cdf").takeIf { it > 0 }?.let {
+            sb.append("Taux: 1 USD = ${String.format(Locale.FRANCE, "%,.0f", it)} FC\n\n")
         }
 
         val totaux = data.optJSONObject("totaux")
         if (totaux != null) {
-            sb.append("═══ TOTAUX ═══\n")
-            sb.append("Ventes: ${totaux.optInt("nb_ventes")}\n")
-            sb.append("CDF: ${totaux.optDouble("cdf_brut")} FC\n")
-            sb.append("USD: $${totaux.optDouble("usd_brut")}\n")
-            sb.append("Converti CDF: ${totaux.optDouble("cdf_converti")} FC\n")
-            sb.append("Converti USD: $${totaux.optDouble("usd_converti")}\n\n")
+            sb.append("═══ TOTAUX VENTES ═══\n")
+            sb.append("Nombre: ${totaux.optInt("nb_ventes")}\n")
+            sb.append("CDF direct: ${formatNum(totaux.optDouble("cdf_brut"))} FC\n")
+            sb.append("USD direct: $${formatNum(totaux.optDouble("usd_brut"))}\n")
+            sb.append("TOTAL CDF: ${formatNum(totaux.optDouble("cdf_converti"))} FC\n")
+            sb.append("TOTAL USD: $${formatNum(totaux.optDouble("usd_converti"))}\n\n")
+        }
+
+        val parDevise = data.optJSONArray("par_devise")
+        if (parDevise != null && parDevise.length() > 0) {
+            sb.append("═══ PAR DEVISE ═══\n")
+            for (i in 0 until parDevise.length()) {
+                val row = parDevise.getJSONObject(i)
+                sb.append("${row.optString("devise")}: ${row.optInt("nb_ventes")} ventes | ")
+                sb.append("${formatNum(row.optDouble("total"))}\n")
+                sb.append("  → ${formatNum(row.optDouble("equivalent_cdf"))} FC / $${formatNum(row.optDouble("equivalent_usd"))}\n")
+            }
+            sb.append("\n")
         }
 
         val ventes = data.optJSONArray("ventes")
         if (ventes != null && ventes.length() > 0) {
-            sb.append("═══ VENTES ═══\n")
+            sb.append("═══ DÉTAIL DES VENTES ═══\n")
             for (i in 0 until ventes.length()) {
                 val v = ventes.getJSONObject(i)
+                val devise = v.optString("devise", "CDF")
+                val montant = v.optDouble("montant_total")
+                val montantStr = if (devise == "USD") "$${formatNum(montant)}" else "${formatNum(montant)} FC"
                 sb.append("${v.optString("numero")}\n")
-                sb.append("  ${v.optString("date_vente")} | ${v.optDouble("montant_total")} ${v.optString("devise")}\n")
-                sb.append("  ${v.optString("client_nom", "Client comptant")}\n\n")
+                sb.append("  ${formatDate(v.optString("date_vente"))} | $montantStr\n")
+                sb.append("  ${v.optString("details", "—")}\n")
+                sb.append("  Client: ${v.optString("client_nom", "—")} | Vendeur: ${v.optString("vendeur")}\n")
+                sb.append("  Équiv: ${formatNum(v.optDouble("montant_cdf"))} FC / $${formatNum(v.optDouble("montant_usd"))}\n\n")
             }
         } else {
-            sb.append("Aucune vente sur cette période.")
+            sb.append(getString(R.string.no_sales))
         }
 
         return sb.toString()
     }
+
+    private fun formatDate(raw: String): String {
+        return try {
+            val parsed = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(raw.substring(0, 19))
+            SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(parsed!!)
+        } catch (_: Exception) {
+            raw
+        }
+    }
+
+    private fun formatNum(value: Double): String =
+        String.format(Locale.FRANCE, "%,.2f", value)
 
     private fun exportPdf() {
         val report = currentReport
