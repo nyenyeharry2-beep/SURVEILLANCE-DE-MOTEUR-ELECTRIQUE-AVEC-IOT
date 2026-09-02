@@ -31,6 +31,6 @@ class SessionManager(context: Context) {
         private const val KEY_TOKEN = "token"
         private const val KEY_USER_NAME = "user_name"
         private const val LEGACY_SERVER_KEY = "server_url"
-        const val API_URL = "https://mapharmaciepk.xo.je/api/"
+        const val API_URL = "https://mapharmaciepk.xo.je/api/index.php"
     }
 }

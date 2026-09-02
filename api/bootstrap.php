@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined('NOUVELLE_EVE_API')) {
+    define('NOUVELLE_EVE_API', true);
+}
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -57,8 +61,32 @@ function apiRoute(): string
     return trim($uri, '/');
 }
 
+function ensureApiSchema(PDO $db): void
+{
+    static $ready = false;
+    if ($ready) {
+        return;
+    }
+
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS api_tokens (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            token VARCHAR(64) NOT NULL UNIQUE,
+            expires_at DATETIME NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+            INDEX idx_token (token),
+            INDEX idx_expires (expires_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ');
+
+    $ready = true;
+}
+
 function createApiToken(PDO $db, int $userId): string
 {
+    ensureApiSchema($db);
     $token = bin2hex(random_bytes(32));
     $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
 

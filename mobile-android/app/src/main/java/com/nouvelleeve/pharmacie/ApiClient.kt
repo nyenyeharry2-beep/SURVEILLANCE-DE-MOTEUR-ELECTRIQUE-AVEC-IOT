@@ -58,12 +58,36 @@ class ApiClient(private val baseUrl: String, private val token: String? = null) 
     private fun post(path: String, body: JSONObject, auth: Boolean = true): JSONObject =
         request("POST", path, body, auth)
 
+    private fun buildUrl(path: String): URL {
+        val trimmed = path.trimStart('/')
+        val qIndex = trimmed.indexOf('?')
+        val route = if (qIndex >= 0) trimmed.substring(0, qIndex) else trimmed
+        val extraQuery = if (qIndex >= 0) trimmed.substring(qIndex + 1) else ""
+
+        val base = baseUrl.trimEnd('/')
+        val apiBase = when {
+            base.endsWith("index.php") -> base
+            base.endsWith("/api") -> "$base/index.php"
+            else -> "$base/index.php"
+        }
+
+        val urlBuilder = StringBuilder(apiBase)
+            .append("?route=")
+            .append(URLEncoder.encode(route, "UTF-8"))
+
+        if (extraQuery.isNotEmpty()) {
+            urlBuilder.append('&').append(extraQuery)
+        }
+
+        return URL(urlBuilder.toString())
+    }
+
     private fun request(method: String, path: String, body: JSONObject?, auth: Boolean = true): JSONObject {
-        val url = URL(baseUrl.trimEnd('/') + "/" + path.trimStart('/'))
+        val url = buildUrl(path)
         val conn = (url.openConnection() as HttpURLConnection).apply {
             requestMethod = method
-            connectTimeout = 20000
-            readTimeout = 20000
+            connectTimeout = 25000
+            readTimeout = 25000
             setRequestProperty("Content-Type", "application/json; charset=utf-8")
             setRequestProperty("Accept", "application/json")
             if (auth && !token.isNullOrBlank()) {
@@ -78,13 +102,18 @@ class ApiClient(private val baseUrl: String, private val token: String? = null) 
 
         val responseCode = conn.responseCode
         val stream = if (responseCode in 200..299) conn.inputStream else conn.errorStream
-        val text = BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
+        val text = BufferedReader(InputStreamReader(stream ?: conn.inputStream, Charsets.UTF_8)).use { it.readText() }
         conn.disconnect()
 
         val json = try {
             JSONObject(text)
         } catch (_: Exception) {
-            throw ApiException(responseCode, "Réponse serveur invalide")
+            val message = when {
+                text.isBlank() -> "Serveur injoignable. Vérifiez Internet."
+                text.trimStart().startsWith("<") -> "API non installée. Mettez à jour le site (dossier api/) sur InfinityFree."
+                else -> "Réponse serveur invalide"
+            }
+            throw ApiException(responseCode, message)
         }
 
         if (!json.optBoolean("success", false)) {

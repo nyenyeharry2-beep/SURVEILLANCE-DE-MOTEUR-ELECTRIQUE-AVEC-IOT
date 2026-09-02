@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
 
-$db = getDB();
+try {
+    $db = getDB();
+    ensureApiSchema($db);
+} catch (Throwable $e) {
+    apiError('Connexion base de données impossible.', 500);
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $route = apiRoute();
 
 try {
+    if ($route === 'ping' && $method === 'GET') {
+        apiJson(true, ['status' => 'ok', 'version' => '1.0'], 'API active.');
+    }
+
     if ($route === 'auth/login' && $method === 'POST') {
         $body = apiBody();
         $email = trim($body['email'] ?? '');
