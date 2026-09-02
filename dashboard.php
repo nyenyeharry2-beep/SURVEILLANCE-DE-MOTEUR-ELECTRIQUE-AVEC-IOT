@@ -9,9 +9,10 @@ $stats = [
     'stock_faible' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND quantite_stock <= seuil_alerte')->fetchColumn(),
     'expires_bientot' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND date_expiration >= CURDATE()")->fetchColumn(),
     'expires' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration < CURDATE()")->fetchColumn(),
-    'ventes_jour' => (float) $db->query('SELECT COALESCE(SUM(montant_total), 0) FROM ventes WHERE DATE(date_vente) = CURDATE()')->fetchColumn(),
-    'ventes_mois' => (float) $db->query('SELECT COALESCE(SUM(montant_total), 0) FROM ventes WHERE MONTH(date_vente) = MONTH(CURDATE()) AND YEAR(date_vente) = YEAR(CURDATE())')->fetchColumn(),
 ];
+
+$ventesJour = sommeVentesDual($db, 'DATE(date_vente) = CURDATE()');
+$ventesMois = sommeVentesDual($db, 'MONTH(date_vente) = MONTH(CURDATE()) AND YEAR(date_vente) = YEAR(CURDATE())');
 
 $alertesStock = $db->query('
     SELECT m.*, c.nom AS categorie_nom
@@ -86,29 +87,31 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-lg-3">
+    <div class="col-md-6 col-lg-3">
         <div class="card stat-card h-100">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-cash-coin"></i>
-                </div>
-                <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
                     <div class="text-muted small">Ventes aujourd'hui</div>
-                    <div class="h5 mb-0"><?= formatMoney($stats['ventes_jour']) ?></div>
                 </div>
+                <div class="h6 mb-0"><?= formatCDF((float) $ventesJour['total_cdf']) ?></div>
+                <div class="h6 mb-0 text-primary"><?= formatUSD((float) $ventesJour['total_usd']) ?></div>
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-lg-3">
+    <div class="col-md-6 col-lg-3">
         <div class="card stat-card h-100">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="stat-icon bg-info bg-opacity-10 text-info">
-                    <i class="bi bi-graph-up"></i>
-                </div>
-                <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
                     <div class="text-muted small">Ventes ce mois</div>
-                    <div class="h5 mb-0"><?= formatMoney($stats['ventes_mois']) ?></div>
                 </div>
+                <div class="h6 mb-0"><?= formatCDF((float) $ventesMois['total_cdf']) ?></div>
+                <div class="h6 mb-0 text-primary"><?= formatUSD((float) $ventesMois['total_usd']) ?></div>
             </div>
         </div>
     </div>
@@ -181,7 +184,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong><i class="bi bi-receipt me-1"></i> Dernières ventes</strong>
-                <a href="ventes.php" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                <a href="rapports.php" class="btn btn-sm btn-outline-primary">Rapports</a>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($dernieresVentes)): ?>
@@ -189,15 +192,17 @@ require_once __DIR__ . '/includes/header.php';
                 <?php else: ?>
                 <div class="table-responsive">
                     <table class="table mb-0">
-                        <thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Vendeur</th><th>Montant</th></tr></thead>
+                        <thead><tr><th>N°</th><th>Date</th><th>Client</th><th>Devise</th><th>Montant</th><th>Équivalent</th></tr></thead>
                         <tbody>
                         <?php foreach ($dernieresVentes as $v): ?>
+                        <?php $devise = normalizeDevise($v['devise'] ?? 'CDF'); ?>
                         <tr>
                             <td><?= e($v['numero']) ?></td>
                             <td><?= date('d/m/Y H:i', strtotime($v['date_vente'])) ?></td>
                             <td><?= e($v['client_nom'] ?: '—') ?></td>
-                            <td><?= e($v['vendeur']) ?></td>
-                            <td><?= formatMoney((float) $v['montant_total']) ?></td>
+                            <td><span class="badge bg-secondary"><?= e($devise) ?></span></td>
+                            <td><?= formatMoney((float) $v['montant_total'], $devise) ?></td>
+                            <td><small><?= formatDualMoney((float) $v['montant_total'], $devise) ?></small></td>
                         </tr>
                         <?php endforeach; ?>
                         </tbody>

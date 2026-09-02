@@ -94,6 +94,26 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<?php foreach ($utilisateurs as $u): ?>
+<div class="modal fade" id="pwdModal<?= $u['id'] ?>" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+                <input type="hidden" name="action" value="reset_password">
+                <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                <div class="modal-header"><h5 class="modal-title">Réinitialiser le mot de passe</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <p>Utilisateur : <strong><?= e($u['nom']) ?></strong></p>
+                    <input type="password" name="password" class="form-control" placeholder="Nouveau mot de passe" required minlength="6">
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endforeach; ?>
+
 <div class="modal fade" id="userModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">

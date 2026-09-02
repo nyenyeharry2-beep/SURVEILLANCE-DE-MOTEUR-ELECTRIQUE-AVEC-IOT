@@ -119,7 +119,10 @@ require_once __DIR__ . '/includes/header.php';
                 <td><code><?= e($m['code']) ?></code></td>
                 <td><?= e($m['nom']) ?></td>
                 <td><?= e($m['categorie_nom'] ?? '—') ?></td>
-                <td><?= formatMoney((float) $m['prix_vente']) ?></td>
+                <td>
+                    <?= formatCDF((float) $m['prix_vente']) ?>
+                    <br><small class="text-muted"><?= formatUSD(convertirDevise((float) $m['prix_vente'], 'CDF', 'USD')) ?></small>
+                </td>
                 <td>
                     <?php if ($m['quantite_stock'] <= $m['seuil_alerte']): ?>
                     <span class="badge bg-danger"><?= $m['quantite_stock'] ?></span>

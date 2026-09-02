@@ -132,7 +132,7 @@ require_once __DIR__ . '/includes/header.php';
                         <td><?= formatDate($a['date_achat']) ?></td>
                         <td><?= e($a['fournisseur_nom'] ?: '—') ?></td>
                         <td><?= e($a['utilisateur_nom']) ?></td>
-                        <td><?= formatMoney((float) $a['montant_total']) ?></td>
+                        <td><?= formatCDF((float) $a['montant_total']) ?><br><small class="text-muted"><?= formatUSD(convertirDevise((float) $a['montant_total'], 'CDF', 'USD')) ?></small></td>
                         <td><?= e($a['notes'] ?: '—') ?></td>
                     </tr>
                     <?php endforeach; ?>

@@ -12,6 +12,12 @@ define('DB_CHARSET', 'utf8mb4');
 
 define('APP_NAME', 'PharmaGest');
 define('APP_URL', 'https://votre-site.infinityfreeapp.com'); // URL de votre site
-define('TIMEZONE', 'Africa/Abidjan'); // Ajustez selon votre fuseau horaire
+define('TIMEZONE', 'Africa/Kinshasa'); // Fuseau horaire RDC
+
+// 1 USD = X Francs Congolais (CDF)
+define('TAUX_USD_CDF', 2850);
+
+// Devise par défaut pour les prix des médicaments
+define('DEVISE_DEFAUT', 'CDF');
 
 date_default_timezone_set(TIMEZONE);

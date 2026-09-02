@@ -43,9 +43,84 @@ function verifyCsrf(): void
     }
 }
 
-function formatMoney(float $amount): string
+function getTauxUsdCdf(): float
 {
-    return number_format($amount, 0, ',', ' ') . ' FCFA';
+    return defined('TAUX_USD_CDF') ? (float) TAUX_USD_CDF : 2850.0;
+}
+
+function normalizeDevise(string $devise): string
+{
+    return strtoupper($devise) === 'USD' ? 'USD' : 'CDF';
+}
+
+function convertirDevise(float $montant, string $de, string $vers): float
+{
+    $de = normalizeDevise($de);
+    $vers = normalizeDevise($vers);
+
+    if ($de === $vers) {
+        return $montant;
+    }
+
+    $taux = getTauxUsdCdf();
+
+    if ($de === 'USD' && $vers === 'CDF') {
+        return $montant * $taux;
+    }
+
+    return $montant / $taux;
+}
+
+function formatCDF(float $amount): string
+{
+    return number_format($amount, 0, ',', ' ') . ' FC';
+}
+
+function formatUSD(float $amount): string
+{
+    return '$' . number_format($amount, 2, ',', ' ');
+}
+
+function formatMoney(float $amount, string $devise = 'CDF'): string
+{
+    return normalizeDevise($devise) === 'USD' ? formatUSD($amount) : formatCDF($amount);
+}
+
+function formatDualMoney(float $amount, string $devise): string
+{
+    $devise = normalizeDevise($devise);
+    $cdf = convertirDevise($amount, $devise, 'CDF');
+    $usd = convertirDevise($amount, $devise, 'USD');
+
+    return formatCDF($cdf) . ' / ' . formatUSD($usd);
+}
+
+function sommeVentesDual(PDO $db, string $whereSql = '1=1', array $params = []): array
+{
+    $taux = getTauxUsdCdf();
+    $sql = "
+        SELECT
+            COALESCE(SUM(CASE WHEN COALESCE(devise, 'CDF') = 'CDF' THEN montant_total ELSE 0 END), 0) AS total_cdf_brut,
+            COALESCE(SUM(CASE WHEN COALESCE(devise, 'CDF') = 'USD' THEN montant_total ELSE 0 END), 0) AS total_usd_brut,
+            COALESCE(SUM(
+                CASE WHEN COALESCE(devise, 'CDF') = 'CDF' THEN montant_total ELSE montant_total * ?
+            END), 0) AS total_cdf,
+            COALESCE(SUM(
+                CASE WHEN COALESCE(devise, 'CDF') = 'USD' THEN montant_total ELSE montant_total / ?
+            END), 0) AS total_usd
+        FROM ventes
+        WHERE {$whereSql}
+    ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute(array_merge([$taux, $taux], $params));
+
+    return $stmt->fetch() ?: [
+        'total_cdf_brut' => 0,
+        'total_usd_brut' => 0,
+        'total_cdf' => 0,
+        'total_usd' => 0,
+    ];
 }
 
 function formatDate(?string $date): string

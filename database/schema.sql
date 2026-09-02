@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS ventes (
     client_nom VARCHAR(150),
     date_vente DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     montant_total DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    devise ENUM('CDF', 'USD') NOT NULL DEFAULT 'CDF',
     notes TEXT,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

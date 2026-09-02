@@ -52,6 +52,11 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link text-white <?= $currentPage === 'rapports' ? 'active' : '' ?>" href="rapports.php">
+                    <i class="bi bi-bar-chart me-2"></i> Rapports
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-white <?= $currentPage === 'stock' ? 'active' : '' ?>" href="stock.php">
                     <i class="bi bi-exclamation-triangle me-2"></i> Alertes stock
                 </a>
