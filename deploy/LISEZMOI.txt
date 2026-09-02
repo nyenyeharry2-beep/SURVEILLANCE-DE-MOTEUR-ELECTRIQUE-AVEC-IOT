@@ -10,7 +10,8 @@ APPLICATION MOBILE VENDEUR (APK) :
 - Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
 - Connexion : email + mot de passe seulement (URL déjà intégrée)
 - Fonctions : Ventes, Stock, Rapports, Alertes
-- Version 1.2.0 — désinstallez l’ancienne app avant d’installer
+- Version 1.3.2 — désinstallez l’ancienne app avant d’installer
+- En bas de l’écran de connexion vous devez voir « Version 1.3.2 »
 - Créez un compte vendeur (caissier) dans Utilisateurs sur le site web
 
 Connexion :

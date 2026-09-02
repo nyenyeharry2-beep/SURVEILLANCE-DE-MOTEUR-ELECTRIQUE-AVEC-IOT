@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.textVersion.text = "Version 1.3.1"
+        binding.textVersion.text = "Version 1.3.2"
 
         lifecycleScope.launch {
             binding.textLoginError.visibility = View.GONE
@@ -55,8 +55,9 @@ class LoginActivity : AppCompatActivity() {
                     goMain()
                 } catch (e: ApiException) {
                     showError(e.message ?: getString(R.string.login_error))
-                } catch (_: Exception) {
-                    showError(getString(R.string.login_network_error))
+                } catch (e: Exception) {
+                    val detail = e.message?.takeIf { it.isNotBlank() }
+                    showError(detail ?: getString(R.string.login_network_error))
                 } finally {
                     binding.btnLogin.isEnabled = true
                     binding.btnLogin.text = getString(R.string.btn_login)

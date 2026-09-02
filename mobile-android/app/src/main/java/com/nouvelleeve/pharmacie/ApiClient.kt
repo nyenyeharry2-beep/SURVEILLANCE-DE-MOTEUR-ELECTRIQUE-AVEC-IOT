@@ -1,6 +1,8 @@
 package com.nouvelleeve.pharmacie
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -85,13 +87,18 @@ class ApiClient(
         urlString: String,
         body: JSONObject?,
         auth: Boolean = true
-    ): JSONObject {
-        cookieHelper.ensureCookie()
+    ): JSONObject = withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
+            cookieHelper.ensureCookie()
+        }
+
         var result = rawRequest(method, urlString, body, auth)
 
         if (InfinityFreeChallenge.isChallenge(result.body)) {
             if (!InfinityFreeChallenge.solveAndStore(result.body)) {
-                cookieHelper.ensureCookie()
+                withContext(Dispatchers.Main) {
+                    cookieHelper.ensureCookie()
+                }
             }
             result = rawRequest(method, urlString, body, auth)
         }
@@ -102,7 +109,7 @@ class ApiClient(
             }
         }
 
-        return parseResponse(result.code, result.body)
+        parseResponse(result.code, result.body)
     }
 
     private data class HttpResult(val code: Int, val body: String)
@@ -137,7 +144,7 @@ class ApiClient(
         if (InfinityFreeChallenge.isChallenge(text)) {
             throw ApiException(
                 responseCode,
-                "Connexion bloquée par InfinityFree. Installez l'APK v1.3.1 et réessayez."
+                "Connexion bloquée par InfinityFree. Réessayez dans 5 secondes."
             )
         }
 
