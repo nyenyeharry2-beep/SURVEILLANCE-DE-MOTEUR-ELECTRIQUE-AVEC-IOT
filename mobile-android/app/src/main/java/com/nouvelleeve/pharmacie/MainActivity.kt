@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_ventes -> showFragment(VentesFragment())
+                R.id.nav_caisse -> showFragment(CaisseFragment())
                 R.id.nav_stock -> showFragment(StockFragment())
                 R.id.nav_rapports -> showFragment(RapportsFragment())
                 R.id.nav_alertes -> showFragment(AlertesFragment())

@@ -191,6 +191,22 @@ try {
         ]);
     }
 
+    if ($route === 'caisse' && $method === 'GET') {
+        requireApiAuth($db);
+        $date = trim($_GET['date'] ?? '') ?: date('Y-m-d');
+        apiJson(true, [
+            'date' => $date,
+            'resume' => resumeCaisseJour($db, $date),
+            'mouvements' => fetchMouvementsCaisse($db, $date),
+        ]);
+    }
+
+    if ($route === 'caisse' && $method === 'POST') {
+        $user = requireApiAuth($db);
+        $result = createMouvementCaisse($db, $user, apiBody());
+        apiJson(true, $result, 'Mouvement enregistré.');
+    }
+
     apiError('Route introuvable : ' . $route, 404);
 } catch (Throwable $e) {
     apiError('Erreur serveur.', 500);

@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/caisse.php';
 
 function apiEnsureSession(): void
 {
@@ -168,6 +169,8 @@ function ensureApiSchema(PDO $db): void
             INDEX idx_expires (expires_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ');
+
+    ensureCaisseTable($db);
 
     $ready = true;
 }
@@ -475,7 +478,7 @@ function reportSummary(PDO $db, string $debut, string $fin): array
     $stmt->execute([$debut, $fin]);
     $ventes = array_map('enrichVenteRow', $stmt->fetchAll());
 
-    return [
+    $result = [
         'periode' => ['debut' => $debut, 'fin' => $fin],
         'taux_usd_cdf' => $taux,
         'totaux' => [
@@ -488,6 +491,13 @@ function reportSummary(PDO $db, string $debut, string $fin): array
         'par_devise' => $parDevise,
         'ventes' => $ventes,
     ];
+
+    if ($debut === $fin) {
+        $result['caisse'] = resumeCaisseJour($db, $debut);
+        $result['mouvements_caisse'] = fetchMouvementsCaisse($db, $debut);
+    }
+
+    return $result;
 }
 
 function fetchAlertes(PDO $db, string $type): array

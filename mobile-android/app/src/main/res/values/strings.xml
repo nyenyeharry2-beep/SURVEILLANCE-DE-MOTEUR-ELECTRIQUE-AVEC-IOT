@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">Nouvelle Eve Vendeur</string>
-    <string name="login_subtitle">Ventes · Reçus · Rapports · Stock</string>
+    <string name="login_subtitle">Ventes · Caisse · Stock · Rapports</string>
+    <string name="nav_caisse">Caisse</string>
+    <string name="new_cash_movement">Nouveau mouvement</string>
+    <string name="cash_in">Entrée (+)</string>
+    <string name="cash_out">Sortie (-)</string>
+    <string name="amount_hint">Montant</string>
+    <string name="motif_hint">Motif (obligatoire)</string>
+    <string name="save_movement">Enregistrer</string>
+    <string name="today_movements">Mouvements du jour</string>
+    <string name="amount_required">Montant obligatoire</string>
+    <string name="motif_required">Motif obligatoire pour la sortie</string>
+    <string name="movement_saved">Mouvement enregistré</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Mot de passe</string>
     <string name="btn_login">Se connecter</string>

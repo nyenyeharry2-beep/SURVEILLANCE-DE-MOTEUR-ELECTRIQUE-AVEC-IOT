@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayout
 import com.nouvelleeve.pharmacie.databinding.FragmentVentesBinding
 import com.nouvelleeve.pharmacie.databinding.ItemMedicamentSearchBinding

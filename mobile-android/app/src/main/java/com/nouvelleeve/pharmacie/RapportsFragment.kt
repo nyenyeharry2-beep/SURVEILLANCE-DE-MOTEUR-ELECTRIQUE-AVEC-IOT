@@ -132,6 +132,28 @@ class RapportsFragment : Fragment() {
             sb.append(getString(R.string.no_sales))
         }
 
+        val caisse = data.optJSONObject("caisse")
+        if (caisse != null) {
+            sb.append("\n═══ ENTRÉES / SORTIES CAISSE ═══\n")
+            sb.append("Entrées: ${formatNum(caisse.optDouble("entrees_cdf"))} FC\n")
+            sb.append("Sorties: ${formatNum(caisse.optDouble("sorties_cdf"))} FC\n")
+            sb.append("Solde: ${formatNum(caisse.optDouble("solde_cdf"))} FC\n")
+        }
+
+        val mouvements = data.optJSONArray("mouvements_caisse")
+        if (mouvements != null && mouvements.length() > 0) {
+            sb.append("\n--- Motifs des mouvements ---\n")
+            for (i in 0 until mouvements.length()) {
+                val m = mouvements.getJSONObject(i)
+                val sign = if (m.optString("type") == "entree") "+" else "-"
+                val devise = m.optString("devise", "CDF")
+                val montant = m.optDouble("montant")
+                val montantStr = if (devise == "USD") "$${formatNum(montant)}" else "${formatNum(montant)} FC"
+                sb.append("$sign $montantStr | ${m.optString("motif")}\n")
+                sb.append("  ${formatDate(m.optString("date_mouvement"))} | ${m.optString("vendeur")}\n")
+            }
+        }
+
         return sb.toString()
     }
 

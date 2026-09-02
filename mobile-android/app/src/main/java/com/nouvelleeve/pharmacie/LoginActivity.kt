@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.textVersion.text = "Version 1.4.4"
+        binding.textVersion.text = "Version 1.5.0"
 
         lifecycleScope.launch {
             binding.textLoginError.visibility = View.GONE

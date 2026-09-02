@@ -118,6 +118,32 @@ class ApiClient(
     suspend fun getAlertes(type: String = "all"): JSONObject =
         execute("GET", withAuthQuery("${ApiConfig.BASE}/alertes.php?type=${encode(type)}"), null)
 
+    suspend fun getCaisse(date: String? = null): JSONObject {
+        val url = buildString {
+            append("${ApiConfig.BASE}/caisse.php")
+            if (!date.isNullOrBlank()) append("?date=${encode(date)}")
+        }
+        return execute("GET", withAuthQuery(url), null)
+    }
+
+    suspend fun createMouvementCaisse(
+        type: String,
+        montant: Double,
+        devise: String,
+        motif: String
+    ): JSONObject {
+        return execute(
+            "POST",
+            withAuthQuery("${ApiConfig.BASE}/caisse.php"),
+            JSONObject().apply {
+                put("type", type)
+                put("montant", montant)
+                put("devise", devise)
+                put("motif", motif)
+            }
+        )
+    }
+
     private fun encode(value: String): String =
         java.net.URLEncoder.encode(value, Charsets.UTF_8.name())
 
