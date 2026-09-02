@@ -9,7 +9,8 @@ NOUVELLE EVE — Fichiers pour InfinityFree File Manager
 APPLICATION MOBILE VENDEUR (APK) :
 - Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
 - Connexion : email + mot de passe seulement (URL déjà intégrée)
-- Fonctions : Ventes, Rapports, Alertes
+- Fonctions : Ventes, Stock, Rapports, Alertes
+- Version 1.2.0 — désinstallez l’ancienne app avant d’installer
 - Créez un compte vendeur (caissier) dans Utilisateurs sur le site web
 
 Connexion :
