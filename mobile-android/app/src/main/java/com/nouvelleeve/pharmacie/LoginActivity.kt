@@ -24,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.textVersion.text = "Version 1.4.0"
+        binding.textVersion.text = "Version 1.4.1"
 
         lifecycleScope.launch {
             binding.textLoginError.visibility = View.GONE
@@ -50,7 +50,12 @@ class LoginActivity : AppCompatActivity() {
                 try {
                     binding.btnLogin.text = getString(R.string.connecting)
                     val data = ApiClient(applicationContext).login(email, password)
-                    session.token = data.optString("token")
+                    val token = data.optString("token").trim()
+                    if (token.isBlank()) {
+                        showError("Connexion échouée : token serveur manquant. Mettez à jour api/ sur le site.")
+                        return@launch
+                    }
+                    session.token = token
                     session.userName = data.optJSONObject("user")?.optString("nom")
                     goMain()
                 } catch (e: ApiException) {

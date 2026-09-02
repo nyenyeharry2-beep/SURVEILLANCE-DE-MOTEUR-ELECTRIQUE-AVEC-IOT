@@ -14,11 +14,15 @@ class SessionManager(context: Context) {
 
     var token: String?
         get() = prefs.getString(KEY_TOKEN, null)
-        set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
+        set(value) {
+            prefs.edit().putString(KEY_TOKEN, value).commit()
+        }
 
     var userName: String?
         get() = prefs.getString(KEY_USER_NAME, null)
-        set(value) = prefs.edit().putString(KEY_USER_NAME, value).apply()
+        set(value) {
+            prefs.edit().putString(KEY_USER_NAME, value).commit()
+        }
 
     fun isLoggedIn(): Boolean = !token.isNullOrBlank()
 

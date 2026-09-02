@@ -9,7 +9,7 @@ if (!defined('NOUVELLE_EVE_API')) {
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -40,12 +40,19 @@ function apiError(string $message, int $code = 400): void
 
 function apiBody(): array
 {
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') {
-        return [];
+        $cached = [];
+        return $cached;
     }
     $data = json_decode($raw, true);
-    return is_array($data) ? $data : [];
+    $cached = is_array($data) ? $data : [];
+    return $cached;
 }
 
 function apiRoute(): string
@@ -97,10 +104,55 @@ function createApiToken(PDO $db, int $userId): string
     return $token;
 }
 
+function apiExtractToken(): ?string
+{
+    $candidates = [];
+
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if ($authHeader !== '' && preg_match('/Bearer\s+(\S+)/i', $authHeader, $m)) {
+        $candidates[] = $m[1];
+    }
+
+    if (!empty($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+        $candidates[] = trim((string) $_SERVER['HTTP_X_AUTH_TOKEN']);
+    }
+
+    if (function_exists('getallheaders')) {
+        foreach (getallheaders() as $name => $value) {
+            $lower = strtolower((string) $name);
+            if ($lower === 'authorization' && preg_match('/Bearer\s+(\S+)/i', (string) $value, $m)) {
+                $candidates[] = $m[1];
+            }
+            if ($lower === 'x-auth-token' && trim((string) $value) !== '') {
+                $candidates[] = trim((string) $value);
+            }
+        }
+    }
+
+    foreach (['token', 'access_token'] as $key) {
+        if (!empty($_GET[$key])) {
+            $candidates[] = trim((string) $_GET[$key]);
+        }
+    }
+
+    $body = apiBody();
+    if (!empty($body['token'])) {
+        $candidates[] = trim((string) $body['token']);
+    }
+
+    foreach ($candidates as $candidate) {
+        if ($candidate !== '') {
+            return $candidate;
+        }
+    }
+
+    return null;
+}
+
 function requireApiAuth(PDO $db): array
 {
-    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (!preg_match('/Bearer\s+(\S+)/i', $header, $m)) {
+    $token = apiExtractToken();
+    if ($token === null) {
         apiError('Token manquant.', 401);
     }
 
@@ -111,7 +163,7 @@ function requireApiAuth(PDO $db): array
         WHERE t.token = ? AND t.expires_at > NOW() AND u.actif = 1
         LIMIT 1
     ');
-    $stmt->execute([$m[1]]);
+    $stmt->execute([$token]);
     $user = $stmt->fetch();
 
     if (!$user) {
