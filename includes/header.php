@@ -16,8 +16,8 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <body>
 <?php if ($user): ?>
 <div class="d-flex" id="wrapper">
-    <nav id="sidebar" class="text-white">
-        <div class="sidebar-brand p-3 border-bottom border-secondary border-opacity-25">
+    <nav id="sidebar" class="sidebar-dark">
+        <div class="sidebar-brand p-3">
             <a href="dashboard.php" class="text-decoration-none">
                 <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo d-block mx-auto">
             </a>
@@ -25,60 +25,60 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         </div>
         <ul class="nav flex-column p-2">
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'dashboard' ? 'active' : '' ?>" href="dashboard.php">
+                <a class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>" href="dashboard.php">
                     <i class="bi bi-speedometer2 me-2"></i> Tableau de bord
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'medicaments' ? 'active' : '' ?>" href="medicaments.php">
+                <a class="nav-link <?= $currentPage === 'medicaments' ? 'active' : '' ?>" href="medicaments.php">
                     <i class="bi bi-box-seam me-2"></i> Médicaments
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'categories' ? 'active' : '' ?>" href="categories.php">
+                <a class="nav-link <?= $currentPage === 'categories' ? 'active' : '' ?>" href="categories.php">
                     <i class="bi bi-tags me-2"></i> Catégories
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'fournisseurs' ? 'active' : '' ?>" href="fournisseurs.php">
+                <a class="nav-link <?= $currentPage === 'fournisseurs' ? 'active' : '' ?>" href="fournisseurs.php">
                     <i class="bi bi-truck me-2"></i> Fournisseurs
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'achats' ? 'active' : '' ?>" href="achats.php">
+                <a class="nav-link <?= $currentPage === 'achats' ? 'active' : '' ?>" href="achats.php">
                     <i class="bi bi-cart-plus me-2"></i> Achats / Entrées
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'ventes' ? 'active' : '' ?>" href="ventes.php">
+                <a class="nav-link <?= $currentPage === 'ventes' ? 'active' : '' ?>" href="ventes.php">
                     <i class="bi bi-receipt me-2"></i> Ventes
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'journal' ? 'active' : '' ?>" href="journal.php">
+                <a class="nav-link <?= $currentPage === 'journal' ? 'active' : '' ?>" href="journal.php">
                     <i class="bi bi-journal-text me-2"></i> Journal quotidien
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'rapports' ? 'active' : '' ?>" href="rapports.php">
+                <a class="nav-link <?= $currentPage === 'rapports' ? 'active' : '' ?>" href="rapports.php">
                     <i class="bi bi-bar-chart me-2"></i> Rapports
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'stock' ? 'active' : '' ?>" href="stock.php">
+                <a class="nav-link <?= $currentPage === 'stock' ? 'active' : '' ?>" href="stock.php">
                     <i class="bi bi-exclamation-triangle me-2"></i> Alertes stock
                 </a>
             </li>
             <?php if ($user['role'] === 'admin'): ?>
             <li class="nav-item">
-                <a class="nav-link text-white <?= $currentPage === 'utilisateurs' ? 'active' : '' ?>" href="utilisateurs.php">
+                <a class="nav-link <?= $currentPage === 'utilisateurs' ? 'active' : '' ?>" href="utilisateurs.php">
                     <i class="bi bi-people me-2"></i> Utilisateurs
                 </a>
             </li>
             <?php endif; ?>
         </ul>
-        <div class="sidebar-footer p-3 mt-auto border-top border-secondary">
-            <small class="text-secondary d-block mb-2"><?= e($user['nom']) ?></small>
+        <div class="sidebar-footer p-3 mt-auto">
+            <small class="user-name d-block mb-2"><?= e($user['nom']) ?></small>
             <a href="logout.php" class="btn btn-outline-light btn-sm w-100">
                 <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
             </a>

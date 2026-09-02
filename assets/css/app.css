@@ -57,11 +57,14 @@ body {
     top: 0;
     height: 100vh;
     overflow-y: auto;
-    background: linear-gradient(180deg, var(--brand-teal-dark) 0%, #0f3540 100%) !important;
+    background-color: #134952 !important;
+    background: linear-gradient(180deg, #134952 0%, #0f3540 100%) !important;
+    color: #ffffff !important;
 }
 
 .sidebar-brand {
     text-align: center;
+    background-color: #0f3540;
 }
 
 .sidebar-brand .app-logo {
@@ -70,39 +73,89 @@ body {
     max-height: 120px;
     object-fit: contain;
     border-radius: 0.5rem;
-    background: #fff;
+    background: #ffffff;
     padding: 0.5rem;
 }
 
-.sidebar-brand .brand-title {
-    font-size: 0.95rem;
-    letter-spacing: 0.05em;
-    margin-top: 0.5rem;
-    color: #e8f5ee;
-}
-
 .sidebar-brand .brand-tagline {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.75rem;
+    color: #b8e6c8 !important;
     font-style: italic;
 }
 
 #sidebar .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
     border-radius: 0.375rem;
     margin-bottom: 0.25rem;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
 }
 
-#sidebar .nav-link:hover,
+#sidebar .nav-link i {
+    color: #7dcea0 !important;
+}
+
+#sidebar .nav-link:hover {
+    background-color: rgba(61, 155, 95, 0.45) !important;
+    color: #ffffff !important;
+}
+
 #sidebar .nav-link.active {
-    background-color: rgba(61, 155, 95, 0.35);
+    background-color: #3d9b5f !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+#sidebar .nav-link.active i {
+    color: #ffffff !important;
 }
 
 .sidebar-footer {
     margin-top: auto;
+    background-color: #0f3540;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.stat-card {
+.sidebar-footer .user-name {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.sidebar-footer .btn-outline-light {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+.sidebar-footer .btn-outline-light:hover {
+    background-color: #3d9b5f !important;
+    border-color: #3d9b5f !important;
+    color: #ffffff !important;
+}
+
+#page-content {
+    background-color: #f0f5f3;
+    color: #212529;
+}
+
+#page-content .card {
+    background-color: #ffffff;
+    color: #212529;
+}
+
+#page-content .text-muted {
+    color: #5a6268 !important;
+}
+
+.stat-card .text-muted {
+    color: #495057 !important;
+    font-weight: 500;
+}
+
+.stat-card .h4,
+.stat-card .h5,
+.stat-card .h6 {
+    color: #212529 !important;
+}
     border: none;
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
