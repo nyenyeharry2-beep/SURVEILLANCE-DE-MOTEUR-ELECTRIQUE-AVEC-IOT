@@ -72,8 +72,8 @@ try {
                   AND (nom LIKE ? OR code LIKE ?)
                 ORDER BY nom LIMIT 100
             ');
-            $like = '%' . $q . '%';
-            $stmt->execute([$like, $like]);
+            $prefix = $q . '%';
+            $stmt->execute([$prefix, $prefix]);
         } else {
             $stmt = $db->query('
                 SELECT id, code, nom, prix_vente, quantite_stock, date_expiration
@@ -98,8 +98,8 @@ try {
                 WHERE m.actif = 1 AND (m.nom LIKE ? OR m.code LIKE ?)
                 ORDER BY m.nom LIMIT 200
             ');
-            $like = '%' . $q . '%';
-            $stmt->execute([$like, $like]);
+            $prefix = $q . '%';
+            $stmt->execute([$prefix, $prefix]);
         } else {
             $stmt = $db->query('
                 SELECT m.id, m.code, m.nom, m.prix_vente, m.quantite_stock, m.seuil_alerte,

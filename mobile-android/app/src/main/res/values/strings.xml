@@ -20,7 +20,11 @@
     <string name="rapport_mois">Rapport du mois</string>
     <string name="tab_new_sale">Nouvelle vente</string>
     <string name="tab_history">Historique</string>
-    <string name="search_medicament">Rechercher médicament</string>
+    <string name="search_medicament">Rechercher (lettre ou nom)</string>
+    <string name="search_med_hint">Tapez une lettre — ex. « P » liste Paracétamol, etc.</string>
+    <string name="selected_med">Sélectionné : %1$s</string>
+    <string name="no_med_for_search">Aucun médicament pour « %1$s »</string>
+    <string name="select_med_first">Choisissez un médicament dans la liste</string>
     <string name="quantity_hint">Quantité</string>
     <string name="client_hint">Client (optionnel)</string>
     <string name="notes_hint">Notes (optionnel)</string>

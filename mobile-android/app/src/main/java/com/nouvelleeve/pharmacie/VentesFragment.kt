@@ -1,20 +1,27 @@
 package com.nouvelleeve.pharmacie
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayout
 import com.nouvelleeve.pharmacie.databinding.FragmentVentesBinding
+import com.nouvelleeve.pharmacie.databinding.ItemMedicamentSearchBinding
 import com.nouvelleeve.pharmacie.databinding.ItemVenteHistoriqueBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -26,6 +33,9 @@ class VentesFragment : Fragment() {
     private var _binding: FragmentVentesBinding? = null
     private val binding get() = _binding!!
     private val medicaments = mutableListOf<JSONObject>()
+    private val medAdapter = MedicamentSearchAdapter { med -> selectMedicament(med) }
+    private var selectedMedicament: JSONObject? = null
+    private var searchJob: Job? = null
     private val historiqueAdapter = HistoriqueAdapter { venteId ->
         openRecu(venteId)
     }
@@ -53,21 +63,45 @@ class VentesFragment : Fragment() {
             }
         })
 
+        binding.recyclerMedicaments.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerMedicaments.adapter = medAdapter
+
         binding.recyclerHistorique.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerHistorique.adapter = historiqueAdapter
         binding.swipeHistorique.setOnRefreshListener { loadHistorique() }
 
-        loadMedicaments("")
-        binding.inputSearchMed.setOnEditorActionListener { _, _, _ ->
-            loadMedicaments(binding.inputSearchMed.text?.toString().orEmpty())
-            true
+        binding.inputSearchMed.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                scheduleSearch(s?.toString().orEmpty())
+            }
+        })
+        binding.inputSearchMed.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                searchJob?.cancel()
+                loadMedicaments(binding.inputSearchMed.text?.toString().orEmpty())
+                true
+            } else {
+                false
+            }
         }
+
         binding.btnValiderVente.setOnClickListener { submitSale() }
         binding.btnVoirRecu.setOnClickListener {
             lastVenteId?.let { openRecu(it) }
         }
 
         showPanel(true)
+        loadMedicaments("")
+    }
+
+    private fun scheduleSearch(query: String) {
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            delay(250)
+            loadMedicaments(query)
+        }
     }
 
     private fun showPanel(nouvelleVente: Boolean) {
@@ -81,15 +115,34 @@ class VentesFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val data = withContext(Dispatchers.IO) {
-                    mainActivity().api().getMedicaments(query)
+                    mainActivity().api().getMedicaments(query.trim())
                 }
                 medicaments.clear()
                 medicaments.addAll(data.optJSONArray("medicaments")?.toList().orEmpty())
-                updateSpinner()
+                medAdapter.submit(medicaments, selectedMedicament?.optInt("id"))
+                val q = query.trim()
+                binding.textSearchHint.text = when {
+                    medicaments.isEmpty() && q.isNotEmpty() ->
+                        getString(R.string.no_med_for_search, q)
+                    q.isEmpty() ->
+                        getString(R.string.search_med_hint)
+                    else ->
+                        "${medicaments.size} résultat(s) pour « $q »"
+                }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), e.message ?: "Erreur", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun selectMedicament(med: JSONObject) {
+        selectedMedicament = med
+        medAdapter.submit(medicaments, med.optInt("id"))
+        binding.textSelectedMed.visibility = View.VISIBLE
+        binding.textSelectedMed.text = getString(
+            R.string.selected_med,
+            "${med.optString("nom")} (${med.optInt("quantite_stock")} en stock)"
+        )
     }
 
     private fun loadHistorique() {
@@ -108,27 +161,13 @@ class VentesFragment : Fragment() {
         }
     }
 
-    private fun updateSpinner() {
-        val labels = medicaments.map {
-            "${it.optString("nom")} (${it.optInt("quantite_stock")} en stock)"
-        }
-        binding.spinnerMedicament.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            labels.ifEmpty { listOf("Aucun médicament") }
-        )
-    }
-
     private fun submitSale() {
-        if (medicaments.isEmpty()) {
-            Toast.makeText(requireContext(), "Aucun médicament disponible", Toast.LENGTH_SHORT).show()
+        val med = selectedMedicament
+        if (med == null) {
+            Toast.makeText(requireContext(), R.string.select_med_first, Toast.LENGTH_SHORT).show()
             return
         }
 
-        val index = binding.spinnerMedicament.selectedItemPosition
-        if (index < 0 || index >= medicaments.size) return
-
-        val med = medicaments[index]
         val quantite = binding.inputQuantite.text?.toString()?.toIntOrNull() ?: 0
         if (quantite <= 0) {
             Toast.makeText(requireContext(), "Quantité invalide", Toast.LENGTH_SHORT).show()
@@ -157,6 +196,8 @@ class VentesFragment : Fragment() {
                 binding.textVenteResult.text =
                     "✓ ${getString(R.string.sale_success)}\nN° ${result.optString("numero")}\nMontant : ${result.optDouble("montant_total")} ${result.optString("devise")}\n\n${getString(R.string.receipt_sync_hint)}"
                 binding.btnVoirRecu.visibility = View.VISIBLE
+                selectedMedicament = null
+                binding.textSelectedMed.visibility = View.GONE
                 loadMedicaments(binding.inputSearchMed.text?.toString().orEmpty())
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), e.message ?: "Erreur vente", Toast.LENGTH_LONG).show()
@@ -172,7 +213,49 @@ class VentesFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        searchJob?.cancel()
         _binding = null
+    }
+}
+
+class MedicamentSearchAdapter(
+    private val onSelect: (JSONObject) -> Unit
+) : RecyclerView.Adapter<MedicamentSearchAdapter.Holder>() {
+
+    private val items = mutableListOf<JSONObject>()
+    private var selectedId: Int? = null
+
+    fun submit(list: List<JSONObject>, selectedId: Int? = null) {
+        items.clear()
+        items.addAll(list)
+        this.selectedId = selectedId
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+        val binding = ItemMedicamentSearchBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return Holder(binding)
+    }
+
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        holder.bind(items[position])
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    inner class Holder(private val binding: ItemMedicamentSearchBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: JSONObject) {
+            binding.textNom.text = item.optString("nom")
+            binding.textDetails.text =
+                "Code: ${item.optString("code")} | ${item.optInt("quantite_stock")} en stock | ${item.optDouble("prix_vente").toInt()} FC"
+
+            val selected = item.optInt("id") == selectedId
+            binding.cardMedicament.setCardBackgroundColor(
+                if (selected) Color.parseColor("#E8F5EE") else Color.WHITE
+            )
+
+            binding.cardMedicament.setOnClickListener { onSelect(item) }
+        }
     }
 }
 
