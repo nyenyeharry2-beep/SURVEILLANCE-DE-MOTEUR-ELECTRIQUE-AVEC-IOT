@@ -1,0 +1,17 @@
+NOUVELLE EVE — Fichiers pour InfinityFree File Manager
+======================================================
+
+1. Uploadez "pharmagest-filemanager.zip" dans le dossier htdocs
+2. Extrayez (Extract) directement dans htdocs
+3. Ouvrez https://mapharmaciepk.xo.je/login.php
+
+Connexion :
+  Email : admin@pharmagest.local
+  Mot de passe : admin123
+
+IMPORTANT :
+- Importez database/schema_nouvelle_eve.sql dans phpMyAdmin (nouvelle installation)
+  ou database/migration_complete.sql (mise à jour)
+- Modifiez config/config.php : adresse et téléphone pour le reçu (APP_ADDRESS, APP_PHONE)
+- Logo : page de connexion + en haut à droite après ouverture
+- Reçu : format ticket thermique (80 mm) inspiré du modèle fourni
