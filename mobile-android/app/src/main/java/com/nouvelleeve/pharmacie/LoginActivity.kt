@@ -42,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     val data = withContext(Dispatchers.IO) {
-                        ApiClient(session.serverUrl).login(email, password)
+                        ApiClient().login(email, password)
                     }
                     session.token = data.optString("token")
                     session.userName = data.optJSONObject("user")?.optString("nom")

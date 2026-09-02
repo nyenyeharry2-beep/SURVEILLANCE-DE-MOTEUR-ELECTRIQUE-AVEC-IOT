@@ -6,15 +6,15 @@ class SessionManager(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     init {
-        prefs.edit().remove(LEGACY_SERVER_KEY).apply()
+        prefs.edit()
+            .remove(LEGACY_SERVER_KEY)
+            .remove("server_url")
+            .apply()
     }
 
     var token: String?
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
-
-    val serverUrl: String
-        get() = API_URL
 
     var userName: String?
         get() = prefs.getString(KEY_USER_NAME, null)
@@ -31,6 +31,5 @@ class SessionManager(context: Context) {
         private const val KEY_TOKEN = "token"
         private const val KEY_USER_NAME = "user_name"
         private const val LEGACY_SERVER_KEY = "server_url"
-        const val API_URL = "https://mapharmaciepk.xo.je/api/index.php"
     }
 }

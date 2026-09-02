@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     private fun lifecycleScopeLogout() {
         Thread {
             try {
-                ApiClient(session.serverUrl, session.token).logout()
+                ApiClient(session.token).logout()
             } catch (_: Exception) {
             }
             runOnUiThread {
@@ -77,6 +77,6 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    fun api(): ApiClient = ApiClient(session.serverUrl, session.token)
+    fun api(): ApiClient = ApiClient(session.token)
     fun sessionManager(): SessionManager = session
 }

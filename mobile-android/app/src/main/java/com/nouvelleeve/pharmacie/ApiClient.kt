@@ -7,89 +7,85 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 
 class ApiException(val code: Int, message: String) : Exception(message)
 
-class ApiClient(private val baseUrl: String, private val token: String? = null) {
+object ApiConfig {
+    const val BASE = "https://mapharmaciepk.xo.je/api"
+}
+
+class ApiClient(private val token: String? = null) {
+
+    fun ping(): JSONObject = get("${ApiConfig.BASE}/ping.php")
 
     fun login(email: String, password: String): JSONObject {
-        return post("auth/login", JSONObject().apply {
-            put("email", email)
-            put("password", password)
-        }, auth = false)
+        return post(
+            "${ApiConfig.BASE}/login.php",
+            JSONObject().apply {
+                put("email", email)
+                put("password", password)
+            },
+            auth = false
+        )
     }
 
-    fun logout(): JSONObject = post("auth/logout", JSONObject())
+    fun logout(): JSONObject = post("${ApiConfig.BASE}/logout.php", JSONObject())
 
     fun getMedicaments(query: String = ""): JSONObject {
-        val q = if (query.isBlank()) "" else "?q=" + URLEncoder.encode(query, "UTF-8")
-        return get("medicaments$q")
+        val url = if (query.isBlank()) {
+            "${ApiConfig.BASE}/medicaments.php"
+        } else {
+            "${ApiConfig.BASE}/medicaments.php?q=${encode(query)}"
+        }
+        return get(url)
     }
 
     fun getStock(query: String = ""): JSONObject {
-        val q = if (query.isBlank()) "" else "?q=" + URLEncoder.encode(query, "UTF-8")
-        return get("stock$q")
+        val url = if (query.isBlank()) {
+            "${ApiConfig.BASE}/stock.php"
+        } else {
+            "${ApiConfig.BASE}/stock.php?q=${encode(query)}"
+        }
+        return get(url)
     }
 
-    fun createVente(
-        medicamentId: Int,
-        quantite: Int,
-        devise: String,
-        clientNom: String
-    ): JSONObject {
-        return post("ventes", JSONObject().apply {
-            put("medicament_id", medicamentId)
-            put("quantite", quantite)
-            put("devise", devise)
-            put("client_nom", clientNom)
-        })
+    fun createVente(medicamentId: Int, quantite: Int, devise: String, clientNom: String): JSONObject {
+        return post(
+            "${ApiConfig.BASE}/ventes.php",
+            JSONObject().apply {
+                put("medicament_id", medicamentId)
+                put("quantite", quantite)
+                put("devise", devise)
+                put("client_nom", clientNom)
+            }
+        )
     }
 
-    fun rapportJour(date: String): JSONObject = get("rapports/jour?date=$date")
+    fun rapportJour(date: String): JSONObject =
+        get("${ApiConfig.BASE}/rapports.php?type=jour&date=$date")
 
     fun rapportMois(annee: Int, mois: Int): JSONObject =
-        get("rapports/mois?annee=$annee&mois=$mois")
+        get("${ApiConfig.BASE}/rapports.php?type=mois&annee=$annee&mois=$mois")
 
-    fun getAlertes(type: String = "all"): JSONObject = get("alertes?type=$type")
+    fun getAlertes(type: String = "all"): JSONObject =
+        get("${ApiConfig.BASE}/alertes.php?type=${encode(type)}")
 
-    private fun get(path: String): JSONObject = request("GET", path, null)
+    private fun encode(value: String): String =
+        java.net.URLEncoder.encode(value, Charsets.UTF_8.name())
 
-    private fun post(path: String, body: JSONObject, auth: Boolean = true): JSONObject =
-        request("POST", path, body, auth)
+    private fun get(url: String): JSONObject = request("GET", url, null)
 
-    private fun buildUrl(path: String): URL {
-        val trimmed = path.trimStart('/')
-        val qIndex = trimmed.indexOf('?')
-        val route = if (qIndex >= 0) trimmed.substring(0, qIndex) else trimmed
-        val extraQuery = if (qIndex >= 0) trimmed.substring(qIndex + 1) else ""
+    private fun post(url: String, body: JSONObject, auth: Boolean = true): JSONObject =
+        request("POST", url, body, auth)
 
-        val base = baseUrl.trimEnd('/')
-        val apiBase = when {
-            base.endsWith("index.php") -> base
-            base.endsWith("/api") -> "$base/index.php"
-            else -> "$base/index.php"
-        }
-
-        val urlBuilder = StringBuilder(apiBase)
-            .append("?route=")
-            .append(URLEncoder.encode(route, "UTF-8"))
-
-        if (extraQuery.isNotEmpty()) {
-            urlBuilder.append('&').append(extraQuery)
-        }
-
-        return URL(urlBuilder.toString())
-    }
-
-    private fun request(method: String, path: String, body: JSONObject?, auth: Boolean = true): JSONObject {
-        val url = buildUrl(path)
-        val conn = (url.openConnection() as HttpURLConnection).apply {
+    private fun request(method: String, urlString: String, body: JSONObject?, auth: Boolean = true): JSONObject {
+        val conn = (URL(urlString).openConnection() as HttpURLConnection).apply {
             requestMethod = method
-            connectTimeout = 25000
-            readTimeout = 25000
+            connectTimeout = 30000
+            readTimeout = 30000
             setRequestProperty("Content-Type", "application/json; charset=utf-8")
             setRequestProperty("Accept", "application/json")
+            setRequestProperty("User-Agent", "NouvelleEve-Android/1.2.2")
             if (auth && !token.isNullOrBlank()) {
                 setRequestProperty("Authorization", "Bearer $token")
             }
@@ -108,10 +104,11 @@ class ApiClient(private val baseUrl: String, private val token: String? = null) 
         val json = try {
             JSONObject(text)
         } catch (_: Exception) {
+            val preview = text.replace("\n", " ").take(120)
             val message = when {
                 text.isBlank() -> "Serveur injoignable. Vérifiez Internet."
-                text.trimStart().startsWith("<") -> "API non installée. Mettez à jour le site (dossier api/) sur InfinityFree."
-                else -> "Réponse serveur invalide"
+                text.trimStart().startsWith("<") -> "Le serveur a renvoyé une page web au lieu de l'API. Vérifiez que le dossier api/ est bien dans htdocs."
+                else -> "Réponse invalide ($responseCode): $preview"
             }
             throw ApiException(responseCode, message)
         }
