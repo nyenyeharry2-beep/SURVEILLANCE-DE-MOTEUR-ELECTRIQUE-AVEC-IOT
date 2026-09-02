@@ -1,0 +1,20 @@
+# Protéger le dossier config
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+</IfModule>
+
+# Page d'accueil
+DirectoryIndex index.php
+
+# Sécurité basique
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Désactiver l'affichage des erreurs en production (InfinityFree)
+php_flag display_errors Off
+php_value error_reporting 0
