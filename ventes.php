@@ -55,13 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            ->execute([$quantite, $medicamentId]);
 
         $db->commit();
-        flash('success', 'Vente enregistrée : ' . $numero . ' — ' . formatDualMoney($sousTotal, $devise));
+        redirect('recu.php?id=' . $venteId);
     } catch (Exception $e) {
         $db->rollBack();
         flash('danger', 'Erreur lors de l\'enregistrement de la vente.');
+        redirect('ventes.php');
     }
-
-    redirect('ventes.php');
 }
 
 $ventes = $db->query('
@@ -148,7 +147,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr><th>N°</th><th>Date</th><th>Détails</th><th>Client</th><th>Devise</th><th>Montant</th><th>Équivalent</th></tr>
+                        <tr><th>N°</th><th>Date</th><th>Détails</th><th>Client</th><th>Devise</th><th>Montant</th><th>Reçu</th></tr>
                     </thead>
                     <tbody>
                     <?php foreach ($ventes as $v): ?>
@@ -160,7 +159,11 @@ require_once __DIR__ . '/includes/header.php';
                         <td><?= e($v['client_nom'] ?: '—') ?></td>
                         <td><span class="badge bg-secondary"><?= e($devise) ?></span></td>
                         <td><?= formatMoney((float) $v['montant_total'], $devise) ?></td>
-                        <td><small><?= formatDualMoney((float) $v['montant_total'], $devise) ?></small></td>
+                        <td>
+                            <a href="recu.php?id=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary" title="Voir le reçu">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($ventes)): ?>

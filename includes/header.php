@@ -17,11 +17,11 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <?php if ($user): ?>
 <div class="d-flex" id="wrapper">
     <nav id="sidebar" class="sidebar-dark">
-        <div class="sidebar-brand p-3">
-            <a href="dashboard.php" class="text-decoration-none">
-                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo d-block mx-auto">
+        <div class="sidebar-brand py-2 px-3">
+            <a href="dashboard.php" class="text-decoration-none d-flex align-items-center gap-2">
+                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-logo-sidebar">
+                <span class="sidebar-brand-text"><?= e(appName()) ?></span>
             </a>
-            <div class="brand-tagline mt-2"><?= e(appTagline()) ?></div>
         </div>
         <ul class="nav flex-column p-2">
             <li class="nav-item">
