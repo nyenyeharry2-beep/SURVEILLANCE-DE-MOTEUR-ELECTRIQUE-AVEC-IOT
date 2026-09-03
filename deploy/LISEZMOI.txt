@@ -9,7 +9,13 @@ NOUVELLE EVE — Fichiers pour InfinityFree File Manager
 APPLICATION MOBILE VENDEUR (APK) :
 - Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
 - Connexion : email + mot de passe seulement (URL déjà intégrée)
-- Fonctions : Ventes, Stock, Rapports, Alertes
+- Fonctions : Ventes, Caisse, Stock, Rapports, Alertes
+
+PORTAIL VENDEUR PC (Windows / navigateur) :
+- Uploadez deploy/pharmagest-vendeur-pc.zip dans htdocs/ puis extrayez
+- URL : https://mapharmaciepk.xo.je/vendeur/
+- Setup : deploy/SETUP-VENDEUR-PC.txt + install-vendeur-pc.bat
+
 MISE À JOUR OBLIGATOIRE (site + app) :
 - Uploadez deploy/api-mobile-fix.zip dans htdocs/api/ puis extrayez
 - Lisez deploy/API_MISE_A_JOUR.txt

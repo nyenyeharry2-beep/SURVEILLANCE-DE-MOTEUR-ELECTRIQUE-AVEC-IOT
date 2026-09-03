@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#134952">
+  <meta name="description" content="Portail vendeur Pharmacie Nouvelle Eve — ventes, caisse, stock, rapports">
+  <title>Pharmacie Nouvelle Eve — Vendeur</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/vendeur.css">
+</head>
+<body>
+  <!-- Connexion -->
+  <div id="login-screen" class="login-wrap">
+    <div class="login-card">
+      <img src="../assets/img/logo.jpg" alt="Logo" class="login-logo" onerror="this.style.display='none'">
+      <h1>Pharmacie Nouvelle Eve</h1>
+      <p class="login-sub">Portail vendeur PC</p>
+      <p id="login-error" class="error-msg"></p>
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="username" placeholder="vendeur@exemple.com">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+        <button type="submit" class="btn btn-primary" id="btn-login">Se connecter</button>
+      </form>
+      <p class="hint">Version PC 1.0 — même compte que l'application mobile</p>
+    </div>
+  </div>
+
+  <!-- Application -->
+  <div id="app-shell" class="app-shell">
+    <header class="app-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="../assets/img/logo.jpg" alt="" onerror="this.style.display='none'">
+        <div>
+          <h1>Pharmacie Nouvelle Eve</h1>
+          <small id="user-label">Vendeur</small>
+        </div>
+      </div>
+      <button type="button" class="btn btn-logout" id="btn-logout">Déconnexion</button>
+    </header>
+
+    <div id="install-banner" class="install-banner hidden">
+      Installez l'application sur le bureau : menu Chrome/Edge → <strong>Installer l'application</strong>
+      ou exécutez <code>install-vendeur-pc.bat</code> depuis le dossier deploy.
+    </div>
+
+    <nav class="app-nav" id="app-nav">
+      <button type="button" data-tab="ventes" class="active">Ventes</button>
+      <button type="button" data-tab="caisse">Caisse</button>
+      <button type="button" data-tab="stock">Stock</button>
+      <button type="button" data-tab="rapports">Rapports</button>
+      <button type="button" data-tab="alertes">Alertes</button>
+    </nav>
+
+    <main class="app-main">
+      <!-- Ventes -->
+      <section id="panel-ventes" class="panel active">
+        <div class="sub-tabs">
+          <button type="button" class="sub-tab active" data-sub="vente-nouvelle">Nouvelle vente</button>
+          <button type="button" class="sub-tab" data-sub="vente-historique">Historique</button>
+        </div>
+
+        <div id="vente-nouvelle" class="sub-panel active">
+          <div class="card">
+            <h2>Nouvelle vente</h2>
+            <label for="search-med">Rechercher un médicament (lettre ou nom)</label>
+            <input type="search" id="search-med" placeholder="Ex. P pour Paracétamol…" autocomplete="off">
+            <div id="med-list" class="med-list"></div>
+          </div>
+          <div class="card" id="sale-form-card" style="display:none">
+            <h2 id="selected-med-name">—</h2>
+            <p id="selected-med-info" class="muted"></p>
+            <div class="grid-2">
+              <div>
+                <label for="sale-qty">Quantité</label>
+                <input type="number" id="sale-qty" min="1" value="1">
+              </div>
+              <div>
+                <label for="sale-devise">Devise</label>
+                <select id="sale-devise">
+                  <option value="CDF">CDF (Franc congolais)</option>
+                  <option value="USD">USD (Dollar)</option>
+                </select>
+              </div>
+            </div>
+            <label for="sale-client">Client (optionnel)</label>
+            <input type="text" id="sale-client" placeholder="Nom du client">
+            <label for="sale-notes">Notes (optionnel)</label>
+            <textarea id="sale-notes" rows="2" placeholder="Remarques…"></textarea>
+            <button type="button" class="btn btn-primary" id="btn-valider-vente">Valider la vente</button>
+            <div id="sale-success" class="success-box hidden"></div>
+          </div>
+        </div>
+
+        <div id="vente-historique" class="sub-panel">
+          <div class="card">
+            <h2>Historique des ventes</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-historique">Actualiser</button>
+            <div id="historique-list" class="move-list" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Caisse -->
+      <section id="panel-caisse" class="panel">
+        <div class="card">
+          <h2>Entrées / Sorties caisse — <span id="caisse-date"></span></h2>
+          <div id="caisse-resume" class="summary-box">Chargement…</div>
+        </div>
+        <div class="card">
+          <h2>Nouveau mouvement</h2>
+          <div class="radio-row">
+            <label><input type="radio" name="mv-type" value="entree" checked> Entrée</label>
+            <label><input type="radio" name="mv-type" value="sortie"> Sortie</label>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label for="mv-montant">Montant</label>
+              <input type="number" id="mv-montant" min="0" step="0.01" placeholder="Ex. 1000">
+            </div>
+            <div>
+              <label for="mv-devise">Devise</label>
+              <select id="mv-devise">
+                <option value="CDF">CDF</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+          </div>
+          <label for="mv-motif">Motif <span class="required">*</span></label>
+          <input type="text" id="mv-motif" placeholder="Ex. Achat fournitures, remboursement…" required>
+          <button type="button" class="btn btn-primary" id="btn-mv-save">Enregistrer</button>
+          <div id="mv-success" class="success-box hidden"></div>
+        </div>
+        <div class="card">
+          <h2>Mouvements du jour</h2>
+          <div id="caisse-list" class="move-list"></div>
+        </div>
+      </section>
+
+      <!-- Stock -->
+      <section id="panel-stock" class="panel">
+        <div class="card">
+          <h2>Stock</h2>
+          <label for="search-stock">Rechercher</label>
+          <input type="search" id="search-stock" placeholder="Lettre ou nom…" autocomplete="off">
+          <div id="stock-list" class="stock-list" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- Rapports -->
+      <section id="panel-rapports" class="panel">
+        <div class="card">
+          <h2>Rapport du jour</h2>
+          <label for="rapport-date">Date</label>
+          <input type="date" id="rapport-date">
+          <button type="button" class="btn btn-outline" id="btn-rapport-load" style="margin-bottom:14px">Charger</button>
+          <div id="rapport-content" class="summary-box">Sélectionnez une date.</div>
+        </div>
+      </section>
+
+      <!-- Alertes -->
+      <section id="panel-alertes" class="panel">
+        <div class="card">
+          <h2>Alertes stock &amp; expiration</h2>
+          <div class="radio-row">
+            <label><input type="radio" name="alert-type" value="all" checked> Toutes</label>
+            <label><input type="radio" name="alert-type" value="stock"> Stock faible</label>
+            <label><input type="radio" name="alert-type" value="ecouler"> À écouler</label>
+            <label><input type="radio" name="alert-type" value="expiration"> Expirés</label>
+          </div>
+          <div id="alertes-list" class="stock-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Reçu (impression) -->
+  <div id="recu-overlay" class="recu-overlay hidden">
+    <div class="recu-modal">
+      <div id="recu-content" class="recu-print"></div>
+      <div class="recu-actions no-print">
+        <button type="button" class="btn btn-primary" id="btn-print-recu">Imprimer</button>
+        <button type="button" class="btn btn-outline" id="btn-close-recu">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
