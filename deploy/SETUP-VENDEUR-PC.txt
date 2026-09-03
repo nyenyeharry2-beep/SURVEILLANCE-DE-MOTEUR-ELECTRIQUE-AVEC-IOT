@@ -1,0 +1,96 @@
+PHARMACIE NOUVELLE EVE — PORTAIL VENDEUR PC
+============================================
+
+Ce package permet aux vendeurs d'utiliser la pharmacie sur un ordinateur Windows
+(ou tout navigateur), avec les mêmes fonctions que l'application mobile Android.
+
+
+1. MISE EN LIGNE (SUPERVISEUR — une seule fois)
+------------------------------------------------
+
+A) Mettre à jour l'API (obligatoire si pas déjà fait) :
+   - Uploadez deploy/api-mobile-fix.zip dans htdocs/api/ sur InfinityFree
+   - Extrayez le ZIP dans le dossier api/
+   - Lisez deploy/API_MISE_A_JOUR.txt
+
+B) Installer le portail vendeur PC :
+   - Uploadez deploy/pharmagest-vendeur-pc.zip dans htdocs/ sur InfinityFree
+   - Extrayez → vous devez obtenir le dossier htdocs/vendeur/
+   - URL finale : https://mapharmaciepk.xo.je/vendeur/
+
+
+2. INSTALLATION SUR LE PC DU VENDEUR
+------------------------------------
+
+Méthode A — Raccourci automatique (Windows) :
+   1. Copiez deploy/install-vendeur-pc.bat sur le PC du vendeur
+   2. Double-cliquez dessus
+   3. Un raccourci « Pharmacie Vendeur » apparaît sur le Bureau
+   4. Le navigateur s'ouvre sur le portail
+
+Méthode B — Installation comme application (recommandé) :
+   1. Ouvrez https://mapharmaciepk.xo.je/vendeur/ dans Chrome ou Edge
+   2. Menu (⋮) → « Installer l'application » ou « Installer cette application »
+   3. L'icône apparaît sur le Bureau et dans le menu Démarrer
+
+Méthode C — Favori manuel :
+   - Ajoutez l'URL ci-dessus aux favoris ou au Bureau
+
+
+3. CONNEXION
+------------
+
+   Email    : compte vendeur créé par le superviseur (Utilisateurs sur le site web)
+   Mot de passe : celui défini par le superviseur
+
+   Exemple admin (superviseur uniquement) :
+   admin@pharmagest.local / admin123
+
+   Les vendeurs utilisent leur propre compte caissier/vendeur.
+
+
+4. FONCTIONS DISPONIBLES
+------------------------
+
+   ✓ Ventes       — recherche par lettre, nouvelle vente, historique, reçu imprimable
+   ✓ Caisse       — entrées/sorties avec motif obligatoire
+   ✓ Stock        — consultation et recherche
+   ✓ Rapports     — rapport du jour (ventes + caisse)
+   ✓ Alertes      — stock faible, expiration
+
+   Le superviseur garde l'accès complet sur le site web principal :
+   https://mapharmaciepk.xo.je/
+
+
+5. APPLICATION MOBILE (ANDROID)
+-------------------------------
+
+   Pour les vendeurs avec téléphone :
+   - APK : deploy/nouvelle-eve-mobile.apk (version 1.5.0+)
+   - Même compte, mêmes données synchronisées en temps réel
+
+
+6. DÉPANNAGE
+------------
+
+   « Connexion impossible » ou « Token manquant » :
+   → Mettez à jour deploy/api-mobile-fix.zip sur le serveur (htdocs/api/)
+
+   Page blanche ou erreur 404 :
+   → Vérifiez que le dossier vendeur/ est bien dans htdocs/
+
+   Logo absent sur le reçu :
+   → Vérifiez que assets/img/logo.jpg existe sur le site
+
+   Données différentes entre PC et mobile :
+   → Vérifiez que les deux utilisent le même compte vendeur
+
+
+7. FICHIERS DE CE PACKAGE
+-------------------------
+
+   pharmagest-vendeur-pc.zip  → à uploader sur InfinityFree (htdocs/)
+   install-vendeur-pc.bat     → script Windows pour raccourci Bureau
+   SETUP-VENDEUR-PC.txt       → ce guide
+
+Support : superviseur via le tableau de bord web admin.

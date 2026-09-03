@@ -1,0 +1,126 @@
+[
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_activity_main.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/xml_file_paths.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/xml/file_paths.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_rapports.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_rapports.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_item_stock.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/item_stock.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/xml_network_security_config.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_ventes.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_ventes.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_stock.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_stock.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_item_vente_historique.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/item_vente_historique.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_activity_login.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/activity_login.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/menu_bottom_nav.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/menu/bottom_nav.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/drawable_ic_app.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/drawable/ic_app.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_alertes.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_alertes.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/drawable-nodpi_logo.jpg.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/drawable-nodpi/logo.jpg"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/menu_main_menu.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/menu/main_menu.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/drawable-nodpi_ic_launcher_foreground.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/drawable-nodpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/drawable-nodpi_ic_launcher_background.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/drawable-nodpi/ic_launcher_background.png"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/layout_item_alerte.xml.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/item_alerte.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_activity_recu.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/activity_recu.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-debug-35:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-debug-35:/layout_fragment_ventes.xml.flat",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_ventes.xml"
+    }
+]

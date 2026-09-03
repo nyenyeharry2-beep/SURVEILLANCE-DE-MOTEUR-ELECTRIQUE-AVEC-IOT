@@ -1,0 +1,32 @@
+NOUVELLE EVE — Fichiers pour InfinityFree File Manager
+======================================================
+
+1. Uploadez "pharmagest-filemanager.zip" dans le dossier htdocs
+2. Extrayez (Extract) directement dans htdocs
+3. Importez database/migration_api_tokens.sql dans phpMyAdmin
+4. Ouvrez https://mapharmaciepk.xo.je/login.php
+
+APPLICATION MOBILE VENDEUR (APK) :
+- Fichier : nouvelle-eve-mobile.apk (dans ce dossier deploy/)
+- Connexion : email + mot de passe seulement (URL déjà intégrée)
+- Fonctions : Ventes, Caisse, Stock, Rapports, Alertes
+
+PORTAIL VENDEUR PC (Windows / navigateur) :
+- Uploadez deploy/pharmagest-vendeur-pc.zip dans htdocs/ puis extrayez
+- URL : https://mapharmaciepk.xo.je/vendeur/
+- Setup : deploy/SETUP-VENDEUR-PC.txt + install-vendeur-pc.bat
+
+MISE À JOUR OBLIGATOIRE (site + app) :
+- Uploadez deploy/api-mobile-fix.zip dans htdocs/api/ puis extrayez
+- Lisez deploy/API_MISE_A_JOUR.txt
+- Version app 1.4.2 — désinstallez l'ancienne avant d'installer
+- Créez un compte vendeur (caissier) dans Utilisateurs sur le site web
+
+Connexion :
+  Email : admin@pharmagest.local
+  Mot de passe : admin123
+
+IMPORTANT :
+- Importez database/schema_nouvelle_eve.sql (nouvelle installation)
+  ou database/migration_complete.sql + migration_api_tokens.sql (mise à jour)
+- Modifiez config/config.php : adresse et téléphone pour le reçu

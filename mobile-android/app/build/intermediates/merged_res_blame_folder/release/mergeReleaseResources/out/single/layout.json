@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/fragment_rapports.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/fragment_rapports.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/item_alerte.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/item_alerte.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/activity_login.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/activity_main.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/fragment_ventes.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/fragment_ventes.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeReleaseResources-34:/layout/fragment_alertes.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-36:/layout/fragment_alertes.xml"
+    }
+]
