@@ -40,6 +40,12 @@
     <string name="client_hint">Client (optionnel)</string>
     <string name="notes_hint">Notes (optionnel)</string>
     <string name="save_sale">Enregistrer la vente</string>
+    <string name="save_invoice">Valider la facture</string>
+    <string name="invoice_cart">Articles de la facture</string>
+    <string name="tap_to_add_cart">Appuyez sur un produit pour l\'ajouter à la facture</string>
+    <string name="added_to_cart">Ajouté à la facture</string>
+    <string name="cart_empty">Ajoutez des produits à la facture</string>
+    <string name="day_not_open">Journée non ouverte. Le superviseur doit ouvrir la journée sur le site web.</string>
     <string name="view_receipt">Voir / imprimer le reçu</string>
     <string name="receipt">Reçu</string>
     <string name="share_receipt">Partager PDF</string>

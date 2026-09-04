@@ -138,9 +138,12 @@ try {
     if ($route === 'ventes' && $method === 'GET') {
         requireApiAuth($db);
         if (($_GET['liste'] ?? '') === '1') {
-            $date = trim($_GET['date'] ?? '') ?: null;
+            $date = trim($_GET['date'] ?? '');
+            if ($date === '') {
+                $date = date('Y-m-d');
+            }
             $limit = (int) ($_GET['limit'] ?? 50);
-            apiJson(true, ['ventes' => fetchVentesListe($db, $date, $limit)]);
+            apiJson(true, ['ventes' => fetchVentesListe($db, $date, $limit), 'date' => $date]);
         }
         $debut = $_GET['debut'] ?? date('Y-m-d');
         $fin = $_GET['fin'] ?? date('Y-m-d');
@@ -205,6 +208,58 @@ try {
         $user = requireApiAuth($db);
         $result = createMouvementCaisse($db, $user, apiBody());
         apiJson(true, $result, 'Mouvement enregistré.');
+    }
+
+    if ($route === 'journee' && $method === 'GET') {
+        requireApiAuth($db);
+        require_once __DIR__ . '/../includes/journee.php';
+        $date = trim($_GET['date'] ?? '') ?: date('Y-m-d');
+        $status = getJourneeStatus($db, $date);
+        apiJson(true, $status);
+    }
+
+    if ($route === 'journee/open' && $method === 'POST') {
+        $user = requireApiAuth($db);
+        if (!in_array($user['role'], ['admin', 'pharmacien'], true)) {
+            apiError('Seul le superviseur peut ouvrir une journée.', 403);
+        }
+        require_once __DIR__ . '/../includes/journee.php';
+        $body = apiBody();
+        $date = trim($body['date'] ?? '') ?: date('Y-m-d');
+        $fondCdf = (float) ($body['fond_caisse_cdf'] ?? 0);
+        $fondUsd = (float) ($body['fond_caisse_usd'] ?? 0);
+        $taux = (float) ($body['taux_usd_cdf'] ?? getTauxUsdCdf());
+        if ($taux <= 0) {
+            apiError('Taux USD/CDF obligatoire.');
+        }
+        $id = openJourneeWithCaisse($db, $date, $fondCdf, $fondUsd, $taux);
+        apiJson(true, array_merge(getJourneeStatus($db, $date), ['journal_id' => $id]), 'Journée ouverte.');
+    }
+
+    if ($route === 'journee/close' && $method === 'POST') {
+        $user = requireApiAuth($db);
+        if (!in_array($user['role'], ['admin', 'pharmacien'], true)) {
+            apiError('Seul le superviseur peut clôturer une journée.', 403);
+        }
+        require_once __DIR__ . '/../includes/journee.php';
+        $body = apiBody();
+        $date = trim($body['date'] ?? '') ?: date('Y-m-d');
+        $caisseCdf = (float) ($body['caisse_cloture_cdf'] ?? 0);
+        $caisseUsd = (float) ($body['caisse_cloture_usd'] ?? 0);
+        closeJourneeWithCaisse($db, $date, $caisseCdf, $caisseUsd, (int) $user['id']);
+        $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
+        apiJson(true, [
+            'closed' => getJourneeStatus($db, $date),
+            'next_date' => $nextDate,
+        ], 'Journée clôturée.');
+    }
+
+    if ($route === 'rapports/jours' && $method === 'GET') {
+        requireApiAuth($db);
+        require_once __DIR__ . '/../includes/journee.php';
+        $debut = $_GET['debut'] ?? date('Y-m-01');
+        $fin = $_GET['fin'] ?? date('Y-m-d');
+        apiJson(true, ['jours' => fetchRapportParJours($db, $debut, $fin)]);
     }
 
     apiError('Route introuvable : ' . $route, 404);

@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/journee.php';
 requireLogin();
 
 $db = getDB();
+ensureJourneeSchema($db);
 $taux = getTauxUsdCdf();
 
 $dateDebut = $_GET['debut'] ?? date('Y-m-01');
@@ -31,6 +33,7 @@ $ventes = $db->prepare('
 ');
 $ventes->execute($params);
 $listeVentes = $ventes->fetchAll();
+$rapportJours = fetchRapportParJours($db, $dateDebut, $dateFin);
 
 $pageTitle = 'Rapports';
 require_once __DIR__ . '/includes/header.php';
@@ -80,6 +83,58 @@ require_once __DIR__ . '/includes/header.php';
                 </small>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><strong><i class="bi bi-calendar-week me-1"></i> Rapport par journée</strong></div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Taux</th>
+                    <th>Fond matin</th>
+                    <th>Ventes</th>
+                    <th>Caisse soir</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php if (empty($rapportJours)): ?>
+            <tr><td colspan="7" class="text-center text-muted py-4">Aucune journée enregistrée sur cette période.</td></tr>
+            <?php else: ?>
+            <?php foreach ($rapportJours as $j): ?>
+            <tr>
+                <td><strong><?= formatDate($j['date']) ?></strong></td>
+                <td>
+                    <?php if ($j['cloture']): ?>
+                    <span class="badge bg-success">Clôturée</span>
+                    <?php else: ?>
+                    <span class="badge bg-warning text-dark">Ouverte</span>
+                    <?php endif; ?>
+                </td>
+                <td><?= number_format($j['taux_usd_cdf'], 0, ',', ' ') ?> FC</td>
+                <td><?= formatCDF($j['fond_caisse_cdf']) ?></td>
+                <td>
+                    <?= (int) $j['nb_ventes'] ?> ventes<br>
+                    <small><?= formatCDF($j['ventes_cdf']) ?> / <?= formatUSD($j['ventes_usd']) ?></small>
+                </td>
+                <td>
+                    <?php if ($j['caisse_cloture_cdf'] !== null): ?>
+                    <?= formatCDF($j['caisse_cloture_cdf']) ?> / <?= formatUSD((float) $j['caisse_cloture_usd']) ?>
+                    <?php else: ?>—<?php endif; ?>
+                </td>
+                <td>
+                    <a href="ventes.php?date=<?= e($j['date']) ?>" class="btn btn-sm btn-outline-primary">Ventes</a>
+                    <a href="journal.php?date=<?= e($j['date']) ?>" class="btn btn-sm btn-outline-secondary">Journal</a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

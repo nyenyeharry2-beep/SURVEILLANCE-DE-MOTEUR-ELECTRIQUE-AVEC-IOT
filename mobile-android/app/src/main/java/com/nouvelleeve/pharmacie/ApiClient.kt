@@ -79,23 +79,37 @@ class ApiClient(
     }
 
     suspend fun createVente(
-        medicamentId: Int,
-        quantite: Int,
+        lignes: List<Triple<Int, Int, Double>>,
         devise: String,
         clientNom: String,
         notes: String = ""
     ): JSONObject {
+        val arr = org.json.JSONArray()
+        lignes.forEach { (medId, qty, prix) ->
+            arr.put(JSONObject().apply {
+                put("medicament_id", medId)
+                put("quantite", qty)
+                if (prix > 0) put("prix_unitaire", prix)
+            })
+        }
         return execute(
             "POST",
             withAuthQuery("${ApiConfig.BASE}/ventes.php"),
             JSONObject().apply {
-                put("medicament_id", medicamentId)
-                put("quantite", quantite)
+                put("lignes", arr)
                 put("devise", devise)
                 put("client_nom", clientNom)
                 if (notes.isNotBlank()) put("notes", notes)
             }
         )
+    }
+
+    suspend fun getJournee(date: String? = null): JSONObject {
+        val url = buildString {
+            append("${ApiConfig.BASE}/journee.php")
+            if (!date.isNullOrBlank()) append("?date=${encode(date)}")
+        }
+        return execute("GET", withAuthQuery(url), null)
     }
 
     suspend fun getHistoriqueVentes(date: String? = null, limit: Int = 50): JSONObject {

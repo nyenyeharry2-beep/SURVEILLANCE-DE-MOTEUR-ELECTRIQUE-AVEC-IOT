@@ -65,20 +65,19 @@
         </div>
 
         <div id="vente-nouvelle" class="sub-panel active">
+          <div id="journee-banner" class="install-banner hidden"></div>
           <div class="card">
-            <h2>Nouvelle vente</h2>
+            <h2>Nouvelle facture (multi-produits)</h2>
             <label for="search-med">Rechercher un médicament (lettre ou nom)</label>
             <input type="search" id="search-med" placeholder="Ex. P pour Paracétamol…" autocomplete="off">
+            <p class="muted">Appuyez sur un produit pour l'ajouter à la facture</p>
             <div id="med-list" class="med-list"></div>
           </div>
-          <div class="card" id="sale-form-card" style="display:none">
-            <h2 id="selected-med-name">—</h2>
-            <p id="selected-med-info" class="muted"></p>
+          <div class="card" id="sale-form-card">
+            <h2>Articles de la facture</h2>
+            <div id="cart-list" class="med-list"></div>
+            <p class="recu-total" id="cart-total">Total : 0 FC</p>
             <div class="grid-2">
-              <div>
-                <label for="sale-qty">Quantité</label>
-                <input type="number" id="sale-qty" min="1" value="1">
-              </div>
               <div>
                 <label for="sale-devise">Devise</label>
                 <select id="sale-devise">
@@ -91,7 +90,7 @@
             <input type="text" id="sale-client" placeholder="Nom du client">
             <label for="sale-notes">Notes (optionnel)</label>
             <textarea id="sale-notes" rows="2" placeholder="Remarques…"></textarea>
-            <button type="button" class="btn btn-primary" id="btn-valider-vente">Valider la vente</button>
+            <button type="button" class="btn btn-primary" id="btn-valider-vente" disabled>Valider la facture</button>
             <div id="sale-success" class="success-box hidden"></div>
           </div>
         </div>

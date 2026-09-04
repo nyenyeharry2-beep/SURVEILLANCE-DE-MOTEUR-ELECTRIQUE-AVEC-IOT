@@ -101,6 +101,11 @@ const Api = {
     return this.request('POST', '/ventes.php', data);
   },
 
+  getJournee(date) {
+    const p = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.request('GET', `/journee.php${p}`);
+  },
+
   getHistorique(limit = 50) {
     return this.request('GET', `/ventes.php?liste=1&limit=${limit}`);
   },

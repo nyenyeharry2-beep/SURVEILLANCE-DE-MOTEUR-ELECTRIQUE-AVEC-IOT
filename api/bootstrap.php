@@ -172,6 +172,11 @@ function ensureApiSchema(PDO $db): void
 
     ensureCaisseTable($db);
 
+    if (file_exists(__DIR__ . '/../includes/journee.php')) {
+        require_once __DIR__ . '/../includes/journee.php';
+        ensureJourneeSchema($db);
+    }
+
     $ready = true;
 }
 
@@ -264,63 +269,17 @@ function requireApiAuth(PDO $db): array
 
 function createVente(PDO $db, array $user, array $body): array
 {
-    $medicamentId = (int) ($body['medicament_id'] ?? 0);
-    $quantite = (int) ($body['quantite'] ?? 0);
-    $devise = normalizeDevise($body['devise'] ?? 'CDF');
-    $clientNom = trim($body['client_nom'] ?? '');
-    $notes = trim($body['notes'] ?? '');
-    $prixUnitaire = (float) ($body['prix_unitaire'] ?? 0);
-
-    if ($medicamentId <= 0 || $quantite <= 0) {
-        apiError('Médicament et quantité obligatoires.');
-    }
-
-    $stmt = $db->prepare('SELECT * FROM medicaments WHERE id = ? AND actif = 1');
-    $stmt->execute([$medicamentId]);
-    $med = $stmt->fetch();
-
-    if (!$med) {
-        apiError('Médicament introuvable.');
-    }
-
-    if ((int) $med['quantite_stock'] < $quantite) {
-        apiError('Stock insuffisant. Disponible : ' . $med['quantite_stock'], 409);
-    }
-
-    if ($prixUnitaire <= 0) {
-        $prixUnitaire = convertirDevise((float) $med['prix_vente'], 'CDF', $devise);
-    }
-
-    $sousTotal = $quantite * $prixUnitaire;
-    $numero = 'VTE-' . date('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
-
-    $db->beginTransaction();
+    require_once __DIR__ . '/../includes/ventes.php';
 
     try {
-        $db->prepare('INSERT INTO ventes (numero, utilisateur_id, client_nom, montant_total, devise, notes) VALUES (?,?,?,?,?,?)')
-           ->execute([$numero, $user['id'], $clientNom ?: null, $sousTotal, $devise, $notes ?: null]);
-        $venteId = (int) $db->lastInsertId();
-
-        $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, quantite, prix_unitaire, sous_total) VALUES (?,?,?,?,?)')
-           ->execute([$venteId, $medicamentId, $quantite, $prixUnitaire, $sousTotal]);
-
-        $db->prepare('UPDATE medicaments SET quantite_stock = quantite_stock - ? WHERE id = ?')
-           ->execute([$quantite, $medicamentId]);
-
-        $db->commit();
+        return createVenteTransaction($db, $user, $body);
+    } catch (InvalidArgumentException $e) {
+        apiError($e->getMessage());
+    } catch (RuntimeException $e) {
+        apiError($e->getMessage(), 403);
     } catch (Throwable $e) {
-        $db->rollBack();
         apiError('Erreur lors de la vente.', 500);
     }
-
-    return [
-        'id' => $venteId,
-        'numero' => $numero,
-        'montant_total' => $sousTotal,
-        'devise' => $devise,
-        'medicament' => $med['nom'],
-        'quantite' => $quantite,
-    ];
 }
 
 function venteDetailsSql(): string

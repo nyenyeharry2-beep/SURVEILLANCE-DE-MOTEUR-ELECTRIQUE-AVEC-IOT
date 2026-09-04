@@ -1,0 +1,41 @@
+MISE À JOUR — Factures multi-produits + Journées (v1.6.0)
+==========================================================
+
+NOUVEAUTÉS :
+- Facture avec plusieurs médicaments (web, APK, portail vendeur PC)
+- Ouverture / clôture de journée avec fond caisse et taux du jour
+- Rapports classés par journée
+- Téléphone pharmacie : +243990525309
+
+ÉTAPE 1 — API (OBLIGATOIRE)
+---------------------------
+Uploadez deploy/api-mobile-fix.zip dans htdocs/api/ puis extrayez.
+
+Fichiers clés :
+- api/bootstrap.php, api/index.php, api/journee.php, api/rapports.php
+- includes/journee.php, includes/ventes.php, includes/journal.php (via includes/)
+
+ÉTAPE 2 — Site web
+------------------
+Uploadez aussi (ou mettez à jour via le ZIP complet) :
+- ventes.php, journal.php, rapports.php
+- config/config.php → APP_PHONE = +243990525309
+
+ÉTAPE 3 — Portail vendeur PC
+----------------------------
+Uploadez deploy/pharmagest-vendeur-pc.zip dans htdocs/
+
+ÉTAPE 4 — APK Android
+---------------------
+- Désinstallez l'ancienne app
+- Installez deploy/nouvelle-eve-mobile.apk (Version 1.6.0)
+
+UTILISATION JOURNÉE (superviseur)
+---------------------------------
+1. Matin : Journal quotidien → Ouvrir la journée
+   → Fond caisse (FC/$) + taux USD du jour
+2. Journée : ventes et factures multi-produits
+3. Soir : Clôturer → montant caisse en caisse
+4. Lendemain : ouvrir nouvelle journée (après clôture)
+
+Sans journée ouverte, les vendeurs ne peuvent pas vendre (APK/PC).

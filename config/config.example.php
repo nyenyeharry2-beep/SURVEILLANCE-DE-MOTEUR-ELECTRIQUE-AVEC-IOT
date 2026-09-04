@@ -15,7 +15,7 @@ define('APP_TAGLINE', 'Votre santé, notre priorité');
 define('APP_LOGO', 'assets/img/logo.jpg');
 define('APP_URL', 'https://votre-site.infinityfreeapp.com');
 define('APP_ADDRESS', 'Kinshasa, République Démocratique du Congo');
-define('APP_PHONE', '+243 XXX XXX XXX');
+define('APP_PHONE', '+243990525309');
 define('TIMEZONE', 'Africa/Kinshasa'); // Fuseau horaire RDC
 
 // 1 USD = X Francs Congolais (CDF)

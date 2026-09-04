@@ -7,5 +7,11 @@ if (!defined('NOUVELLE_EVE_API')) {
 }
 
 $type = $_GET['type'] ?? 'jour';
-$_GET['route'] = $type === 'mois' ? 'rapports/mois' : 'rapports/jour';
+if ($type === 'mois') {
+    $_GET['route'] = 'rapports/mois';
+} elseif ($type === 'jours') {
+    $_GET['route'] = 'rapports/jours';
+} else {
+    $_GET['route'] = 'rapports/jour';
+}
 require __DIR__ . '/index.php';

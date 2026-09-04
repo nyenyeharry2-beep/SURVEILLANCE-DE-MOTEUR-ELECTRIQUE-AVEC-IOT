@@ -1,126 +1,118 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/journee.php';
+require_once __DIR__ . '/includes/ventes.php';
 requireLogin();
 
 $db = getDB();
-$taux = getTauxUsdCdf();
+ensureJourneeSchema($db);
+$taux = getTauxUsdCdfForDate($db, date('Y-m-d'));
+$journee = getJourneeStatus($db, date('Y-m-d'));
+$filterDate = $_GET['date'] ?? date('Y-m-d');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
-    $medicamentId = (int) ($_POST['medicament_id'] ?? 0);
-    $quantite = (int) ($_POST['quantite'] ?? 0);
-    $prixUnitaire = (float) ($_POST['prix_unitaire'] ?? 0);
-    $devise = normalizeDevise($_POST['devise'] ?? 'CDF');
-    $clientNom = trim($_POST['client_nom'] ?? '');
-    $notes = trim($_POST['notes'] ?? '');
-
-    if ($medicamentId <= 0 || $quantite <= 0) {
-        flash('danger', 'Médicament et quantité obligatoires.');
-        redirect('ventes.php');
+    $lignesJson = $_POST['lignes_json'] ?? '';
+    $lignes = json_decode($lignesJson, true);
+    if (!is_array($lignes)) {
+        $lignes = [];
     }
-
-    $stmt = $db->prepare('SELECT * FROM medicaments WHERE id = ? AND actif = 1');
-    $stmt->execute([$medicamentId]);
-    $med = $stmt->fetch();
-
-    if (!$med) {
-        flash('danger', 'Médicament introuvable.');
-        redirect('ventes.php');
-    }
-
-    if ($med['quantite_stock'] < $quantite) {
-        flash('danger', 'Stock insuffisant. Disponible : ' . $med['quantite_stock']);
-        redirect('ventes.php');
-    }
-
-    if ($prixUnitaire <= 0) {
-        $prixUnitaire = convertirDevise((float) $med['prix_vente'], 'CDF', $devise);
-    }
-
-    $sousTotal = $quantite * $prixUnitaire;
-    $numero = 'VTE-' . date('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
 
     try {
-        $db->beginTransaction();
-
-        $db->prepare('INSERT INTO ventes (numero, utilisateur_id, client_nom, montant_total, devise, notes) VALUES (?,?,?,?,?,?)')
-           ->execute([$numero, currentUser()['id'], $clientNom ?: null, $sousTotal, $devise, $notes]);
-        $venteId = (int) $db->lastInsertId();
-
-        $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, quantite, prix_unitaire, sous_total) VALUES (?,?,?,?,?)')
-           ->execute([$venteId, $medicamentId, $quantite, $prixUnitaire, $sousTotal]);
-
-        $db->prepare('UPDATE medicaments SET quantite_stock = quantite_stock - ? WHERE id = ?')
-           ->execute([$quantite, $medicamentId]);
-
-        $db->commit();
-        redirect('recu.php?id=' . $venteId);
+        $result = createVenteTransaction($db, currentUser(), [
+            'lignes' => $lignes,
+            'devise' => $_POST['devise'] ?? 'CDF',
+            'client_nom' => trim($_POST['client_nom'] ?? ''),
+            'notes' => trim($_POST['notes'] ?? ''),
+        ]);
+        redirect('recu.php?id=' . $result['id']);
+    } catch (RuntimeException $e) {
+        flash('danger', $e->getMessage());
+    } catch (InvalidArgumentException $e) {
+        flash('danger', $e->getMessage());
     } catch (Exception $e) {
-        $db->rollBack();
-        flash('danger', 'Erreur lors de l\'enregistrement de la vente.');
-        redirect('ventes.php');
+        flash('danger', 'Erreur lors de l\'enregistrement de la facture.');
     }
+    redirect('ventes.php?date=' . urlencode($filterDate));
 }
 
-$ventes = $db->query('
+$ventes = $db->prepare('
     SELECT v.*, u.nom AS vendeur,
            (SELECT GROUP_CONCAT(CONCAT(m.nom, " x", vl.quantite) SEPARATOR ", ")
             FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
-            WHERE vl.vente_id = v.id) AS details
+            WHERE vl.vente_id = v.id) AS details,
+           (SELECT COUNT(*) FROM vente_lignes vl WHERE vl.vente_id = v.id) AS nb_lignes
     FROM ventes v
     JOIN utilisateurs u ON u.id = v.utilisateur_id
+    WHERE DATE(v.date_vente) = ?
     ORDER BY v.date_vente DESC
-    LIMIT 50
-')->fetchAll();
+');
+$ventes->execute([$filterDate]);
+$listeVentes = $ventes->fetchAll();
 
 $medicaments = $db->query('SELECT id, code, nom, prix_vente, quantite_stock FROM medicaments WHERE actif = 1 AND quantite_stock > 0 ORDER BY nom')->fetchAll();
 
-$pageTitle = 'Ventes';
+$pageTitle = 'Ventes & Factures';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
+<?php if (!$journee['peut_vendre']): ?>
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle me-1"></i>
+    <?= e($journee['message']) ?>
+    <a href="journal.php" class="alert-link ms-2">Ouvrir la journée →</a>
+</div>
+<?php else: ?>
+<div class="alert alert-success py-2">
+    <i class="bi bi-check-circle me-1"></i>
+    Journée du <?= formatDate(date('Y-m-d')) ?> ouverte — Taux : 1 USD = <?= number_format($taux, 0, ',', ' ') ?> FC
+    — Fond caisse : <?= formatCDF($journee['fond_caisse_cdf']) ?> / <?= formatUSD($journee['fond_caisse_usd']) ?>
+</div>
+<?php endif; ?>
+
 <div class="row">
-    <div class="col-lg-4 mb-4">
+    <div class="col-lg-5 mb-4">
         <div class="card">
-            <div class="card-header"><strong><i class="bi bi-receipt me-1"></i> Nouvelle vente</strong></div>
+            <div class="card-header"><strong><i class="bi bi-receipt-cutoff me-1"></i> Nouvelle facture (multi-produits)</strong></div>
             <div class="card-body">
-                <form method="post" id="sale-form" data-taux="<?= $taux ?>">
+                <form method="post" id="facture-form" data-taux="<?= $taux ?>" <?= $journee['peut_vendre'] ? '' : 'onsubmit="return false"' ?>>
                     <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+                    <input type="hidden" name="lignes_json" id="lignes-json" value="[]">
+
                     <div class="mb-3">
-                        <label class="form-label">Devise de vente *</label>
+                        <label class="form-label">Rechercher un produit</label>
+                        <input type="search" class="form-control" id="search-med" placeholder="Lettre ou nom…" autocomplete="off" <?= $journee['peut_vendre'] ? '' : 'disabled' ?>>
+                        <select class="form-select mt-2" id="pick-med" size="6" <?= $journee['peut_vendre'] ? '' : 'disabled' ?>>
+                            <?php foreach ($medicaments as $m): ?>
+                            <option value="<?= $m['id'] ?>"
+                                    data-code="<?= e($m['code']) ?>"
+                                    data-nom="<?= e($m['nom']) ?>"
+                                    data-prix="<?= $m['prix_vente'] ?>"
+                                    data-stock="<?= $m['quantite_stock'] ?>">
+                                <?= e($m['code'] . ' — ' . $m['nom'] . ' (' . $m['quantite_stock'] . ')') ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-line" <?= $journee['peut_vendre'] ? '' : 'disabled' ?>>
+                            <i class="bi bi-plus-lg"></i> Ajouter à la facture
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Articles de la facture</label>
+                        <div id="cart-lines" class="border rounded p-2 bg-light min-h-cart">
+                            <p class="text-muted small mb-0" id="cart-empty">Aucun article — ajoutez des produits ci-dessus.</p>
+                        </div>
+                        <div class="mt-2 text-end fw-bold">Total : <span id="cart-total">0 FC</span></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Devise *</label>
                         <select name="devise" class="form-select" id="vente-devise" required>
                             <option value="CDF">Franc Congolais (FC)</option>
                             <option value="USD">Dollar ($)</option>
                         </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Médicament *</label>
-                        <select name="medicament_id" class="form-select" required id="vente-med">
-                            <option value="">— Sélectionner —</option>
-                            <?php foreach ($medicaments as $m): ?>
-                            <option value="<?= $m['id'] ?>"
-                                    data-prix-cdf="<?= $m['prix_vente'] ?>"
-                                    data-stock="<?= $m['quantite_stock'] ?>">
-                                <?= e($m['code'] . ' — ' . $m['nom'] . ' (stock: ' . $m['quantite_stock'] . ')') ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <small class="text-muted">Prix catalogue en FC</small>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label">Quantité *</label>
-                            <input type="number" name="quantite" class="form-control" min="1" required value="1">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Prix unitaire (<span id="devise-label">FC</span>)</label>
-                            <input type="number" step="0.01" name="prix_unitaire" class="form-control" id="vente-prix" value="0">
-                        </div>
-                    </div>
-                    <div class="mb-3 p-2 bg-light rounded text-center">
-                        <div>Total : <strong id="sale-total">0 FC</strong></div>
-                        <small class="text-muted" id="sale-total-dual">0 FC / $0,00</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Client (optionnel)</label>
@@ -130,44 +122,42 @@ require_once __DIR__ . '/includes/header.php';
                         <label class="form-label">Notes</label>
                         <textarea name="notes" class="form-control" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-lg me-1"></i> Valider la vente</button>
+                    <button type="submit" class="btn btn-success w-100" id="btn-submit-facture" disabled>
+                        <i class="bi bi-check-lg me-1"></i> Valider la facture
+                    </button>
                 </form>
             </div>
         </div>
-        <div class="card mt-3">
-            <div class="card-body small text-muted">
-                <i class="bi bi-info-circle me-1"></i>
-                Taux du jour : <strong>1 USD = <?= number_format($taux, 0, ',', ' ') ?> FC</strong>
-            </div>
-        </div>
     </div>
-    <div class="col-lg-8">
-        <h1 class="h3 mb-4"><i class="bi bi-receipt me-2"></i>Historique des ventes</h1>
+
+    <div class="col-lg-7">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <h1 class="h3 mb-0"><i class="bi bi-calendar-day me-2"></i>Ventes du jour</h1>
+            <form method="get" class="d-flex gap-2">
+                <input type="date" name="date" class="form-control" value="<?= e($filterDate) ?>">
+                <button type="submit" class="btn btn-outline-primary">Voir</button>
+            </form>
+        </div>
         <div class="card">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr><th>N°</th><th>Date</th><th>Détails</th><th>Client</th><th>Devise</th><th>Montant</th><th>Reçu</th></tr>
+                        <tr><th>N°</th><th>Heure</th><th>Articles</th><th>Client</th><th>Montant</th><th>Reçu</th></tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($ventes as $v): ?>
+                    <?php foreach ($listeVentes as $v): ?>
                     <?php $devise = normalizeDevise($v['devise'] ?? 'CDF'); ?>
                     <tr>
                         <td><code><?= e($v['numero']) ?></code></td>
-                        <td><?= date('d/m/Y H:i', strtotime($v['date_vente'])) ?></td>
-                        <td><small><?= e($v['details'] ?: '—') ?></small></td>
+                        <td><?= date('H:i', strtotime($v['date_vente'])) ?></td>
+                        <td><small><?= e($v['details'] ?: '—') ?> (<?= (int)$v['nb_lignes'] ?>)</small></td>
                         <td><?= e($v['client_nom'] ?: '—') ?></td>
-                        <td><span class="badge bg-secondary"><?= e($devise) ?></span></td>
                         <td><?= formatMoney((float) $v['montant_total'], $devise) ?></td>
-                        <td>
-                            <a href="recu.php?id=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary" title="Voir le reçu">
-                                <i class="bi bi-printer"></i>
-                            </a>
-                        </td>
+                        <td><a href="recu.php?id=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer"></i></a></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php if (empty($ventes)): ?>
-                    <tr><td colspan="7" class="text-center text-muted py-4">Aucune vente enregistrée.</td></tr>
+                    <?php if (empty($listeVentes)): ?>
+                    <tr><td colspan="6" class="text-center text-muted py-4">Aucune vente pour cette date.</td></tr>
                     <?php endif; ?>
                     </tbody>
                 </table>
@@ -176,57 +166,105 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<style>.min-h-cart{min-height:80px}</style>
 <script>
 (function () {
-    const form = document.getElementById('sale-form');
+    const form = document.getElementById('facture-form');
     if (!form) return;
-
     const taux = parseFloat(form.dataset.taux) || 2850;
-    const medSelect = document.getElementById('vente-med');
+    const cart = [];
+    const pickMed = document.getElementById('pick-med');
+    const searchMed = document.getElementById('search-med');
+    const cartEl = document.getElementById('cart-lines');
+    const cartEmpty = document.getElementById('cart-empty');
+    const cartTotal = document.getElementById('cart-total');
+    const lignesJson = document.getElementById('lignes-json');
+    const btnSubmit = document.getElementById('btn-submit-facture');
     const deviseSelect = document.getElementById('vente-devise');
-    const prixInput = document.getElementById('vente-prix');
-    const qtyInput = form.querySelector('[name="quantite"]');
-    const totalDisplay = document.getElementById('sale-total');
-    const dualDisplay = document.getElementById('sale-total-dual');
-    const deviseLabel = document.getElementById('devise-label');
 
-    function fmtCdf(n) { return Math.round(n).toLocaleString('fr-FR') + ' FC'; }
-    function fmtUsd(n) { return '$' + n.toFixed(2).replace('.', ','); }
-
-    function prixCatalogue() {
-        const opt = medSelect.selectedOptions[0];
-        if (!opt || !opt.dataset.prixCdf) return 0;
-        const cdf = parseFloat(opt.dataset.prixCdf) || 0;
-        return deviseSelect.value === 'USD' ? cdf / taux : cdf;
+    function fmt(n, d) {
+        if (d === 'USD') return '$' + n.toFixed(2).replace('.', ',');
+        return Math.round(n).toLocaleString('fr-FR') + ' FC';
     }
 
-    function updatePriceFromCatalogue() {
-        const p = prixCatalogue();
-        if (p > 0) prixInput.value = deviseSelect.value === 'USD' ? p.toFixed(2) : Math.round(p);
-        updateTotal();
+    function filterMeds(q) {
+        const ql = q.toLowerCase();
+        [...pickMed.options].forEach(opt => {
+            const text = opt.textContent.toLowerCase();
+            opt.hidden = ql && !text.startsWith(ql) && !text.includes(ql);
+        });
     }
 
-    function updateTotal() {
-        const qty = parseFloat(qtyInput.value) || 0;
-        const price = parseFloat(prixInput.value) || 0;
-        const total = qty * price;
-        const devise = deviseSelect.value;
-
-        deviseLabel.textContent = devise === 'USD' ? '$' : 'FC';
-
-        if (devise === 'USD') {
-            totalDisplay.textContent = fmtUsd(total);
-            dualDisplay.textContent = fmtCdf(total * taux) + ' / ' + fmtUsd(total);
-        } else {
-            totalDisplay.textContent = fmtCdf(total);
-            dualDisplay.textContent = fmtCdf(total) + ' / ' + fmtUsd(total / taux);
+    function renderCart() {
+        cartEl.querySelectorAll('.cart-row').forEach(el => el.remove());
+        if (!cart.length) {
+            cartEmpty.style.display = '';
+            btnSubmit.disabled = true;
+            cartTotal.textContent = fmt(0, deviseSelect.value);
+            lignesJson.value = '[]';
+            return;
         }
+        cartEmpty.style.display = 'none';
+        btnSubmit.disabled = false;
+        let total = 0;
+        const d = deviseSelect.value;
+        cart.forEach((item, i) => {
+            total += item.qty * item.prix;
+            const row = document.createElement('div');
+            row.className = 'cart-row d-flex align-items-center gap-2 mb-2 pb-2 border-bottom';
+            row.innerHTML = `
+                <div class="flex-grow-1"><strong>${item.nom}</strong><br><small>${item.code}</small></div>
+                <input type="number" min="1" max="${item.stock}" value="${item.qty}" class="form-control form-control-sm cart-qty" style="width:70px" data-i="${i}">
+                <span class="small">${fmt(item.prix, d)}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger cart-rm" data-i="${i}">&times;</button>`;
+            cartEl.appendChild(row);
+        });
+        cartTotal.textContent = fmt(total, d);
+        lignesJson.value = JSON.stringify(cart.map(c => ({
+            medicament_id: c.id, quantite: c.qty, prix_unitaire: c.prix
+        })));
+
+        cartEl.querySelectorAll('.cart-qty').forEach(inp => {
+            inp.addEventListener('change', () => {
+                const i = +inp.dataset.i;
+                cart[i].qty = Math.max(1, Math.min(+inp.value || 1, cart[i].stock));
+                renderCart();
+            });
+        });
+        cartEl.querySelectorAll('.cart-rm').forEach(btn => {
+            btn.addEventListener('click', () => { cart.splice(+btn.dataset.i, 1); renderCart(); });
+        });
     }
 
-    medSelect.addEventListener('change', updatePriceFromCatalogue);
-    deviseSelect.addEventListener('change', updatePriceFromCatalogue);
-    qtyInput.addEventListener('input', updateTotal);
-    prixInput.addEventListener('input', updateTotal);
+    document.getElementById('btn-add-line').addEventListener('click', () => {
+        const opt = pickMed.selectedOptions[0];
+        if (!opt) return;
+        const id = +opt.value;
+        const existing = cart.find(c => c.id === id);
+        if (existing) { existing.qty = Math.min(existing.qty + 1, existing.stock); }
+        else {
+            const prixCdf = +opt.dataset.prix;
+            const prix = deviseSelect.value === 'USD' ? prixCdf / taux : prixCdf;
+            cart.push({ id, nom: opt.dataset.nom, code: opt.dataset.code, stock: +opt.dataset.stock, qty: 1, prix });
+        }
+        renderCart();
+    });
+
+    searchMed.addEventListener('input', e => filterMeds(e.target.value.trim()));
+    deviseSelect.addEventListener('change', () => {
+        cart.forEach(c => {
+            const opt = [...pickMed.options].find(o => +o.value === c.id);
+            if (opt) {
+                const prixCdf = +opt.dataset.prix;
+                c.prix = deviseSelect.value === 'USD' ? prixCdf / taux : prixCdf;
+            }
+        });
+        renderCart();
+    });
+
+    form.addEventListener('submit', e => {
+        if (!cart.length) { e.preventDefault(); alert('Ajoutez au moins un produit.'); }
+    });
 })();
 </script>
 

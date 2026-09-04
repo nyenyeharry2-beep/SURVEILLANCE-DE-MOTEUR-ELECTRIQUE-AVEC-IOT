@@ -7,7 +7,10 @@
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
-  let selectedMed = null;
+  let cart = [];
+  let medsCache = [];
+  let journeeOuverte = false;
+  let tauxJour = 2850;
   let lastVenteId = null;
   let searchTimer = null;
 
@@ -86,12 +89,32 @@
     $$('#app-nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
     $$('.panel').forEach((p) => p.classList.toggle('active', p.id === `panel-${name}`));
     switch (name) {
-      case 'ventes': loadMedicaments(''); break;
+      case 'ventes': loadJournee(); loadMedicaments(''); break;
       case 'caisse': loadCaisse(); break;
       case 'stock': loadStock(''); break;
       case 'rapports': loadRapport(); break;
       case 'alertes': loadAlertes(); break;
     }
+  }
+
+  // ── Journée ────────────────────────────────────────────────────
+
+  async function loadJournee() {
+    const banner = $('#journee-banner');
+    try {
+      const s = await Api.getJournee();
+      journeeOuverte = !!s.peut_vendre;
+      tauxJour = s.taux_usd_cdf || 2850;
+      banner.classList.remove('hidden');
+      banner.className = journeeOuverte ? 'install-banner' : 'install-banner';
+      banner.style.background = journeeOuverte ? '#e8f5ee' : '#fff3cd';
+      banner.textContent = s.message || '';
+    } catch (ex) {
+      banner.classList.remove('hidden');
+      banner.textContent = ex.message;
+      journeeOuverte = false;
+    }
+    renderCart();
   }
 
   // ── Ventes ─────────────────────────────────────────────────────
@@ -102,6 +125,7 @@
     try {
       const data = await Api.getMedicaments(q);
       const meds = data.medicaments || [];
+      medsCache = meds;
       if (!meds.length) {
         list.innerHTML = '<p class="empty">Aucun médicament trouvé.</p>';
         return;
@@ -113,59 +137,91 @@
         </div>
       `).join('');
       list.querySelectorAll('.med-item').forEach((el) => {
-        el.addEventListener('click', () => selectMedicament(meds.find((x) => String(x.id) === el.dataset.id)));
+        el.addEventListener('click', () => addToCart(meds.find((x) => String(x.id) === el.dataset.id)));
       });
     } catch (ex) {
       list.innerHTML = `<p class="empty">${escapeHtml(ex.message)}</p>`;
     }
   }
 
-  function selectMedicament(med) {
-    selectedMed = med;
-    $$('.med-item').forEach((el) => el.classList.toggle('selected', el.dataset.id === String(med.id)));
-    $('#sale-form-card').style.display = '';
-    $('#selected-med-name').textContent = med.nom;
-    $('#selected-med-info').textContent = `Code: ${med.code || '—'} | Stock: ${med.quantite_stock} | Prix: ${Format.money(med.prix_vente)}`;
-    $('#sale-qty').max = med.quantite_stock;
-    $('#sale-success').classList.add('hidden');
+  function addToCart(med) {
+    if (!med) return;
+    const existing = cart.find((c) => c.id === med.id);
+    if (existing) {
+      existing.qty = Math.min(existing.qty + 1, med.quantite_stock);
+    } else {
+      cart.push({ id: med.id, nom: med.nom, code: med.code, stock: med.quantite_stock, prix: med.prix_vente, qty: 1 });
+    }
+    renderCart();
+    showToast('Ajouté à la facture');
+  }
+
+  function renderCart() {
+    const list = $('#cart-list');
+    const devise = $('#sale-devise')?.value || 'CDF';
+    if (!cart.length) {
+      list.innerHTML = '<p class="empty">Aucun article — ajoutez des produits.</p>';
+      $('#cart-total').textContent = Format.money(0, devise);
+      $('#btn-valider-vente').disabled = true;
+      return;
+    }
+    let total = 0;
+    list.innerHTML = cart.map((c, i) => {
+      const prix = devise === 'USD' ? c.prix / tauxJour : c.prix;
+      total += prix * c.qty;
+      return `
+        <div class="move-item">
+          <strong>${escapeHtml(c.nom)}</strong>
+          <input type="number" min="1" max="${c.stock}" value="${c.qty}" class="cart-qty" data-i="${i}" style="width:70px;margin:4px 0">
+          <button type="button" class="btn btn-outline btn-sm cart-rm" data-i="${i}">Retirer</button>
+        </div>`;
+    }).join('');
+    $('#cart-total').textContent = 'Total : ' + Format.money(total, devise);
+    $('#btn-valider-vente').disabled = !journeeOuverte;
+
+    list.querySelectorAll('.cart-qty').forEach((inp) => {
+      inp.addEventListener('change', () => {
+        const i = +inp.dataset.i;
+        cart[i].qty = Math.max(1, Math.min(+inp.value || 1, cart[i].stock));
+        renderCart();
+      });
+    });
+    list.querySelectorAll('.cart-rm').forEach((btn) => {
+      btn.addEventListener('click', () => { cart.splice(+btn.dataset.i, 1); renderCart(); });
+    });
   }
 
   async function submitSale() {
-    if (!selectedMed) {
-      showToast('Sélectionnez un médicament', true);
-      return;
-    }
-    const qty = parseInt($('#sale-qty').value, 10) || 0;
-    if (qty <= 0 || qty > selectedMed.quantite_stock) {
-      showToast('Quantité invalide', true);
-      return;
-    }
+    if (!journeeOuverte) { showToast('Journée non ouverte', true); return; }
+    if (!cart.length) { showToast('Ajoutez des produits', true); return; }
+    const devise = $('#sale-devise').value;
     const btn = $('#btn-valider-vente');
     btn.disabled = true;
     try {
       const result = await Api.createVente({
-        medicament_id: selectedMed.id,
-        quantite: qty,
-        devise: $('#sale-devise').value,
+        lignes: cart.map((c) => ({
+          medicament_id: c.id,
+          quantite: c.qty,
+          prix_unitaire: devise === 'USD' ? c.prix / tauxJour : c.prix,
+        })),
+        devise,
         client_nom: $('#sale-client').value.trim(),
         notes: $('#sale-notes').value.trim(),
       });
       lastVenteId = result.id;
       const box = $('#sale-success');
       box.classList.remove('hidden');
-      box.innerHTML = `
-        Vente enregistrée : <strong>${escapeHtml(result.numero)}</strong> — ${Format.money(result.montant_total, result.devise)}
-        <br><button type="button" class="btn btn-outline btn-sm" id="btn-voir-recu" style="margin-top:8px">Voir le reçu</button>
-      `;
+      box.innerHTML = `Facture <strong>${escapeHtml(result.numero)}</strong> — ${result.nb_lignes} article(s) — ${Format.money(result.montant_total, result.devise)}
+        <br><button type="button" class="btn btn-outline btn-sm" id="btn-voir-recu" style="margin-top:8px">Voir le reçu</button>`;
       $('#btn-voir-recu').addEventListener('click', () => openRecu(result.id));
-      showToast('Vente enregistrée');
-      selectedMed = null;
-      $('#sale-form-card').style.display = 'none';
+      cart = [];
+      renderCart();
+      showToast('Facture enregistrée');
       loadMedicaments($('#search-med').value.trim());
     } catch (ex) {
       showToast(ex.message, true);
     } finally {
-      btn.disabled = false;
+      btn.disabled = !journeeOuverte || !cart.length;
     }
   }
 
@@ -421,6 +477,8 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => loadMedicaments(e.target.value.trim()), 250);
     });
+
+    $('#sale-devise').addEventListener('change', renderCart);
 
     $('#search-stock').addEventListener('input', (e) => {
       clearTimeout(searchTimer);

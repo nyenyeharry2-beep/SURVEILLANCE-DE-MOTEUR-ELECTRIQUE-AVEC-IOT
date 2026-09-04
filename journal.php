@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/journal.php';
+require_once __DIR__ . '/includes/journee.php';
 requireLogin();
 
 $db = getDB();
+ensureJourneeSchema($db);
 $date = $_GET['date'] ?? date('Y-m-d');
+$tauxDefaut = getTauxUsdCdf();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
@@ -13,8 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if ($action === 'open') {
-            openJournalDay($db, $postDate);
-            flash('success', 'Journée du ' . formatDate($postDate) . ' ouverte. Stock initial enregistré.');
+            $fondCdf = (float) ($_POST['fond_caisse_cdf'] ?? 0);
+            $fondUsd = (float) ($_POST['fond_caisse_usd'] ?? 0);
+            $taux = (float) ($_POST['taux_usd_cdf'] ?? $tauxDefaut);
+            if ($taux <= 0) {
+                flash('danger', 'Taux USD/FC obligatoire.');
+            } else {
+                openJourneeWithCaisse($db, $postDate, $fondCdf, $fondUsd, $taux);
+                flash('success', 'Journée du ' . formatDate($postDate) . ' ouverte. Fond caisse et taux enregistrés.');
+            }
         }
 
         if ($action === 'sync') {
@@ -36,12 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($journal['cloture']) {
                 flash('warning', 'Journée déjà clôturée.');
             } else {
-                closeJournalDay($db, (int) $journal['id'], currentUser()['id']);
-                $nextDate = date('Y-m-d', strtotime($postDate . ' +1 day'));
-                if (!getJournal($db, $nextDate)) {
-                    openJournalDay($db, $nextDate);
-                }
-                flash('success', 'Journée clôturée. Le stock final devient le stock initial de demain.');
+                $caisseCdf = (float) ($_POST['caisse_cloture_cdf'] ?? 0);
+                $caisseUsd = (float) ($_POST['caisse_cloture_usd'] ?? 0);
+                closeJourneeWithCaisse($db, $postDate, $caisseCdf, $caisseUsd, currentUser()['id']);
+                flash('success', 'Journée clôturée. Montant caisse enregistré. Ouvrez la journée suivante avec le fond de caisse.');
             }
         }
 
@@ -64,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $journal = getJournal($db, $date);
 $lines = $journal ? getJournalLines($db, (int) $journal['id']) : [];
 $prevJournal = getPreviousClosedJournal($db, $date);
+$journeeStatus = getJourneeStatus($db, $date);
 
 $pageTitle = 'Journal quotidien';
 require_once __DIR__ . '/includes/header.php';
@@ -90,12 +99,24 @@ require_once __DIR__ . '/includes/header.php';
     <div class="card-body text-center py-5">
         <i class="bi bi-sunrise text-warning" style="font-size:3rem;"></i>
         <h4 class="mt-3">Ouvrir la journée du <?= formatDate($date) ?></h4>
-        <p class="text-muted">Enregistrez le stock initial du matin. Il reprend le stock final de la veille si la journée précédente est clôturée.</p>
-        <form method="post" class="d-inline">
+        <p class="text-muted">Indiquez le fond de caisse du matin et le taux USD/FC du jour. Les ventes ne sont possibles qu'après ouverture.</p>
+        <form method="post" class="text-start mx-auto" style="max-width:420px">
             <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
             <input type="hidden" name="action" value="open">
             <input type="hidden" name="date" value="<?= e($date) ?>">
-            <button type="submit" class="btn btn-primary btn-lg">
+            <div class="mb-3">
+                <label class="form-label">Fond caisse matin (FC)</label>
+                <input type="number" name="fond_caisse_cdf" class="form-control" min="0" step="1" value="0" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fond caisse matin ($)</label>
+                <input type="number" name="fond_caisse_usd" class="form-control" min="0" step="0.01" value="0">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Taux du jour (1 USD = … FC)</label>
+                <input type="number" name="taux_usd_cdf" class="form-control" min="1" step="1" value="<?= (int) $tauxDefaut ?>" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100">
                 <i class="bi bi-door-open me-1"></i> Ouvrir la journée
             </button>
         </form>
@@ -113,13 +134,23 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-arrow-clockwise me-1"></i> Actualiser entrées/sorties
         </button>
     </form>
-    <form method="post" class="d-inline" data-confirm="Clôturer la journée ? Le stock final sera le stock initial de demain.">
+    <form method="post" class="d-inline" data-confirm="Clôturer la journée ? Indiquez le montant en caisse ce soir.">
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <input type="hidden" name="action" value="close">
         <input type="hidden" name="date" value="<?= e($date) ?>">
-        <button type="submit" class="btn btn-success">
-            <i class="bi bi-moon-stars me-1"></i> Clôturer le soir
-        </button>
+        <div class="d-flex flex-wrap gap-2 align-items-end">
+            <div>
+                <label class="form-label small mb-0">Caisse soir (FC)</label>
+                <input type="number" name="caisse_cloture_cdf" class="form-control form-control-sm" min="0" step="1" required placeholder="Montant FC">
+            </div>
+            <div>
+                <label class="form-label small mb-0">Caisse soir ($)</label>
+                <input type="number" name="caisse_cloture_usd" class="form-control form-control-sm" min="0" step="0.01" value="0">
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-moon-stars me-1"></i> Clôturer le soir
+            </button>
+        </div>
     </form>
     <?php else: ?>
     <span class="badge bg-success fs-6 py-2 px-3">
@@ -128,7 +159,39 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 </div>
 
-<h5 class="mb-3"><i class="bi bi-cash-stack me-1"></i> Récapitulatif argent (FC / $)</h5>
+<h5 class="mb-3"><i class="bi bi-cash-stack me-1"></i> Caisse du jour</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card h-100 border-info">
+            <div class="card-body">
+                <div class="text-muted small">Fond caisse matin</div>
+                <div class="fw-bold"><?= formatCDF((float) ($journal['fond_caisse_cdf'] ?? 0)) ?></div>
+                <div class="text-primary"><?= formatUSD((float) ($journal['fond_caisse_usd'] ?? 0)) ?></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card h-100 border-secondary">
+            <div class="card-body">
+                <div class="text-muted small">Taux du jour</div>
+                <div class="fw-bold">1 USD = <?= number_format((float) ($journal['taux_usd_cdf'] ?? $tauxDefaut), 0, ',', ' ') ?> FC</div>
+            </div>
+        </div>
+    </div>
+    <?php if ($journal['cloture']): ?>
+    <div class="col-md-3">
+        <div class="card stat-card h-100 border-success">
+            <div class="card-body">
+                <div class="text-muted small">Caisse clôture soir</div>
+                <div class="fw-bold"><?= formatCDF((float) ($journal['caisse_cloture_cdf'] ?? 0)) ?></div>
+                <div class="text-primary"><?= formatUSD((float) ($journal['caisse_cloture_usd'] ?? 0)) ?></div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<h5 class="mb-3"><i class="bi bi-cash-stack me-1"></i> Récapitulatif stock (FC / $)</h5>
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card stat-card h-100 border-secondary">
