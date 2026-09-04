@@ -218,6 +218,29 @@ body {
   text-shadow: 0 1px 10px rgba(255, 255, 255, 0.95);
 }
 
+.poster-error {
+  width: 1200px;
+  height: 1700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  background: #fff5f5;
+  color: #c62828;
+  font-family: Inter, sans-serif;
+  font-size: 22px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.poster-error small {
+  display: block;
+  margin-top: 12px;
+  font-size: 16px;
+  color: #666;
+}
+
 @keyframes posterShimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -526,7 +549,6 @@ body {
 .phone-frame .poster-viewport {
   width: calc(1200px * 0.22);
   height: calc(1700px * 0.22);
-  aspect-ratio: 12 / 17;
   overflow: hidden;
   background: #fff;
   border-radius: 8px;
@@ -586,7 +608,12 @@ body {
   overflow: hidden;
 }
 
-.poster-viewport { overflow: hidden; margin: 0 auto; aspect-ratio: 12 / 17; }
+.poster-viewport { overflow: hidden; margin: 0 auto; }
+
+.poster-host {
+  width: 1200px;
+  height: 1700px;
+}
 
 .poster-scaler {
   width: 1200px;

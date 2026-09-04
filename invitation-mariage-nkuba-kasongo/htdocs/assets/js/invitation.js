@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.1.3';
+  const V = document.body.dataset.version || '3.1.4';
   let STYLES = [];
   let PRESETS = {};
 
@@ -160,26 +160,27 @@
   }
 
   function bindPosterData(root, d, qrData) {
+    const poster = getPosterRoot(root);
     const tableVal = d.table || '—';
-    root.querySelectorAll('[data-bind="couple"]').forEach(el => {
+    poster.querySelectorAll('[data-bind="couple"]').forEach(el => {
       el.crossOrigin = 'anonymous';
       el.src = coupleUrl();
     });
-    root.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
-    root.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = tableVal; });
-    const table2 = root.querySelector('[data-bind="table2"]');
+    poster.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
+    poster.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = tableVal; });
+    const table2 = poster.querySelector('[data-bind="table2"]');
     if (table2) table2.textContent = tableVal;
-    const seatsEl = root.querySelector('[data-bind="seats"]');
+    const seatsEl = poster.querySelector('[data-bind="seats"]');
     if (seatsEl) seatsEl.textContent = d.seats;
-    root.querySelectorAll('[data-bind-table]').forEach(el => {
+    poster.querySelectorAll('[data-bind-table]').forEach(el => {
       el.classList.toggle('is-empty', isBlankTable(tableVal));
     });
-    const seatsTablePart = root.querySelector('.seats-table-part');
+    const seatsTablePart = poster.querySelector('.seats-table-part');
     if (seatsTablePart) seatsTablePart.classList.toggle('is-empty', isBlankTable(tableVal));
-    root.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
-    root.querySelectorAll('[data-bind="time"]').forEach(el => { el.textContent = d.time || '11h00'; });
-    root.querySelectorAll('[data-bind="venue"]').forEach(el => { el.textContent = d.venue || 'Commune de Kipushi, Ville de KIPUSHI'; });
-    renderQrCode(root.querySelector('[data-bind="qr"]'), qrData);
+    poster.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
+    poster.querySelectorAll('[data-bind="time"]').forEach(el => { el.textContent = d.time || '11h00'; });
+    poster.querySelectorAll('[data-bind="venue"]').forEach(el => { el.textContent = d.venue || 'Commune de Kipushi, Ville de KIPUSHI'; });
+    renderQrCode(poster.querySelector('[data-bind="qr"]'), qrData);
   }
 
   function posterUrl() {
@@ -293,28 +294,42 @@
 
     showPosterLoading(host, style);
 
-    if (usePngRenderer()) {
-      const url = buildGenerateUrl(d, qrData, style);
-      host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(d.guest) + '"/>';
-    } else {
-      if (!PRESETS[style]) return;
-      host.innerHTML = await loadTemplate(style);
+    try {
+      if (usePngRenderer()) {
+        const url = buildGenerateUrl(d, qrData, style);
+        if (seq !== renderSeqByTarget[targetId]) return;
+        host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(d.guest) + '"/>';
+      } else {
+        if (!PRESETS[style]) {
+          if (seq !== renderSeqByTarget[targetId]) return;
+          host.innerHTML = '<div class="poster-error">Modèle « ' + esc(style) + ' » introuvable</div>';
+          return;
+        }
+        const html = await loadTemplate(style);
+        if (seq !== renderSeqByTarget[targetId]) return;
+        host.innerHTML = html;
+        bindPosterData(host, d, qrData);
+        await waitForImages(getPosterRoot(host));
+        if (seq !== renderSeqByTarget[targetId]) return;
+        await waitForQr(getPosterRoot(host), qrData);
+      }
+
       if (seq !== renderSeqByTarget[targetId]) return;
-      bindPosterData(host, d, qrData);
-      await waitForImages(host);
-      await waitForQr(host, qrData);
-    }
 
-    if (seq !== renderSeqByTarget[targetId]) return;
+      const label = document.getElementById('previewGuestLabel');
+      if (label) label.textContent = d.guest;
+      const qrPreview = document.getElementById('qrDataPreview');
+      if (qrPreview) qrPreview.textContent = qrData;
 
-    const label = document.getElementById('previewGuestLabel');
-    if (label) label.textContent = d.guest;
-    const qrPreview = document.getElementById('qrDataPreview');
-    if (qrPreview) qrPreview.textContent = qrData;
-
-    if (targetId === 'previewPoster') {
-      invalidateBlobCache();
-      prepareShareBlob().catch(() => {});
+      if (targetId === 'previewPoster') {
+        invalidateBlobCache();
+        requestAnimationFrame(() => {
+          prepareShareBlob().catch(() => {});
+        });
+      }
+    } catch (e) {
+      if (seq !== renderSeqByTarget[targetId]) return;
+      host.innerHTML = '<div class="poster-error">Impossible d\'afficher l\'invitation.<br/><small>' + esc(e.message) + '</small></div>';
     }
   }
 
@@ -368,8 +383,14 @@
   async function loadTemplate(style) {
     if (templateCache[style]) return templateCache[style];
     const tpl = PRESETS[style]?.template || 'assets/invitations/mariage_civil.html';
-    templateCache[style] = await fetch(tpl).then(r => r.text());
+    const res = await fetch(tpl + (tpl.includes('?') ? '&' : '?') + 'v=' + V);
+    if (!res.ok) throw new Error('Modèle introuvable (' + tpl + ')');
+    templateCache[style] = await res.text();
     return templateCache[style];
+  }
+
+  function getPosterRoot(host) {
+    return host.querySelector('.poster') || host;
   }
 
   function waitForImages(root) {
@@ -664,7 +685,9 @@
       qrEl.dataset.manual = '0';
       syncQrDataField(true);
     }
-    setStyle(currentStyle);
+    document.querySelectorAll('.style-thumb').forEach(t => {
+      t.classList.toggle('active', t.dataset.style === currentStyle);
+    });
     showScreen('preview');
   }
 
@@ -688,20 +711,24 @@
     await loadGuestList();
   }
 
-  function setStyle(style) {
+  function setStyle(style, options) {
+    const opts = options || {};
     currentStyle = style;
     document.querySelectorAll('.style-thumb').forEach(t => {
       t.classList.toggle('active', t.dataset.style === style);
     });
-    updateHeroPoster();
-    renderAddPreview();
+    if (!opts.skipHero) updateHeroPoster();
+    if (!opts.skipAdd) renderAddPreview();
   }
 
-  function showScreen(id) {
+  async function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id)?.classList.add('active');
     window.scrollTo(0, 0);
-    if (id === 'preview') renderPreview('previewPoster');
+    if (id === 'preview') {
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await renderPreview('previewPoster');
+    }
     if (id === 'guests') loadGuestList();
     if (id === 'config') renderConfigPreview();
     if (id === 'add') renderAddPreview();
@@ -746,7 +773,7 @@
     }
     syncQrDataField(true);
     await saveGuest();
-    showScreen('preview');
+    await showScreen('preview');
   }
 
   function bindEvents() {

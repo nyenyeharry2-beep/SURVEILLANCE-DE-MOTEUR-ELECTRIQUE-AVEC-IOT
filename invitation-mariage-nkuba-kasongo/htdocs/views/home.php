@@ -43,14 +43,16 @@
 
     <div class="preview-card">
       <div class="poster-viewport" style="--inv-scale:0.24">
-        <div class="poster-scaler" id="heroPreview">
-          <div class="poster-loading" style="--load-accent:#6B2D82">
-            <div class="poster-loading-photo">
-              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-              <div class="poster-loading-shimmer"></div>
+        <div class="poster-scaler">
+          <div class="poster-host" id="heroPreview">
+            <div class="poster-loading" style="--load-accent:#6B2D82">
+              <div class="poster-loading-photo">
+                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+                <div class="poster-loading-shimmer"></div>
+              </div>
+              <div class="poster-loading-spinner"></div>
+              <span class="poster-loading-text">Chargement…</span>
             </div>
-            <div class="poster-loading-spinner"></div>
-            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>
@@ -93,7 +95,9 @@
 
     <div class="preview-card preview-card-sm">
       <div class="poster-viewport" style="--inv-scale:0.18">
-        <div class="poster-scaler" id="configPreview"></div>
+        <div class="poster-scaler">
+          <div class="poster-host" id="configPreview"></div>
+        </div>
       </div>
     </div>
 
@@ -161,14 +165,16 @@ Votre présence fera notre immense joie.</textarea>
     <div class="preview-card preview-card-add">
       <p class="preview-live-label">Aperçu du modèle sélectionné</p>
       <div class="poster-viewport" style="--inv-scale:0.20">
-        <div class="poster-scaler" id="addPreview">
-          <div class="poster-loading" style="--load-accent:#6B2D82">
-            <div class="poster-loading-photo">
-              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-              <div class="poster-loading-shimmer"></div>
+        <div class="poster-scaler">
+          <div class="poster-host" id="addPreview">
+            <div class="poster-loading" style="--load-accent:#6B2D82">
+              <div class="poster-loading-photo">
+                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+                <div class="poster-loading-shimmer"></div>
+              </div>
+              <div class="poster-loading-spinner"></div>
+              <span class="poster-loading-text">Chargement…</span>
             </div>
-            <div class="poster-loading-spinner"></div>
-            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>
@@ -193,14 +199,16 @@ Votre présence fera notre immense joie.</textarea>
     <p class="page-desc">Pour : <strong id="previewGuestLabel">—</strong></p>
     <div class="phone-frame">
       <div class="poster-viewport" style="--inv-scale:0.22">
-        <div class="poster-scaler" id="previewPoster">
-          <div class="poster-loading" style="--load-accent:#6B2D82">
-            <div class="poster-loading-photo">
-              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-              <div class="poster-loading-shimmer"></div>
+        <div class="poster-scaler">
+          <div class="poster-host" id="previewPoster">
+            <div class="poster-loading" style="--load-accent:#6B2D82">
+              <div class="poster-loading-photo">
+                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+                <div class="poster-loading-shimmer"></div>
+              </div>
+              <div class="poster-loading-spinner"></div>
+              <span class="poster-loading-text">Chargement…</span>
             </div>
-            <div class="poster-loading-spinner"></div>
-            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>

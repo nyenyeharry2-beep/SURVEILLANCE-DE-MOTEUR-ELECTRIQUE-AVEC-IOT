@@ -17,8 +17,13 @@
   overflow: hidden;
   width: calc(1200px * var(--inv-scale, 0.28));
   height: calc(1700px * var(--inv-scale, 0.28));
-  aspect-ratio: 12 / 17;
   margin: 0 auto;
+}
+
+.poster-host {
+  width: 1200px;
+  height: 1700px;
+  position: relative;
 }
 
 .poster,
@@ -28,8 +33,8 @@
 .poster-cercle-royal,
 .poster-ticket-chic,
 .poster-jardin-floral {
-  aspect-ratio: 12 / 17;
-  max-width: 1200px;
+  width: 1200px;
+  height: 1700px;
   box-sizing: border-box;
 }
 
