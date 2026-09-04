@@ -1,0 +1,901 @@
+(function () {
+  'use strict';
+
+  const V = document.body.dataset.version || '3.1.5';
+  let STYLES = [];
+  let PRESETS = {};
+
+  let branding = window.NKUBA_BRANDING || {
+    couple: 'assets/couple_photo.jpg',
+    renderMode: 'html'
+  };
+  let currentStyle = 'mariage-civil';
+  let guestSort = 'name';
+  let guestFilter = '';
+  let guestsCache = [];
+  let lastGuestId = null;
+  let guestUniqueId = null;
+  let templateCache = {};
+  let cachedInvitationBlob = null;
+  let cachedBlobKey = '';
+  let previewBlobUrl = null;
+  const renderSeqByTarget = {};
+
+  const POSTER_W = 1200;
+  const POSTER_H = 1700;
+  const EXPORT_SCALE = 2;
+
+  function bust(url) {
+    return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+  }
+
+  function uniqueGuestId() {
+    return Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
+
+  function ensureGuestId() {
+    if (!guestUniqueId) guestUniqueId = uniqueGuestId();
+    return guestUniqueId;
+  }
+
+  function resetGuestId(id) {
+    guestUniqueId = id || uniqueGuestId();
+  }
+
+  async function loadBranding() {
+    try {
+      const json = await fetch('api/branding.php').then(r => r.json());
+      if (json.success) branding = json;
+    } catch (e) { /* ok */ }
+    updateHeroPoster();
+    refreshLogos();
+  }
+
+  async function loadConfigFromServer() {
+    try {
+      const json = await fetch('api/config.php').then(r => r.json());
+      if (!json.success) return;
+      const c = json.config;
+      if (c.event_date) document.getElementById('cfgDate').value = c.event_date;
+      if (c.event_time) document.getElementById('cfgTime').value = c.event_time;
+      if (c.event_venue) document.getElementById('cfgVenue').value = c.event_venue;
+      if (c.whatsapp_message) document.getElementById('cfgMessage').value = c.whatsapp_message;
+    } catch (e) { /* offline */ }
+  }
+
+  async function saveConfigToServer() {
+    const body = {
+      event_date: document.getElementById('cfgDate').value,
+      event_time: document.getElementById('cfgTime').value,
+      event_venue: document.getElementById('cfgVenue').value,
+      whatsapp_message: document.getElementById('cfgMessage').value
+    };
+    try {
+      await fetch('api/config.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } catch (e) { /* ok */ }
+  }
+
+  function getFormData() {
+    const guest = (document.getElementById('guestName')?.value || '').trim();
+    return {
+      guest: guest || 'Invité',
+      table: document.getElementById('tableNum')?.value?.trim() || '—',
+      seats: document.getElementById('seats')?.value || '1',
+      whatsapp: document.getElementById('whatsapp')?.value?.trim() || '',
+      date: document.getElementById('cfgDate')?.value || '',
+      time: document.getElementById('cfgTime')?.value || '',
+      venue: document.getElementById('cfgVenue')?.value || ''
+    };
+  }
+
+  function buildDefaultQrData() {
+    const d = getFormData();
+    const id = ensureGuestId();
+    return 'INVITE|nom:' + d.guest + '|id:' + id + '|table:' + d.table + '|places:' + d.seats;
+  }
+
+  function getQrPayload() {
+    const el = document.getElementById('qrData');
+    const custom = (el?.value || '').trim();
+    if (custom) return custom;
+    return buildDefaultQrData();
+  }
+
+  function syncQrDataField(force) {
+    const el = document.getElementById('qrData');
+    if (!el) return;
+    if (force || el.dataset.manual !== '1') {
+      el.value = buildDefaultQrData();
+    }
+  }
+
+  function getStyleAccent(style) {
+    return PRESETS[style || currentStyle]?.accent || '#6B2D82';
+  }
+
+  function getDemoData() {
+    return {
+      guest: (document.getElementById('guestName')?.value || '').trim() || 'Nom invité',
+      table: document.getElementById('tableNum')?.value?.trim() || '—',
+      seats: document.getElementById('seats')?.value || '2',
+      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
+      time: document.getElementById('cfgTime')?.value || '11h00',
+      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
+    };
+  }
+
+  function showPosterLoading(host, style) {
+    if (!host) return;
+    const accent = getStyleAccent(style);
+    const photo = coupleUrl();
+    host.innerHTML = `
+      <div class="poster-loading" style="--load-accent:${escAttr(accent)}">
+        <div class="poster-loading-photo">
+          <img src="${escAttr(photo)}" alt=""/>
+          <div class="poster-loading-shimmer"></div>
+        </div>
+        <div class="poster-loading-spinner"></div>
+        <span class="poster-loading-text">Chargement…</span>
+      </div>`;
+  }
+
+  function qrNodeReady(container) {
+    if (!container) return false;
+    const node = container.querySelector('canvas, img');
+    if (!node) return false;
+    if (node.tagName === 'CANVAS') return node.width > 0 && node.height > 0;
+    return node.complete && node.naturalWidth > 0;
+  }
+
+  function coupleUrl() {
+    return bust(branding.couple || 'assets/couple_photo.jpg');
+  }
+
+  function isBlankTable(val) {
+    const v = String(val || '').trim();
+    return !v || v === '—' || v === '-' || v === '...';
+  }
+
+  function bindPosterData(root, d, qrData) {
+    const poster = getPosterRoot(root);
+    const tableVal = d.table || '—';
+    poster.querySelectorAll('[data-bind="couple"]').forEach(el => {
+      el.removeAttribute('crossorigin');
+      el.src = coupleUrl();
+    });
+    poster.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
+    poster.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = tableVal; });
+    const table2 = poster.querySelector('[data-bind="table2"]');
+    if (table2) table2.textContent = tableVal;
+    const seatsEl = poster.querySelector('[data-bind="seats"]');
+    if (seatsEl) seatsEl.textContent = d.seats;
+    poster.querySelectorAll('[data-bind-table]').forEach(el => {
+      el.classList.toggle('is-empty', isBlankTable(tableVal));
+    });
+    const seatsTablePart = poster.querySelector('.seats-table-part');
+    if (seatsTablePart) seatsTablePart.classList.toggle('is-empty', isBlankTable(tableVal));
+    poster.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
+    poster.querySelectorAll('[data-bind="time"]').forEach(el => { el.textContent = d.time || '11h00'; });
+    poster.querySelectorAll('[data-bind="venue"]').forEach(el => { el.textContent = d.venue || 'Commune de Kipushi, Ville de KIPUSHI'; });
+    renderQrCode(poster.querySelector('[data-bind="qr"]'), qrData);
+  }
+
+  function posterUrl() {
+    return coupleUrl();
+  }
+
+  function renderQrCode(container, data) {
+    if (!container) return false;
+    if (typeof QRCode === 'undefined') return false;
+    container.innerHTML = '';
+    const size = 184;
+    try {
+      /* eslint-disable no-new */
+      new QRCode(container, {
+        text: String(data || 'INVITE'),
+        width: size,
+        height: size,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      return true;
+    } catch (e) {
+      try {
+        new QRCode(container, {
+          text: String(data || 'INVITE').slice(0, 120),
+          width: size,
+          height: size,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.L
+        });
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
+  }
+
+  function usePngRenderer() {
+    return (branding.renderMode || 'html') === 'png';
+  }
+
+  async function loadStyles() {
+    try {
+      const json = await fetch('api/styles.php?v=' + V).then(r => r.json());
+      if (json.success && json.styles) {
+        STYLES = json.styles;
+        PRESETS = {};
+        STYLES.forEach(s => { PRESETS[s.id] = { template: s.template, ...s }; });
+      }
+    } catch (e) { /* fallback */ }
+    if (!STYLES.length) {
+      STYLES = [
+        { id: 'mariage-civil', name: 'Mariage Civil', subtitle: 'Violet', chipClass: 'style-civil', template: 'assets/invitations/mariage_civil.html' },
+        { id: 'affiche-blanche', name: 'Bénédiction', subtitle: 'Blanche', chipClass: 'style-blanche', template: 'assets/invitations/affiche_blanche.html' }
+      ];
+      STYLES.forEach(s => { PRESETS[s.id] = s; });
+    }
+    renderStyleGrid();
+    preloadAllTemplates();
+  }
+
+  function preloadAllTemplates() {
+    STYLES.forEach(s => {
+      loadTemplate(s.id).catch(() => {});
+    });
+  }
+
+  function renderStyleGrid() {
+    const grid = document.getElementById('styleGrid');
+    if (!grid) return;
+    grid.innerHTML = STYLES.map(s => `
+      <div class="style-thumb${s.id === currentStyle ? ' active' : ''}" data-style="${s.id}">
+        <span class="check">✓</span>
+        <div class="preview-wrap style-chip ${s.chipClass || ''}">
+          <span>${esc(s.name)}</span>
+        </div>
+        <span class="style-name">${esc(s.name)}</span>
+        <span class="style-sub">${esc(s.subtitle || s.shape || '')}</span>
+      </div>
+    `).join('');
+    grid.querySelectorAll('.style-thumb').forEach(btn => {
+      btn.addEventListener('click', () => setStyle(btn.dataset.style));
+    });
+  }
+
+  function buildGenerateUrl(d, qrOverride, styleOverride) {
+    return 'api/generate.php?' + new URLSearchParams({
+      style: styleOverride || currentStyle,
+      guest: d.guest || 'Invité',
+      table: d.table || '—',
+      seats: String(d.seats || '1'),
+      qr: qrOverride || getQrPayload(),
+      _: Date.now()
+    });
+  }
+
+  function generateUrl() {
+    return buildGenerateUrl(getFormData());
+  }
+
+  function revokePreviewBlobUrl() {
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+      previewBlobUrl = null;
+    }
+  }
+
+  function setPreviewImage(host, blob, guestName) {
+    revokePreviewBlobUrl();
+    previewBlobUrl = URL.createObjectURL(blob);
+    host.innerHTML = '<img class="poster-preview-img" src="' + previewBlobUrl + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(guestName) + '"/>';
+  }
+
+  async function renderPreviewInline(host, d, qrData, style) {
+    const html = await loadTemplate(style);
+    host.innerHTML = html;
+    bindPosterData(host, d, qrData);
+    await waitForImages(getPosterRoot(host));
+    await waitForQr(getPosterRoot(host), qrData);
+  }
+
+  async function buildInvitationBlobFor(d, qrData, style) {
+    if (usePngRenderer()) {
+      const res = await fetch(buildGenerateUrl(d, qrData, style));
+      if (!res.ok) throw new Error('Génération PNG échouée');
+      return await res.blob();
+    }
+    const el = await renderForExport(d, qrData, style);
+    if (!el) throw new Error('Aperçu introuvable');
+    if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
+
+    el.style.width = POSTER_W + 'px';
+    el.style.height = POSTER_H + 'px';
+    el.style.maxWidth = POSTER_W + 'px';
+    el.style.maxHeight = POSTER_H + 'px';
+
+    const raw = await html2canvas(el, {
+      scale: EXPORT_SCALE,
+      width: POSTER_W,
+      height: POSTER_H,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      imageTimeout: 15000
+    });
+
+    const outW = POSTER_W * EXPORT_SCALE;
+    const outH = POSTER_H * EXPORT_SCALE;
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    if (raw.width > raw.height) {
+      ctx.save();
+      ctx.translate(outW / 2, outH / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(raw, -outH / 2, -outW / 2, outH, outW);
+      ctx.restore();
+    } else {
+      ctx.drawImage(raw, 0, 0, outW, outH);
+    }
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.96);
+    });
+  }
+
+  async function renderPreviewPosterImage(host, d, qrData, style, seq, targetId) {
+    setShareButtonsLoading(true);
+    try {
+      const blob = await buildInvitationBlobFor(d, qrData, style);
+      if (seq !== renderSeqByTarget[targetId]) return;
+      setPreviewImage(host, blob, d.guest);
+      cachedInvitationBlob = blob;
+      cachedBlobKey = style + '::' + qrData + '::' + d.guest + '::' + d.table + '::' + d.seats;
+    } catch (e) {
+      if (seq !== renderSeqByTarget[targetId]) return;
+      try {
+        await renderPreviewInline(host, d, qrData, style);
+        invalidateBlobCache();
+        requestAnimationFrame(() => prepareShareBlob().catch(() => {}));
+      } catch (e2) {
+        throw e2;
+      }
+    } finally {
+      setShareButtonsLoading(false);
+    }
+  }
+
+  async function renderPreview(targetId, dataOverride, qrOverride, styleOverride) {
+    const d = dataOverride || getFormData();
+    const host = document.getElementById(targetId);
+    if (!host) return;
+    const style = styleOverride || currentStyle;
+    const qrData = qrOverride || getQrPayload();
+    renderSeqByTarget[targetId] = (renderSeqByTarget[targetId] || 0) + 1;
+    const seq = renderSeqByTarget[targetId];
+
+    showPosterLoading(host, style);
+
+    try {
+      if (targetId === 'previewPoster') {
+        await renderPreviewPosterImage(host, d, qrData, style, seq, targetId);
+      } else if (usePngRenderer()) {
+        const url = buildGenerateUrl(d, qrData, style);
+        if (seq !== renderSeqByTarget[targetId]) return;
+        host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(d.guest) + '"/>';
+      } else {
+        if (!PRESETS[style]) {
+          if (seq !== renderSeqByTarget[targetId]) return;
+          host.innerHTML = '<div class="poster-error">Modèle « ' + esc(style) + ' » introuvable</div>';
+          return;
+        }
+        await renderPreviewInline(host, d, qrData, style);
+        if (seq !== renderSeqByTarget[targetId]) return;
+      }
+
+      if (seq !== renderSeqByTarget[targetId]) return;
+
+      const label = document.getElementById('previewGuestLabel');
+      if (label) label.textContent = d.guest;
+      const qrPreview = document.getElementById('qrDataPreview');
+      if (qrPreview) qrPreview.textContent = qrData;
+    } catch (e) {
+      if (seq !== renderSeqByTarget[targetId]) return;
+      if (targetId !== 'previewPoster' || !host.querySelector('.poster')) {
+        host.innerHTML = '<div class="poster-error">Impossible d\'afficher l\'invitation.<br/><small>' + esc(e.message) + '</small></div>';
+      }
+    }
+  }
+
+  function getBlobCacheKey() {
+    const d = getFormData();
+    return currentStyle + '::' + getQrPayload() + '::' + d.guest + '::' + d.table + '::' + d.seats;
+  }
+
+  function invalidateBlobCache() {
+    cachedInvitationBlob = null;
+    cachedBlobKey = '';
+  }
+
+  function setShareButtonsLoading(loading) {
+    const btn = document.getElementById('btnSendWa');
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading ? '⏳ Préparation de l\'image…' : '💬 Envoyer sur WhatsApp';
+  }
+
+  async function prepareShareBlob() {
+    const key = getBlobCacheKey();
+    if (cachedInvitationBlob && cachedBlobKey === key) {
+      setShareButtonsLoading(false);
+      return cachedInvitationBlob;
+    }
+    setShareButtonsLoading(true);
+    try {
+      const blob = await buildInvitationBlob();
+      cachedInvitationBlob = blob;
+      cachedBlobKey = key;
+      return blob;
+    } finally {
+      setShareButtonsLoading(false);
+    }
+  }
+
+  async function buildInvitationBlob() {
+    const d = getFormData();
+    const qrData = getQrPayload();
+    if (cachedInvitationBlob && cachedBlobKey === getBlobCacheKey()) {
+      return cachedInvitationBlob;
+    }
+    return buildInvitationBlobFor(d, qrData, currentStyle);
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  async function loadTemplate(style) {
+    if (templateCache[style]) return templateCache[style];
+    const tpl = PRESETS[style]?.template || 'assets/invitations/mariage_civil.html';
+    const res = await fetch(tpl + (tpl.includes('?') ? '&' : '?') + 'v=' + V);
+    if (!res.ok) throw new Error('Modèle introuvable (' + tpl + ')');
+    templateCache[style] = await res.text();
+    return templateCache[style];
+  }
+
+  function getPosterRoot(host) {
+    return host.querySelector('.poster') || host;
+  }
+
+  function waitForImages(root) {
+    const imgs = root.querySelectorAll('img[data-bind="couple"]');
+    return Promise.all([...imgs].map(img => new Promise(resolve => {
+      if (img.complete) return resolve();
+      img.onload = img.onerror = resolve;
+    })));
+  }
+
+  async function waitForQr(root, qrData, maxMs = 3000) {
+    const container = root.querySelector('[data-bind="qr"]');
+    if (!container) return;
+    const start = Date.now();
+    while (Date.now() - start < maxMs) {
+      if (qrNodeReady(container)) {
+        await new Promise(r => setTimeout(r, 120));
+        return;
+      }
+      await new Promise(r => setTimeout(r, 60));
+    }
+    renderQrCode(container, qrData || getQrPayload());
+    await new Promise(r => setTimeout(r, 350));
+  }
+
+  async function renderForExport(d, qrData, style) {
+    let host = document.getElementById('invitationRenderHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'invitationRenderHost';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = await loadTemplate(style || currentStyle);
+    bindPosterData(host, d, qrData);
+    await waitForImages(host);
+    await waitForQr(host, qrData);
+    const el = host.querySelector('.poster');
+    if (el) {
+      el.style.width = POSTER_W + 'px';
+      el.style.height = POSTER_H + 'px';
+    }
+    return el;
+  }
+
+  async function capturePosterBlob() {
+    return buildInvitationBlobFor(getFormData(), getQrPayload(), currentStyle);
+  }
+
+  async function fetchInvitationBlob() {
+    if (!document.getElementById('screen-preview')?.classList.contains('active')) {
+      await renderPreview('previewPoster');
+    }
+    return prepareShareBlob();
+  }
+
+  function shareViaWhatsAppFallback(blob, phone, msg) {
+    const fileName = 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    const hint = encodeURIComponent(msg + '\n\n📎 Joignez l\'image invitation qui vient d\'être téléchargée sur votre téléphone.');
+    const waUrl = phone
+      ? 'https://wa.me/' + phone + '?text=' + hint
+      : 'https://wa.me/?text=' + hint;
+    window.open(waUrl, '_blank');
+  }
+
+  async function markGuestSent() {
+    if (!lastGuestId) return;
+    try {
+      await fetch('api/guests.php?action=mark_sent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: lastGuestId })
+      });
+      await loadGuestList();
+    } catch (e) { /* ok */ }
+  }
+
+  function sendWhatsApp() {
+    const phone = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+    const msg = formatWhatsAppMessage();
+    const key = getBlobCacheKey();
+    const blob = cachedInvitationBlob;
+    const cacheReady = blob && cachedBlobKey === key;
+
+    if (!cacheReady) {
+      prepareShareBlob()
+        .then((b) => {
+          shareViaWhatsAppFallback(b, phone, msg);
+          markGuestSent();
+        })
+        .catch((e) => alert('Partage: ' + e.message));
+      return;
+    }
+
+    const file = new File([blob], 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png', { type: 'image/png' });
+    const canNativeShare = navigator.share && navigator.canShare && navigator.canShare({ files: [file] });
+
+    if (canNativeShare) {
+      navigator.share({ text: msg, files: [file] })
+        .then(() => markGuestSent())
+        .catch((err) => {
+          if (err.name === 'AbortError') return;
+          shareViaWhatsAppFallback(blob, phone, msg);
+          markGuestSent();
+        });
+    } else {
+      shareViaWhatsAppFallback(blob, phone, msg);
+      markGuestSent();
+    }
+  }
+
+  function validateGuestName(name) {
+    const n = (name || '').trim();
+    if (!n) return 'Saisissez le nom de l\'invité';
+    if (n.includes('@')) return 'Entrez le NOM de l\'invité (pas un e-mail). L\'e-mail va dans le champ WhatsApp.';
+    if (n.length < 2) return 'Nom trop court';
+    return null;
+  }
+
+  async function renderHtmlPreview(targetId) {
+    return renderPreview(targetId);
+  }
+
+  async function renderHeroPreview() {
+    const host = document.getElementById('heroPreview');
+    if (!host) return;
+    const demo = getDemoData();
+    await renderPreview('heroPreview', demo, 'INVITE|demo|id:HERO', currentStyle);
+    await renderConfigPreview();
+    await renderAddPreview();
+  }
+
+  async function renderConfigPreview() {
+    await renderPreview('configPreview', getDemoData(), 'INVITE|demo|id:CONFIG', currentStyle);
+  }
+
+  async function renderAddPreview() {
+    const host = document.getElementById('addPreview');
+    if (!host) return;
+    await renderPreview('addPreview', getDemoData(), 'INVITE|demo|id:ADD', currentStyle);
+  }
+
+  function updateHeroPoster() {
+    renderHeroPreview();
+  }
+
+  function refreshLogos() {
+    const src = bust(branding.couple);
+    ['homeLogo', 'configLogo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.src = src;
+    });
+  }
+
+  async function uploadPhoto(input, type) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('type', type);
+    fd.append('photo', file);
+    const status = document.getElementById('photoStatus') || document.getElementById('homeUploadStatus');
+    if (status) status.textContent = 'Envoi…';
+    try {
+      const json = await fetch('api/upload.php', { method: 'POST', body: fd }).then(r => r.json());
+      if (!json.success) throw new Error(json.error || 'Upload échoué');
+      if (status) status.textContent = '✓ ' + json.message;
+      setTimeout(() => window.location.reload(), 700);
+    } catch (e) {
+      if (status) status.textContent = '✗ ' + e.message;
+      alert('Upload: ' + e.message);
+    }
+  }
+
+  async function loadGuestList() {
+    try {
+      const json = await fetch('api/guests.php?action=list&sort=' + guestSort).then(r => r.json());
+      if (json.success) guestsCache = json.guests || [];
+    } catch (e) {
+      guestsCache = [];
+    }
+    renderGuestList();
+  }
+
+  function renderGuestList() {
+    const el = document.getElementById('guestListBody');
+    const stats = document.getElementById('guestListStats');
+    if (!el) return;
+
+    let list = guestsCache;
+    if (guestFilter) {
+      const q = guestFilter.toLowerCase();
+      list = list.filter(g =>
+        (g.fullName || '').toLowerCase().includes(q) ||
+        (g.whatsapp || '').includes(q) ||
+        (g.tableZone || '').toLowerCase().includes(q)
+      );
+    }
+
+    const seats = list.reduce((s, g) => s + (g.seats || 1), 0);
+    if (stats) stats.textContent = list.length + ' invité(s) • ' + seats + ' place(s)';
+
+    if (!list.length) {
+      el.innerHTML = '<p class="hint" style="padding:16px;text-align:center">Aucun invité. Ajoutez-en un pour générer une invitation.</p>';
+      return;
+    }
+
+    el.innerHTML = list.map(g => `
+      <div class="guest-row-item" data-id="${g.id}">
+        <div class="guest-row-main">
+          <strong>${esc(g.fullName)}</strong>
+          ${g.sent ? '<span class="badge-sent">Envoyé</span>' : ''}
+          <div class="guest-row-meta">
+            📱 ${esc(g.whatsapp || '—')} &nbsp;•&nbsp; 🪑 ${esc(g.tableZone || '—')} &nbsp;•&nbsp; ${g.seats} pl.
+          </div>
+        </div>
+        <div class="guest-row-actions">
+          <button type="button" class="btn-mini" data-preview-guest="${g.id}">Voir</button>
+        </div>
+      </div>
+    `).join('');
+
+    el.querySelectorAll('[data-preview-guest]').forEach(btn => {
+      btn.addEventListener('click', () => openGuestPreview(parseInt(btn.dataset.previewGuest, 10)));
+    });
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function openGuestPreview(id) {
+    const g = guestsCache.find(x => x.id === id);
+    if (!g) return;
+    document.getElementById('guestName').value = g.fullName || '';
+    document.getElementById('whatsapp').value = g.whatsapp || '';
+    document.getElementById('tableNum').value = g.tableZone || '';
+    document.getElementById('seats').value = g.seats || 1;
+    currentStyle = g.styleId || 'mariage-civil';
+    lastGuestId = g.id;
+    resetGuestId('G' + g.id);
+    const qrEl = document.getElementById('qrData');
+    if (qrEl) {
+      qrEl.dataset.manual = '0';
+      syncQrDataField(true);
+    }
+    document.querySelectorAll('.style-thumb').forEach(t => {
+      t.classList.toggle('active', t.dataset.style === currentStyle);
+    });
+    showScreen('preview');
+  }
+
+  async function saveGuest() {
+    const d = getFormData();
+    try {
+      const res = await fetch('api/guests.php?action=add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: d.guest,
+          whatsapp: d.whatsapp,
+          tableZone: d.table,
+          seats: parseInt(d.seats, 10) || 1,
+          styleId: currentStyle
+        })
+      });
+      const json = await res.json();
+      if (json.success) lastGuestId = json.id;
+    } catch (e) { /* offline */ }
+    await loadGuestList();
+  }
+
+  function setStyle(style, options) {
+    const opts = options || {};
+    currentStyle = style;
+    document.querySelectorAll('.style-thumb').forEach(t => {
+      t.classList.toggle('active', t.dataset.style === style);
+    });
+    if (!opts.skipHero) updateHeroPoster();
+    if (!opts.skipAdd) renderAddPreview();
+  }
+
+  async function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id)?.classList.add('active');
+    window.scrollTo(0, 0);
+    if (id === 'preview') {
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await renderPreview('previewPoster');
+    }
+    if (id === 'guests') loadGuestList();
+    if (id === 'config') renderConfigPreview();
+    if (id === 'add') renderAddPreview();
+  }
+
+  function formatWhatsAppMessage() {
+    let msg = document.getElementById('cfgMessage')?.value || '';
+    const d = getFormData();
+    return msg.replace('{NAME}', d.guest)
+      .replace('{DATE}', d.date)
+      .replace('{TIME}', d.time)
+      .replace('{VENUE}', d.venue)
+      .replace('{TABLE}', d.table)
+      .replace('{SEATS}', d.seats);
+  }
+
+  async function downloadPng() {
+    try {
+      const btn = document.getElementById('btnDownloadPng');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Préparation…'; }
+      const blob = await prepareShareBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png';
+      a.click();
+      URL.revokeObjectURL(url);
+      if (btn) { btn.disabled = false; btn.textContent = '⬇️ Télécharger l\'image'; }
+    } catch (e) {
+      alert('Téléchargement: ' + e.message);
+      const btn = document.getElementById('btnDownloadPng');
+      if (btn) { btn.disabled = false; btn.textContent = '⬇️ Télécharger l\'image'; }
+    }
+  }
+
+  async function onGenerate() {
+    const name = (document.getElementById('guestName')?.value || '').trim();
+    const err = validateGuestName(name);
+    if (err) {
+      alert(err);
+      return;
+    }
+    syncQrDataField(true);
+    await saveGuest();
+    await showScreen('preview');
+  }
+
+  function bindEvents() {
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      el.addEventListener('click', () => showScreen(el.dataset.nav));
+    });
+
+    const liveFields = ['guestName', 'tableNum', 'seats', 'qrData'];
+    liveFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        if (id === 'qrData') {
+          el.dataset.manual = el.value.trim() ? '1' : '0';
+        }
+        if (id !== 'qrData') syncQrDataField(false);
+        if (document.getElementById('screen-preview')?.classList.contains('active')) {
+          renderPreview('previewPoster');
+          invalidateBlobCache();
+        }
+        if (document.getElementById('screen-add')?.classList.contains('active')) {
+          renderAddPreview();
+        }
+      });
+    });
+
+    document.getElementById('btnRegenQr')?.addEventListener('click', () => {
+      resetGuestId();
+      const qrEl = document.getElementById('qrData');
+      if (qrEl) qrEl.dataset.manual = '0';
+      syncQrDataField(true);
+      if (document.getElementById('screen-preview')?.classList.contains('active')) {
+        renderPreview('previewPoster');
+      }
+    });
+
+    document.getElementById('btnSaveConfig')?.addEventListener('click', async () => {
+      await saveConfigToServer();
+      showScreen('home');
+    });
+    document.getElementById('btnGenerate')?.addEventListener('click', onGenerate);
+    document.getElementById('btnSendWa')?.addEventListener('click', sendWhatsApp);
+    document.getElementById('btnDownloadPng')?.addEventListener('click', downloadPng);
+    document.getElementById('btnToGuestList')?.addEventListener('click', () => showScreen('guests'));
+    document.getElementById('guestSearch')?.addEventListener('input', e => {
+      guestFilter = e.target.value;
+      renderGuestList();
+    });
+    document.getElementById('guestSort')?.addEventListener('change', e => {
+      guestSort = e.target.value;
+      loadGuestList();
+    });
+    document.getElementById('uploadCouple')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
+    document.getElementById('uploadCoupleHome')?.addEventListener('change', e => uploadPhoto(e.target, 'couple'));
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    resetGuestId();
+    bindEvents();
+    syncQrDataField(true);
+    await loadStyles();
+    await loadBranding();
+    await loadConfigFromServer();
+    await loadGuestList();
+    setStyle(currentStyle);
+    await renderHeroPreview();
+    setInterval(loadGuestList, 30000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        loadGuestList();
+        loadConfigFromServer();
+      }
+    });
+  });
+
+  window.NkubaInv = {
+    renderHtmlPreview,
+    capturePosterBlob,
+    fetchInvitationBlob,
+    setStyle: (s) => { currentStyle = s; }
+  };
+})();

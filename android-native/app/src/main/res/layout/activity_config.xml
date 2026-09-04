@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/config_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- En-tête avec logo couple -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_poster_border"
+                android:contentDescription="Logo"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/couple_photo" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/config_title"
+                    android:textColor="@color/config_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/event_subtitle"
+                    android:textColor="#D4B896"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- VOS PHOTOS — logo + affiches -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Vos photos (obligatoire pour un vrai rendu)"
+            android:textColor="#D4B896"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <ImageView
+                android:id="@+id/logoPreview"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_poster_border"
+                android:contentDescription="Aperçu logo"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/couple_photo" />
+
+            <TextView
+                android:id="@+id/photoStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="Importez la photo du couple et vos affiches"
+                android:textColor="@color/config_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickCouple"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📷 Choisir PHOTO DU COUPLE (logo)"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickPosterCivil"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="🖼 Choisir AFFICHE mariage civil"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickPosterBlanche"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="🖼 Choisir AFFICHE bénédiction"
+            android:textColor="#D4B896"
+            app:strokeColor="#D4B896" />
+
+        <!-- Aperçu affiche — grande et claire -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Aperçu de l'affiche officielle"
+            android:textColor="@color/config_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <ImageView
+                android:id="@+id/posterPreview"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:contentDescription="Affiche invitation"
+                android:scaleType="fitCenter"
+                android:src="@drawable/template_mariage_civil" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/config_intro"
+            android:textColor="@color/config_muted"
+            android:textSize="14sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date (ex: 11 Septembre 2026)"
+            app:boxBackgroundColor="@color/config_bg">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/config_text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Heure (ex: 11h00)"
+            app:boxBackgroundColor="@color/config_bg">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/config_text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Lieu / Salle"
+            app:boxBackgroundColor="@color/config_bg">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputVenue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/config_text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputDark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Message WhatsApp"
+            app:boxBackgroundColor="@color/config_bg">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:minLines="4"
+                android:textColor="@color/config_text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Variables : {NAME}, {DATE}, {VENUE}, {TABLE}, {SEATS}"
+            android:textColor="@color/config_muted"
+            android:textSize="11sp" />
+
+        <CheckBox
+            android:id="@+id/checkEmbedName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:buttonTint="@color/config_blue"
+            android:checked="true"
+            android:text="@string/embed_name"
+            android:textColor="@color/config_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            style="@style/BtnBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            android:text="@string/save_start" />
+    </LinearLayout>
+</ScrollView>

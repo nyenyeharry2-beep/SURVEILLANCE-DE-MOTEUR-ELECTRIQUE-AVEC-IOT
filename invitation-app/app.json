@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Invitations Moïse & Sarah",
+    "slug": "invitations-moise-sarah",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "invitations-moise-sarah",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSContactsUsageDescription": "Importez et enregistrez vos invités dans le carnet d'adresses.",
+        "NSPhotoLibraryUsageDescription": "Téléversez votre affiche d'invitation et partagez les cartes générées."
+      }
+    },
+    "android": {
+      "package": "com.kipushi.invitations",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png"
+      },
+      "permissions": [
+        "READ_CONTACTS",
+        "WRITE_CONTACTS",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Autorisez l'accès aux contacts pour importer et enregistrer vos invités."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Autorisez l'accès à la galerie pour téléverser votre affiche d'invitation."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "invitations-moise-sarah"
+      }
+    }
+  }
+}

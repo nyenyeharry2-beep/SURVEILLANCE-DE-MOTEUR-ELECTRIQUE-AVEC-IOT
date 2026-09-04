@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1200"/>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 1200px; height: 1700px;
+  background: #fcfaf6;
+  font-family: 'Lato', sans-serif;
+  overflow: hidden;
+}
+.card {
+  width: 1200px; height: 1700px;
+  position: relative;
+  background: linear-gradient(135deg, #fdfbf7 0%, #f8f4ee 50%, #fdfbf7 100%);
+}
+.corner { position: absolute; width: 200px; height: 200px; opacity: 0.95; }
+.tl { top: 0; left: 0; }
+.tr { top: 0; right: 0; transform: scaleX(-1); }
+.bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.br { bottom: 0; right: 0; transform: scale(-1,-1); }
+.divider {
+  position: absolute; left: 50%; top: 100px; bottom: 100px;
+  border-left: 2px dotted #bbb; transform: translateX(-50%);
+}
+.left {
+  position: absolute; left: 0; top: 0; width: 50%; height: 100%;
+  padding: 60px 40px;
+}
+.table-badge {
+  text-align: center; font-family: 'Playfair Display', serif;
+  font-size: 26px; color: #333; margin-bottom: 20px;
+  border-bottom: 2px dotted #999; padding-bottom: 8px;
+}
+.table-badge span { font-weight: 700; color: #1a3a7a; }
+.photo-zone {
+  margin-top: 20px; height: 1200px;
+  background: url('file:///android_asset/posters/affiche_blanche_bg.png') left center/cover no-repeat;
+  border-radius: 8px; opacity: 0.95;
+}
+.right {
+  position: absolute; right: 0; top: 0; width: 50%; height: 100%;
+  padding: 70px 50px 50px 30px;
+}
+.script-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: 82px; color: #b48c50; text-align: center;
+  line-height: 1; margin-bottom: 8px;
+}
+.gold-line {
+  width: 80%; height: 2px; background: #b48c50; margin: 0 auto 24px;
+}
+.guest-line {
+  font-size: 22px; color: #333; margin-bottom: 20px;
+  border-bottom: 2px dotted #aaa; padding-bottom: 10px;
+}
+.guest-line strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; color: #1a1a1a;
+}
+.intro { font-size: 19px; color: #333; line-height: 1.5; margin-bottom: 20px; }
+.name-moise {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px; font-weight: 700; color: #1a3a7a;
+  letter-spacing: 2px;
+}
+.name-sarah {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px; font-weight: 700; color: #a06e3c;
+  letter-spacing: 2px; margin-top: 4px;
+}
+.gold-sep { color: #b48c50; font-size: 20px; margin: 8px 0; }
+.date-badge {
+  display: inline-block; background: #333; color: #fff;
+  padding: 14px 28px; border-radius: 12px; font-size: 28px;
+  font-weight: 700; margin: 24px 0;
+}
+.event { margin-top: 16px; }
+.event h3 { font-size: 18px; color: #222; margin-bottom: 6px; }
+.event p { font-size: 15px; color: #555; line-height: 1.45; }
+.footer {
+  position: absolute; bottom: 60px; left: 52%; right: 40px;
+  font-size: 16px; color: #666; font-style: italic; line-height: 1.5;
+}
+.qr-box {
+  position: absolute; bottom: 80px; left: 60px;
+  width: {{QR_SIZE}}px; height: {{QR_SIZE}}px;
+  background: #fff; padding: 6px; border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+.qr-box img { width: 100%; height: 100%; }
+.seats-tag {
+  position: absolute; bottom: 80px; left: 52%;
+  font-size: 14px; color: #a06e3c; font-weight: 700;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="corner tl" src="file:///android_asset/posters/floral_warm.png" alt=""/>
+  <img class="corner tr" src="file:///android_asset/posters/floral_warm.png" alt=""/>
+  <img class="corner bl" src="file:///android_asset/posters/floral_warm.png" alt=""/>
+  <img class="corner br" src="file:///android_asset/posters/floral_warm.png" alt=""/>
+  <div class="divider"></div>
+  <div class="left">
+    <div class="table-badge">Table <span>{{TABLE}}</span></div>
+    <div class="photo-zone"></div>
+    <div class="qr-box"><img src="{{QR_DATA}}" alt="QR"/></div>
+  </div>
+  <div class="right">
+    <div class="script-title">Invitation</div>
+    <div class="gold-line"></div>
+    <div class="guest-line">Mme, Mlle, M., Couple : <strong>{{GUEST_NAME}}</strong></div>
+    <p class="intro">Les familles NKUBA et BANZA ont le réel plaisir de vous inviter à prendre part au mariage de leur fils et fille</p>
+    <div class="name-moise">MOISE NKUBA</div>
+    <div class="gold-sep">— ✦ —</div>
+    <div class="name-sarah">SARAH KASONGO</div>
+    <div class="date-badge">📅 {{EVENT_DATE}}</div>
+    <div class="event">
+      <h3>À 14h : Bénédiction nuptiale</h3>
+      <p>Église 30ème CPCO, paroisse Étoile du Matin, Av. du 24 novembre coin Kasumbalesa, Kipushi.</p>
+    </div>
+    <div class="event">
+      <h3>À 19h : Soirée dansante</h3>
+      <p>Salle Elvine (Chez Trésor), Av. du 30 Juin, Q/Kamarenge, Ville de Kipushi.</p>
+    </div>
+    <div class="footer">
+      NB : Cadeau non emballé<br/>
+      Votre présence, est notre plus beau cadeau
+    </div>
+    <div class="seats-tag">{{SEATS}} place(s)</div>
+  </div>
+</div>
+</body>
+</html>

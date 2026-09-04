@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Invitations Moïse &amp; Sarah</string>
+    <string name="event_subtitle">Mariage de Moïse &amp; Sarah</string>
+    <string name="config_title">Configurer l\'événement</string>
+    <string name="config_intro">Remplissez ces informations une seule fois. Elles seront utilisées pour toutes les invitations.</string>
+    <string name="save_start">Enregistrer et Commencer</string>
+    <string name="add_guest">Ajouter un invité</string>
+    <string name="guest_honor">Nouvel invité d\'honneur</string>
+    <string name="guest_desc">Crée une invitation raffinée, prête à être partagée en quelques secondes.</string>
+    <string name="guest_info">Informations invité</string>
+    <string name="full_name">Nom complet</string>
+    <string name="whatsapp">Numéro WhatsApp</string>
+    <string name="whatsapp_hint">Format conseillé : 243XXXXXXXXX</string>
+    <string name="seats">Places</string>
+    <string name="table_zone">Table / Zone</string>
+    <string name="table_hint">Ex. : Table Royale 1</string>
+    <string name="choose_style">Choisir le style d\'invitation</string>
+    <string name="style_desc">Sélectionnez une ambiance visuelle élégante pour l\'aperçu final.</string>
+    <string name="generate">Générer l\'invitation</string>
+    <string name="preview_title">Aperçu final</string>
+    <string name="send_invitation">Envoyer l\'invitation</string>
+    <string name="close">Fermer</string>
+    <string name="embed_name">Incruster le nom de l\'invité sur l\'image</string>
+    <string name="guest_list">Liste des invités</string>
+    <string name="search_hint">Rechercher par nom ou téléphone…</string>
+    <string name="save_contact">Enregistrer dans le téléphone</string>
+    <string name="default_whatsapp">Bonjour {NAME}, nous avons l\'honneur de vous inviter au mariage civil de nos enfants, Moïse NKUBA &amp; Sarah KASONGO, le {DATE} à {VENUE}. Votre présence fera notre immense joie.</string>
+</resources>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Générateur d'invitations — Moïse & Sarah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/invitation.css?v=2.8.0"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f0eb;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+      display: grid;
+      gap: 24px;
+    }
+    @media (min-width: 900px) {
+      .layout { grid-template-columns: 340px 1fr; align-items: start; }
+    }
+    h1 { font-size: 1.35rem; margin-bottom: 4px; }
+    .subtitle { color: #b8956b; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px; }
+    .panel {
+      background: #fff;
+      border: 2px solid #d4b896;
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    .field-row { display: flex; gap: 10px; }
+    .field-row .field { flex: 1; }
+    .hint { font-size: 0.78rem; color: #777; margin-top: 4px; line-height: 1.4; }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-gold { background: linear-gradient(135deg, #d4b896, #b8956b); color: #fff; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #b8956b;
+      color: #9a7b4f;
+    }
+    .btn-blue { background: #4a7bff; color: #fff; }
+    .preview-wrap {
+      background: #fff;
+      border: 3px solid #d4b896;
+      border-radius: 16px;
+      padding: 8px;
+      overflow: hidden;
+    }
+    .preview-wrap .poster-viewport {
+      --inv-scale: 0.42;
+    }
+    @media (min-width: 900px) {
+      .preview-wrap .poster-viewport { --inv-scale: 0.55; }
+    }
+    .meta { font-size: 0.82rem; color: #666; margin-top: 10px; word-break: break-all; }
+    .meta code { background: #f0ebe5; padding: 2px 6px; border-radius: 4px; font-size: 0.78rem; }
+    .back { color: #4a7bff; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 12px; }
+  </style>
+</head>
+<body data-version="2.8.0">
+
+<div class="layout">
+  <aside class="panel">
+    <a class="back" href="index.php">← Retour au site principal</a>
+    <h1>Générateur HTML/CSS/JS</h1>
+    <p class="subtitle">Mariage Moïse NKUBA & Sarah KASONGO</p>
+
+    <div class="field">
+      <label for="guestName">Nom de l'invité *</label>
+      <input type="text" id="guestName" placeholder="Ex: Mme Sarah BANZA" autofocus/>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="tableNum">Table</label>
+        <input type="text" id="tableNum" placeholder="Table 12"/>
+      </div>
+      <div class="field" style="max-width:90px">
+        <label for="seats">Places</label>
+        <input type="number" id="seats" value="2" min="1"/>
+      </div>
+    </div>
+    <div class="field">
+      <label for="qrData">Données QR code</label>
+      <input type="text" id="qrData"/>
+      <p class="hint">Nom + identifiant unique — encodé dans le QR en bas à gauche</p>
+      <button type="button" class="btn btn-outline" id="btnRegenQr">↻ Nouvel identifiant</button>
+    </div>
+    <div class="field">
+      <label for="styleSelect">Style d'affiche</label>
+      <select id="styleSelect">
+        <option value="mariage-civil">Mariage civil (violette)</option>
+        <option value="affiche-blanche">Bénédiction (blanche)</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-gold" id="btnRender">Actualiser l'aperçu</button>
+    <button type="button" class="btn btn-blue" id="btnDownloadPng">Télécharger PNG</button>
+  </aside>
+
+  <main>
+    <div class="preview-wrap">
+      <div class="poster-viewport">
+        <div class="poster-scaler" id="previewPoster"></div>
+      </div>
+    </div>
+    <p class="meta">QR encodé : <code id="qrDataPreview">—</code></p>
+  </main>
+</div>
+
+<script>
+  window.NKUBA_BRANDING = {
+    poster_civil: 'assets/template_mariage_civil.png',
+    poster_blanche: 'assets/template_affiche_blanche.png',
+    couple: 'assets/couple_photo.png'
+  };
+</script>
+<script src="assets/js/qrcode.min.js?v=2.8.0"></script>
+<script>
+(function () {
+  'use strict';
+
+  const PRESETS = {
+    'mariage-civil': 'assets/invitations/mariage_civil.html',
+    'affiche-blanche': 'assets/invitations/affiche_blanche.html'
+  };
+
+  let branding = window.NKUBA_BRANDING;
+  let guestUniqueId = null;
+  let templateCache = {};
+
+  function bust(url) {
+    return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+  }
+
+  function uniqueGuestId() {
+    return Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
+
+  function ensureGuestId() {
+    if (!guestUniqueId) guestUniqueId = uniqueGuestId();
+    return guestUniqueId;
+  }
+
+  function getFormData() {
+    return {
+      guest: (document.getElementById('guestName').value || '').trim() || 'Invité',
+      table: document.getElementById('tableNum').value.trim() || '—',
+      seats: document.getElementById('seats').value || '1'
+    };
+  }
+
+  function buildDefaultQrData() {
+    const d = getFormData();
+    return 'INVITE|nom:' + d.guest + '|id:' + ensureGuestId() + '|table:' + d.table + '|places:' + d.seats;
+  }
+
+  function getQrPayload() {
+    const custom = document.getElementById('qrData').value.trim();
+    return custom || buildDefaultQrData();
+  }
+
+  function syncQrDataField(force) {
+    const el = document.getElementById('qrData');
+    if (force || el.dataset.manual !== '1') el.value = buildDefaultQrData();
+  }
+
+  function currentStyle() {
+    return document.getElementById('styleSelect').value;
+  }
+
+  function posterUrl() {
+    const style = currentStyle();
+    return bust(style === 'affiche-blanche' ? branding.poster_blanche : branding.poster_civil);
+  }
+
+  function renderQrCode(container, data) {
+    if (!container) return;
+    container.innerHTML = '';
+    new QRCode(container, {
+      text: data,
+      width: 184,
+      height: 184,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  async function loadTemplate(style) {
+    if (templateCache[style]) return templateCache[style];
+    templateCache[style] = await fetch(PRESETS[style]).then(r => r.text());
+    return templateCache[style];
+  }
+
+  async function renderPreview() {
+    const d = getFormData();
+    const style = currentStyle();
+    const host = document.getElementById('previewPoster');
+    const qrData = getQrPayload();
+    host.innerHTML = await loadTemplate(style);
+    host.querySelector('[data-bind="poster"]').src = posterUrl();
+    host.querySelector('[data-bind="guest"]').textContent = d.guest;
+    host.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = d.table; });
+    const t2 = host.querySelector('[data-bind="table2"]');
+    if (t2) t2.textContent = d.table;
+    const seatsEl = host.querySelector('[data-bind="seats"]');
+    if (seatsEl) seatsEl.textContent = d.seats;
+    renderQrCode(host.querySelector('[data-bind="qr"]'), qrData);
+    document.getElementById('qrDataPreview').textContent = qrData;
+  }
+
+  async function downloadPng() {
+    const d = getFormData();
+    const url = 'api/generate.php?' + new URLSearchParams({
+      style: currentStyle(),
+      guest: d.guest,
+      table: d.table,
+      seats: d.seats,
+      qr: getQrPayload(),
+      _: Date.now()
+    });
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Génération PNG échouée');
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'invitation-' + d.guest.replace(/\s+/g, '-') + '.png';
+    a.click();
+  }
+
+  async function loadBranding() {
+    try {
+      const json = await fetch('api/branding.php').then(r => r.json());
+      if (json.success) branding = json;
+    } catch (e) { /* offline */ }
+  }
+
+  ['guestName', 'tableNum', 'seats'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncQrDataField(false);
+      renderPreview();
+    });
+  });
+
+  document.getElementById('qrData').addEventListener('input', e => {
+    e.target.dataset.manual = e.target.value.trim() ? '1' : '0';
+    renderPreview();
+  });
+
+  document.getElementById('styleSelect').addEventListener('change', renderPreview);
+  document.getElementById('btnRender').addEventListener('click', renderPreview);
+  document.getElementById('btnRegenQr').addEventListener('click', () => {
+    guestUniqueId = uniqueGuestId();
+    document.getElementById('qrData').dataset.manual = '0';
+    syncQrDataField(true);
+    renderPreview();
+  });
+  document.getElementById('btnDownloadPng').addEventListener('click', () => downloadPng().catch(e => alert(e.message)));
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    guestUniqueId = uniqueGuestId();
+    syncQrDataField(true);
+    await loadBranding();
+    await renderPreview();
+  });
+})();
+</script>
+</body>
+</html>

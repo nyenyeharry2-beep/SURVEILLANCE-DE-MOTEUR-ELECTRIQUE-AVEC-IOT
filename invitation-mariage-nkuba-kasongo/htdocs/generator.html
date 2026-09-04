@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Générateur HTML — Moïse & Sarah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/invitation.css?v=2.10.0"/>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f0eb; margin: 0; padding: 20px; }
+    .layout { max-width: 1100px; margin: 0 auto; display: grid; gap: 20px; }
+    @media (min-width: 900px) { .layout { grid-template-columns: 320px 1fr; } }
+    .panel { background: #fff; border: 2px solid #d4b896; border-radius: 16px; padding: 20px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.85rem; }
+    .field input, .field select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; margin-top: 8px; cursor: pointer; }
+    .btn-gold { background: #b8956b; color: #fff; }
+    .btn-blue { background: #4a7bff; color: #fff; }
+    .hint { font-size: 0.78rem; color: #777; }
+    .back { color: #4a7bff; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  </style>
+</head>
+<body data-version="2.10.0">
+<div class="layout">
+  <aside class="panel">
+    <a class="back" href="index.php">← Accueil</a>
+    <h1>Générateur HTML/CSS</h1>
+    <p class="hint">Affiche 100% HTML — photo des mariés dynamique</p>
+    <div class="field"><label>Nom invité</label><input id="guestName" placeholder="Mme Sarah BANZA"/></div>
+    <div class="field"><label>Table</label><input id="tableNum" placeholder="Table 12"/></div>
+    <div class="field"><label>Places</label><input type="number" id="seats" value="2" min="1"/></div>
+    <div class="field"><label>Données QR</label><input id="qrData"/></div>
+    <div class="field"><label>Style</label>
+      <select id="styleSelect"><option value="mariage-civil">Mariage civil</option><option value="affiche-blanche">Bénédiction</option></select>
+    </div>
+    <button class="btn btn-gold" id="btnRender">Actualiser</button>
+    <button class="btn btn-blue" id="btnDownload">Télécharger PNG</button>
+  </aside>
+  <main class="panel">
+    <div class="poster-viewport" style="--inv-scale:0.55"><div class="poster-scaler" id="previewPoster"></div></div>
+    <p class="hint">QR : <code id="qrDataPreview">—</code></p>
+  </main>
+</div>
+<script>window.NKUBA_BRANDING={ couple:'assets/couple_photo.jpg' };</script>
+<script src="assets/js/qrcode.min.js?v=2.10.0"></script>
+<script src="assets/js/html2canvas.min.js?v=2.10.0"></script>
+<script src="assets/js/invitation.js?v=2.10.0"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const styleEl = document.getElementById('styleSelect');
+  const bind = async () => {
+    if (window.NkubaInv) {
+      window.NkubaInv.setStyle(styleEl.value);
+      await window.NkubaInv.renderHtmlPreview('previewPoster');
+    }
+  };
+  ['guestName','tableNum','seats','qrData'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', bind);
+  });
+  styleEl?.addEventListener('change', bind);
+  document.getElementById('btnRender')?.addEventListener('click', bind);
+  document.getElementById('btnDownload')?.addEventListener('click', async () => {
+    await bind();
+    const blob = await window.NkubaInv.fetchInvitationBlob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'invitation-' + (document.getElementById('guestName').value || 'invite').replace(/\s+/g, '-') + '.png';
+    a.click();
+  });
+  await bind();
+});
+</script>
+</body>
+</html>

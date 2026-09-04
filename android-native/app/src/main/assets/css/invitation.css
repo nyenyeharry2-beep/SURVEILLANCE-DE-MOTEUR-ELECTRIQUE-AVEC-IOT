@@ -1,0 +1,700 @@
+/* Styles affiches invitation — 1200×1700 */
+.poster-scaler {
+  width: 1200px;
+  height: 1700px;
+  transform: scale(var(--inv-scale, 0.28));
+  transform-origin: top center;
+  margin-bottom: calc(-1700px * (1 - var(--inv-scale, 0.28)));
+}
+
+.poster-generated {
+  display: block;
+  width: 1200px;
+  height: 1700px;
+}
+
+.poster-viewport {
+  overflow: hidden;
+  width: calc(1200px * var(--inv-scale, 0.28));
+  margin: 0 auto;
+}
+
+.poster-civil {
+  width: 1200px;
+  height: 1700px;
+  position: relative;
+  background: #fff;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.poster-civil .watermark {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 200, 210, 0.25) 0%, transparent 70%);
+}
+
+.poster-civil .border-curve {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  bottom: 40px;
+  width: 4px;
+  background: linear-gradient(180deg, #e8dff0, #c9b8d8, #e8dff0);
+}
+
+.poster-civil .rose-corner { position: absolute; width: 220px; height: 220px; pointer-events: none; z-index: 4; }
+.poster-civil .rose-tl { top: 0; left: 0; }
+.poster-civil .rose-tr { top: 0; right: 0; transform: scaleX(-1); }
+.poster-civil .rose-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.poster-civil .rose-br { bottom: 0; right: 0; transform: scale(-1); }
+
+.poster-civil .border-frame {
+  position: absolute;
+  inset: 18px;
+  border: 2px solid rgba(107, 45, 130, 0.45);
+  border-radius: 8px 40px 8px 40px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.poster-civil .crest-top {
+  width: 90px;
+  height: 28px;
+  margin: 0 auto 8px;
+  border: 2px solid #6B2D82;
+  border-bottom: none;
+  border-radius: 40px 40px 0 0;
+}
+
+.poster-civil .vine-bl,
+.poster-civil .vine-br {
+  position: absolute;
+  bottom: 60px;
+  width: 90px;
+  height: 160px;
+  opacity: 0.65;
+  z-index: 4;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 120'%3E%3Cpath d='M30 0 Q10 40 30 80 Q50 100 30 120' stroke='%236B2D82' fill='none' stroke-width='2'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+.poster-civil .vine-bl { left: 15px; }
+.poster-civil .vine-br { right: 15px; transform: scaleX(-1); }
+
+.poster-civil .left-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 480px;
+  height: 100%;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.poster-civil .couple-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%),
+                      linear-gradient(to right, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%),
+              linear-gradient(to right, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.poster-civil .table-line {
+  position: absolute;
+  top: 195px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.poster-civil .table-line .table-label { font-weight: 400; }
+
+.poster-civil .table-line span[data-bind="table"] {
+  font-weight: 700;
+  color: #6b2d82;
+  border-bottom: 3px dotted #999;
+  padding: 0 16px;
+}
+
+.poster-civil .table-line.is-empty { display: none; }
+
+.poster-civil .right-panel {
+  position: absolute;
+  left: 480px;
+  top: 0;
+  width: 720px;
+  height: 100%;
+  padding: 48px 40px 40px 30px;
+  z-index: 3;
+}
+
+.poster-civil .title-invitation {
+  font-family: 'Great Vibes', cursive;
+  font-size: 96px;
+  color: #c5a059;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.poster-civil .title-underline {
+  width: 280px;
+  height: 2px;
+  background: #c5a059;
+  margin: 0 auto 8px;
+  position: relative;
+}
+
+.poster-civil .title-underline::after {
+  content: '❧';
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  color: #c5a059;
+  font-size: 22px;
+}
+
+.poster-civil .guest-row {
+  font-size: 20px;
+  color: #333;
+  margin: 14px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px dotted #888;
+  line-height: 1.35;
+}
+
+.poster-civil .guest-row .guest-prefix { margin-right: 6px; }
+
+.poster-civil .guest-row .name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+.poster-civil .intro {
+  font-size: 22px;
+  color: #2a2a2a;
+  line-height: 1.55;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.poster-civil .names-block { text-align: center; margin: 16px 0 28px; }
+
+.poster-civil .name-script {
+  font-family: 'Great Vibes', cursive;
+  font-size: 56px;
+  color: #d81b60;
+  line-height: 1.15;
+  text-shadow: 0 0 1px rgba(255,255,255,0.8);
+}
+
+.poster-civil .ampersand {
+  font-size: 28px;
+  color: #c5a059;
+  margin: 8px 0;
+  letter-spacing: 8px;
+}
+
+.poster-civil .name-line {
+  width: 100px;
+  height: 2px;
+  background: #c5a059;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 10px;
+}
+
+.poster-civil .details-block { margin-top: 8px; }
+
+.poster-civil .detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: #333;
+  line-height: 1.35;
+}
+
+.poster-civil .lbl-date { color: #4285f4; }
+.poster-civil .lbl-time { color: #c0392b; }
+.poster-civil .lbl-address { color: #27ae60; }
+
+.poster-civil .icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+}
+
+.poster-civil .icon-cal { background: #4285f4; }
+.poster-civil .icon-clock { background: #c0392b; }
+.poster-civil .icon-pin { background: #27ae60; }
+
+.poster-civil .closing {
+  text-align: center;
+  font-size: 22px;
+  color: #444;
+  margin-top: 36px;
+  font-style: italic;
+}
+
+.poster-civil .qr-zone,
+.poster-blanche .qr-zone {
+  position: absolute;
+  left: 38px;
+  bottom: 55px;
+  z-index: 12;
+  width: 200px;
+  text-align: center;
+}
+
+.poster-civil .qr-zone .qr-box,
+.poster-blanche .qr-zone .qr-box {
+  position: static;
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  border: 3px solid #6B2D82;
+  box-shadow: 0 6px 24px rgba(107, 45, 130, 0.35);
+}
+
+.poster-blanche .qr-zone .qr-box { border-color: #002366; }
+
+.poster-civil .qr-zone .qr-label,
+.poster-blanche .qr-zone .qr-label {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6B2D82;
+}
+
+.poster-blanche .qr-zone .qr-label { color: #002366; }
+
+.poster-civil .qr-box img,
+.poster-blanche .qr-box img,
+.poster-civil .qr-canvas img,
+.poster-blanche .qr-canvas img,
+.poster-civil .qr-canvas canvas,
+.poster-blanche .qr-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.poster-civil .qr-canvas,
+.poster-blanche .qr-canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.poster-civil .seats-badge {
+  position: absolute;
+  right: 45px;
+  bottom: 95px;
+  font-size: 17px;
+  color: #6b2d82;
+  font-weight: 700;
+  z-index: 6;
+}
+
+.poster-civil .seats-badge .seats-table-part.is-empty { display: none; }
+
+.poster-civil .rose-corner { z-index: 8; }
+
+/* Affiche blanche */
+.poster-blanche {
+  width: 1200px;
+  height: 1700px;
+  position: relative;
+  background: linear-gradient(180deg, #fffdf9 0%, #faf6f0 100%);
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.poster-blanche .flower { position: absolute; width: 180px; height: 180px; }
+.poster-blanche .fl-tl { top: 10px; left: 10px; }
+.poster-blanche .fl-tr { top: 10px; right: 10px; transform: scaleX(-1); }
+.poster-blanche .fl-bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+.poster-blanche .fl-br { bottom: 10px; right: 10px; transform: scale(-1); }
+
+.poster-blanche .divider {
+  position: absolute;
+  left: 50%;
+  top: 80px;
+  bottom: 80px;
+  border-left: 2px dotted #c4b8a8;
+  transform: translateX(-50%);
+}
+
+.poster-blanche .left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  padding: 50px 30px;
+}
+
+.poster-blanche .table-top {
+  text-align: center;
+  font-size: 26px;
+  color: #333;
+  border-bottom: 2px dotted #aaa;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.poster-blanche .table-top strong { color: #002366; font-size: 30px; }
+
+.poster-blanche .couple-wrap {
+  position: relative;
+  height: 1100px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.poster-blanche .couple-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+}
+
+.poster-blanche .bronze-v {
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #cd7f32;
+}
+
+.poster-blanche .right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  padding: 60px 40px 40px 25px;
+}
+
+.poster-blanche .script-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: 88px;
+  color: #b8956b;
+  text-align: center;
+  line-height: 1;
+}
+
+.poster-blanche .gold-rule {
+  width: 75%;
+  height: 2px;
+  background: #b8956b;
+  margin: 8px auto 20px;
+}
+
+.poster-blanche .guest-line {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 16px;
+  border-bottom: 2px dotted #bbb;
+  padding-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.poster-blanche .guest-line .guest-prefix { white-space: nowrap; }
+.poster-blanche .guest-line .name { font-size: 28px; font-weight: 700; color: #111; flex: 1; min-width: 100px; }
+.poster-blanche .intro { font-size: 18px; color: #333; line-height: 1.5; margin-bottom: 20px; }
+.poster-blanche .name-m { font-size: 34px; font-weight: 700; color: #002366; letter-spacing: 1px; }
+.poster-blanche .name-s { font-size: 34px; font-weight: 700; color: #ff8c00; letter-spacing: 1px; margin-top: 4px; }
+.poster-blanche .sep { text-align: center; color: #b8956b; margin: 8px 0; font-size: 18px; }
+
+.poster-blanche .date-pill {
+  display: inline-block;
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 20px 0;
+}
+
+.poster-blanche .event { margin-top: 14px; }
+.poster-blanche .event h3 { font-size: 17px; color: #222; margin-bottom: 4px; }
+.poster-blanche .event p { font-size: 14px; color: #555; line-height: 1.4; }
+
+.poster-blanche .footer {
+  position: absolute;
+  bottom: 50px;
+  left: 52%;
+  right: 30px;
+  font-size: 15px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.poster-blanche .qr-box {
+  position: static;
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 35, 102, 0.25);
+  border: 3px solid #002366;
+  z-index: 5;
+}
+
+.poster-blanche .qr-box img { width: 100%; height: 100%; }
+
+.invitation-hidden { display: none !important; }
+[data-bind-table].is-empty,
+.arc-table-line.is-empty,
+.cr-table.is-empty,
+.jf-table.is-empty,
+.ticket-meta [data-bind-table].is-empty { display: none !important; }
+
+/* ─── Arc Doré ─── */
+.poster-arc-dore {
+  width: 1200px; height: 1700px; position: relative;
+  background: linear-gradient(180deg, #fffdf8 0%, #faf6ef 55%, #f5efe6 100%);
+  font-family: 'Playfair Display', Georgia, serif; overflow: hidden;
+}
+.poster-arc-dore .arc-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 600px 400px at 50% 22%, rgba(184,149,107,0.12), transparent);
+}
+.poster-arc-dore .arc-frame {
+  position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
+  width: 520px; height: 620px; z-index: 2;
+}
+.poster-arc-dore .arc-photo-wrap {
+  width: 100%; height: 100%; overflow: hidden;
+  border: 4px solid #B8956B;
+  border-radius: 260px 260px 12px 12px;
+  box-shadow: 0 16px 48px rgba(184,149,107,0.35);
+}
+.poster-arc-dore .arc-photo { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
+.poster-arc-dore .arc-crest { text-align: center; font-size: 28px; color: #B8956B; margin-top: 690px; }
+.poster-arc-dore .arc-title {
+  font-family: 'Great Vibes', cursive; font-size: 88px; color: #B8956B;
+  text-align: center; line-height: 1; margin: 8px 0 0;
+}
+.poster-arc-dore .arc-sub { text-align: center; font-size: 18px; color: #888; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; }
+.poster-arc-dore .arc-guest { text-align: center; font-size: 20px; color: #444; padding: 0 60px; margin-bottom: 8px; }
+.poster-arc-dore .arc-guest .guest-name { display: block; font-size: 32px; font-weight: 700; color: #1a1a1a; margin-top: 6px; }
+.poster-arc-dore .arc-table-line { text-align: center; font-size: 22px; color: #666; margin-bottom: 16px; }
+.poster-arc-dore .arc-table-line strong { color: #B8956B; font-size: 26px; }
+.poster-arc-dore .arc-intro { text-align: center; font-size: 20px; line-height: 1.5; color: #333; padding: 0 80px; }
+.poster-arc-dore .arc-couple-names {
+  font-family: 'Great Vibes', cursive; font-size: 48px; color: #c2185b;
+  text-align: center; margin: 20px 0 28px;
+}
+.poster-arc-dore .arc-couple-names span { color: #B8956B; font-size: 36px; }
+.poster-arc-dore .arc-details { padding: 0 120px; }
+.poster-arc-dore .arc-detail { display: flex; gap: 12px; align-items: center; font-size: 19px; color: #333; margin-bottom: 12px; }
+.poster-arc-dore .arc-detail .ico { font-size: 22px; }
+.poster-arc-dore .arc-closing { text-align: center; font-style: italic; font-size: 20px; color: #555; margin-top: 24px; }
+.poster-arc-dore .arc-seats { position: absolute; bottom: 55px; right: 60px; font-size: 17px; font-weight: 700; color: #B8956B; }
+.poster-arc-dore .arc-qr { left: 50px; bottom: 45px; }
+.poster-arc-dore .arc-qr .qr-box { border-color: #B8956B; }
+.poster-arc-dore .arc-qr .qr-label { color: #B8956B; }
+
+/* ─── Cercle Royal ─── */
+.poster-cercle-royal {
+  width: 1200px; height: 1700px; position: relative;
+  background: linear-gradient(160deg, #1a0a2e 0%, #4A148C 40%, #311B92 100%);
+  font-family: 'Playfair Display', Georgia, serif; color: #fff; overflow: hidden;
+}
+.poster-cercle-royal .cr-bg-pattern {
+  position: absolute; inset: 0; opacity: 0.08;
+  background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.poster-cercle-royal .cr-ring-outer {
+  position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+  width: 480px; height: 480px; border-radius: 50%;
+  border: 6px solid rgba(255,215,0,0.5);
+  box-shadow: 0 0 0 12px rgba(255,215,0,0.15), 0 0 60px rgba(255,215,0,0.2);
+  z-index: 2;
+}
+.poster-cercle-royal .cr-ring-inner {
+  position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
+  width: 440px; height: 440px; border-radius: 50%; overflow: hidden;
+  border: 4px solid #FFD700; z-index: 3;
+}
+.poster-cercle-royal .cr-photo { width: 100%; height: 100%; object-fit: cover; object-position: center 12%; }
+.poster-cercle-royal .cr-crown { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); font-size: 36px; z-index: 4; }
+.poster-cercle-royal .cr-title {
+  font-family: 'Great Vibes', cursive; font-size: 80px; color: #FFD700;
+  text-align: center; margin-top: 560px; line-height: 1;
+}
+.poster-cercle-royal .cr-gold-line { width: 200px; height: 2px; background: #FFD700; margin: 10px auto 24px; }
+.poster-cercle-royal .cr-guest-block { text-align: center; padding: 0 60px; }
+.poster-cercle-royal .cr-prefix { font-size: 18px; color: rgba(255,255,255,0.75); }
+.poster-cercle-royal .cr-guest-name { font-size: 34px; font-weight: 700; color: #fff; margin-top: 8px; }
+.poster-cercle-royal .cr-table { text-align: center; font-size: 20px; color: rgba(255,255,255,0.8); margin: 12px 0; }
+.poster-cercle-royal .cr-table strong { color: #FFD700; }
+.poster-cercle-royal .cr-intro { text-align: center; font-size: 18px; color: rgba(255,255,255,0.85); line-height: 1.5; margin: 16px 0; }
+.poster-cercle-royal .cr-names {
+  font-family: 'Great Vibes', cursive; font-size: 44px; color: #f8bbd0;
+  text-align: center; line-height: 1.3; margin-bottom: 28px;
+}
+.poster-cercle-royal .cr-amp { color: #FFD700; font-size: 32px; }
+.poster-cercle-royal .cr-info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  padding: 0 100px; margin-bottom: 20px;
+}
+.poster-cercle-royal .cr-info {
+  background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 18px;
+  border: 1px solid rgba(255,215,0,0.25);
+}
+.poster-cercle-royal .cr-info-wide { grid-column: 1 / -1; }
+.poster-cercle-royal .cr-info-lbl { font-size: 13px; color: #FFD700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+.poster-cercle-royal .cr-info div:last-child { font-size: 17px; }
+.poster-cercle-royal .cr-seats { position: absolute; bottom: 55px; right: 60px; font-size: 16px; color: #FFD700; font-weight: 700; }
+.poster-cercle-royal .cr-qr { left: 45px; bottom: 45px; }
+.poster-cercle-royal .cr-qr .qr-box { border-color: #FFD700; background: #fff; }
+.poster-cercle-royal .cr-qr .qr-label { color: #FFD700; }
+
+/* ─── Ticket Chic ─── */
+.poster-ticket-chic {
+  width: 1200px; height: 1700px; position: relative;
+  background: #faf8f5; font-family: 'Playfair Display', Georgia, serif;
+  border: 3px dashed #1A237E; margin: 0;
+  box-shadow: inset 0 0 0 8px #faf8f5, inset 0 0 0 11px #1A237E;
+}
+.poster-ticket-chic .ticket-notch {
+  position: absolute; width: 36px; height: 36px; background: #fff;
+  border-radius: 50%; z-index: 5;
+}
+.poster-ticket-chic .ticket-notch-tl { top: -18px; left: 280px; border: 3px dashed #1A237E; }
+.poster-ticket-chic .ticket-notch-tr { top: -18px; right: 280px; border: 3px dashed #1A237E; }
+.poster-ticket-chic .ticket-notch-bl { bottom: -18px; left: 280px; border: 3px dashed #1A237E; }
+.poster-ticket-chic .ticket-notch-br { bottom: -18px; right: 280px; border: 3px dashed #1A237E; }
+.poster-ticket-chic .ticket-perforation {
+  position: absolute; left: 420px; top: 40px; bottom: 40px; width: 0;
+  border-left: 3px dotted #1A237E; opacity: 0.4;
+}
+.poster-ticket-chic .ticket-left {
+  position: absolute; left: 0; top: 0; width: 420px; height: 100%;
+  padding: 50px 30px; display: flex; flex-direction: column; align-items: center;
+}
+.poster-ticket-chic .ticket-photo-frame {
+  width: 340px; height: 900px; overflow: hidden; border-radius: 16px;
+  border: 3px solid #1A237E; box-shadow: 0 12px 40px rgba(26,35,126,0.2);
+}
+.poster-ticket-chic .ticket-photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 10%; }
+.poster-ticket-chic .ticket-qr-wrap { margin-top: 30px; text-align: center; }
+.poster-ticket-chic .ticket-qr-wrap .qr-box { border-color: #1A237E; width: 180px; height: 180px; }
+.poster-ticket-chic .ticket-qr-wrap .qr-label { color: #1A237E; font-size: 13px; font-weight: 700; margin-top: 6px; }
+.poster-ticket-chic .ticket-right {
+  position: absolute; left: 440px; top: 0; width: 760px; height: 100%;
+  padding: 60px 50px 40px 30px;
+}
+.poster-ticket-chic .ticket-header {
+  font-size: 14px; letter-spacing: 6px; color: #1A237E; font-weight: 700;
+  border-bottom: 2px solid #1A237E; padding-bottom: 8px; margin-bottom: 20px;
+}
+.poster-ticket-chic .ticket-title {
+  font-family: 'Great Vibes', cursive; font-size: 72px; color: #1A237E; line-height: 1; margin-bottom: 8px;
+}
+.poster-ticket-chic .ticket-event { font-size: 18px; color: #555; margin-bottom: 36px; }
+.poster-ticket-chic .ticket-guest { margin-bottom: 16px; }
+.poster-ticket-chic .ticket-guest-lbl { display: block; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+.poster-ticket-chic .ticket-guest-name { font-size: 36px; font-weight: 700; color: #111; display: block; margin-top: 6px; }
+.poster-ticket-chic .ticket-meta { display: flex; gap: 24px; font-size: 18px; color: #1A237E; font-weight: 700; margin-bottom: 32px; }
+.poster-ticket-chic .ticket-details { font-size: 17px; line-height: 1.6; color: #333; }
+.poster-ticket-chic .ticket-details div { margin-bottom: 18px; }
+.poster-ticket-chic .ticket-venue { font-size: 15px; }
+.poster-ticket-chic .ticket-footer { margin-top: 40px; font-style: italic; color: #666; font-size: 18px; }
+
+/* ─── Jardin Floral v2 — photo pleine largeur ─── */
+.poster-jardin-floral {
+  width: 1200px; height: 1700px; position: relative;
+  background: #fff;
+  font-family: 'Playfair Display', Georgia, serif; overflow: hidden;
+}
+.poster-jardin-floral .jf-hero {
+  position: relative; width: 100%; height: 720px; overflow: hidden;
+  background: #e8f5e9;
+}
+.poster-jardin-floral .jf-hero img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 15%;
+  display: block;
+}
+.poster-jardin-floral .jf-hero-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255,255,255,0.95) 100%);
+  pointer-events: none;
+}
+.poster-jardin-floral .jf-hero-title {
+  position: absolute; bottom: 30px; left: 0; right: 0; text-align: center;
+  font-family: 'Great Vibes', cursive; font-size: 90px; color: #2E7D32;
+  text-shadow: 0 2px 12px rgba(255,255,255,0.9);
+}
+.poster-jardin-floral .jf-body { padding: 20px 70px 180px; text-align: center; }
+.poster-jardin-floral .jf-guest-card {
+  background: #f1f8f4; border-radius: 16px; padding: 20px 24px; margin-bottom: 20px;
+  border: 2px solid rgba(46,125,50,0.2);
+}
+.poster-jardin-floral .jf-guest-lbl { font-size: 18px; color: #666; display: block; }
+.poster-jardin-floral .jf-guest-name { font-size: 34px; color: #1b5e20; display: block; margin-top: 8px; font-weight: 700; }
+.poster-jardin-floral .jf-table { font-size: 20px; color: #2E7D32; margin-top: 10px; font-weight: 700; }
+.poster-jardin-floral .jf-text { font-size: 20px; color: #333; line-height: 1.5; margin: 16px 0; }
+.poster-jardin-floral .jf-names {
+  font-family: 'Great Vibes', cursive; font-size: 50px; color: #c62828; margin-bottom: 20px;
+}
+.poster-jardin-floral .jf-names em { color: #2E7D32; font-style: normal; }
+.poster-jardin-floral .jf-pills { display: flex; justify-content: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.poster-jardin-floral .jf-pill {
+  background: #2E7D32; color: #fff; padding: 12px 28px; border-radius: 30px;
+  font-size: 18px; font-weight: 700;
+}
+.poster-jardin-floral .jf-venue { font-size: 18px; color: #555; line-height: 1.4; margin-bottom: 12px; }
+.poster-jardin-floral .jf-closing { font-style: italic; font-size: 20px; color: #666; }
+.poster-jardin-floral .jf-seats { font-size: 17px; font-weight: 700; color: #2E7D32; margin-top: 16px; }
+.poster-jardin-floral .jf-qr { left: 45px; bottom: 45px; z-index: 10; }
+.poster-jardin-floral .jf-qr .qr-box { border-color: #2E7D32; background: #fff; }
+.poster-jardin-floral .jf-qr .qr-label { color: #2E7D32; font-weight: 700; }
+
+.poster-frame {
+  background: #fff;
+  border: 3px solid #d4b896;
+  border-radius: 16px;
+  padding: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}

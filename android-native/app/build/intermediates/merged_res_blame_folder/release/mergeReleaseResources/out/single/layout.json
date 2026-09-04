@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_add_guest.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_add_guest.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_main.xml",
+        "source": "com.kipushi.invitations.app-main-33:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_config.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_config.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-mergeReleaseResources-31:/layout/item_guest.xml",
+        "source": "com.kipushi.invitations.app-main-33:/layout/item_guest.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_add_guest.xml",
+        "source": "com.kipushi.invitations.app-main-33:/layout/activity_add_guest.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_main.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_preview.xml",
+        "source": "com.kipushi.invitations.app-main-33:/layout/activity_preview.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/item_style.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/item_style.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_preview.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_preview.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_dashboard.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.9/com.kipushi.invitations.app-main-33:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "com.kipushi.invitations.app-mergeReleaseResources-31:/layout/activity_dashboard.xml",
+        "source": "com.kipushi.invitations.app-main-33:/layout/activity_dashboard.xml"
+    }
+]

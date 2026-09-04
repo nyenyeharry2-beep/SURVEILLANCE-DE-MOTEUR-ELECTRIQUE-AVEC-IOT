@@ -1,0 +1,595 @@
+/* UI identique à l'application Android — thème Adrian */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #f5f0eb;
+  --gold: #b8956b;
+  --gold-light: #d4b896;
+  --gold-dark: #9a7b4f;
+  --text-dark: #1a1a1a;
+  --text-muted: #777777;
+  --card-white: #ffffff;
+  --config-bg: #0d0d0d;
+  --config-text: #ffffff;
+  --config-muted: #aaaaaa;
+  --config-blue: #4a7bff;
+  --config-border: #555555;
+  --green-wa: #25d366;
+  --purple: #6b2d82;
+  --frame-dark: #2a2a2a;
+  --link-blue: #4a7bff;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* Logo — même cadre que bg_poster_border.xml (18dp, bordure or) */
+.logo-frame {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: var(--card-white);
+  border: 2px solid var(--gold-light);
+  border-radius: 18px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.logo-frame.lg { width: 72px; height: 72px; padding: 3px; }
+
+.logo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 14px;
+}
+
+.logo-frame.lg img { border-radius: 15px; }
+
+/* Écrans SPA */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: block; }
+
+.screen-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+/* En-tête accueil — centré comme MainActivity */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 12px;
+}
+
+.header-row h1 { font-size: 1.25rem; font-weight: 700; }
+.subtitle { color: var(--gold); font-size: 0.875rem; font-weight: 700; margin-top: 2px; }
+
+/* Affiche héro — bordure or, 240px */
+.hero-poster {
+  background: var(--card-white);
+  border: 2px solid var(--gold-light);
+  border-radius: 18px;
+  padding: 4px;
+  min-height: 300px;
+  max-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-poster img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+.caption {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.caption-gold {
+  text-align: center;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+/* Cartes Adrian — CardAdrian 20dp radius, 6dp elevation */
+.card {
+  background: var(--card-white);
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-menu {
+  padding: 16px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.card-menu:active { transform: scale(0.98); }
+
+.card-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.icon-box.blue { background: rgba(74, 123, 255, 0.09); }
+.icon-box.gold { background: rgba(184, 149, 107, 0.09); }
+.icon-box.purple { background: rgba(107, 45, 130, 0.09); }
+
+.card-menu-text { flex: 1; }
+.card-menu-text h3 { font-size: 1rem; font-weight: 700; }
+.card-menu-text p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.card-menu-arrow { color: #ccc; font-size: 1.5rem; line-height: 1; }
+
+.version-tag {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+/* Titre écran centré */
+.page-title { text-align: center; margin-bottom: 16px; position: relative; }
+.page-title h2 { font-size: 1.35rem; font-weight: 700; }
+.page-title .subtitle { font-size: 0.95rem; }
+
+.btn-settings {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+/* Champs formulaire clair — InputLight */
+.field { margin-top: 12px; }
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.field input, .field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #fff;
+  color: var(--text-dark);
+  font-family: inherit;
+}
+
+.field input:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.field-row { display: flex; gap: 12px; margin-top: 12px; }
+.field-row .field { flex: 1; margin-top: 0; }
+.field-row .field.seats { flex: 0 0 90px; }
+
+.hint { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
+
+.section-title { font-size: 1rem; font-weight: 700; margin-top: 16px; }
+.section-desc { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 12px; }
+
+/* Styles invitation — item_style.xml */
+.style-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  min-height: 240px;
+}
+
+.style-thumb {
+  flex: 0 0 140px;
+  border: 2px solid #e0d5c8;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+  padding: 10px;
+  transition: border-color 0.2s;
+}
+
+.style-thumb .preview-wrap {
+  height: 180px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.style-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.style-thumb.active { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(184, 149, 107, 0.25); }
+
+.style-thumb .check {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 24px;
+  height: 24px;
+  background: var(--gold);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.style-thumb.active .check { display: block; }
+
+.style-thumb .style-name {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.style-thumb .style-sub {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Boutons — BtnGold, BtnBlue, BtnWhatsApp */
+.btn-gold-fixed {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 440px;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--gold-light);
+  color: var(--text-dark);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(184, 149, 107, 0.35);
+}
+
+.btn-blue {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--config-blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn-wa {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--green-wa);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 24px;
+}
+
+.btn-outline {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-outline.btn-sm {
+  width: auto;
+  margin-top: 8px;
+  padding: 8px 14px;
+  font-size: 0.75rem;
+}
+
+.qr-preview-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  margin: 8px 0 12px;
+  text-align: center;
+}
+
+.qr-preview-meta code {
+  background: #f0ebe5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+.btn-close {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--link-blue);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 8px;
+}
+
+.apk-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--green-wa);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 16px;
+  font-weight: 700;
+}
+
+/* Écran Config — dark theme */
+.screen-config {
+  background: var(--config-bg);
+  color: var(--config-text);
+}
+
+.screen-config .screen-inner { padding-bottom: 40px; }
+
+.screen-config .header-row { justify-content: flex-start; }
+.screen-config .header-row h1 { color: var(--config-text); font-size: 1.35rem; }
+.screen-config .subtitle { color: #d4b896; }
+
+.screen-config .field label { color: var(--config-muted); }
+
+.screen-config .field input,
+.screen-config .field textarea {
+  background: var(--config-bg);
+  border-color: var(--config-border);
+  color: var(--config-text);
+}
+
+.screen-config .hint { color: var(--config-muted); }
+
+.config-poster-label {
+  font-size: 0.75rem;
+  color: var(--config-muted);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.config-poster-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-poster-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.config-intro {
+  font-size: 0.875rem;
+  color: var(--config-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--config-text);
+  font-size: 0.9rem;
+}
+
+.checkbox-row input { width: 18px; height: 18px; accent-color: var(--config-blue); }
+
+/* Aperçu final — cadre téléphone */
+.preview-center { text-align: center; }
+
+.phone-frame {
+  display: inline-block;
+  background: var(--frame-dark);
+  border-radius: 20px;
+  padding: 14px;
+  margin-top: 20px;
+}
+
+.phone-frame .poster-viewport {
+  width: 280px;
+  height: 395px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.phone-frame .poster-scaler {
+  --inv-scale: 0.233;
+  transform-origin: top left;
+  margin-bottom: calc(-1700px * (1 - 0.233));
+}
+
+.phone-frame .poster-viewport {
+  overflow: hidden;
+  width: calc(1200px * 0.233);
+  height: 395px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+/* Invitation cachée pour rendu */
+#invitationRenderHost {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .screen-inner { max-width: 520px; }
+  .btn-gold-fixed { position: static; transform: none; width: 100%; max-width: none; margin-top: 16px; }
+}
+
+.upload-alert {
+  background: #fff8e6;
+  border: 2px solid #e6a817;
+  margin-top: 12px;
+}
+
+.upload-alert h3 { color: #b45309; font-size: 1rem; margin-bottom: 6px; }
+
+.btn-upload-home {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.badge-ok {
+  text-align: center;
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.guest-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  gap: 10px;
+}
+
+.guest-row-item:last-child { border-bottom: none; }
+
+.guest-row-main strong { display: block; font-size: 0.95rem; }
+
+.guest-row-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.badge-sent {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+.btn-mini {
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#guestSort {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}

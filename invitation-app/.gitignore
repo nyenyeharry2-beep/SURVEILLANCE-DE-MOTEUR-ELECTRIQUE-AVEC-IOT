@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+*.jks
+*.keystore
+android/app/build/
+android/.gradle/
+android/build/
+ios/
+.DS_Store
+*.log
