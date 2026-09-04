@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.1.4';
+  const V = document.body.dataset.version || '3.1.5';
   let STYLES = [];
   let PRESETS = {};
 
@@ -18,6 +18,7 @@
   let templateCache = {};
   let cachedInvitationBlob = null;
   let cachedBlobKey = '';
+  let previewBlobUrl = null;
   const renderSeqByTarget = {};
 
   const POSTER_W = 1200;
@@ -134,7 +135,7 @@
     host.innerHTML = `
       <div class="poster-loading" style="--load-accent:${escAttr(accent)}">
         <div class="poster-loading-photo">
-          <img src="${escAttr(photo)}" alt="" crossorigin="anonymous"/>
+          <img src="${escAttr(photo)}" alt=""/>
           <div class="poster-loading-shimmer"></div>
         </div>
         <div class="poster-loading-spinner"></div>
@@ -163,7 +164,7 @@
     const poster = getPosterRoot(root);
     const tableVal = d.table || '—';
     poster.querySelectorAll('[data-bind="couple"]').forEach(el => {
-      el.crossOrigin = 'anonymous';
+      el.removeAttribute('crossorigin');
       el.src = coupleUrl();
     });
     poster.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
@@ -283,6 +284,98 @@
     return buildGenerateUrl(getFormData());
   }
 
+  function revokePreviewBlobUrl() {
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+      previewBlobUrl = null;
+    }
+  }
+
+  function setPreviewImage(host, blob, guestName) {
+    revokePreviewBlobUrl();
+    previewBlobUrl = URL.createObjectURL(blob);
+    host.innerHTML = '<img class="poster-preview-img" src="' + previewBlobUrl + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(guestName) + '"/>';
+  }
+
+  async function renderPreviewInline(host, d, qrData, style) {
+    const html = await loadTemplate(style);
+    host.innerHTML = html;
+    bindPosterData(host, d, qrData);
+    await waitForImages(getPosterRoot(host));
+    await waitForQr(getPosterRoot(host), qrData);
+  }
+
+  async function buildInvitationBlobFor(d, qrData, style) {
+    if (usePngRenderer()) {
+      const res = await fetch(buildGenerateUrl(d, qrData, style));
+      if (!res.ok) throw new Error('Génération PNG échouée');
+      return await res.blob();
+    }
+    const el = await renderForExport(d, qrData, style);
+    if (!el) throw new Error('Aperçu introuvable');
+    if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
+
+    el.style.width = POSTER_W + 'px';
+    el.style.height = POSTER_H + 'px';
+    el.style.maxWidth = POSTER_W + 'px';
+    el.style.maxHeight = POSTER_H + 'px';
+
+    const raw = await html2canvas(el, {
+      scale: EXPORT_SCALE,
+      width: POSTER_W,
+      height: POSTER_H,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      imageTimeout: 15000
+    });
+
+    const outW = POSTER_W * EXPORT_SCALE;
+    const outH = POSTER_H * EXPORT_SCALE;
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    if (raw.width > raw.height) {
+      ctx.save();
+      ctx.translate(outW / 2, outH / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(raw, -outH / 2, -outW / 2, outH, outW);
+      ctx.restore();
+    } else {
+      ctx.drawImage(raw, 0, 0, outW, outH);
+    }
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.96);
+    });
+  }
+
+  async function renderPreviewPosterImage(host, d, qrData, style, seq, targetId) {
+    setShareButtonsLoading(true);
+    try {
+      const blob = await buildInvitationBlobFor(d, qrData, style);
+      if (seq !== renderSeqByTarget[targetId]) return;
+      setPreviewImage(host, blob, d.guest);
+      cachedInvitationBlob = blob;
+      cachedBlobKey = style + '::' + qrData + '::' + d.guest + '::' + d.table + '::' + d.seats;
+    } catch (e) {
+      if (seq !== renderSeqByTarget[targetId]) return;
+      try {
+        await renderPreviewInline(host, d, qrData, style);
+        invalidateBlobCache();
+        requestAnimationFrame(() => prepareShareBlob().catch(() => {}));
+      } catch (e2) {
+        throw e2;
+      }
+    } finally {
+      setShareButtonsLoading(false);
+    }
+  }
+
   async function renderPreview(targetId, dataOverride, qrOverride, styleOverride) {
     const d = dataOverride || getFormData();
     const host = document.getElementById(targetId);
@@ -295,7 +388,9 @@
     showPosterLoading(host, style);
 
     try {
-      if (usePngRenderer()) {
+      if (targetId === 'previewPoster') {
+        await renderPreviewPosterImage(host, d, qrData, style, seq, targetId);
+      } else if (usePngRenderer()) {
         const url = buildGenerateUrl(d, qrData, style);
         if (seq !== renderSeqByTarget[targetId]) return;
         host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(d.guest) + '"/>';
@@ -305,13 +400,8 @@
           host.innerHTML = '<div class="poster-error">Modèle « ' + esc(style) + ' » introuvable</div>';
           return;
         }
-        const html = await loadTemplate(style);
+        await renderPreviewInline(host, d, qrData, style);
         if (seq !== renderSeqByTarget[targetId]) return;
-        host.innerHTML = html;
-        bindPosterData(host, d, qrData);
-        await waitForImages(getPosterRoot(host));
-        if (seq !== renderSeqByTarget[targetId]) return;
-        await waitForQr(getPosterRoot(host), qrData);
       }
 
       if (seq !== renderSeqByTarget[targetId]) return;
@@ -320,16 +410,11 @@
       if (label) label.textContent = d.guest;
       const qrPreview = document.getElementById('qrDataPreview');
       if (qrPreview) qrPreview.textContent = qrData;
-
-      if (targetId === 'previewPoster') {
-        invalidateBlobCache();
-        requestAnimationFrame(() => {
-          prepareShareBlob().catch(() => {});
-        });
-      }
     } catch (e) {
       if (seq !== renderSeqByTarget[targetId]) return;
-      host.innerHTML = '<div class="poster-error">Impossible d\'afficher l\'invitation.<br/><small>' + esc(e.message) + '</small></div>';
+      if (targetId !== 'previewPoster' || !host.querySelector('.poster')) {
+        host.innerHTML = '<div class="poster-error">Impossible d\'afficher l\'invitation.<br/><small>' + esc(e.message) + '</small></div>';
+      }
     }
   }
 
@@ -368,12 +453,12 @@
   }
 
   async function buildInvitationBlob() {
-    if (usePngRenderer()) {
-      const res = await fetch(generateUrl());
-      if (!res.ok) throw new Error('Génération PNG échouée');
-      return await res.blob();
+    const d = getFormData();
+    const qrData = getQrPayload();
+    if (cachedInvitationBlob && cachedBlobKey === getBlobCacheKey()) {
+      return cachedInvitationBlob;
     }
-    return capturePosterBlob();
+    return buildInvitationBlobFor(d, qrData, currentStyle);
   }
 
   function escAttr(s) {
@@ -436,49 +521,7 @@
   }
 
   async function capturePosterBlob() {
-    const d = getFormData();
-    const qrData = getQrPayload();
-    const el = await renderForExport(d, qrData, currentStyle);
-    if (!el) throw new Error('Aperçu introuvable');
-
-    if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
-    el.style.width = POSTER_W + 'px';
-    el.style.height = POSTER_H + 'px';
-    el.style.maxWidth = POSTER_W + 'px';
-    el.style.maxHeight = POSTER_H + 'px';
-
-    const raw = await html2canvas(el, {
-      scale: EXPORT_SCALE,
-      width: POSTER_W,
-      height: POSTER_H,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      logging: false,
-      imageTimeout: 15000
-    });
-
-    const outW = POSTER_W * EXPORT_SCALE;
-    const outH = POSTER_H * EXPORT_SCALE;
-    const canvas = document.createElement('canvas');
-    canvas.width = outW;
-    canvas.height = outH;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, outW, outH);
-    if (raw.width > raw.height) {
-      ctx.save();
-      ctx.translate(outW / 2, outH / 2);
-      ctx.rotate(Math.PI / 2);
-      ctx.drawImage(raw, -outH / 2, -outW / 2, outH, outW);
-      ctx.restore();
-    } else {
-      ctx.drawImage(raw, 0, 0, outW, outH);
-    }
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.96);
-    });
+    return buildInvitationBlobFor(getFormData(), getQrPayload(), currentStyle);
   }
 
   async function fetchInvitationBlob() {

@@ -43,16 +43,14 @@
 
     <div class="preview-card">
       <div class="poster-viewport" style="--inv-scale:0.24">
-        <div class="poster-scaler">
-          <div class="poster-host" id="heroPreview">
-            <div class="poster-loading" style="--load-accent:#6B2D82">
-              <div class="poster-loading-photo">
-                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-                <div class="poster-loading-shimmer"></div>
-              </div>
-              <div class="poster-loading-spinner"></div>
-              <span class="poster-loading-text">Chargement…</span>
+        <div class="poster-host" id="heroPreview">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
             </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>
@@ -95,9 +93,7 @@
 
     <div class="preview-card preview-card-sm">
       <div class="poster-viewport" style="--inv-scale:0.18">
-        <div class="poster-scaler">
-          <div class="poster-host" id="configPreview"></div>
-        </div>
+        <div class="poster-host" id="configPreview"></div>
       </div>
     </div>
 
@@ -165,16 +161,14 @@ Votre présence fera notre immense joie.</textarea>
     <div class="preview-card preview-card-add">
       <p class="preview-live-label">Aperçu du modèle sélectionné</p>
       <div class="poster-viewport" style="--inv-scale:0.20">
-        <div class="poster-scaler">
-          <div class="poster-host" id="addPreview">
-            <div class="poster-loading" style="--load-accent:#6B2D82">
-              <div class="poster-loading-photo">
-                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-                <div class="poster-loading-shimmer"></div>
-              </div>
-              <div class="poster-loading-spinner"></div>
-              <span class="poster-loading-text">Chargement…</span>
+        <div class="poster-host" id="addPreview">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
             </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>
@@ -198,17 +192,15 @@ Votre présence fera notre immense joie.</textarea>
     <h2 class="page-heading">Votre invitation</h2>
     <p class="page-desc">Pour : <strong id="previewGuestLabel">—</strong></p>
     <div class="phone-frame">
-      <div class="poster-viewport" style="--inv-scale:0.22">
-        <div class="poster-scaler">
-          <div class="poster-host" id="previewPoster">
-            <div class="poster-loading" style="--load-accent:#6B2D82">
-              <div class="poster-loading-photo">
-                <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
-                <div class="poster-loading-shimmer"></div>
-              </div>
-              <div class="poster-loading-spinner"></div>
-              <span class="poster-loading-text">Chargement…</span>
+      <div class="poster-viewport poster-viewport-img" id="previewViewport">
+        <div class="poster-host" id="previewPoster">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
             </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
           </div>
         </div>
       </div>
