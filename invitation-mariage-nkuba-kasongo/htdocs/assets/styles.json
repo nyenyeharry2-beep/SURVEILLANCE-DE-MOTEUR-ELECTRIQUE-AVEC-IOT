@@ -1,0 +1,59 @@
+{
+  "version": "3.0.0",
+  "styles": [
+    {
+      "id": "mariage-civil",
+      "name": "Mariage Civil",
+      "subtitle": "Violet & or — classique",
+      "shape": "split",
+      "template": "assets/invitations/mariage_civil.html",
+      "accent": "#6B2D82",
+      "chipClass": "style-civil"
+    },
+    {
+      "id": "affiche-blanche",
+      "name": "Bénédiction",
+      "subtitle": "Blanche & bronze",
+      "shape": "split",
+      "template": "assets/invitations/affiche_blanche.html",
+      "accent": "#002366",
+      "chipClass": "style-blanche"
+    },
+    {
+      "id": "arc-dore",
+      "name": "Arc Doré",
+      "subtitle": "Photo en arche romantique",
+      "shape": "arch",
+      "template": "assets/invitations/arc_dore.html",
+      "accent": "#B8956B",
+      "chipClass": "style-arc"
+    },
+    {
+      "id": "cercle-royal",
+      "name": "Cercle Royal",
+      "subtitle": "Portrait circulaire violet",
+      "shape": "circle",
+      "template": "assets/invitations/cercle_royal.html",
+      "accent": "#4A148C",
+      "chipClass": "style-circle"
+    },
+    {
+      "id": "ticket-chic",
+      "name": "Ticket Chic",
+      "subtitle": "Format billet élégant",
+      "shape": "ticket",
+      "template": "assets/invitations/ticket_chic.html",
+      "accent": "#1A237E",
+      "chipClass": "style-ticket"
+    },
+    {
+      "id": "jardin-floral",
+      "name": "Jardin Floral",
+      "subtitle": "Cadre fleuri vert sauge",
+      "shape": "rounded",
+      "template": "assets/invitations/jardin_floral.html",
+      "accent": "#2E7D32",
+      "chipClass": "style-floral"
+    }
+  ]
+}

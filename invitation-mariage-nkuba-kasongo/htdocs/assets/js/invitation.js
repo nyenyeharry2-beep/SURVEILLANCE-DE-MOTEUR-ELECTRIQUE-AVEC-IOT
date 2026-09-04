@@ -1,15 +1,13 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '2.10.0';
-  const PRESETS = {
-    'mariage-civil': { template: 'assets/invitations/mariage_civil.html' },
-    'affiche-blanche': { template: 'assets/invitations/affiche_blanche.html' }
-  };
+  const V = document.body.dataset.version || '3.0.0';
+  let STYLES = [];
+  let PRESETS = {};
 
   let branding = window.NKUBA_BRANDING || {
     couple: 'assets/couple_photo.jpg',
-    renderMode: 'png'
+    renderMode: 'html'
   };
   let currentStyle = 'mariage-civil';
   let guestSort = 'name';
@@ -125,8 +123,9 @@
     if (table2) table2.textContent = tableVal;
     const seatsEl = root.querySelector('[data-bind="seats"]');
     if (seatsEl) seatsEl.textContent = d.seats;
-    const tableLine = root.querySelector('[data-bind-table]');
-    if (tableLine) tableLine.classList.toggle('is-empty', isBlankTable(tableVal));
+    root.querySelectorAll('[data-bind-table]').forEach(el => {
+      el.classList.toggle('is-empty', isBlankTable(tableVal));
+    });
     const seatsTablePart = root.querySelector('.seats-table-part');
     if (seatsTablePart) seatsTablePart.classList.toggle('is-empty', isBlankTable(tableVal));
     root.querySelectorAll('[data-bind="date"]').forEach(el => { el.textContent = d.date || 'Vendredi, le 11 Septembre 2026'; });
@@ -155,7 +154,44 @@
   }
 
   function usePngRenderer() {
-    return (branding.renderMode || 'png') === 'png';
+    return (branding.renderMode || 'html') === 'png';
+  }
+
+  async function loadStyles() {
+    try {
+      const json = await fetch('api/styles.php?v=' + V).then(r => r.json());
+      if (json.success && json.styles) {
+        STYLES = json.styles;
+        PRESETS = {};
+        STYLES.forEach(s => { PRESETS[s.id] = { template: s.template, ...s }; });
+      }
+    } catch (e) { /* fallback */ }
+    if (!STYLES.length) {
+      STYLES = [
+        { id: 'mariage-civil', name: 'Mariage Civil', subtitle: 'Violet', chipClass: 'style-civil', template: 'assets/invitations/mariage_civil.html' },
+        { id: 'affiche-blanche', name: 'Bénédiction', subtitle: 'Blanche', chipClass: 'style-blanche', template: 'assets/invitations/affiche_blanche.html' }
+      ];
+      STYLES.forEach(s => { PRESETS[s.id] = s; });
+    }
+    renderStyleGrid();
+  }
+
+  function renderStyleGrid() {
+    const grid = document.getElementById('styleGrid');
+    if (!grid) return;
+    grid.innerHTML = STYLES.map(s => `
+      <div class="style-thumb${s.id === currentStyle ? ' active' : ''}" data-style="${s.id}">
+        <span class="check">✓</span>
+        <div class="preview-wrap style-chip ${s.chipClass || ''}">
+          <span>${esc(s.name)}</span>
+        </div>
+        <span class="style-name">${esc(s.name)}</span>
+        <span class="style-sub">${esc(s.subtitle || s.shape || '')}</span>
+      </div>
+    `).join('');
+    grid.querySelectorAll('.style-thumb').forEach(btn => {
+      btn.addEventListener('click', () => setStyle(btn.dataset.style));
+    });
   }
 
   function buildGenerateUrl(d, qrOverride, styleOverride) {
@@ -183,8 +219,12 @@
       const url = buildGenerateUrl(d, qrData, styleOverride);
       host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="1200" height="1700" alt="Invitation ' + escAttr(d.guest) + '"/>';
     } else {
-      host.innerHTML = await loadTemplate(styleOverride || currentStyle);
+      const style = styleOverride || currentStyle;
+      if (!PRESETS[style]) return;
+      host.innerHTML = await loadTemplate(style);
       bindPosterData(host, d, qrData);
+      await waitForImages(host);
+      await waitForQr(host);
     }
 
     const label = document.getElementById('previewGuestLabel');
@@ -199,8 +239,55 @@
 
   async function loadTemplate(style) {
     if (templateCache[style]) return templateCache[style];
-    templateCache[style] = await fetch(PRESETS[style].template).then(r => r.text());
+    const tpl = PRESETS[style]?.template || 'assets/invitations/mariage_civil.html';
+    templateCache[style] = await fetch(tpl).then(r => r.text());
     return templateCache[style];
+  }
+
+  function waitForImages(root) {
+    const imgs = root.querySelectorAll('img[data-bind="couple"]');
+    return Promise.all([...imgs].map(img => new Promise(resolve => {
+      if (img.complete) return resolve();
+      img.onload = img.onerror = resolve;
+    })));
+  }
+
+  function waitForQr(root) {
+    return new Promise(resolve => setTimeout(resolve, 350));
+  }
+
+  async function capturePosterBlob() {
+    const el = document.querySelector('#previewPoster .poster, #previewPoster .poster-generated');
+    if (!el) throw new Error('Aperçu introuvable');
+    if (el.tagName === 'IMG' && el.src) {
+      const res = await fetch(el.src);
+      return await res.blob();
+    }
+    if (typeof html2canvas === 'undefined') throw new Error('html2canvas non chargé');
+    const canvas = await html2canvas(el, {
+      scale: 1, width: 1200, height: 1700, useCORS: true,
+      backgroundColor: '#ffffff', logging: false,
+      onclone: (doc) => {
+        doc.querySelectorAll('.poster-scaler').forEach(n => {
+          n.style.transform = 'none'; n.style.marginBottom = '0';
+        });
+      }
+    });
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 1);
+    });
+  }
+
+  async function fetchInvitationBlob() {
+    if (!document.getElementById('screen-preview')?.classList.contains('active')) {
+      await renderPreview('previewPoster');
+    }
+    if (usePngRenderer()) {
+      const res = await fetch(generateUrl());
+      if (!res.ok) throw new Error('Génération PNG échouée');
+      return await res.blob();
+    }
+    return capturePosterBlob();
   }
 
   async function renderHtmlPreview(targetId) {
@@ -231,12 +318,6 @@
       time: document.getElementById('cfgTime')?.value || '11h00',
       venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
     }, 'INVITE|demo|id:CONFIG', 'mariage-civil');
-  }
-
-  async function fetchInvitationBlob() {
-    const res = await fetch(generateUrl());
-    if (!res.ok) throw new Error('Génération PNG échouée (HTTP ' + res.status + ')');
-    return await res.blob();
   }
 
   function updateHeroPoster() {
@@ -451,9 +532,6 @@
     document.querySelectorAll('[data-nav]').forEach(el => {
       el.addEventListener('click', () => showScreen(el.dataset.nav));
     });
-    document.querySelectorAll('.style-thumb').forEach(btn => {
-      btn.addEventListener('click', () => setStyle(btn.dataset.style));
-    });
 
     const liveFields = ['guestName', 'tableNum', 'seats', 'qrData'];
     liveFields.forEach(id => {
@@ -504,6 +582,7 @@
     resetGuestId();
     bindEvents();
     syncQrDataField(true);
+    await loadStyles();
     await loadBranding();
     await loadConfigFromServer();
     await loadGuestList();

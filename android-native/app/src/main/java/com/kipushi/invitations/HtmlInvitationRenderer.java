@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HtmlInvitationRenderer {
 
@@ -51,19 +53,65 @@ public class HtmlInvitationRenderer {
             return InvitationRenderer.renderCanvas(ctx, guest, prefs);
         }
 
-        String html = loadAsset(ctx, style.htmlAsset);
-        html = html.replace("{{GUEST_NAME}}", escapeHtml(prefs.embedName() ? guest.fullName : " "));
-        html = html.replace("{{TABLE}}", escapeHtml(empty(guest.tableZone, "—")));
-        html = html.replace("{{SEATS}}", String.valueOf(guest.seats));
-        html = html.replace("{{EVENT_DATE}}", escapeHtml(prefs.getDate()));
-        html = html.replace("{{EVENT_TIME}}", escapeHtml(prefs.getTime()));
-        html = html.replace("{{EVENT_VENUE}}", escapeHtml(prefs.getVenue()));
-        html = html.replace("{{QR_SIZE}}", String.valueOf(style.qrSizePx));
-        html = html.replace("{{QR_DATA}}", qrDataUri(guest, prefs, style.qrColor));
-        html = html.replace("{{COUPLE_PHOTO}}", PhotoManager.couplePhotoUri(ctx));
-        html = html.replace("{{POSTER_BG}}", PhotoManager.posterBgUri(ctx, style.id));
+        String fragment = loadAsset(ctx, style.htmlAsset);
+        String css = loadAssetSafe(ctx, "css/invitation.css");
+        String coupleUri = PhotoManager.couplePhotoUri(ctx);
+        String guestName = escapeHtml(prefs.embedName() ? guest.fullName : "Invité");
+        String table = escapeHtml(empty(guest.tableZone, "—"));
+        String seats = String.valueOf(guest.seats);
+        String date = escapeHtml(prefs.getDate());
+        String time = escapeHtml(prefs.getTime());
+        String venue = escapeHtml(prefs.getVenue());
+        String qrImg = qrDataUri(guest, prefs, style.qrColor);
+
+        fragment = bindAttr(fragment, "couple", coupleUri, true);
+        fragment = bindAttr(fragment, "guest", guestName, false);
+        fragment = bindAttr(fragment, "table", table, false);
+        fragment = bindAttr(fragment, "table2", table, false);
+        fragment = bindAttr(fragment, "seats", seats, false);
+        fragment = bindAttr(fragment, "date", date, false);
+        fragment = bindAttr(fragment, "time", time, false);
+        fragment = bindAttr(fragment, "venue", venue, false);
+
+        if (isBlankTable(table)) {
+            fragment = fragment.replaceAll("(?s)(<[^>]+data-bind-table[^>]*>)", "$1 style=\"display:none\"");
+        }
+
+        fragment = fragment.replaceFirst(
+            "(<div data-bind=\"qr\" class=\"qr-canvas\"[^>]*>)\\s*</div>",
+            "$1<img src=\"" + qrImg + "\" width=\"184\" height=\"184\" alt=\"QR\"/></div>"
+        );
+
+        String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/>"
+            + "<link href=\"https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap\" rel=\"stylesheet\"/>"
+            + "<style>" + css + "body{margin:0;padding:0;background:#fff;}</style>"
+            + "</head><body>" + fragment + "</body></html>";
 
         return captureWebView(ctx, html);
+    }
+
+    private static String bindAttr(String html, String key, String value, boolean isSrc) {
+        if (isSrc) {
+            return html.replaceAll(
+                "(<[^>]+data-bind=\"" + key + "\"[^>]*src=\")[^\"]*(\")",
+                "$1" + Matcher.quoteReplacement(value) + "$2"
+            );
+        }
+        Pattern p = Pattern.compile(
+            "(<[^>]+data-bind=\"" + key + "\"[^>]*>)([^<]*)(</[^>]+>)",
+            Pattern.DOTALL
+        );
+        Matcher m = p.matcher(html);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + value + m.group(3)));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    private static boolean isBlankTable(String table) {
+        return table == null || table.trim().isEmpty() || "—".equals(table.trim()) || "-".equals(table.trim());
     }
 
     private static Bitmap captureWebView(Context ctx, String html) throws InterruptedException {
@@ -97,7 +145,7 @@ public class HtmlInvitationRenderer {
                                 view.destroy();
                                 latch.countDown();
                             }
-                        }, 2200);
+                        }, 2800);
                     }
                 });
 
@@ -127,6 +175,14 @@ public class HtmlInvitationRenderer {
         while ((line = reader.readLine()) != null) sb.append(line).append('\n');
         reader.close();
         return sb.toString();
+    }
+
+    private static String loadAssetSafe(Context ctx, String path) {
+        try {
+            return loadAsset(ctx, path);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static String qrDataUri(Guest guest, PrefsHelper prefs, String color) throws WriterException {

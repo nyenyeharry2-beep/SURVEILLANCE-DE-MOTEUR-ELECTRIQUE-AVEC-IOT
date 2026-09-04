@@ -44,8 +44,8 @@
         <div class="poster-scaler" id="heroPreview"></div>
       </div>
     </div>
-    <p class="caption">Affiche HTML — Moïse NKUBA & Sarah KASONGO</p>
-    <p class="caption-gold">Design officiel violet • photo couple dynamique</p>
+    <p class="caption">6 designs élégants — Moïse NKUBA & Sarah KASONGO</p>
+    <p class="caption-gold">Photo des mariés + QR code unique par invité</p>
 
     <div class="card card-menu" data-nav="add">
       <div class="card-menu-row">
@@ -180,22 +180,9 @@
       </div>
     </div>
 
-    <div class="style-grid">
-      <div class="style-thumb active" data-style="mariage-civil">
-        <span class="check">✓</span>
-        <div class="preview-wrap style-chip style-civil">
-          <span>Mariage Civil</span>
-        </div>
-        <span class="style-name">Violet — roses</span>
-      </div>
-      <div class="style-thumb" data-style="affiche-blanche">
-        <span class="check">✓</span>
-        <div class="preview-wrap style-chip style-blanche">
-          <span>Bénédiction</span>
-        </div>
-        <span class="style-name">Blanche — or</span>
-      </div>
-    </div>
+    <p class="section-title">Choisir le design d'invitation</p>
+    <p class="hint" style="margin:-8px 0 12px">6 modèles • photo des mariés • QR unique par invité</p>
+    <div class="style-grid" id="styleGrid"></div>
   </div>
   <button type="button" class="btn-gold-fixed" id="btnGenerate">Générer l'invitation</button>
 </section>
@@ -249,7 +236,7 @@
   window.NKUBA_BRANDING = {
     couple: <?= json_encode($couplePhoto) ?>,
     hasCustomCouple: <?= $hasCustomCouple ? 'true' : 'false' ?>,
-    renderMode: 'png'
+    renderMode: 'html'
   };
 </script>
 <script src="assets/js/qrcode.min.js?v=<?= $V ?>"></script>
