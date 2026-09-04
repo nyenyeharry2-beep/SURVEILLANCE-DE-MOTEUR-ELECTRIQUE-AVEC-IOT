@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.1.0';
+  const V = document.body.dataset.version || '3.1.1';
   let STYLES = [];
   let PRESETS = {};
 
@@ -16,6 +16,8 @@
   let lastGuestId = null;
   let guestUniqueId = null;
   let templateCache = {};
+  let cachedInvitationBlob = null;
+  let cachedBlobKey = '';
 
   function bust(url) {
     return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -234,6 +236,54 @@
     if (label) label.textContent = d.guest;
     const qrPreview = document.getElementById('qrDataPreview');
     if (qrPreview) qrPreview.textContent = qrData;
+
+    if (targetId === 'previewPoster') {
+      invalidateBlobCache();
+      prepareShareBlob().catch(() => {});
+    }
+  }
+
+  function getBlobCacheKey() {
+    const d = getFormData();
+    return currentStyle + '::' + getQrPayload() + '::' + d.guest + '::' + d.table + '::' + d.seats;
+  }
+
+  function invalidateBlobCache() {
+    cachedInvitationBlob = null;
+    cachedBlobKey = '';
+  }
+
+  function setShareButtonsLoading(loading) {
+    const btn = document.getElementById('btnSendWa');
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading ? '⏳ Préparation de l\'image…' : '💬 Envoyer sur WhatsApp';
+  }
+
+  async function prepareShareBlob() {
+    const key = getBlobCacheKey();
+    if (cachedInvitationBlob && cachedBlobKey === key) {
+      setShareButtonsLoading(false);
+      return cachedInvitationBlob;
+    }
+    setShareButtonsLoading(true);
+    try {
+      const blob = await buildInvitationBlob();
+      cachedInvitationBlob = blob;
+      cachedBlobKey = key;
+      return blob;
+    } finally {
+      setShareButtonsLoading(false);
+    }
+  }
+
+  async function buildInvitationBlob() {
+    if (usePngRenderer()) {
+      const res = await fetch(generateUrl());
+      if (!res.ok) throw new Error('Génération PNG échouée');
+      return await res.blob();
+    }
+    return capturePosterBlob();
   }
 
   function escAttr(s) {
@@ -299,12 +349,70 @@
     if (!document.getElementById('screen-preview')?.classList.contains('active')) {
       await renderPreview('previewPoster');
     }
-    if (usePngRenderer()) {
-      const res = await fetch(generateUrl());
-      if (!res.ok) throw new Error('Génération PNG échouée');
-      return await res.blob();
+    return prepareShareBlob();
+  }
+
+  function shareViaWhatsAppFallback(blob, phone, msg) {
+    const fileName = 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    const hint = encodeURIComponent(msg + '\n\n📎 Joignez l\'image invitation qui vient d\'être téléchargée sur votre téléphone.');
+    const waUrl = phone
+      ? 'https://wa.me/' + phone + '?text=' + hint
+      : 'https://wa.me/?text=' + hint;
+    window.open(waUrl, '_blank');
+  }
+
+  async function markGuestSent() {
+    if (!lastGuestId) return;
+    try {
+      await fetch('api/guests.php?action=mark_sent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: lastGuestId })
+      });
+      await loadGuestList();
+    } catch (e) { /* ok */ }
+  }
+
+  function sendWhatsApp() {
+    const phone = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
+    const msg = formatWhatsAppMessage();
+    const key = getBlobCacheKey();
+    const blob = cachedInvitationBlob;
+    const cacheReady = blob && cachedBlobKey === key;
+
+    if (!cacheReady) {
+      prepareShareBlob()
+        .then((b) => {
+          shareViaWhatsAppFallback(b, phone, msg);
+          markGuestSent();
+        })
+        .catch((e) => alert('Partage: ' + e.message));
+      return;
     }
-    return capturePosterBlob();
+
+    const file = new File([blob], 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png', { type: 'image/png' });
+    const canNativeShare = navigator.share && navigator.canShare && navigator.canShare({ files: [file] });
+
+    if (canNativeShare) {
+      navigator.share({ text: msg, files: [file] })
+        .then(() => markGuestSent())
+        .catch((err) => {
+          if (err.name === 'AbortError') return;
+          shareViaWhatsAppFallback(blob, phone, msg);
+          markGuestSent();
+        });
+    } else {
+      shareViaWhatsAppFallback(blob, phone, msg);
+      markGuestSent();
+    }
   }
 
   function validateGuestName(name) {
@@ -500,48 +608,22 @@
       .replace('{SEATS}', d.seats);
   }
 
-  async function sendWhatsApp() {
-    const phone = (document.getElementById('whatsapp')?.value || '').replace(/\D/g, '');
-    const msg = formatWhatsAppMessage();
-    try {
-      const blob = await fetchInvitationBlob();
-      const file = new File([blob], 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png', { type: 'image/png' });
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ text: msg, files: [file] });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-        const hint = encodeURIComponent(msg + '\n\n📎 Joignez la photo invitation téléchargée');
-        window.open(phone ? 'https://wa.me/' + phone + '?text=' + hint : 'https://wa.me/?text=' + hint, '_blank');
-      }
-      if (lastGuestId) {
-        await fetch('api/guests.php?action=mark_sent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: lastGuestId })
-        });
-        await loadGuestList();
-      }
-    } catch (e) {
-      alert('Partage: ' + e.message);
-    }
-  }
-
   async function downloadPng() {
     try {
-      const blob = await fetchInvitationBlob();
+      const btn = document.getElementById('btnDownloadPng');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Préparation…'; }
+      const blob = await prepareShareBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'invitation-' + getFormData().guest.replace(/\s+/g, '-') + '.png';
       a.click();
       URL.revokeObjectURL(url);
+      if (btn) { btn.disabled = false; btn.textContent = '⬇️ Télécharger l\'image'; }
     } catch (e) {
       alert('Téléchargement: ' + e.message);
+      const btn = document.getElementById('btnDownloadPng');
+      if (btn) { btn.disabled = false; btn.textContent = '⬇️ Télécharger l\'image'; }
     }
   }
 
@@ -573,6 +655,7 @@
         if (id !== 'qrData') syncQrDataField(false);
         if (document.getElementById('screen-preview')?.classList.contains('active')) {
           renderPreview('previewPoster');
+          invalidateBlobCache();
         }
       });
     });
