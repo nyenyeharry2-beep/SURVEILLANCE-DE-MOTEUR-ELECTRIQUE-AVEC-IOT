@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/fragment_alertes.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_alertes.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/activity_main.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/item_vente_historique.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/item_vente_historique.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/fragment_ventes.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_ventes.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/activity_login.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/fragment_ventes.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_ventes.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/item_stock.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/item_stock.xml"
+    },
+    {
+        "merged": "com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/activity_recu.xml",
+        "source": "com.nouvelleeve.pharmacie.app-main-37:/layout/activity_recu.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/fragment_rapports.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_rapports.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/fragment_stock.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/fragment_stock.xml"
+    },
+    {
+        "merged": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-mergeDebugResources-34:/layout/item_alerte.xml",
+        "source": "/home/ubuntu/.gradle/daemon/8.7/com.nouvelleeve.pharmacie.app-main-37:/layout/item_alerte.xml"
+    }
+]
