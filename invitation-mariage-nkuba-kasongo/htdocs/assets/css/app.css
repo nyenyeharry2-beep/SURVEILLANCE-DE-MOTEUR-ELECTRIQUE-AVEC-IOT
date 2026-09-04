@@ -525,14 +525,15 @@ body {
 
 .phone-frame .poster-viewport {
   width: calc(1200px * 0.22);
-  height: 374px;
+  height: calc(1700px * 0.22);
+  aspect-ratio: 12 / 17;
   overflow: hidden;
   background: #fff;
   border-radius: 8px;
 }
 
 .phone-frame .poster-scaler {
-  transform-origin: top left;
+  transform-origin: top center;
   margin-bottom: calc(-1700px * (1 - 0.22));
 }
 
@@ -575,15 +576,17 @@ body {
 /* Offscreen export host */
 #invitationRenderHost {
   position: fixed;
-  left: -9999px;
+  left: 0;
   top: 0;
   width: 1200px;
   height: 1700px;
+  visibility: hidden;
   pointer-events: none;
   z-index: -1;
+  overflow: hidden;
 }
 
-.poster-viewport { overflow: hidden; margin: 0 auto; }
+.poster-viewport { overflow: hidden; margin: 0 auto; aspect-ratio: 12 / 17; }
 
 .poster-scaler {
   width: 1200px;
@@ -593,7 +596,13 @@ body {
   margin-bottom: calc(-1700px * (1 - var(--inv-scale, 0.28)));
 }
 
-.poster-generated { display: block; width: 1200px; height: 1700px; }
+.poster-generated {
+  display: block;
+  width: 1200px;
+  height: 1700px;
+  aspect-ratio: 12 / 17;
+  object-fit: contain;
+}
 
 @media (min-width: 900px) {
   .btn-floating { position: static; transform: none; width: 100%; max-width: none; margin-top: 20px; }

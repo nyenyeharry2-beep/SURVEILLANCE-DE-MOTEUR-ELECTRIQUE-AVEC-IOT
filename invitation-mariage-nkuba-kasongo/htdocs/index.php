@@ -3,7 +3,7 @@
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Pragma: no-cache');
 
-$V = '3.1.2';
+$V = '3.1.3';
 $base = __DIR__;
 $uploadDir = $base . '/assets/uploads';
 $assetsDir = $base . '/assets';

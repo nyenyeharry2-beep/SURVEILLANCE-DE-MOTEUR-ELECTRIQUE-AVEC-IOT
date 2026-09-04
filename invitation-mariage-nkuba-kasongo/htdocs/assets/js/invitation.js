@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.1.2';
+  const V = document.body.dataset.version || '3.1.3';
   let STYLES = [];
   let PRESETS = {};
 
@@ -421,7 +421,12 @@
     if (!el) throw new Error('Aperçu introuvable');
 
     if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
-    const canvas = await html2canvas(el, {
+    el.style.width = POSTER_W + 'px';
+    el.style.height = POSTER_H + 'px';
+    el.style.maxWidth = POSTER_W + 'px';
+    el.style.maxHeight = POSTER_H + 'px';
+
+    const raw = await html2canvas(el, {
       scale: EXPORT_SCALE,
       width: POSTER_W,
       height: POSTER_H,
@@ -431,6 +436,25 @@
       logging: false,
       imageTimeout: 15000
     });
+
+    const outW = POSTER_W * EXPORT_SCALE;
+    const outH = POSTER_H * EXPORT_SCALE;
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    if (raw.width > raw.height) {
+      ctx.save();
+      ctx.translate(outW / 2, outH / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(raw, -outH / 2, -outW / 2, outH, outW);
+      ctx.restore();
+    } else {
+      ctx.drawImage(raw, 0, 0, outW, outH);
+    }
+
     return new Promise((resolve, reject) => {
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.96);
     });
