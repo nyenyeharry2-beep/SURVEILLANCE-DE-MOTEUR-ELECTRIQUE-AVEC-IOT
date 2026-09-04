@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.1.1';
+  const V = document.body.dataset.version || '3.1.2';
   let STYLES = [];
   let PRESETS = {};
 
@@ -18,6 +18,11 @@
   let templateCache = {};
   let cachedInvitationBlob = null;
   let cachedBlobKey = '';
+  const renderSeqByTarget = {};
+
+  const POSTER_W = 1200;
+  const POSTER_H = 1700;
+  const EXPORT_SCALE = 2;
 
   function bust(url) {
     return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -107,6 +112,44 @@
     }
   }
 
+  function getStyleAccent(style) {
+    return PRESETS[style || currentStyle]?.accent || '#6B2D82';
+  }
+
+  function getDemoData() {
+    return {
+      guest: (document.getElementById('guestName')?.value || '').trim() || 'Nom invité',
+      table: document.getElementById('tableNum')?.value?.trim() || '—',
+      seats: document.getElementById('seats')?.value || '2',
+      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
+      time: document.getElementById('cfgTime')?.value || '11h00',
+      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
+    };
+  }
+
+  function showPosterLoading(host, style) {
+    if (!host) return;
+    const accent = getStyleAccent(style);
+    const photo = coupleUrl();
+    host.innerHTML = `
+      <div class="poster-loading" style="--load-accent:${escAttr(accent)}">
+        <div class="poster-loading-photo">
+          <img src="${escAttr(photo)}" alt="" crossorigin="anonymous"/>
+          <div class="poster-loading-shimmer"></div>
+        </div>
+        <div class="poster-loading-spinner"></div>
+        <span class="poster-loading-text">Chargement…</span>
+      </div>`;
+  }
+
+  function qrNodeReady(container) {
+    if (!container) return false;
+    const node = container.querySelector('canvas, img');
+    if (!node) return false;
+    if (node.tagName === 'CANVAS') return node.width > 0 && node.height > 0;
+    return node.complete && node.naturalWidth > 0;
+  }
+
   function coupleUrl() {
     return bust(branding.couple || 'assets/couple_photo.jpg');
   }
@@ -144,18 +187,36 @@
   }
 
   function renderQrCode(container, data) {
-    if (!container || typeof QRCode === 'undefined') return;
+    if (!container) return false;
+    if (typeof QRCode === 'undefined') return false;
     container.innerHTML = '';
     const size = 184;
-    /* eslint-disable no-new */
-    new QRCode(container, {
-      text: data,
-      width: size,
-      height: size,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
+    try {
+      /* eslint-disable no-new */
+      new QRCode(container, {
+        text: String(data || 'INVITE'),
+        width: size,
+        height: size,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      return true;
+    } catch (e) {
+      try {
+        new QRCode(container, {
+          text: String(data || 'INVITE').slice(0, 120),
+          width: size,
+          height: size,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.L
+        });
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
   }
 
   function usePngRenderer() {
@@ -179,6 +240,13 @@
       STYLES.forEach(s => { PRESETS[s.id] = s; });
     }
     renderStyleGrid();
+    preloadAllTemplates();
+  }
+
+  function preloadAllTemplates() {
+    STYLES.forEach(s => {
+      loadTemplate(s.id).catch(() => {});
+    });
   }
 
   function renderStyleGrid() {
@@ -218,19 +286,26 @@
     const d = dataOverride || getFormData();
     const host = document.getElementById(targetId);
     if (!host) return;
+    const style = styleOverride || currentStyle;
     const qrData = qrOverride || getQrPayload();
+    renderSeqByTarget[targetId] = (renderSeqByTarget[targetId] || 0) + 1;
+    const seq = renderSeqByTarget[targetId];
+
+    showPosterLoading(host, style);
 
     if (usePngRenderer()) {
-      const url = buildGenerateUrl(d, qrData, styleOverride);
-      host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="1200" height="1700" alt="Invitation ' + escAttr(d.guest) + '"/>';
+      const url = buildGenerateUrl(d, qrData, style);
+      host.innerHTML = '<img class="poster poster-generated" src="' + url + '" width="' + POSTER_W + '" height="' + POSTER_H + '" alt="Invitation ' + escAttr(d.guest) + '"/>';
     } else {
-      const style = styleOverride || currentStyle;
       if (!PRESETS[style]) return;
       host.innerHTML = await loadTemplate(style);
+      if (seq !== renderSeqByTarget[targetId]) return;
       bindPosterData(host, d, qrData);
       await waitForImages(host);
-      await waitForQr(host);
+      await waitForQr(host, qrData);
     }
+
+    if (seq !== renderSeqByTarget[targetId]) return;
 
     const label = document.getElementById('previewGuestLabel');
     if (label) label.textContent = d.guest;
@@ -305,8 +380,19 @@
     })));
   }
 
-  function waitForQr(root) {
-    return new Promise(resolve => setTimeout(resolve, 600));
+  async function waitForQr(root, qrData, maxMs = 3000) {
+    const container = root.querySelector('[data-bind="qr"]');
+    if (!container) return;
+    const start = Date.now();
+    while (Date.now() - start < maxMs) {
+      if (qrNodeReady(container)) {
+        await new Promise(r => setTimeout(r, 120));
+        return;
+      }
+      await new Promise(r => setTimeout(r, 60));
+    }
+    renderQrCode(container, qrData || getQrPayload());
+    await new Promise(r => setTimeout(r, 350));
   }
 
   async function renderForExport(d, qrData, style) {
@@ -319,8 +405,13 @@
     host.innerHTML = await loadTemplate(style || currentStyle);
     bindPosterData(host, d, qrData);
     await waitForImages(host);
-    await waitForQr(host);
-    return host.querySelector('.poster');
+    await waitForQr(host, qrData);
+    const el = host.querySelector('.poster');
+    if (el) {
+      el.style.width = POSTER_W + 'px';
+      el.style.height = POSTER_H + 'px';
+    }
+    return el;
   }
 
   async function capturePosterBlob() {
@@ -331,9 +422,9 @@
 
     if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
     const canvas = await html2canvas(el, {
-      scale: 2,
-      width: 1200,
-      height: 1700,
+      scale: EXPORT_SCALE,
+      width: POSTER_W,
+      height: POSTER_H,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
@@ -341,7 +432,7 @@
       imageTimeout: 15000
     });
     return new Promise((resolve, reject) => {
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.95);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.96);
     });
   }
 
@@ -430,27 +521,20 @@
   async function renderHeroPreview() {
     const host = document.getElementById('heroPreview');
     if (!host) return;
-    const demo = {
-      guest: 'Nom invité',
-      table: '—',
-      seats: '2',
-      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
-      time: document.getElementById('cfgTime')?.value || '11h00',
-      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
-    };
-    await renderPreview('heroPreview', demo, 'INVITE|demo|id:HERO', 'mariage-civil');
+    const demo = getDemoData();
+    await renderPreview('heroPreview', demo, 'INVITE|demo|id:HERO', currentStyle);
     await renderConfigPreview();
+    await renderAddPreview();
   }
 
   async function renderConfigPreview() {
-    await renderPreview('configPreview', {
-      guest: 'Nom invité',
-      table: '—',
-      seats: '2',
-      date: document.getElementById('cfgDate')?.value || 'Vendredi, le 11 Septembre 2026',
-      time: document.getElementById('cfgTime')?.value || '11h00',
-      venue: document.getElementById('cfgVenue')?.value || 'Commune de Kipushi, Ville de KIPUSHI'
-    }, 'INVITE|demo|id:CONFIG', 'mariage-civil');
+    await renderPreview('configPreview', getDemoData(), 'INVITE|demo|id:CONFIG', currentStyle);
+  }
+
+  async function renderAddPreview() {
+    const host = document.getElementById('addPreview');
+    if (!host) return;
+    await renderPreview('addPreview', getDemoData(), 'INVITE|demo|id:ADD', currentStyle);
   }
 
   function updateHeroPoster() {
@@ -586,6 +670,7 @@
       t.classList.toggle('active', t.dataset.style === style);
     });
     updateHeroPoster();
+    renderAddPreview();
   }
 
   function showScreen(id) {
@@ -595,6 +680,7 @@
     if (id === 'preview') renderPreview('previewPoster');
     if (id === 'guests') loadGuestList();
     if (id === 'config') renderConfigPreview();
+    if (id === 'add') renderAddPreview();
   }
 
   function formatWhatsAppMessage() {
@@ -656,6 +742,9 @@
         if (document.getElementById('screen-preview')?.classList.contains('active')) {
           renderPreview('previewPoster');
           invalidateBlobCache();
+        }
+        if (document.getElementById('screen-add')?.classList.contains('active')) {
+          renderAddPreview();
         }
       });
     });

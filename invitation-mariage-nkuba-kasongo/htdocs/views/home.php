@@ -7,6 +7,7 @@
   <title>Invitations Moïse & Sarah</title>
   <link rel="icon" href="assets/app-icon.png?v=<?= $V ?>" type="image/png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preload" as="image" href="<?= htmlspecialchars($couplePhoto) ?>"/>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="assets/css/app.css?v=<?= $V ?>"/>
   <link rel="stylesheet" href="assets/css/invitation.css?v=<?= $V ?>"/>
@@ -42,7 +43,16 @@
 
     <div class="preview-card">
       <div class="poster-viewport" style="--inv-scale:0.24">
-        <div class="poster-scaler" id="heroPreview"></div>
+        <div class="poster-scaler" id="heroPreview">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
+            </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -148,6 +158,22 @@ Votre présence fera notre immense joie.</textarea>
     <p class="section-title">Choisir le modèle</p>
     <div class="style-grid" id="styleGrid"></div>
 
+    <div class="preview-card preview-card-add">
+      <p class="preview-live-label">Aperçu du modèle sélectionné</p>
+      <div class="poster-viewport" style="--inv-scale:0.20">
+        <div class="poster-scaler" id="addPreview">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
+            </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <details class="advanced-options">
       <summary>Options avancées (QR code)</summary>
       <div class="field" style="margin-top:12px">
@@ -167,7 +193,16 @@ Votre présence fera notre immense joie.</textarea>
     <p class="page-desc">Pour : <strong id="previewGuestLabel">—</strong></p>
     <div class="phone-frame">
       <div class="poster-viewport" style="--inv-scale:0.22">
-        <div class="poster-scaler" id="previewPoster"></div>
+        <div class="poster-scaler" id="previewPoster">
+          <div class="poster-loading" style="--load-accent:#6B2D82">
+            <div class="poster-loading-photo">
+              <img src="<?= htmlspecialchars($couplePhoto) ?>" alt="Moïse & Sarah"/>
+              <div class="poster-loading-shimmer"></div>
+            </div>
+            <div class="poster-loading-spinner"></div>
+            <span class="poster-loading-text">Chargement…</span>
+          </div>
+        </div>
       </div>
     </div>
     <button type="button" class="btn-wa btn-block" id="btnSendWa">💬 Envoyer sur WhatsApp</button>

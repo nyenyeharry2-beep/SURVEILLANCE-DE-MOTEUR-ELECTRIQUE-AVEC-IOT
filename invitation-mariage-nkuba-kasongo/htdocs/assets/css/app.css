@@ -146,6 +146,87 @@ body {
 
 .preview-card-sm { max-height: 320px; }
 
+.preview-card-add {
+  margin-top: 8px;
+}
+
+.preview-live-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+/* Chargement affiche — photo mariés + couleur du modèle */
+.poster-loading {
+  width: 1200px;
+  height: 1700px;
+  position: relative;
+  background: #f8f8fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.poster-loading-photo {
+  position: absolute;
+  inset: 0;
+}
+
+.poster-loading-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  opacity: 0.5;
+}
+
+.poster-loading-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 28%,
+    color-mix(in srgb, var(--load-accent, #6B2D82) 30%, transparent) 50%,
+    transparent 72%
+  );
+  background-size: 220% 100%;
+  animation: posterShimmer 1.6s ease-in-out infinite;
+}
+
+.poster-loading-spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid rgba(255, 255, 255, 0.35);
+  border-top-color: var(--load-accent, #6B2D82);
+  border-radius: 50%;
+  animation: posterSpin 0.85s linear infinite;
+  z-index: 2;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+.poster-loading-text {
+  margin-top: 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--load-accent, #6B2D82);
+  z-index: 2;
+  font-family: Inter, sans-serif;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.95);
+}
+
+@keyframes posterShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes posterSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* Quick actions — Play Store style */
 .quick-actions {
   display: flex;
