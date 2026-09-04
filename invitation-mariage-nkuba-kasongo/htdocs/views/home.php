@@ -4,128 +4,91 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-  <title>invitation-mariage-nkuba-kasongo</title>
+  <title>Invitations Moïse & Sarah</title>
   <link rel="icon" href="assets/app-icon.png?v=<?= $V ?>" type="image/png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="assets/css/app.css?v=<?= $V ?>"/>
   <link rel="stylesheet" href="assets/css/invitation.css?v=<?= $V ?>"/>
 </head>
 <body data-version="<?= $V ?>">
 
 <section id="screen-home" class="screen active">
-  <div class="screen-inner">
-    <div class="header-row">
-      <div class="logo-frame">
-        <img id="homeLogo" src="<?= htmlspecialchars($coupleLogo) ?>" alt="Logo Moïse & Sarah"/>
-      </div>
+  <div class="app-hero">
+    <div class="app-hero-inner">
+      <img class="app-hero-logo" id="homeLogo" src="<?= htmlspecialchars($coupleLogo) ?>" alt="Moïse & Sarah"/>
       <div>
-        <h1>Générateur d'Invitations</h1>
-        <p class="subtitle">Mariage de Moïse & Sarah</p>
+        <h1 class="app-title">Invitations</h1>
+        <p class="app-subtitle">Moïse NKUBA & Sarah KASONGO</p>
       </div>
     </div>
+  </div>
 
+  <div class="screen-inner screen-home-body">
     <?php if (!$hasCustomCouple): ?>
-    <div class="card upload-alert">
-      <h3>📷 Importez la photo des mariés</h3>
-      <p>Le design de l'affiche est en <strong>HTML/CSS</strong> — seule la photo de Moïse & Sarah est insérée dynamiquement sur chaque invitation.</p>
-      <label class="btn-upload-home">
-        📷 Choisir la photo des mariés
+    <div class="card card-highlight">
+      <div class="card-icon">📷</div>
+      <h3>Ajoutez la photo des mariés</h3>
+      <p>Une seule photo — elle apparaît sur toutes les invitations.</p>
+      <label class="btn-primary btn-block">
+        Choisir une photo
         <input type="file" id="uploadCoupleHome" accept="image/*" hidden/>
       </label>
-      <p id="homeUploadStatus" class="hint" style="margin-top:8px"></p>
+      <p id="homeUploadStatus" class="hint"></p>
     </div>
     <?php else: ?>
-    <p class="badge-ok">✓ Photo des mariés active — design HTML/CSS</p>
+    <div class="status-pill">✓ Photo des mariés installée</div>
     <?php endif; ?>
 
-    <div class="hero-poster hero-html">
-      <div class="poster-viewport" style="--inv-scale:0.22">
+    <div class="preview-card">
+      <div class="poster-viewport" style="--inv-scale:0.24">
         <div class="poster-scaler" id="heroPreview"></div>
       </div>
     </div>
-    <p class="caption">6 designs élégants — Moïse NKUBA & Sarah KASONGO</p>
-    <p class="caption-gold">Photo des mariés + QR code unique par invité</p>
 
-    <div class="card card-menu" data-nav="add">
-      <div class="card-menu-row">
-        <div class="icon-box gold">👤</div>
-        <div class="card-menu-text">
-          <h3>Ajouter un invité</h3>
-          <p>Nom → invitation avec QR automatique</p>
-        </div>
-        <span class="card-menu-arrow">›</span>
-      </div>
+    <div class="quick-actions">
+      <button type="button" class="action-card action-primary" data-nav="add">
+        <span class="action-icon">✨</span>
+        <span class="action-label">Créer une invitation</span>
+        <span class="action-desc">Nom + design + QR code</span>
+      </button>
+      <button type="button" class="action-card" data-nav="guests">
+        <span class="action-icon">📋</span>
+        <span class="action-label">Mes invités</span>
+        <span class="action-desc">Liste, export, renvoi</span>
+      </button>
+      <button type="button" class="action-card" data-nav="config">
+        <span class="action-icon">⚙️</span>
+        <span class="action-label">Paramètres</span>
+        <span class="action-desc">Date, lieu, message WhatsApp</span>
+      </button>
     </div>
 
-    <a class="card card-menu" href="generator.html" style="text-decoration:none;color:inherit;display:block">
-      <div class="card-menu-row">
-        <div class="icon-box blue">🎨</div>
-        <div class="card-menu-text">
-          <h3>Générateur HTML/CSS/JS</h3>
-          <p>Aperçu live + QR code qrcode.js</p>
-        </div>
-        <span class="card-menu-arrow">›</span>
-      </div>
-    </a>
-
-    <div class="card card-menu" data-nav="guests">
-      <div class="card-menu-row">
-        <div class="icon-box purple">📋</div>
-        <div class="card-menu-text">
-          <h3>Liste des invités</h3>
-          <p>Nom, téléphone, table — sync app</p>
-        </div>
-        <span class="card-menu-arrow">›</span>
-      </div>
-    </div>
-
-    <div class="card card-menu" data-nav="config">
-      <div class="card-menu-row">
-        <div class="icon-box blue">⚙</div>
-        <div class="card-menu-text">
-          <h3>Configurer l'événement</h3>
-          <p>Date, lieu, affiches, WhatsApp</p>
-        </div>
-        <span class="card-menu-arrow">›</span>
-      </div>
-    </div>
-
-    <p class="version-tag">invitation-mariage-nkuba-kasongo • v<?= $V ?></p>
-    <a class="apk-link" href="app/invitation-mariage-nkuba-kasongo.apk">📱 Télécharger l'application Android</a>
+    <a class="btn-apk" href="app/invitation-mariage-nkuba-kasongo.apk">📱 Télécharger l'app Android</a>
+    <p class="version-tag">v<?= $V ?></p>
   </div>
 </section>
 
 <section id="screen-config" class="screen screen-config">
   <div class="screen-inner">
     <button type="button" class="back-link" data-nav="home">← Retour</button>
-    <div class="header-row" style="justify-content:flex-start">
-      <div class="logo-frame lg">
-        <img id="configLogo" src="<?= htmlspecialchars($coupleLogo) ?>" alt="Logo"/>
-      </div>
-      <div>
-        <h1>Configurer l'événement</h1>
-        <p class="subtitle">Mariage de Moïse & Sarah</p>
-      </div>
-    </div>
-
-    <p id="photoStatus" class="config-intro" style="color:#ffcc80;margin-bottom:12px">
-      Les affiches sont en HTML/CSS. Uploadez uniquement la <strong>photo HD des mariés</strong>.
-    </p>
+    <h2 class="page-heading">Paramètres</h2>
+    <p class="page-desc">Date, lieu et message d'envoi WhatsApp</p>
 
     <div class="field">
-      <label>📷 Photo des mariés (Moïse & Sarah) *</label>
+      <label>Photo des mariés</label>
       <input type="file" id="uploadCouple" accept="image/jpeg,image/png,image/webp"/>
+      <p id="photoStatus" class="hint"></p>
     </div>
 
-    <div class="config-poster-card hero-html">
+    <div class="preview-card preview-card-sm">
       <div class="poster-viewport" style="--inv-scale:0.18">
         <div class="poster-scaler" id="configPreview"></div>
       </div>
     </div>
 
     <div class="field">
-      <label for="cfgDate">Date</label>
+      <label for="cfgDate">Date du mariage</label>
       <input type="text" id="cfgDate" value="Vendredi, le 11 Septembre 2026"/>
     </div>
     <div class="field">
@@ -138,29 +101,37 @@
     </div>
     <div class="field">
       <label for="cfgMessage">Message WhatsApp</label>
-      <textarea id="cfgMessage" rows="4">Bonjour {NAME}, nous avons l'honneur de vous inviter au mariage civil de Moïse NKUBA & Sarah KASONGO, le {DATE} à {VENUE}. Table {TABLE}, {SEATS} place(s).</textarea>
+      <textarea id="cfgMessage" rows="5">Bonjour {NAME},
+
+Nous avons l'honneur de vous inviter au mariage civil de Moïse NKUBA & Sarah KASONGO, le {DATE}.
+
+🕐 {TIME}
+📍 {VENUE}
+🪑 Table {TABLE} — {SEATS} place(s)
+
+Votre présence fera notre immense joie.</textarea>
     </div>
 
-    <button type="button" class="btn-blue" id="btnSaveConfig">Enregistrer</button>
+    <button type="button" class="btn-primary btn-block" id="btnSaveConfig">Enregistrer</button>
   </div>
 </section>
 
 <section id="screen-add" class="screen">
   <div class="screen-inner">
-    <div class="page-title">
-      <button type="button" class="btn-settings" data-nav="config">⚙</button>
-      <h2>Ajouter un invité</h2>
-      <p class="subtitle">Le nom sera inscrit sur l'invitation</p>
-    </div>
+    <button type="button" class="back-link" data-nav="home">← Retour</button>
+    <h2 class="page-heading">Nouvelle invitation</h2>
+    <p class="page-desc">Chaque invité reçoit son nom et un QR code unique</p>
 
-    <div class="card">
+    <div class="card form-card">
       <div class="field">
-        <label for="guestName">Nom complet de l'invité *</label>
-        <input type="text" id="guestName" placeholder="Ex: Mme Sarah BANZA" required autofocus/>
+        <label for="guestName">Nom de l'invité *</label>
+        <input type="text" id="guestName" placeholder="Ex : Mme Sarah BANZA" required autofocus/>
+        <p class="hint">Le prénom et nom — pas l'e-mail</p>
       </div>
       <div class="field">
-        <label for="whatsapp">WhatsApp</label>
-        <input type="tel" id="whatsapp" placeholder="243XXXXXXXXX"/>
+        <label for="whatsapp">Numéro WhatsApp</label>
+        <input type="tel" id="whatsapp" placeholder="243 XXX XXX XXX"/>
+        <p class="hint">Pour envoyer l'invitation en un clic</p>
       </div>
       <div class="field-row">
         <div class="field seats">
@@ -169,68 +140,70 @@
         </div>
         <div class="field">
           <label for="tableNum">Table</label>
-          <input type="text" id="tableNum" placeholder="Table 12"/>
+          <input type="text" id="tableNum" placeholder="Ex : 5"/>
         </div>
-      </div>
-      <div class="field">
-        <label for="qrData">Données du QR code</label>
-        <input type="text" id="qrData" placeholder="Généré automatiquement (nom + identifiant unique)"/>
-        <p class="hint">Format : INVITE|nom:…|id:…|table:…|places:… — modifiable avant envoi</p>
-        <button type="button" class="btn-outline btn-sm" id="btnRegenQr" style="margin-top:8px">↻ Nouvel identifiant QR</button>
       </div>
     </div>
 
-    <p class="section-title">Choisir le design d'invitation</p>
-    <p class="hint" style="margin:-8px 0 12px">6 modèles • photo des mariés • QR unique par invité</p>
+    <p class="section-title">Choisir le modèle</p>
     <div class="style-grid" id="styleGrid"></div>
+
+    <details class="advanced-options">
+      <summary>Options avancées (QR code)</summary>
+      <div class="field" style="margin-top:12px">
+        <label for="qrData">Données QR</label>
+        <input type="text" id="qrData" placeholder="Généré automatiquement"/>
+        <button type="button" class="btn-ghost btn-sm" id="btnRegenQr">↻ Nouveau QR</button>
+      </div>
+    </details>
   </div>
-  <button type="button" class="btn-gold-fixed" id="btnGenerate">Générer l'invitation</button>
+  <button type="button" class="btn-primary btn-floating" id="btnGenerate">✨ Générer l'invitation</button>
 </section>
 
 <section id="screen-preview" class="screen">
   <div class="screen-inner preview-center">
-    <button type="button" class="back-link" data-nav="add">← Retour</button>
-    <h2>Aperçu final</h2>
-    <p class="subtitle">Invitation pour : <strong id="previewGuestLabel">—</strong></p>
+    <button type="button" class="back-link" data-nav="add">← Modifier</button>
+    <h2 class="page-heading">Votre invitation</h2>
+    <p class="page-desc">Pour : <strong id="previewGuestLabel">—</strong></p>
     <div class="phone-frame">
       <div class="poster-viewport" style="--inv-scale:0.22">
         <div class="poster-scaler" id="previewPoster"></div>
       </div>
     </div>
-    <p class="hint qr-preview-meta">QR : <code id="qrDataPreview">—</code></p>
-    <button type="button" class="btn-wa" id="btnSendWa">Envoyer WhatsApp (message + photo)</button>
-    <button type="button" class="btn-blue" id="btnDownloadPng">Télécharger PNG</button>
-    <button type="button" class="btn-close" id="btnToGuestList">Voir la liste des invités</button>
-    <button type="button" class="btn-close" data-nav="add">Autre invité</button>
+    <button type="button" class="btn-wa btn-block" id="btnSendWa">💬 Envoyer sur WhatsApp</button>
+    <button type="button" class="btn-secondary btn-block" id="btnDownloadPng">⬇️ Télécharger l'image</button>
+    <button type="button" class="btn-ghost" data-nav="add">+ Autre invité</button>
+    <button type="button" class="btn-ghost" id="btnToGuestList">Voir tous les invités</button>
   </div>
 </section>
 
 <section id="screen-guests" class="screen">
   <div class="screen-inner">
     <button type="button" class="back-link" data-nav="home">← Retour</button>
-    <h2>Liste des invités</h2>
-    <p id="guestListStats" class="subtitle">Chargement…</p>
+    <h2 class="page-heading">Mes invités</h2>
+    <p id="guestListStats" class="page-desc">Chargement…</p>
 
     <div class="field-row" style="margin-top:12px">
       <div class="field" style="flex:2">
-        <input type="search" id="guestSearch" placeholder="Rechercher nom, téléphone, table…"/>
+        <input type="search" id="guestSearch" placeholder="Rechercher…"/>
       </div>
       <div class="field" style="flex:1">
         <select id="guestSort">
-          <option value="name">Tri : Nom</option>
-          <option value="phone">Tri : Téléphone</option>
-          <option value="table">Tri : Table</option>
-          <option value="recent">Tri : Récent</option>
+          <option value="name">Nom</option>
+          <option value="phone">Téléphone</option>
+          <option value="table">Table</option>
+          <option value="recent">Récent</option>
         </select>
       </div>
     </div>
 
-    <div class="card" id="guestListBody" style="padding:0;overflow:hidden"></div>
-
-    <a class="btn-outline" href="api/guests.php?action=export" style="display:block;text-align:center;margin-top:12px">Exporter CSV</a>
-    <button type="button" class="btn-gold" data-nav="add" style="width:100%;margin-top:12px">+ Ajouter un invité</button>
+    <div class="card guest-list-card" id="guestListBody"></div>
+    <a class="btn-secondary btn-block" href="api/guests.php?action=export">Exporter la liste (CSV)</a>
+    <button type="button" class="btn-primary btn-block" data-nav="add">+ Nouvelle invitation</button>
   </div>
 </section>
+
+<div id="invitationRenderHost" aria-hidden="true"></div>
 
 <script>
   window.NKUBA_BRANDING = {

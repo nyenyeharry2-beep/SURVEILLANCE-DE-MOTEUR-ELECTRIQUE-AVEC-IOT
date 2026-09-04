@@ -1,36 +1,28 @@
 <div class="poster poster-jardin-floral">
-  <div class="jf-border jf-border-t"></div>
-  <div class="jf-border jf-border-b"></div>
-  <div class="jf-corner jf-tl">🌿</div>
-  <div class="jf-corner jf-tr">🌸</div>
-  <div class="jf-corner jf-bl">🌸</div>
-  <div class="jf-corner jf-br">🌿</div>
-
-  <div class="jf-photo-card">
+  <div class="jf-hero">
     <img data-bind="couple" src="" alt="Moïse & Sarah"/>
-    <div class="jf-photo-overlay"></div>
+    <div class="jf-hero-shade"></div>
+    <div class="jf-hero-title">Invitation</div>
   </div>
 
-  <h1 class="jf-script">Invitation</h1>
-  <div class="jf-leaf">— ✿ —</div>
+  <div class="jf-body">
+    <div class="jf-guest-card">
+      <span class="jf-guest-lbl">Mme, Mlle, Mr, Couple :</span>
+      <strong class="jf-guest-name" data-bind="guest">Nom invité</strong>
+      <div class="jf-table" data-bind-table>Table <span data-bind="table">—</span></div>
+    </div>
 
-  <div class="jf-guest">
-    <span>Mme, Mlle, Mr, Couple :</span>
-    <strong data-bind="guest">Nom invité</strong>
+    <p class="jf-text">Les familles NKUBA et BANZA vous invitent<br/>au mariage civil de</p>
+    <div class="jf-names">Moïse NKUBA <em>&amp;</em> Sarah KASONGO</div>
+
+    <div class="jf-pills">
+      <span class="jf-pill" data-bind="date">11 Septembre 2026</span>
+      <span class="jf-pill" data-bind="time">11h00</span>
+    </div>
+    <p class="jf-venue" data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</p>
+    <p class="jf-closing">Votre présence fera notre immense joie.</p>
+    <div class="jf-seats" data-bind-seats><span data-bind="seats">2</span> place(s)<span class="seats-table-part"> • Table <span data-bind="table2">—</span></span></div>
   </div>
-  <div class="jf-table" data-bind-table>Table <span data-bind="table">—</span></div>
-
-  <p class="jf-text">Les familles NKUBA et BANZA vous invitent<br/>à célébrer le mariage civil de</p>
-  <div class="jf-names">Moïse NKUBA <em>&amp;</em> Sarah KASONGO</div>
-
-  <div class="jf-pills">
-    <span class="jf-pill" data-bind="date">11 Sept. 2026</span>
-    <span class="jf-pill" data-bind="time">11h00</span>
-  </div>
-  <p class="jf-venue" data-bind="venue">Commune de Kipushi, Ville de KIPUSHI</p>
-  <p class="jf-closing">Votre présence fera notre immense joie.</p>
-
-  <div class="jf-seats" data-bind-seats><span data-bind="seats">2</span> place(s)<span class="seats-table-part"> • Table <span data-bind="table2">—</span></span></div>
 
   <div class="qr-zone jf-qr">
     <div class="qr-box"><div data-bind="qr" class="qr-canvas"></div></div>

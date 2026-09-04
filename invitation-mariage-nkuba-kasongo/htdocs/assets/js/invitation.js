@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const V = document.body.dataset.version || '3.0.0';
+  const V = document.body.dataset.version || '3.1.0';
   let STYLES = [];
   let PRESETS = {};
 
@@ -116,7 +116,10 @@
 
   function bindPosterData(root, d, qrData) {
     const tableVal = d.table || '—';
-    root.querySelectorAll('[data-bind="couple"]').forEach(el => { el.src = coupleUrl(); });
+    root.querySelectorAll('[data-bind="couple"]').forEach(el => {
+      el.crossOrigin = 'anonymous';
+      el.src = coupleUrl();
+    });
     root.querySelectorAll('[data-bind="guest"]').forEach(el => { el.textContent = d.guest; });
     root.querySelectorAll('[data-bind="table"]').forEach(el => { el.textContent = tableVal; });
     const table2 = root.querySelector('[data-bind="table2"]');
@@ -253,28 +256,42 @@
   }
 
   function waitForQr(root) {
-    return new Promise(resolve => setTimeout(resolve, 350));
+    return new Promise(resolve => setTimeout(resolve, 600));
+  }
+
+  async function renderForExport(d, qrData, style) {
+    let host = document.getElementById('invitationRenderHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'invitationRenderHost';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = await loadTemplate(style || currentStyle);
+    bindPosterData(host, d, qrData);
+    await waitForImages(host);
+    await waitForQr(host);
+    return host.querySelector('.poster');
   }
 
   async function capturePosterBlob() {
-    const el = document.querySelector('#previewPoster .poster, #previewPoster .poster-generated');
+    const d = getFormData();
+    const qrData = getQrPayload();
+    const el = await renderForExport(d, qrData, currentStyle);
     if (!el) throw new Error('Aperçu introuvable');
-    if (el.tagName === 'IMG' && el.src) {
-      const res = await fetch(el.src);
-      return await res.blob();
-    }
-    if (typeof html2canvas === 'undefined') throw new Error('html2canvas non chargé');
+
+    if (typeof html2canvas === 'undefined') throw new Error('Export indisponible');
     const canvas = await html2canvas(el, {
-      scale: 1, width: 1200, height: 1700, useCORS: true,
-      backgroundColor: '#ffffff', logging: false,
-      onclone: (doc) => {
-        doc.querySelectorAll('.poster-scaler').forEach(n => {
-          n.style.transform = 'none'; n.style.marginBottom = '0';
-        });
-      }
+      scale: 2,
+      width: 1200,
+      height: 1700,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false,
+      imageTimeout: 15000
     });
     return new Promise((resolve, reject) => {
-      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 1);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export PNG échoué')), 'image/png', 0.95);
     });
   }
 
@@ -288,6 +305,14 @@
       return await res.blob();
     }
     return capturePosterBlob();
+  }
+
+  function validateGuestName(name) {
+    const n = (name || '').trim();
+    if (!n) return 'Saisissez le nom de l\'invité';
+    if (n.includes('@')) return 'Entrez le NOM de l\'invité (pas un e-mail). L\'e-mail va dans le champ WhatsApp.';
+    if (n.length < 2) return 'Nom trop court';
+    return null;
   }
 
   async function renderHtmlPreview(targetId) {
@@ -468,8 +493,11 @@
     let msg = document.getElementById('cfgMessage')?.value || '';
     const d = getFormData();
     return msg.replace('{NAME}', d.guest)
-      .replace('{DATE}', d.date).replace('{VENUE}', d.venue)
-      .replace('{TABLE}', d.table).replace('{SEATS}', d.seats);
+      .replace('{DATE}', d.date)
+      .replace('{TIME}', d.time)
+      .replace('{VENUE}', d.venue)
+      .replace('{TABLE}', d.table)
+      .replace('{SEATS}', d.seats);
   }
 
   async function sendWhatsApp() {
@@ -519,8 +547,9 @@
 
   async function onGenerate() {
     const name = (document.getElementById('guestName')?.value || '').trim();
-    if (!name) {
-      alert('Saisissez le nom de l\'invité');
+    const err = validateGuestName(name);
+    if (err) {
+      alert(err);
       return;
     }
     syncQrDataField(true);
