@@ -112,6 +112,18 @@ class ApiClient(
         return execute("GET", withAuthQuery(url), null)
     }
 
+    suspend fun cancelVente(venteId: Int, motif: String = "Annulation vendeur"): JSONObject {
+        return execute(
+            "POST",
+            withAuthQuery("${ApiConfig.BASE}/ventes.php"),
+            JSONObject().apply {
+                put("action", "annuler")
+                put("vente_id", venteId)
+                put("motif", motif)
+            }
+        )
+    }
+
     suspend fun getHistoriqueVentes(date: String? = null, limit: Int = 50): JSONObject {
         val params = buildString {
             append("${ApiConfig.BASE}/ventes.php?liste=1&limit=$limit")

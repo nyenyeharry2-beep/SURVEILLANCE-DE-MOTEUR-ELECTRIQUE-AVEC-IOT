@@ -6,7 +6,7 @@ requireLogin();
 
 $db = getDB();
 ensureJourneeSchema($db);
-$date = $_GET['date'] ?? date('Y-m-d');
+$date = $_GET['date'] ?? getBusinessDate();
 $tauxDefaut = getTauxUsdCdf();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

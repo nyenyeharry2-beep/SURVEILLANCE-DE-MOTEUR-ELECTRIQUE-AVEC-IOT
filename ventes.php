@@ -6,12 +6,26 @@ requireLogin();
 
 $db = getDB();
 ensureJourneeSchema($db);
-$taux = getTauxUsdCdfForDate($db, date('Y-m-d'));
-$journee = getJourneeStatus($db, date('Y-m-d'));
-$filterDate = $_GET['date'] ?? date('Y-m-d');
+ensureVenteSchema($db);
+$dateMetier = getBusinessDate();
+$taux = getTauxUsdCdfForDate($db, $dateMetier);
+$journee = getJourneeStatus($db, $dateMetier);
+$filterDate = $_GET['date'] ?? $dateMetier;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
+
+    if (($_POST['action'] ?? '') === 'annuler') {
+        try {
+            cancelVenteTransaction($db, currentUser(), (int) ($_POST['vente_id'] ?? 0), trim($_POST['motif'] ?? ''));
+            flash('success', 'Vente annulée — visible sur le tableau de gestion.');
+        } catch (InvalidArgumentException $e) {
+            flash('danger', $e->getMessage());
+        } catch (Exception $e) {
+            flash('danger', 'Erreur lors de l\'annulation.');
+        }
+        redirect('ventes.php?date=' . urlencode($filterDate));
+    }
 
     $lignesJson = $_POST['lignes_json'] ?? '';
     $lignes = json_decode($lignesJson, true);
@@ -38,14 +52,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $ventes = $db->prepare('
-    SELECT v.*, u.nom AS vendeur,
+    SELECT v.*, u.nom AS vendeur, ua.nom AS annulee_par_nom,
            (SELECT GROUP_CONCAT(CONCAT(m.nom, " x", vl.quantite) SEPARATOR ", ")
             FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
             WHERE vl.vente_id = v.id) AS details,
            (SELECT COUNT(*) FROM vente_lignes vl WHERE vl.vente_id = v.id) AS nb_lignes
     FROM ventes v
     JOIN utilisateurs u ON u.id = v.utilisateur_id
-    WHERE DATE(v.date_vente) = ?
+    LEFT JOIN utilisateurs ua ON ua.id = v.annulee_par
+    WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = ?
     ORDER BY v.date_vente DESC
 ');
 $ventes->execute([$filterDate]);
@@ -66,7 +81,8 @@ require_once __DIR__ . '/includes/header.php';
 <?php else: ?>
 <div class="alert alert-success py-2">
     <i class="bi bi-check-circle me-1"></i>
-    Journée du <?= formatDate(date('Y-m-d')) ?> ouverte — Taux : 1 USD = <?= number_format($taux, 0, ',', ' ') ?> FC
+    Journée métier du <?= formatDate($dateMetier) ?> (<?= journeeHeureDebut() ?>h–<?= journeeHeureFin() ?>h, après 20h = nouveau jour)
+    — Taux : 1 USD = <?= number_format($taux, 0, ',', ' ') ?> FC
     — Fond caisse : <?= formatCDF($journee['fond_caisse_cdf']) ?> / <?= formatUSD($journee['fond_caisse_usd']) ?>
 </div>
 <?php endif; ?>
@@ -142,22 +158,48 @@ require_once __DIR__ . '/includes/header.php';
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr><th>N°</th><th>Heure</th><th>Articles</th><th>Client</th><th>Montant</th><th>Reçu</th></tr>
+                        <tr><th>N°</th><th>Heure</th><th>Articles</th><th>Client</th><th>Montant</th><th>Statut</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
                     <?php foreach ($listeVentes as $v): ?>
-                    <?php $devise = normalizeDevise($v['devise'] ?? 'CDF'); ?>
-                    <tr>
+                    <?php
+                    $devise = normalizeDevise($v['devise'] ?? 'CDF');
+                    $annulee = (int) ($v['annulee'] ?? 0) === 1;
+                    ?>
+                    <tr class="<?= $annulee ? 'table-secondary text-muted' : '' ?>">
                         <td><code><?= e($v['numero']) ?></code></td>
                         <td><?= date('H:i', strtotime($v['date_vente'])) ?></td>
                         <td><small><?= e($v['details'] ?: '—') ?> (<?= (int)$v['nb_lignes'] ?>)</small></td>
                         <td><?= e($v['client_nom'] ?: '—') ?></td>
                         <td><?= formatMoney((float) $v['montant_total'], $devise) ?></td>
-                        <td><a href="recu.php?id=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer"></i></a></td>
+                        <td>
+                            <?php if ($annulee): ?>
+                            <span class="badge bg-danger">ANNULÉE</span>
+                            <small class="d-block"><?= e($v['annulee_par_nom'] ?? '') ?> — <?= e($v['motif_annulation'] ?? '') ?></small>
+                            <?php else: ?>
+                            <span class="badge bg-success">Validée</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!$annulee): ?>
+                            <a href="recu.php?id=<?= $v['id'] ?>" class="btn btn-sm btn-outline-primary" title="Reçu"><i class="bi bi-printer"></i></a>
+                            <?php if ($filterDate === $dateMetier): ?>
+                            <form method="post" class="d-inline" onsubmit="return confirm('Annuler cette vente ? Le stock sera restauré.');">
+                                <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+                                <input type="hidden" name="action" value="annuler">
+                                <input type="hidden" name="vente_id" value="<?= $v['id'] ?>">
+                                <input type="hidden" name="motif" value="Annulation superviseur">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Annuler"><i class="bi bi-x-circle"></i></button>
+                            </form>
+                            <?php endif; ?>
+                            <?php else: ?>
+                            <small><?= $v['annulee_at'] ? date('d/m H:i', strtotime($v['annulee_at'])) : '' ?></small>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($listeVentes)): ?>
-                    <tr><td colspan="6" class="text-center text-muted py-4">Aucune vente pour cette date.</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-4">Aucune vente pour cette date.</td></tr>
                     <?php endif; ?>
                     </tbody>
                 </table>

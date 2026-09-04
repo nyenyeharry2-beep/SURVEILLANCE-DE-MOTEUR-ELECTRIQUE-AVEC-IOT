@@ -4,6 +4,57 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/journal.php';
 
+/** Heure début journée métier (6h) */
+function journeeHeureDebut(): int
+{
+    return 6;
+}
+
+/** Heure fin journée métier (20h) — après 20h = nouvelle journée */
+function journeeHeureFin(): int
+{
+    return 20;
+}
+
+/**
+ * Date métier : 6h→20h = jour J ; après 20h et avant 6h = jour J+1 (nuit).
+ */
+function getBusinessDate(?DateTime $now = null): string
+{
+    $tz = new DateTimeZone(defined('TIMEZONE') ? TIMEZONE : 'Africa/Kinshasa');
+    if ($now === null) {
+        $now = new DateTime('now', $tz);
+    } elseif ($now->getTimezone()->getName() !== $tz->getName()) {
+        $now = clone $now;
+        $now->setTimezone($tz);
+    }
+
+    $hour = (int) $now->format('G');
+    if ($hour >= journeeHeureFin()) {
+        $now->modify('+1 day');
+    }
+
+    return $now->format('Y-m-d');
+}
+
+function getBusinessDateTimeRange(string $dateJour): array
+{
+    $tz = defined('TIMEZONE') ? TIMEZONE : 'Africa/Kinshasa';
+    $debut = new DateTime($dateJour . ' ' . str_pad((string) journeeHeureDebut(), 2, '0', STR_PAD_LEFT) . ':00:00', new DateTimeZone($tz));
+    $fin = new DateTime($dateJour . ' ' . str_pad((string) journeeHeureFin(), 2, '0', STR_PAD_LEFT) . ':00:00', new DateTimeZone($tz));
+
+    return ['debut' => $debut, 'fin' => $fin];
+}
+
+function isWithinBusinessHours(?DateTime $now = null): bool
+{
+    $tz = new DateTimeZone(defined('TIMEZONE') ? TIMEZONE : 'Africa/Kinshasa');
+    $now = $now ?? new DateTime('now', $tz);
+    $hour = (int) $now->format('G');
+
+    return $hour >= journeeHeureDebut() && $hour < journeeHeureFin();
+}
+
 function ensureJourneeSchema(PDO $db): void
 {
     static $ready = false;
@@ -59,7 +110,7 @@ function ensureJourneeSchema(PDO $db): void
 function getTauxUsdCdfForDate(PDO $db, ?string $date = null): float
 {
     ensureJourneeSchema($db);
-    $date = $date ?: date('Y-m-d');
+    $date = $date ?: getBusinessDate();
     $journal = getJournal($db, $date);
     if ($journal && !empty($journal['taux_usd_cdf'])) {
         return (float) $journal['taux_usd_cdf'];
@@ -71,16 +122,32 @@ function getTauxUsdCdfForDate(PDO $db, ?string $date = null): float
 function getJourneeStatus(PDO $db, ?string $date = null): array
 {
     ensureJourneeSchema($db);
-    $date = $date ?: date('Y-m-d');
+    $date = $date ?: getBusinessDate();
     $journal = getJournal($db, $date);
     $prev = getPreviousClosedJournal($db, $date);
     $taux = getTauxUsdCdfForDate($db, $date);
+    $now = new DateTime('now', new DateTimeZone(defined('TIMEZONE') ? TIMEZONE : 'Africa/Kinshasa'));
 
     $ouverte = $journal !== null && !(bool) ($journal['cloture'] ?? false);
     $cloturee = $journal !== null && (bool) ($journal['cloture'] ?? false);
+    $dansHoraires = isWithinBusinessHours($now);
+
+    $msg = $ouverte
+        ? ('Journée ouverte (' . journeeHeureDebut() . 'h-' . journeeHeureFin() . 'h) — ventes autorisées.')
+        : ($cloturee
+            ? 'Journée clôturée. Ouvrez la nouvelle journée pour vendre.'
+            : 'Aucune journée ouverte. Le superviseur doit ouvrir la journée (Journal).');
+
+    if (!$dansHoraires && $ouverte) {
+        $msg .= ' Hors horaire 6h-20h : après 20h une nouvelle journée commence.';
+    }
 
     return [
         'date' => $date,
+        'date_metier' => $date,
+        'heure_debut' => journeeHeureDebut(),
+        'heure_fin' => journeeHeureFin(),
+        'dans_horaires' => $dansHoraires,
         'ouverte' => $ouverte,
         'cloturee' => $cloturee,
         'existe' => $journal !== null,
@@ -90,11 +157,7 @@ function getJourneeStatus(PDO $db, ?string $date = null): array
         'caisse_cloture_cdf' => isset($journal['caisse_cloture_cdf']) ? (float) $journal['caisse_cloture_cdf'] : null,
         'caisse_cloture_usd' => isset($journal['caisse_cloture_usd']) ? (float) $journal['caisse_cloture_usd'] : null,
         'peut_vendre' => $ouverte,
-        'message' => $ouverte
-            ? 'Journée ouverte — ventes autorisées.'
-            : ($cloturee
-                ? 'Journée clôturée. Ouvrez une nouvelle journée pour vendre.'
-                : 'Aucune journée ouverte. Le superviseur doit ouvrir la journée.'),
+        'message' => $msg,
         'journal_id' => $journal ? (int) $journal['id'] : null,
         'jour_precedent_cloture' => $prev ? $prev['date_jour'] : null,
     ];
@@ -194,11 +257,13 @@ function fetchRapportParJours(PDO $db, string $debut, string $fin): array
         SELECT j.date_jour, j.taux_usd_cdf, j.fond_caisse_cdf, j.fond_caisse_usd,
                j.caisse_cloture_cdf, j.caisse_cloture_usd, j.cloture, j.cloture_at,
                j.sorties_cdf, j.sorties_usd,
-               (SELECT COUNT(*) FROM ventes v WHERE DATE(v.date_vente) = j.date_jour) AS nb_ventes,
+               (SELECT COUNT(*) FROM ventes v WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = j.date_jour AND COALESCE(v.annulee, 0) = 0) AS nb_ventes,
                (SELECT COALESCE(SUM(v.montant_total), 0) FROM ventes v
-                WHERE DATE(v.date_vente) = j.date_jour AND COALESCE(v.devise, "CDF") = "CDF") AS ventes_cdf,
+                WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = j.date_jour AND COALESCE(v.annulee, 0) = 0
+                  AND COALESCE(v.devise, "CDF") = "CDF") AS ventes_cdf,
                (SELECT COALESCE(SUM(v.montant_total), 0) FROM ventes v
-                WHERE DATE(v.date_vente) = j.date_jour AND COALESCE(v.devise, "CDF") = "USD") AS ventes_usd
+                WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = j.date_jour AND COALESCE(v.annulee, 0) = 0
+                  AND COALESCE(v.devise, "CDF") = "USD") AS ventes_usd
         FROM journaux_quotidiens j
         WHERE j.date_jour BETWEEN ? AND ?
         ORDER BY j.date_jour DESC

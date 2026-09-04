@@ -176,6 +176,10 @@ function ensureApiSchema(PDO $db): void
         require_once __DIR__ . '/../includes/journee.php';
         ensureJourneeSchema($db);
     }
+    if (file_exists(__DIR__ . '/../includes/ventes.php')) {
+        require_once __DIR__ . '/../includes/ventes.php';
+        ensureVenteSchema($db);
+    }
 
     $ready = true;
 }
@@ -293,17 +297,23 @@ function enrichVenteRow(array $row): array
 {
     $devise = normalizeDevise($row['devise'] ?? 'CDF');
     $montant = (float) $row['montant_total'];
+    $annulee = (int) ($row['annulee'] ?? 0) === 1;
 
     return [
         'id' => (int) $row['id'],
         'numero' => $row['numero'],
         'date_vente' => $row['date_vente'],
+        'date_jour' => $row['date_jour'] ?? null,
         'montant_total' => $montant,
         'devise' => $devise,
         'client_nom' => $row['client_nom'],
         'vendeur' => $row['vendeur'] ?? null,
         'details' => $row['details'] ?? null,
         'notes' => $row['notes'] ?? null,
+        'annulee' => $annulee,
+        'annulee_at' => $row['annulee_at'] ?? null,
+        'annulee_par' => $row['annulee_par_nom'] ?? null,
+        'motif_annulation' => $row['motif_annulation'] ?? null,
         'montant_cdf' => convertirDevise($montant, $devise, 'CDF'),
         'montant_usd' => convertirDevise($montant, $devise, 'USD'),
     ];
@@ -316,21 +326,25 @@ function fetchVentesListe(PDO $db, ?string $date = null, int $limit = 50): array
 
     if ($date !== null && $date !== '') {
         $stmt = $db->prepare("
-            SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
-                   v.client_nom, v.notes, u.nom AS vendeur, {$detailsSql}
+            SELECT v.id, v.numero, v.date_vente, v.date_jour, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
+                   v.client_nom, v.notes, v.annulee, v.annulee_at, v.motif_annulation,
+                   u.nom AS vendeur, ua.nom AS annulee_par_nom, {$detailsSql}
             FROM ventes v
             JOIN utilisateurs u ON u.id = v.utilisateur_id
-            WHERE DATE(v.date_vente) = ?
+            LEFT JOIN utilisateurs ua ON ua.id = v.annulee_par
+            WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = ?
             ORDER BY v.date_vente DESC
             LIMIT {$limit}
         ");
         $stmt->execute([$date]);
     } else {
         $stmt = $db->query("
-            SELECT v.id, v.numero, v.date_vente, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
-                   v.client_nom, v.notes, u.nom AS vendeur, {$detailsSql}
+            SELECT v.id, v.numero, v.date_vente, v.date_jour, v.montant_total, COALESCE(v.devise, 'CDF') AS devise,
+                   v.client_nom, v.notes, v.annulee, v.annulee_at, v.motif_annulation,
+                   u.nom AS vendeur, ua.nom AS annulee_par_nom, {$detailsSql}
             FROM ventes v
             JOIN utilisateurs u ON u.id = v.utilisateur_id
+            LEFT JOIN utilisateurs ua ON ua.id = v.annulee_par
             ORDER BY v.date_vente DESC
             LIMIT {$limit}
         ");

@@ -214,6 +214,7 @@
       box.innerHTML = `Facture <strong>${escapeHtml(result.numero)}</strong> — ${result.nb_lignes} article(s) — ${Format.money(result.montant_total, result.devise)}
         <br><button type="button" class="btn btn-outline btn-sm" id="btn-voir-recu" style="margin-top:8px">Voir le reçu</button>`;
       $('#btn-voir-recu').addEventListener('click', () => openRecu(result.id));
+      openRecu(result.id);
       cart = [];
       renderCart();
       showToast('Facture enregistrée');

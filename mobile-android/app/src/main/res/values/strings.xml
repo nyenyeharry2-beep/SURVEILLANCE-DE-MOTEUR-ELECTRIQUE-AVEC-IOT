@@ -45,7 +45,12 @@
     <string name="tap_to_add_cart">Appuyez sur un produit pour l\'ajouter à la facture</string>
     <string name="added_to_cart">Ajouté à la facture</string>
     <string name="cart_empty">Ajoutez des produits à la facture</string>
-    <string name="day_not_open">Journée non ouverte. Le superviseur doit ouvrir la journée sur le site web.</string>
+    <string name="day_not_open">Journée non ouverte. Le superviseur doit ouvrir la journée sur le site web (Journal).</string>
+    <string name="cancel_sale">Annuler</string>
+    <string name="sale_cancelled">Vente annulée</string>
+    <string name="cancel_confirm">Annuler cette vente ? Le stock sera restauré.</string>
+    <string name="cancelled_label">ANNULÉE</string>
+    <string name="open_receipt">Ouverture du reçu…</string>
     <string name="view_receipt">Voir / imprimer le reçu</string>
     <string name="receipt">Reçu</string>
     <string name="share_receipt">Partager PDF</string>

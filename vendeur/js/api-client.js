@@ -101,6 +101,10 @@ const Api = {
     return this.request('POST', '/ventes.php', data);
   },
 
+  cancelVente(venteId, motif = 'Annulation vendeur') {
+    return this.request('POST', '/ventes.php', { action: 'annuler', vente_id: venteId, motif });
+  },
+
   getJournee(date) {
     const p = date ? `?date=${encodeURIComponent(date)}` : '';
     return this.request('GET', `/journee.php${p}`);

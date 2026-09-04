@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
 
+require_once __DIR__ . '/../includes/journee.php';
+
 try {
     $db = getDB();
     ensureApiSchema($db);
@@ -131,22 +133,37 @@ try {
 
     if ($route === 'ventes' && $method === 'POST') {
         $user = requireApiAuth($db);
-        $result = createVente($db, $user, apiBody());
-        apiJson(true, $result, 'Vente enregistrée.');
+        $body = apiBody();
+        if (($body['action'] ?? '') === 'annuler') {
+            require_once __DIR__ . '/../includes/ventes.php';
+            $venteId = (int) ($body['vente_id'] ?? $body['id'] ?? 0);
+            try {
+                $result = cancelVenteTransaction($db, $user, $venteId, trim($body['motif'] ?? ''));
+                apiJson(true, $result, 'Vente annulée.');
+            } catch (InvalidArgumentException $e) {
+                apiError($e->getMessage());
+            } catch (Throwable $e) {
+                apiError('Erreur lors de l\'annulation.', 500);
+            }
+        } else {
+            $result = createVente($db, $user, $body);
+            apiJson(true, $result, 'Vente enregistrée.');
+        }
     }
 
     if ($route === 'ventes' && $method === 'GET') {
         requireApiAuth($db);
         if (($_GET['liste'] ?? '') === '1') {
+            require_once __DIR__ . '/../includes/journee.php';
             $date = trim($_GET['date'] ?? '');
             if ($date === '') {
-                $date = date('Y-m-d');
+                $date = getBusinessDate();
             }
             $limit = (int) ($_GET['limit'] ?? 50);
-            apiJson(true, ['ventes' => fetchVentesListe($db, $date, $limit), 'date' => $date]);
+            apiJson(true, ['ventes' => fetchVentesListe($db, $date, $limit), 'date' => $date, 'date_metier' => $date]);
         }
-        $debut = $_GET['debut'] ?? date('Y-m-d');
-        $fin = $_GET['fin'] ?? date('Y-m-d');
+        $debut = $_GET['debut'] ?? getBusinessDate();
+        $fin = $_GET['fin'] ?? getBusinessDate();
         apiJson(true, reportSummary($db, $debut, $fin));
     }
 
@@ -161,7 +178,7 @@ try {
 
     if ($route === 'rapports/jour' && $method === 'GET') {
         requireApiAuth($db);
-        $date = $_GET['date'] ?? date('Y-m-d');
+        $date = $_GET['date'] ?? getBusinessDate();
         apiJson(true, reportSummary($db, $date, $date));
     }
 
@@ -196,7 +213,7 @@ try {
 
     if ($route === 'caisse' && $method === 'GET') {
         requireApiAuth($db);
-        $date = trim($_GET['date'] ?? '') ?: date('Y-m-d');
+        $date = trim($_GET['date'] ?? '') ?: getBusinessDate();
         apiJson(true, [
             'date' => $date,
             'resume' => resumeCaisseJour($db, $date),
@@ -213,7 +230,7 @@ try {
     if ($route === 'journee' && $method === 'GET') {
         requireApiAuth($db);
         require_once __DIR__ . '/../includes/journee.php';
-        $date = trim($_GET['date'] ?? '') ?: date('Y-m-d');
+        $date = trim($_GET['date'] ?? '') ?: getBusinessDate();
         $status = getJourneeStatus($db, $date);
         apiJson(true, $status);
     }
@@ -225,7 +242,7 @@ try {
         }
         require_once __DIR__ . '/../includes/journee.php';
         $body = apiBody();
-        $date = trim($body['date'] ?? '') ?: date('Y-m-d');
+        $date = trim($body['date'] ?? '') ?: getBusinessDate();
         $fondCdf = (float) ($body['fond_caisse_cdf'] ?? 0);
         $fondUsd = (float) ($body['fond_caisse_usd'] ?? 0);
         $taux = (float) ($body['taux_usd_cdf'] ?? getTauxUsdCdf());
@@ -243,7 +260,7 @@ try {
         }
         require_once __DIR__ . '/../includes/journee.php';
         $body = apiBody();
-        $date = trim($body['date'] ?? '') ?: date('Y-m-d');
+        $date = trim($body['date'] ?? '') ?: getBusinessDate();
         $caisseCdf = (float) ($body['caisse_cloture_cdf'] ?? 0);
         $caisseUsd = (float) ($body['caisse_cloture_usd'] ?? 0);
         closeJourneeWithCaisse($db, $date, $caisseCdf, $caisseUsd, (int) $user['id']);
@@ -258,7 +275,7 @@ try {
         requireApiAuth($db);
         require_once __DIR__ . '/../includes/journee.php';
         $debut = $_GET['debut'] ?? date('Y-m-01');
-        $fin = $_GET['fin'] ?? date('Y-m-d');
+        $fin = $_GET['fin'] ?? getBusinessDate();
         apiJson(true, ['jours' => fetchRapportParJours($db, $debut, $fin)]);
     }
 

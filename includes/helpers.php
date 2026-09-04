@@ -265,7 +265,7 @@ function sommeVentesDual(PDO $db, string $whereSql = '1=1', array $params = []):
                 CASE WHEN COALESCE(devise, 'CDF') = 'USD' THEN montant_total ELSE montant_total / ?
             END), 0) AS total_usd
         FROM ventes
-        WHERE {$whereSql}
+        WHERE {$whereSql} AND COALESCE(annulee, 0) = 0
     ";
 
     $stmt = $db->prepare($sql);

@@ -46,10 +46,14 @@ class VentesFragment : Fragment() {
     private val medAdapter = MedicamentSearchAdapter { med -> addToCart(med) }
     private lateinit var cartAdapter: CartAdapter
     private var searchJob: Job? = null
-    private val historiqueAdapter = HistoriqueAdapter { venteId -> openRecu(venteId) }
+    private val historiqueAdapter = HistoriqueAdapter(
+        onRecu = { venteId -> openRecu(venteId) },
+        onCancel = { venteId -> cancelVente(venteId) }
+    )
     private var lastVenteId: Int? = null
     private var journeeOuverte = false
     private var tauxJour = 2850.0
+    private var businessDate = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentVentesBinding.inflate(inflater, container, false)
@@ -133,6 +137,7 @@ class VentesFragment : Fragment() {
                 val data = withContext(Dispatchers.IO) { mainActivity().api().getJournee() }
                 journeeOuverte = data.optBoolean("peut_vendre", false)
                 tauxJour = data.optDouble("taux_usd_cdf", 2850.0)
+                businessDate = data.optString("date_metier", data.optString("date", ""))
                 binding.textJourneeStatus.visibility = View.VISIBLE
                 binding.textJourneeStatus.text = data.optString("message", "")
                 binding.textJourneeStatus.setBackgroundColor(
@@ -204,9 +209,11 @@ class VentesFragment : Fragment() {
         binding.swipeHistorique.isRefreshing = true
         lifecycleScope.launch {
             try {
-                val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(java.util.Date())
+                val date = businessDate.ifBlank {
+                    SimpleDateFormat("yyyy-MM-dd", Locale.US).format(java.util.Date())
+                }
                 val data = withContext(Dispatchers.IO) {
-                    mainActivity().api().getHistoriqueVentes(date = today, limit = 50)
+                    mainActivity().api().getHistoriqueVentes(date = date, limit = 50)
                 }
                 historiqueAdapter.submit(data.optJSONArray("ventes")?.toList().orEmpty())
             } catch (e: Exception) {
@@ -237,26 +244,52 @@ class VentesFragment : Fragment() {
 
         binding.btnValiderVente.isEnabled = false
         binding.btnVoirRecu.visibility = View.GONE
+        binding.textVenteResult.text = getString(R.string.connecting)
 
         lifecycleScope.launch {
             try {
                 val result = withContext(Dispatchers.IO) {
                     mainActivity().api().createVente(lignes, devise, client, notes)
                 }
-                lastVenteId = result.optInt("id")
-                binding.textVenteResult.text =
-                    "✓ ${getString(R.string.sale_success)}\nN° ${result.optString("numero")}\n${result.optInt("nb_lignes")} article(s)\nMontant : ${result.optDouble("montant_total")} ${result.optString("devise")}"
-                binding.btnVoirRecu.visibility = View.VISIBLE
+                val venteId = result.optInt("id")
+                if (venteId <= 0) {
+                    throw Exception("Réponse invalide du serveur")
+                }
+                lastVenteId = venteId
                 cart.clear()
                 cartAdapter.submit(cart)
                 updateCartTotal()
                 loadMedicaments(binding.inputSearchMed.text?.toString().orEmpty())
+                Toast.makeText(requireContext(), R.string.sale_success, Toast.LENGTH_SHORT).show()
+                openRecu(venteId)
             } catch (e: Exception) {
+                binding.textVenteResult.text = e.message ?: "Erreur vente"
                 Toast.makeText(requireContext(), e.message ?: "Erreur vente", Toast.LENGTH_LONG).show()
             } finally {
                 binding.btnValiderVente.isEnabled = journeeOuverte && cart.isNotEmpty()
             }
         }
+    }
+
+    private fun cancelVente(venteId: Int) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setMessage(R.string.cancel_confirm)
+            .setPositiveButton(R.string.cancel_sale) { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        withContext(Dispatchers.IO) {
+                            mainActivity().api().cancelVente(venteId)
+                        }
+                        Toast.makeText(requireContext(), R.string.sale_cancelled, Toast.LENGTH_SHORT).show()
+                        loadHistorique()
+                        loadMedicaments(binding.inputSearchMed.text?.toString().orEmpty())
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), e.message ?: "Erreur", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun openRecu(venteId: Int) {
@@ -343,7 +376,8 @@ class MedicamentSearchAdapter(
 }
 
 class HistoriqueAdapter(
-    private val onRecu: (Int) -> Unit
+    private val onRecu: (Int) -> Unit,
+    private val onCancel: (Int) -> Unit
 ) : RecyclerView.Adapter<HistoriqueAdapter.Holder>() {
 
     private val items = mutableListOf<JSONObject>()
@@ -366,11 +400,20 @@ class HistoriqueAdapter(
 
     inner class Holder(private val binding: ItemVenteHistoriqueBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: JSONObject) {
-            binding.textNumero.text = item.optString("numero")
+            val annulee = item.optBoolean("annulee", false)
+            binding.textNumero.text = if (annulee) {
+                "${item.optString("numero")} — ${binding.root.context.getString(R.string.cancelled_label)}"
+            } else {
+                item.optString("numero")
+            }
             binding.textDate.text = formatDate(item.optString("date_vente"))
             binding.textDetails.text = buildString {
                 append(item.optString("details", "—"))
                 append("\nClient: ${item.optString("client_nom", "—")}")
+                if (annulee) {
+                    append("\nAnnulée par: ${item.optString("annulee_par", "—")}")
+                    append(" — ${item.optString("motif_annulation", "")}")
+                }
             }
             val devise = item.optString("devise", "CDF")
             val montant = item.optDouble("montant_total")
@@ -379,7 +422,11 @@ class HistoriqueAdapter(
             } else {
                 "${String.format(Locale.FRANCE, "%,.0f", montant)} FC"
             }
-            binding.btnRecu.setOnClickListener { onRecu(item.optInt("id")) }
+            binding.btnRecu.isEnabled = !annulee
+            binding.btnRecu.setOnClickListener { if (!annulee) onRecu(item.optInt("id")) }
+            binding.btnAnnuler.visibility = if (annulee) View.GONE else View.VISIBLE
+            binding.btnAnnuler.setOnClickListener { onCancel(item.optInt("id")) }
+            binding.root.alpha = if (annulee) 0.55f else 1f
         }
 
         private fun formatDate(raw: String): String = try {
