@@ -5,15 +5,38 @@ Version site + API + vendeur PC — v1.7.0 (Mars 2026)
 Ce ZIP contient TOUT le site web + API mobile + portail vendeur PC.
 Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
 
-═══════════════════════════════════════════════════════════════
+⚠️ LISEZ AUSSI : NE-PAS-METTRE-DANS-FILEMANAGER.txt (dans ce ZIP)
+   Si la page ne charge pas après upload, c'est souvent :
+   - ZIP non extrait, OU
+   - config/config.php manquant, OU
+   - mauvais fichiers uploadés (APK, mobile-android, deploy…)
+
+═══════════════════════════════════════════════════════════════════
+ ❌ NE METTEZ PAS DANS FILE MANAGER (htdocs/)
+═══════════════════════════════════════════════════════════════════
+
+  ❌ nouvelle-eve-mobile.apk     → Pour téléphone seulement
+  ❌ mobile-android/               → Projet développement APK
+  ❌ deploy/ (dossier GitHub)      → Pas pour le site web
+  ❌ Le .zip sans l'extraire        → Extraire puis supprimer le zip
+  ❌ .git / .gradle / node_modules → Jamais sur InfinityFree
+
+  ⚠️ config/config.php est OBLIGATOIRE
+     Le ZIP contient config.example.php seulement.
+     Sans config.php → page blanche / site ne charge pas.
+     Si site déjà en ligne : gardez votre ancien config.php !
+
+═══════════════════════════════════════════════════════════════════
  ÉTAPE 1 — UPLOAD SUR INFINITYFREE
-═══════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════════
 
 1. Connectez-vous à InfinityFree → File Manager
 2. Ouvrez le dossier htdocs/
 3. Uploadez : pharmagest-filemanager-complet.zip
-4. Clic droit → Extract (Extraire) DANS htdocs/
-5. Vous devez obtenir :
+4. Clic droit → Extract (Extraire) DANS htdocs/ (pas dans un sous-dossier)
+5. Vous devez obtenir DIRECTEMENT dans htdocs/ :
+   htdocs/index.php
+   htdocs/login.php
    htdocs/api/
    htdocs/includes/
    htdocs/vendeur/
@@ -21,10 +44,16 @@ Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
    htdocs/config/
    htdocs/ventes.php, journal.php, caisse.php, etc.
 
+   MAUVAIS (ne pas faire) :
+   htdocs/pharmagest-filemanager-complet/login.php
+
+6. Supprimez le .zip après extraction (optionnel)
+
 ⚠️ NE SUPPRIMEZ PAS config/config.php s'il existe déjà !
    (contient vos identifiants base de données)
-   Si première installation : copiez config/config.example.php
-   → config/config.php et modifiez DB + téléphone.
+   Si première installation :
+   - Copiez config/config.example.php → config/config.php
+   - Modifiez DB_HOST, DB_NAME, DB_USER, DB_PASS
 
 ═══════════════════════════════════════════════════════════════
  ÉTAPE 2 — BASE DE DONNÉES (phpMyAdmin)
@@ -138,6 +167,13 @@ database/               → Scripts SQL migrations
 ═══════════════════════════════════════════════════════════════
  DÉPANNAGE
 ═══════════════════════════════════════════════════════════════
+
+Page blanche / ne charge pas :
+  → config/config.php existe ? (copier depuis config.example.php)
+  → ZIP bien extrait dans htdocs/ (pas dans un sous-dossier) ?
+  → Vous n'avez pas uploadé mobile-android/ ou l'APK dans htdocs/ ?
+  → Testez : https://mapharmaciepk.xo.je/login.php
+  → Testez : https://mapharmaciepk.xo.je/api/ping.php
 
 « Token manquant » sur APK :
   → Vérifiez api/bootstrap.php et api/.htaccess sont à jour

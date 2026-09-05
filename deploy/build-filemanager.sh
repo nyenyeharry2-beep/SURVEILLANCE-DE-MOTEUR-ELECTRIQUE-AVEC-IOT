@@ -32,6 +32,7 @@ cp "$ROOT/database/"*.sql "$STAGE/database/"
 
 # Guide
 cp "$ROOT/deploy/LISEZMOI-FILEMANAGER.txt" "$STAGE/LISEZMOI.txt"
+cp "$ROOT/deploy/NE-PAS-METTRE-DANS-FILEMANAGER.txt" "$STAGE/NE-PAS-METTRE-DANS-FILEMANAGER.txt"
 
 cd "$STAGE"
 zip -r "$OUT" . -x "*.DS_Store"
