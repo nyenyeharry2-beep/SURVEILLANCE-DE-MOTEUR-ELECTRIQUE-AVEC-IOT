@@ -51,7 +51,10 @@ Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
 
 ⚠️ NE SUPPRIMEZ PAS config/config.php s'il existe déjà !
    (contient vos identifiants base de données)
-   Si première installation :
+   Si première installation (le plus simple) :
+   - Ouvrez https://mapharmaciepk.xo.je/setup.php
+   - Remplissez vos identifiants MySQL InfinityFree → Enregistrer
+   Alternative manuelle :
    - Copiez config/config.example.php → config/config.php
    - Modifiez DB_HOST, DB_NAME, DB_USER, DB_PASS
 
@@ -172,8 +175,9 @@ database/               → Scripts SQL migrations
  DÉPANNAGE
 ═══════════════════════════════════════════════════════════════
 
-Page blanche / ne charge pas :
-  → Ouvrez : https://mapharmaciepk.xo.je/diagnostic.php
+Page blanche / « Configuration manquante » :
+  → Ouvrez : https://mapharmaciepk.xo.je/setup.php
+  → Puis : https://mapharmaciepk.xo.je/diagnostic.php
   → Vérifiez config/config.php existe
   → Puis ouvrez install_migration.php (connecté admin) pour migrer la base
   → 403 sur achats.php : supprimez le dossier htdocs/achats/ s'il existe
