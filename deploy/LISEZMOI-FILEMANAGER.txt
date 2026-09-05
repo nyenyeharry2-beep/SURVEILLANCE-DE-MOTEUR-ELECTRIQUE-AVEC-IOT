@@ -1,0 +1,196 @@
+PHARMACIE NOUVELLE EVE — PACKAGE COMPLET InfinityFree File Manager
+==================================================================
+Version site + API + vendeur PC — v1.7.1 (Mars 2026)
+
+Ce ZIP contient TOUT le site web + API mobile + portail vendeur PC.
+Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
+
+⚠️ LISEZ AUSSI : NE-PAS-METTRE-DANS-FILEMANAGER.txt (dans ce ZIP)
+   Si la page ne charge pas après upload, c'est souvent :
+   - ZIP non extrait, OU
+   - config/config.php manquant, OU
+   - mauvais fichiers uploadés (APK, mobile-android, deploy…)
+
+═══════════════════════════════════════════════════════════════════
+ ❌ NE METTEZ PAS DANS FILE MANAGER (htdocs/)
+═══════════════════════════════════════════════════════════════════
+
+  ❌ nouvelle-eve-mobile.apk     → Pour téléphone seulement
+  ❌ mobile-android/               → Projet développement APK
+  ❌ deploy/ (dossier GitHub)      → Pas pour le site web
+  ❌ Le .zip sans l'extraire        → Extraire puis supprimer le zip
+  ❌ .git / .gradle / node_modules → Jamais sur InfinityFree
+
+  ⚠️ config/config.php est OBLIGATOIRE
+     Le ZIP contient config.example.php seulement.
+     Sans config.php → page blanche / site ne charge pas.
+     Si site déjà en ligne : gardez votre ancien config.php !
+
+═══════════════════════════════════════════════════════════════════
+ ÉTAPE 1 — UPLOAD SUR INFINITYFREE
+═══════════════════════════════════════════════════════════════════
+
+1. Connectez-vous à InfinityFree → File Manager
+2. Ouvrez le dossier htdocs/
+3. Uploadez : pharmagest-filemanager-complet.zip
+4. Clic droit → Extract (Extraire) DANS htdocs/ (pas dans un sous-dossier)
+5. Vous devez obtenir DIRECTEMENT dans htdocs/ :
+   htdocs/index.php
+   htdocs/login.php
+   htdocs/api/
+   htdocs/includes/
+   htdocs/vendeur/
+   htdocs/assets/
+   htdocs/config/
+   htdocs/ventes.php, journal.php, caisse.php, etc.
+
+   MAUVAIS (ne pas faire) :
+   htdocs/pharmagest-filemanager-complet/login.php
+
+6. Supprimez le .zip après extraction (optionnel)
+
+⚠️ NE SUPPRIMEZ PAS config/config.php s'il existe déjà !
+   (contient vos identifiants base de données)
+   Si première installation (le plus simple) :
+   - Ouvrez https://mapharmaciepk.xo.je/setup.php
+   - Remplissez vos identifiants MySQL InfinityFree → Enregistrer
+   Alternative manuelle :
+   - Copiez config/config.example.php → config/config.php
+   - Modifiez DB_HOST, DB_NAME, DB_USER, DB_PASS
+
+═══════════════════════════════════════════════════════════════
+ ÉTAPE 2 — BASE DE DONNÉES (phpMyAdmin)
+═══════════════════════════════════════════════════════════════
+
+NOUVELLE installation :
+  → Importez database/schema_nouvelle_eve.sql
+
+MISE À JOUR (site déjà en ligne) — importez dans cet ordre :
+  1. database/migration_complete.sql
+  2. database/migration_api_tokens.sql
+  3. database/migration_caisse.sql
+  4. database/migration_journal.sql
+  5. database/migration_journee_caisse.sql
+  6. database/migration_vente_annulation.sql
+  7. database/migration_unites_vente.sql
+
+(Les colonnes sont aussi créées automatiquement au premier accès API.)
+
+═══════════════════════════════════════════════════════════════
+ ÉTAPE 3 — CONFIGURATION
+═══════════════════════════════════════════════════════════════
+
+Dans config/config.php vérifiez :
+  APP_PHONE = '+243990525309'
+  APP_URL   = 'https://mapharmaciepk.xo.je'
+  TAUX_USD_CDF = 2850  (ou votre taux du jour)
+
+═══════════════════════════════════════════════════════════════
+ ÉTAPE 4 — VÉRIFICATION
+═══════════════════════════════════════════════════════════════
+
+Site admin     : https://mapharmaciepk.xo.je/login.php
+API (JSON)     : https://mapharmaciepk.xo.je/api/ping.php
+Portail vendeur: https://mapharmaciepk.xo.je/vendeur/
+
+Connexion admin :
+  Email    : admin@pharmagest.local
+  Mot de passe : admin123
+
+═══════════════════════════════════════════════════════════════
+ FONCTIONNALITÉS INCLUSES
+═══════════════════════════════════════════════════════════════
+
+SITE WEB (superviseur / admin) :
+  ✓ Dashboard, médicaments, stock, achats, catégories
+  ✓ Import Excel/CSV des médicaments (admin → Médicaments → Import)
+  ✓ Import Excel entrées stock (Achats → Import entrées)
+  ✓ Mode ajouter ou remplacer le stock via Excel
+  ✓ Prix achat + prix vente (cp / plt / flacon) via Excel
+  ✓ Heure locale Kinshasa affichée dans l'en-tête
+  ✓ Ventes — facture MULTI-PRODUITS (panier)
+  ✓ Vente par COMPRIMÉ, PLAQUETTE ou FLACON selon le produit
+  ✓ Prix distinct par comprimé / plaquette / flacon
+  ✓ Annulation vente (bouton rouge) — visible ANNULÉE
+  ✓ Journal quotidien — ouverture/clôture journée
+  ✓ Journée métier 6h–20h (après 20h = nouveau jour)
+  ✓ Caisse entrées/sorties avec motif
+  ✓ Rapports par journée
+  ✓ Achats / entrées MULTI-PRODUITS avec unités (cp, plt, flacon)
+  ✓ Historique achats détaillé + sync journal auto
+
+API (connecte APK + portail vendeur) :
+  ✓ Auth token + session (InfinityFree)
+  ✓ Facture multi-lignes (lignes[])
+  ✓ Annulation vente (action: annuler)
+  ✓ Journée (journee.php) — statut, taux, fond caisse
+  ✓ Caisse, stock, rapports, alertes, reçu
+
+PORTAIL VENDEUR PC (htdocs/vendeur/) :
+  ✓ Même compte que l'APK
+  ✓ Facture multi-produits, caisse, stock, rapports
+  ✓ Installable sur Bureau (Chrome → Installer l'app)
+
+APPLICATION MOBILE APK (fichier séparé dans deploy/) :
+  ✓ nouvelle-eve-mobile.apk — Version 1.7.0
+  ✓ Choix comprimé / plaquette / flacon à l'ajout au panier
+  ✓ Facture panier + reçu automatique + annulation
+
+═══════════════════════════════════════════════════════════════
+ WORKFLOW QUOTIDIEN
+═══════════════════════════════════════════════════════════════
+
+1. MATIN (6h+) → Journal → Ouvrir journée (fond caisse + taux USD)
+2. JOURNÉE → Vendeurs vendent (APK / PC / web)
+3. SOIR (20h) → Clôturer journée (montant caisse)
+4. APRÈS 20h → Nouveau jour métier → ouvrir nouvelle journée
+
+Sans journée ouverte → ventes bloquées sur APK et portail PC.
+
+═══════════════════════════════════════════════════════════════
+ FICHIERS PRINCIPAUX DU PACKAGE
+═══════════════════════════════════════════════════════════════
+
+api/                    → Backend mobile + vendeur PC
+  bootstrap.php         → Auth, ventes multi-lignes, annulation
+  index.php             → Routes API
+  journee.php           → Gestion journée 6h-20h
+  ventes.php, caisse.php, medicaments.php, etc.
+
+includes/
+  journee.php           → Date métier 6h-20h
+  ventes.php            → Facture + annulation
+  caisse.php            → Mouvements caisse
+  journal.php           → Journal stock
+
+vendeur/                → Portail PC vendeur (PWA)
+ventes.php              → Facture web multi-produits
+journal.php             → Ouverture/clôture journée
+caisse.php              → Entrées/sorties web
+rapports.php            → Rapports par journée
+
+database/               → Scripts SQL migrations
+
+═══════════════════════════════════════════════════════════════
+ DÉPANNAGE
+═══════════════════════════════════════════════════════════════
+
+Page blanche / « Configuration manquante » :
+  → Ouvrez : https://mapharmaciepk.xo.je/setup.php
+  → Puis : https://mapharmaciepk.xo.je/diagnostic.php
+  → Vérifiez config/config.php existe
+  → Puis ouvrez install_migration.php (connecté admin) pour migrer la base
+  → 403 sur achats.php : supprimez le dossier htdocs/achats/ s'il existe
+
+« Token manquant » sur APK :
+  → Vérifiez api/bootstrap.php et api/.htaccess sont à jour
+
+« Journée non ouverte » :
+  → Superviseur : Journal → Ouvrir la journée
+
+Facture APK ne passe pas :
+  → API doit être extraite (api/index.php avec lignes[])
+
+Téléphone : +243990525309
+
+Support : superviseur via tableau de bord web.

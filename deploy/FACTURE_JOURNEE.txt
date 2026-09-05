@@ -1,0 +1,24 @@
+MISE À JOUR v1.6.1 — Annulation ventes + Journée 6h-20h
+=======================================================
+
+NOUVEAUTÉS :
+- Annuler une vente (vendeur APK/PC ou superviseur web) — stock restauré
+- Les ventes annulées apparaissent en rouge sur le site web de gestion
+- Journée métier : 6h à 20h — après 20h = nouveau jour automatique
+- APK : reçu s'ouvre automatiquement après validation facture
+- Facture multi-produits corrigée
+
+DÉPLOIEMENT :
+1. deploy/api-mobile-fix.zip → htdocs/api/ (EXTRAIRE)
+2. Mettre à jour ventes.php, journal.php sur le site
+3. deploy/nouvelle-eve-mobile.apk v1.6.1
+4. deploy/pharmagest-vendeur-pc.zip → htdocs/vendeur/
+
+JOURNÉE (superviseur) :
+- Matin (6h+) : Journal → Ouvrir journée (fond caisse + taux)
+- Après 20h : clôturer puis ouvrir la nouvelle journée métier
+- Sans journée ouverte → ventes bloquées sur APK/PC
+
+ANNULATION :
+- Vendeur : Historique → Annuler (journée en cours seulement)
+- Web admin : bouton rouge sur chaque vente du jour
