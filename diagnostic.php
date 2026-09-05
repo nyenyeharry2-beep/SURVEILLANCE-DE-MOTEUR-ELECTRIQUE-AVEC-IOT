@@ -39,6 +39,8 @@ if (file_exists($configPath)) {
 
         $db->query('SELECT COUNT(*) FROM medicaments')->fetchColumn();
         check('Table medicaments', true);
+    } catch (ParseError $e) {
+        check('Syntaxe PHP', false, $e->getMessage() . ' — re-uploadez includes/medicaments_unites.php');
     } catch (Throwable $e) {
         check('Connexion / base', false, $e->getMessage());
     }

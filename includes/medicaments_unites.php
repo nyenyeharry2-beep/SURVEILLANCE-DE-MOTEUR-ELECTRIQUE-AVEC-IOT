@@ -301,7 +301,8 @@ function importMedicamentsFromRows(PDO $db, array $rows, array $options = []): a
             continue;
         }
         if ($code === '') {
-            $code = 'IMP-' . strtoupper(substr(preg_replace('/[^a-z0-9]/i', '', $nom), 0, 8) ?: 'MED', 0, 8)) . '-' . ($i + 1);
+            $slug = substr(preg_replace('/[^a-z0-9]/i', '', $nom), 0, 8);
+            $code = 'IMP-' . strtoupper($slug !== '' ? $slug : 'MED') . '-' . ($i + 1);
         }
 
         $type = normalizeTypeUnite($row['type_unite'] ?? $row['type'] ?? $row['forme'] ?? 'comprime_plaquette');
