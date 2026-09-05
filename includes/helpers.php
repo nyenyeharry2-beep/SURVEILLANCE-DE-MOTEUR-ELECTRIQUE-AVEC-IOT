@@ -254,7 +254,8 @@ function formatDualMoney(float $amount, string $devise): string
 function sommeVentesDual(PDO $db, string $whereSql = '1=1', array $params = []): array
 {
     $taux = getTauxUsdCdf();
-    $deviseExpr = 'CDF';
+    // Literal 'CDF' when column missing — unquoted CDF would be parsed as column name.
+    $deviseExpr = "'CDF'";
     $annuleeFilter = '';
 
     if (function_exists('dbColumnExists')) {
