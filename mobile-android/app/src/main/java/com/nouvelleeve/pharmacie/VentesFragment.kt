@@ -34,7 +34,9 @@ data class CartItem(
     val code: String,
     val stock: Int,
     val prixCdf: Double,
-    var qty: Int
+    var qty: Int,
+    val unite: String,
+    val uniteLabel: String
 )
 
 class VentesFragment : Fragment() {
@@ -43,7 +45,7 @@ class VentesFragment : Fragment() {
     private val binding get() = _binding!!
     private val medicaments = mutableListOf<JSONObject>()
     private val cart = mutableListOf<CartItem>()
-    private val medAdapter = MedicamentSearchAdapter { med -> addToCart(med) }
+    private val medAdapter = MedicamentSearchAdapter { med -> promptUniteAndAdd(med) }
     private lateinit var cartAdapter: CartAdapter
     private var searchJob: Job? = null
     private val historiqueAdapter = HistoriqueAdapter(
@@ -170,9 +172,35 @@ class VentesFragment : Fragment() {
         }
     }
 
-    private fun addToCart(med: JSONObject) {
+    private fun addToCart(med: JSONObject, unite: String? = null) {
         val id = med.optInt("id")
-        val existing = cart.find { it.medId == id }
+        val unites = med.optJSONArray("unites_vente")?.let { arr ->
+            (0 until arr.length()).map { arr.getString(it) }
+        } ?: listOf("comprime")
+
+        val chosenUnite = unite ?: unites.first()
+        if (chosenUnite !in unites) return
+
+        val stockMax = med.optJSONObject("stock_max") ?: JSONObject()
+        val stock = when (chosenUnite) {
+            "plaquette" -> stockMax.optInt("plaquette", med.optInt("quantite_stock"))
+            "flacon" -> stockMax.optInt("flacon", med.optInt("quantite_stock"))
+            else -> stockMax.optInt("comprime", med.optInt("quantite_stock"))
+        }
+
+        val prixCdf = when (chosenUnite) {
+            "plaquette" -> med.optDouble("prix_plaquette")
+            "flacon" -> med.optDouble("prix_flacon")
+            else -> med.optDouble("prix_comprime", med.optDouble("prix_vente"))
+        }
+
+        val uniteLabel = when (chosenUnite) {
+            "plaquette" -> "Plaquette"
+            "flacon" -> "Flacon"
+            else -> "Comprimé"
+        }
+
+        val existing = cart.find { it.medId == id && it.unite == chosenUnite }
         if (existing != null) {
             existing.qty = (existing.qty + 1).coerceAtMost(existing.stock)
         } else {
@@ -180,14 +208,40 @@ class VentesFragment : Fragment() {
                 medId = id,
                 nom = med.optString("nom"),
                 code = med.optString("code"),
-                stock = med.optInt("quantite_stock"),
-                prixCdf = med.optDouble("prix_vente"),
-                qty = 1
+                stock = stock,
+                prixCdf = prixCdf,
+                qty = 1,
+                unite = chosenUnite,
+                uniteLabel = uniteLabel
             ))
         }
         cartAdapter.submit(cart)
         updateCartTotal()
         Toast.makeText(requireContext(), R.string.added_to_cart, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun promptUniteAndAdd(med: JSONObject) {
+        val unites = med.optJSONArray("unites_vente")?.let { arr ->
+            (0 until arr.length()).map { arr.getString(it) }
+        } ?: listOf("comprime")
+
+        if (unites.size == 1) {
+            addToCart(med, unites.first())
+            return
+        }
+
+        val labels = unites.map { u ->
+            when (u) {
+                "plaquette" -> "Plaquette (${med.optDouble("prix_plaquette").toInt()} FC)"
+                "flacon" -> "Flacon (${med.optDouble("prix_flacon").toInt()} FC)"
+                else -> "Comprimé (${med.optDouble("prix_comprime", med.optDouble("prix_vente")).toInt()} FC)"
+            }
+        }.toTypedArray()
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(med.optString("nom"))
+            .setItems(labels) { _, which -> addToCart(med, unites[which]) }
+            .show()
     }
 
     private fun updateCartTotal() {
@@ -239,7 +293,7 @@ class VentesFragment : Fragment() {
         val notes = binding.inputNotes.text?.toString().orEmpty()
         val lignes = cart.map { item ->
             val prix = if (devise == "USD") item.prixCdf / tauxJour else item.prixCdf
-            Triple(item.medId, item.qty, prix)
+            VenteLigneInput(item.medId, item.qty, prix, item.unite)
         }
 
         binding.btnValiderVente.isEnabled = false
@@ -328,7 +382,7 @@ class CartAdapter(
     inner class Holder(private val binding: ItemCartLineBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: CartItem) {
             binding.textCartNom.text = item.nom
-            binding.textCartDetails.text = "${item.code} | ${item.prixCdf.toInt()} FC | max ${item.stock}"
+            binding.textCartDetails.text = "${item.code} | ${item.uniteLabel} | ${item.prixCdf.toInt()} FC | max ${item.stock}"
             binding.inputCartQty.setText(item.qty.toString())
             binding.inputCartQty.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
@@ -367,8 +421,14 @@ class MedicamentSearchAdapter(
     inner class Holder(private val binding: ItemMedicamentSearchBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: JSONObject) {
             binding.textNom.text = item.optString("nom")
-            binding.textDetails.text =
-                "Code: ${item.optString("code")} | ${item.optInt("quantite_stock")} en stock | ${item.optDouble("prix_vente").toInt()} FC"
+            val stockLabel = item.optString("stock_label", "${item.optInt("quantite_stock")} en stock")
+            val type = item.optString("type_unite", "comprime_plaquette")
+            val prixInfo = if (type == "flacon") {
+                "${item.optDouble("prix_flacon").toInt()} FC/fl"
+            } else {
+                "${item.optDouble("prix_comprime", item.optDouble("prix_vente")).toInt()} FC/cp · ${item.optDouble("prix_plaquette").toInt()} FC/plt"
+            }
+            binding.textDetails.text = "Code: ${item.optString("code")} | $stockLabel | $prixInfo"
             binding.cardMedicament.setCardBackgroundColor(Color.WHITE)
             binding.cardMedicament.setOnClickListener { onSelect(item) }
         }

@@ -2,11 +2,13 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/journee.php';
 require_once __DIR__ . '/includes/ventes.php';
+require_once __DIR__ . '/includes/medicaments_unites.php';
 requireLogin();
 
 $db = getDB();
 ensureJourneeSchema($db);
 ensureVenteSchema($db);
+ensureMedicamentUnitesSchema($db);
 $dateMetier = getBusinessDate();
 $taux = getTauxUsdCdfForDate($db, $dateMetier);
 $journee = getJourneeStatus($db, $dateMetier);
@@ -53,7 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $ventes = $db->prepare('
     SELECT v.*, u.nom AS vendeur, ua.nom AS annulee_par_nom,
-           (SELECT GROUP_CONCAT(CONCAT(m.nom, " x", vl.quantite) SEPARATOR ", ")
+           (SELECT GROUP_CONCAT(
+                CONCAT(m.nom, " x", vl.quantite,
+                    CASE COALESCE(vl.unite_vente, "unite")
+                        WHEN "comprime" THEN " cp"
+                        WHEN "plaquette" THEN " plt"
+                        WHEN "flacon" THEN " fl"
+                        ELSE ""
+                    END
+                ) SEPARATOR ", ")
             FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
             WHERE vl.vente_id = v.id) AS details,
            (SELECT COUNT(*) FROM vente_lignes vl WHERE vl.vente_id = v.id) AS nb_lignes
@@ -66,7 +76,8 @@ $ventes = $db->prepare('
 $ventes->execute([$filterDate]);
 $listeVentes = $ventes->fetchAll();
 
-$medicaments = $db->query('SELECT id, code, nom, prix_vente, quantite_stock FROM medicaments WHERE actif = 1 AND quantite_stock > 0 ORDER BY nom')->fetchAll();
+$medicamentsRaw = $db->query('SELECT * FROM medicaments WHERE actif = 1 AND quantite_stock > 0 ORDER BY nom')->fetchAll();
+$medicaments = array_map('enrichMedicamentRow', $medicamentsRaw);
 
 $pageTitle = 'Ventes & Factures';
 require_once __DIR__ . '/includes/header.php';
@@ -104,15 +115,27 @@ require_once __DIR__ . '/includes/header.php';
                             <option value="<?= $m['id'] ?>"
                                     data-code="<?= e($m['code']) ?>"
                                     data-nom="<?= e($m['nom']) ?>"
-                                    data-prix="<?= $m['prix_vente'] ?>"
-                                    data-stock="<?= $m['quantite_stock'] ?>">
-                                <?= e($m['code'] . ' — ' . $m['nom'] . ' (' . $m['quantite_stock'] . ')') ?>
+                                    data-type="<?= e($m['type_unite']) ?>"
+                                    data-prix-comprime="<?= $m['prix_comprime'] ?>"
+                                    data-prix-plaquette="<?= $m['prix_plaquette'] ?>"
+                                    data-prix-flacon="<?= $m['prix_flacon'] ?>"
+                                    data-cpp="<?= $m['comprimes_par_plaquette'] ?>"
+                                    data-unites="<?= e(implode(',', $m['unites_vente'])) ?>"
+                                    data-stock-max-comprime="<?= $m['stock_max']['comprime'] ?>"
+                                    data-stock-max-plaquette="<?= $m['stock_max']['plaquette'] ?>"
+                                    data-stock-max-flacon="<?= $m['stock_max']['flacon'] ?>"
+                                    data-stock-label="<?= e($m['stock_label']) ?>">
+                                <?= e($m['code'] . ' — ' . $m['nom'] . ' (' . $m['stock_label'] . ')') ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
                         <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-line" <?= $journee['peut_vendre'] ? '' : 'disabled' ?>>
                             <i class="bi bi-plus-lg"></i> Ajouter à la facture
                         </button>
+                        <div class="mt-2" id="unite-picker" style="display:none">
+                            <label class="form-label small mb-1">Unité de vente</label>
+                            <select class="form-select form-select-sm" id="pick-unite"></select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -168,7 +191,7 @@ require_once __DIR__ . '/includes/header.php';
                     ?>
                     <tr class="<?= $annulee ? 'table-secondary text-muted' : '' ?>">
                         <td><code><?= e($v['numero']) ?></code></td>
-                        <td><?= date('H:i', strtotime($v['date_vente'])) ?></td>
+                        <td><?= formatDateTimeLocal($v['date_vente']) ?></td>
                         <td><small><?= e($v['details'] ?: '—') ?> (<?= (int)$v['nb_lignes'] ?>)</small></td>
                         <td><?= e($v['client_nom'] ?: '—') ?></td>
                         <td><?= formatMoney((float) $v['montant_total'], $devise) ?></td>
@@ -216,6 +239,8 @@ require_once __DIR__ . '/includes/header.php';
     const taux = parseFloat(form.dataset.taux) || 2850;
     const cart = [];
     const pickMed = document.getElementById('pick-med');
+    const pickUnite = document.getElementById('pick-unite');
+    const unitePicker = document.getElementById('unite-picker');
     const searchMed = document.getElementById('search-med');
     const cartEl = document.getElementById('cart-lines');
     const cartEmpty = document.getElementById('cart-empty');
@@ -224,10 +249,40 @@ require_once __DIR__ . '/includes/header.php';
     const btnSubmit = document.getElementById('btn-submit-facture');
     const deviseSelect = document.getElementById('vente-devise');
 
+    const uniteLabels = { comprime: 'Comprimé', plaquette: 'Plaquette', flacon: 'Flacon' };
+
     function fmt(n, d) {
         if (d === 'USD') return '$' + n.toFixed(2).replace('.', ',');
         return Math.round(n).toLocaleString('fr-FR') + ' FC';
     }
+
+    function getOpt() { return pickMed.selectedOptions[0]; }
+
+    function prixForUnite(opt, unite) {
+        const d = deviseSelect.value;
+        let cdf = 0;
+        if (unite === 'plaquette') cdf = +opt.dataset.prixPlaquette;
+        else if (unite === 'flacon') cdf = +opt.dataset.prixFlacon;
+        else cdf = +opt.dataset.prixComprime;
+        return d === 'USD' ? cdf / taux : cdf;
+    }
+
+    function stockMaxFor(opt, unite) {
+        if (unite === 'plaquette') return +opt.dataset.stockMaxPlaquette;
+        if (unite === 'flacon') return +opt.dataset.stockMaxFlacon;
+        return +opt.dataset.stockMaxComprime;
+    }
+
+    function refreshUnitePicker() {
+        const opt = getOpt();
+        if (!opt) { unitePicker.style.display = 'none'; return; }
+        const unites = (opt.dataset.unites || 'comprime').split(',').filter(Boolean);
+        pickUnite.innerHTML = unites.map(u => `<option value="${u}">${uniteLabels[u] || u}</option>`).join('');
+        unitePicker.style.display = unites.length > 1 ? '' : 'none';
+    }
+
+    pickMed.addEventListener('change', refreshUnitePicker);
+    refreshUnitePicker();
 
     function filterMeds(q) {
         const ql = q.toLowerCase();
@@ -253,9 +308,9 @@ require_once __DIR__ . '/includes/header.php';
         cart.forEach((item, i) => {
             total += item.qty * item.prix;
             const row = document.createElement('div');
-            row.className = 'cart-row d-flex align-items-center gap-2 mb-2 pb-2 border-bottom';
+            row.className = 'cart-row d-flex align-items-center gap-2 mb-2 pb-2 border-bottom flex-wrap';
             row.innerHTML = `
-                <div class="flex-grow-1"><strong>${item.nom}</strong><br><small>${item.code}</small></div>
+                <div class="flex-grow-1"><strong>${item.nom}</strong><br><small>${item.code} — ${uniteLabels[item.unite] || item.unite}</small></div>
                 <input type="number" min="1" max="${item.stock}" value="${item.qty}" class="form-control form-control-sm cart-qty" style="width:70px" data-i="${i}">
                 <span class="small">${fmt(item.prix, d)}</span>
                 <button type="button" class="btn btn-sm btn-outline-danger cart-rm" data-i="${i}">&times;</button>`;
@@ -263,7 +318,7 @@ require_once __DIR__ . '/includes/header.php';
         });
         cartTotal.textContent = fmt(total, d);
         lignesJson.value = JSON.stringify(cart.map(c => ({
-            medicament_id: c.id, quantite: c.qty, prix_unitaire: c.prix
+            medicament_id: c.id, quantite: c.qty, prix_unitaire: c.prix, unite_vente: c.unite
         })));
 
         cartEl.querySelectorAll('.cart-qty').forEach(inp => {
@@ -279,15 +334,20 @@ require_once __DIR__ . '/includes/header.php';
     }
 
     document.getElementById('btn-add-line').addEventListener('click', () => {
-        const opt = pickMed.selectedOptions[0];
+        const opt = getOpt();
         if (!opt) return;
         const id = +opt.value;
-        const existing = cart.find(c => c.id === id);
-        if (existing) { existing.qty = Math.min(existing.qty + 1, existing.stock); }
-        else {
-            const prixCdf = +opt.dataset.prix;
-            const prix = deviseSelect.value === 'USD' ? prixCdf / taux : prixCdf;
-            cart.push({ id, nom: opt.dataset.nom, code: opt.dataset.code, stock: +opt.dataset.stock, qty: 1, prix });
+        const unite = pickUnite.value || (opt.dataset.unites || 'comprime').split(',')[0];
+        const existing = cart.find(c => c.id === id && c.unite === unite);
+        const stock = stockMaxFor(opt, unite);
+        const prix = prixForUnite(opt, unite);
+        if (existing) {
+            existing.qty = Math.min(existing.qty + 1, existing.stock);
+        } else {
+            cart.push({
+                id, nom: opt.dataset.nom, code: opt.dataset.code,
+                stock, qty: 1, prix, unite
+            });
         }
         renderCart();
     });
@@ -296,10 +356,7 @@ require_once __DIR__ . '/includes/header.php';
     deviseSelect.addEventListener('change', () => {
         cart.forEach(c => {
             const opt = [...pickMed.options].find(o => +o.value === c.id);
-            if (opt) {
-                const prixCdf = +opt.dataset.prix;
-                c.prix = deviseSelect.value === 'USD' ? prixCdf / taux : prixCdf;
-            }
+            if (opt) c.prix = prixForUnite(opt, c.unite);
         });
         renderCart();
     });

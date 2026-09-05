@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/medicaments_unites.php';
 requireLogin();
 
 $db = getDB();
@@ -36,7 +37,9 @@ $details = $lignes->fetchAll();
 $devise = normalizeDevise($vente['devise'] ?? 'CDF');
 $montant = (float) $vente['montant_total'];
 $client = trim($vente['client_nom'] ?? '') ?: 'Client comptant';
-$produits = array_map(static fn ($l) => e($l['nom']) . ' x' . (int) $l['quantite'], $details);
+$produits = array_map(static function ($l) {
+    return e($l['nom']) . ' x' . (int) $l['quantite'] . ' ' . e(uniteVenteLabel($l['unite_vente'] ?? 'unite', (int) $l['quantite']));
+}, $details);
 $produitsTexte = $produits ? implode(', ', $produits) : 'médicaments';
 
 $pageTitle = 'Reçu ' . $vente['numero'];
@@ -73,7 +76,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="receipt-meta">
         <div><span class="receipt-label">REFERENCE</span> : <?= e($vente['numero']) ?></div>
-        <div><span class="receipt-label">DATE</span> : <?= date('d/m/Y H:i', strtotime($vente['date_vente'])) ?></div>
+        <div><span class="receipt-label">DATE</span> : <?= formatDateTimeLocal($vente['date_vente']) ?></div>
         <div><span class="receipt-label">VENDEUR</span> : <?= e($vente['vendeur']) ?></div>
         <div><span class="receipt-label">CLIENT</span> : <?= e($client) ?></div>
     </div>
@@ -88,7 +91,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="receipt-items">
         <?php foreach ($details as $l): ?>
-        <div class="receipt-item">- <?= e($l['nom']) ?> x<?= (int) $l['quantite'] ?></div>
+        <div class="receipt-item">- <?= e($l['nom']) ?> x<?= (int) $l['quantite'] ?> <?= e(uniteVenteLabel($l['unite_vente'] ?? 'unite', (int) $l['quantite'])) ?></div>
         <?php endforeach; ?>
     </div>
 

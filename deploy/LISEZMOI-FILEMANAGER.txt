@@ -1,6 +1,6 @@
 PHARMACIE NOUVELLE EVE — PACKAGE COMPLET InfinityFree File Manager
 ==================================================================
-Version site + API + vendeur PC — v1.6.1 (Mars 2026)
+Version site + API + vendeur PC — v1.7.0 (Mars 2026)
 
 Ce ZIP contient TOUT le site web + API mobile + portail vendeur PC.
 Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
@@ -40,6 +40,7 @@ MISE À JOUR (site déjà en ligne) — importez dans cet ordre :
   4. database/migration_journal.sql
   5. database/migration_journee_caisse.sql
   6. database/migration_vente_annulation.sql
+  7. database/migration_unites_vente.sql
 
 (Les colonnes sont aussi créées automatiquement au premier accès API.)
 
@@ -70,7 +71,11 @@ Connexion admin :
 
 SITE WEB (superviseur / admin) :
   ✓ Dashboard, médicaments, stock, achats, catégories
+  ✓ Import Excel/CSV des médicaments (admin → Médicaments → Import)
+  ✓ Heure locale Kinshasa affichée dans l'en-tête
   ✓ Ventes — facture MULTI-PRODUITS (panier)
+  ✓ Vente par COMPRIMÉ, PLAQUETTE ou FLACON selon le produit
+  ✓ Prix distinct par comprimé / plaquette / flacon
   ✓ Annulation vente (bouton rouge) — visible ANNULÉE
   ✓ Journal quotidien — ouverture/clôture journée
   ✓ Journée métier 6h–20h (après 20h = nouveau jour)
@@ -91,7 +96,8 @@ PORTAIL VENDEUR PC (htdocs/vendeur/) :
   ✓ Installable sur Bureau (Chrome → Installer l'app)
 
 APPLICATION MOBILE APK (fichier séparé dans deploy/) :
-  ✓ nouvelle-eve-mobile.apk — Version 1.6.1
+  ✓ nouvelle-eve-mobile.apk — Version 1.7.0
+  ✓ Choix comprimé / plaquette / flacon à l'ajout au panier
   ✓ Facture panier + reçu automatique + annulation
 
 ═══════════════════════════════════════════════════════════════

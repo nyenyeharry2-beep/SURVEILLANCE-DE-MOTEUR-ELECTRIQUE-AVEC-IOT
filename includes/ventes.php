@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/journee.php';
+require_once __DIR__ . '/medicaments_unites.php';
 
 function ensureVenteSchema(PDO $db): void
 {
@@ -44,6 +45,7 @@ function venteActiveCondition(string $alias = 'v'): string
 function createVenteTransaction(PDO $db, array $user, array $body): array
 {
     ensureVenteSchema($db);
+    ensureMedicamentUnitesSchema($db);
     $dateJour = getBusinessDate();
     assertJourneeOuverte($db, $dateJour);
 
@@ -73,12 +75,19 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
             throw new InvalidArgumentException('Médicament introuvable (ligne ' . ($idx + 1) . ').');
         }
 
-        if ((int) $med['quantite_stock'] < $quantite) {
-            throw new InvalidArgumentException($med['nom'] . ' : stock insuffisant. Disponible : ' . $med['quantite_stock']);
+        $med = enrichMedicamentRow($med);
+        $uniteVente = resolveUniteVenteForMed($med, $line['unite_vente'] ?? null);
+        $stockDeduit = calcStockDeduit($med, $uniteVente, $quantite);
+        $stockMax = getStockMaxVente($med, $uniteVente);
+
+        if ($stockMax < $quantite) {
+            throw new InvalidArgumentException(
+                $med['nom'] . ' : stock insuffisant. Disponible : ' . $stockMax . ' ' . uniteVenteLabel($uniteVente, $stockMax)
+            );
         }
 
         if ($prixUnitaire <= 0) {
-            $prixCatalogue = (float) $med['prix_vente'];
+            $prixCatalogue = getPrixUnitaireVente($med, $uniteVente);
             $prixUnitaire = $devise === 'USD' ? $prixCatalogue / $taux : $prixCatalogue;
         }
 
@@ -91,6 +100,8 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
             'prix_unitaire' => $prixUnitaire,
             'sous_total' => $sousTotal,
             'nom' => $med['nom'],
+            'unite_vente' => $uniteVente,
+            'stock_deduit' => $stockDeduit,
         ];
     }
 
@@ -103,18 +114,20 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
            ->execute([$numero, $user['id'], $clientNom ?: null, $montantTotal, $devise, $notes ?: null, $dateJour]);
         $venteId = (int) $db->lastInsertId();
 
-        $insertLine = $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, quantite, prix_unitaire, sous_total) VALUES (?,?,?,?,?)');
+        $insertLine = $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, unite_vente, quantite, stock_deduit, prix_unitaire, sous_total) VALUES (?,?,?,?,?,?,?)');
         $updateStock = $db->prepare('UPDATE medicaments SET quantite_stock = quantite_stock - ? WHERE id = ?');
 
         foreach ($prepared as $line) {
             $insertLine->execute([
                 $venteId,
                 $line['medicament_id'],
+                $line['unite_vente'],
                 $line['quantite'],
+                $line['stock_deduit'],
                 $line['prix_unitaire'],
                 $line['sous_total'],
             ]);
-            $updateStock->execute([$line['quantite'], $line['medicament_id']]);
+            $updateStock->execute([$line['stock_deduit'], $line['medicament_id']]);
         }
 
         $db->commit();
@@ -123,7 +136,10 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
         throw $e;
     }
 
-    $details = array_map(static fn(array $l): string => $l['nom'] . ' x' . $l['quantite'], $prepared);
+    $details = array_map(
+        static fn(array $l): string => formatLigneVenteDetail($l['nom'], $l['quantite'], $l['unite_vente']),
+        $prepared
+    );
 
     return [
         'id' => $venteId,
@@ -140,6 +156,7 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
 function cancelVenteTransaction(PDO $db, array $user, int $venteId, string $motif = ''): array
 {
     ensureVenteSchema($db);
+    ensureMedicamentUnitesSchema($db);
     $dateJour = getBusinessDate();
 
     $stmt = $db->prepare('
@@ -171,15 +188,19 @@ function cancelVenteTransaction(PDO $db, array $user, int $venteId, string $moti
 
     $motif = trim($motif) ?: 'Annulation vendeur';
 
-    $lignes = $db->prepare('SELECT medicament_id, quantite FROM vente_lignes WHERE vente_id = ?');
+    $lignes = $db->prepare('SELECT medicament_id, quantite, stock_deduit FROM vente_lignes WHERE vente_id = ?');
     $lignes->execute([$venteId]);
     $rows = $lignes->fetchAll();
 
     $db->beginTransaction();
     try {
         foreach ($rows as $row) {
+            $restore = (int) ($row['stock_deduit'] ?? 0);
+            if ($restore <= 0) {
+                $restore = (int) $row['quantite'];
+            }
             $db->prepare('UPDATE medicaments SET quantite_stock = quantite_stock + ? WHERE id = ?')
-               ->execute([(int) $row['quantite'], (int) $row['medicament_id']]);
+               ->execute([$restore, (int) $row['medicament_id']]);
         }
 
         $db->prepare('

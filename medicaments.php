@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/medicaments_unites.php';
 requireLogin();
 
 $db = getDB();
+ensureMedicamentUnitesSchema($db);
 $search = trim($_GET['q'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,12 +19,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'fournisseur_id'   => $_POST['fournisseur_id'] ?: null,
             'prix_achat'       => (float) ($_POST['prix_achat'] ?? 0),
             'prix_vente'       => (float) ($_POST['prix_vente'] ?? 0),
+            'type_unite'       => normalizeTypeUnite($_POST['type_unite'] ?? 'comprime_plaquette'),
+            'prix_comprime'    => (float) ($_POST['prix_comprime'] ?? 0),
+            'prix_plaquette'   => (float) ($_POST['prix_plaquette'] ?? 0),
+            'prix_flacon'      => (float) ($_POST['prix_flacon'] ?? 0),
+            'comprimes_par_plaquette' => max(1, (int) ($_POST['comprimes_par_plaquette'] ?? 10)),
             'quantite_stock'   => (int) ($_POST['quantite_stock'] ?? 0),
             'seuil_alerte'     => (int) ($_POST['seuil_alerte'] ?? 10),
             'date_fabrication' => $_POST['date_fabrication'] ?: null,
             'date_expiration'  => $_POST['date_expiration'] ?: null,
             'description'      => trim($_POST['description'] ?? ''),
         ];
+
+        if ($data['type_unite'] === 'flacon') {
+            if ($data['prix_flacon'] <= 0 && $data['prix_vente'] > 0) {
+                $data['prix_flacon'] = $data['prix_vente'];
+            }
+            $data['prix_vente'] = $data['prix_flacon'];
+        } else {
+            if ($data['prix_comprime'] <= 0 && $data['prix_vente'] > 0) {
+                $data['prix_comprime'] = $data['prix_vente'];
+            }
+            if ($data['prix_plaquette'] <= 0 && $data['prix_comprime'] > 0) {
+                $data['prix_plaquette'] = $data['prix_comprime'] * $data['comprimes_par_plaquette'];
+            }
+            $data['prix_vente'] = $data['prix_comprime'];
+        }
 
         if ($data['code'] === '' || $data['nom'] === '') {
             flash('danger', 'Le code et le nom sont obligatoires.');
@@ -31,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 if ($action === 'create') {
-                    $stmt = $db->prepare('INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, quantite_stock, seuil_alerte, date_fabrication, date_expiration, description) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description']]);
+                    $stmt = $db->prepare('INSERT INTO medicaments (code, nom, categorie_id, fournisseur_id, prix_achat, prix_vente, type_unite, prix_comprime, prix_plaquette, prix_flacon, comprimes_par_plaquette, quantite_stock, seuil_alerte, date_fabrication, date_expiration, description) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['type_unite'], $data['type_unite'] === 'flacon' ? null : $data['prix_comprime'], $data['type_unite'] === 'flacon' ? null : $data['prix_plaquette'], $data['type_unite'] === 'flacon' ? $data['prix_flacon'] : null, $data['comprimes_par_plaquette'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description']]);
                     flash('success', 'Médicament ajouté avec succès.');
                 } else {
                     $id = (int) $_POST['id'];
-                    $stmt = $db->prepare('UPDATE medicaments SET code=?, nom=?, categorie_id=?, fournisseur_id=?, prix_achat=?, prix_vente=?, quantite_stock=?, seuil_alerte=?, date_fabrication=?, date_expiration=?, description=? WHERE id=?');
-                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description'], $id]);
+                    $stmt = $db->prepare('UPDATE medicaments SET code=?, nom=?, categorie_id=?, fournisseur_id=?, prix_achat=?, prix_vente=?, type_unite=?, prix_comprime=?, prix_plaquette=?, prix_flacon=?, comprimes_par_plaquette=?, quantite_stock=?, seuil_alerte=?, date_fabrication=?, date_expiration=?, description=? WHERE id=?');
+                    $stmt->execute([$data['code'], $data['nom'], $data['categorie_id'], $data['fournisseur_id'], $data['prix_achat'], $data['prix_vente'], $data['type_unite'], $data['type_unite'] === 'flacon' ? null : $data['prix_comprime'], $data['type_unite'] === 'flacon' ? null : $data['prix_plaquette'], $data['type_unite'] === 'flacon' ? $data['prix_flacon'] : null, $data['comprimes_par_plaquette'], $data['quantite_stock'], $data['seuil_alerte'], $data['date_fabrication'], $data['date_expiration'], $data['description'], $id]);
                     flash('success', 'Médicament mis à jour.');
                 }
             } catch (PDOException $e) {
@@ -88,9 +110,16 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0"><i class="bi bi-box-seam me-2"></i>Médicaments</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#medModal">
-        <i class="bi bi-plus-lg me-1"></i> Ajouter
-    </button>
+    <div class="d-flex gap-2">
+        <?php if ((currentUser()['role'] ?? '') === 'admin'): ?>
+        <a href="medicaments_import.php" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Import Excel
+        </a>
+        <?php endif; ?>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#medModal">
+            <i class="bi bi-plus-lg me-1"></i> Ajouter
+        </button>
+    </div>
 </div>
 
 <div class="card mb-4">
@@ -112,25 +141,33 @@ require_once __DIR__ . '/includes/header.php';
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Code</th><th>Nom</th><th>Catégorie</th><th>Prix vente</th>
+                    <th>Code</th><th>Nom</th><th>Catégorie</th><th>Type / Prix</th>
                     <th>Stock</th><th>Fabrication</th><th>Expiration</th><th>Statut</th><th class="table-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($medicaments as $m): ?>
+            <?php foreach ($medicaments as $m):
+                $m = enrichMedicamentRow($m);
+            ?>
             <tr>
                 <td><code><?= e($m['code']) ?></code></td>
                 <td><?= e($m['nom']) ?></td>
                 <td><?= e($m['categorie_nom'] ?? '—') ?></td>
                 <td>
-                    <?= formatCDF((float) $m['prix_vente']) ?>
-                    <br><small class="text-muted"><?= formatUSD(convertirDevise((float) $m['prix_vente'], 'CDF', 'USD')) ?></small>
+                    <?php if ($m['type_unite'] === 'flacon'): ?>
+                    <span class="badge bg-info text-dark">Flacon</span>
+                    <?= formatCDF((float) $m['prix_flacon']) ?> / fl
+                    <?php else: ?>
+                    <span class="badge bg-primary">Comprimé</span>
+                    <?= formatCDF((float) $m['prix_comprime']) ?> / cp
+                    <br><small class="text-muted"><?= formatCDF((float) $m['prix_plaquette']) ?> / plt (<?= (int) $m['comprimes_par_plaquette'] ?> cp)</small>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <?php if ($m['quantite_stock'] <= $m['seuil_alerte']): ?>
-                    <span class="badge bg-danger"><?= $m['quantite_stock'] ?></span>
+                    <span class="badge bg-danger"><?= e($m['stock_label']) ?></span>
                     <?php else: ?>
-                    <?= $m['quantite_stock'] ?>
+                    <?= e($m['stock_label']) ?>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -208,12 +245,35 @@ require_once __DIR__ . '/includes/header.php';
                                 <?php endforeach; ?>
                             </select>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Type de vente *</label>
+                            <select name="type_unite" class="form-select" id="type-unite">
+                                <option value="comprime_plaquette" <?= ($editMed['type_unite'] ?? 'comprime_plaquette') === 'comprime_plaquette' ? 'selected' : '' ?>>Comprimé / Plaquette</option>
+                                <option value="flacon" <?= ($editMed['type_unite'] ?? '') === 'flacon' ? 'selected' : '' ?>>Flacon</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 prix-comprime-field">
+                            <label class="form-label">Prix / comprimé (FC)</label>
+                            <input type="number" step="0.01" name="prix_comprime" class="form-control" value="<?= e($editMed['prix_comprime'] ?? $editMed['prix_vente'] ?? '0') ?>">
+                        </div>
+                        <div class="col-md-3 prix-comprime-field">
+                            <label class="form-label">Prix / plaquette (FC)</label>
+                            <input type="number" step="0.01" name="prix_plaquette" class="form-control" value="<?= e($editMed['prix_plaquette'] ?? '0') ?>">
+                        </div>
+                        <div class="col-md-2 prix-comprime-field">
+                            <label class="form-label">Cp / plaquette</label>
+                            <input type="number" name="comprimes_par_plaquette" class="form-control" value="<?= e($editMed['comprimes_par_plaquette'] ?? '10') ?>">
+                        </div>
+                        <div class="col-md-3 prix-flacon-field">
+                            <label class="form-label">Prix / flacon (FC)</label>
+                            <input type="number" step="0.01" name="prix_flacon" class="form-control" value="<?= e($editMed['prix_flacon'] ?? $editMed['prix_vente'] ?? '0') ?>">
+                        </div>
                         <div class="col-md-3">
                             <label class="form-label">Prix achat</label>
                             <input type="number" step="0.01" name="prix_achat" class="form-control" value="<?= e($editMed['prix_achat'] ?? '0') ?>">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Prix vente</label>
+                            <label class="form-label">Prix vente (réf.)</label>
                             <input type="number" step="0.01" name="prix_vente" class="form-control" value="<?= e($editMed['prix_vente'] ?? '0') ?>">
                         </div>
                         <div class="col-md-3">
@@ -251,5 +311,18 @@ require_once __DIR__ . '/includes/header.php';
 <?php if ($editMed): ?>
 <script>document.addEventListener('DOMContentLoaded', () => new bootstrap.Modal(document.getElementById('medModal')).show());</script>
 <?php endif; ?>
+<script>
+(function () {
+    const typeSelect = document.getElementById('type-unite');
+    if (!typeSelect) return;
+    function toggleTypeFields() {
+        const flacon = typeSelect.value === 'flacon';
+        document.querySelectorAll('.prix-comprime-field').forEach(el => el.style.display = flacon ? 'none' : '');
+        document.querySelectorAll('.prix-flacon-field').forEach(el => el.style.display = flacon ? '' : 'none');
+    }
+    typeSelect.addEventListener('change', toggleTypeFields);
+    toggleTypeFields();
+})();
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

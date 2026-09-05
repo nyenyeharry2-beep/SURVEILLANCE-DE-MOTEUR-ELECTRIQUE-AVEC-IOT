@@ -304,6 +304,7 @@ function parseVenteLignesInput(array $body): array
                     'medicament_id' => $medId,
                     'quantite' => $qty,
                     'prix_unitaire' => (float) ($line['prix_unitaire'] ?? 0),
+                    'unite_vente' => $line['unite_vente'] ?? $line['unite'] ?? null,
                 ];
             }
         }
@@ -319,6 +320,7 @@ function parseVenteLignesInput(array $body): array
             'medicament_id' => $medId,
             'quantite' => $qty,
             'prix_unitaire' => (float) ($body['prix_unitaire'] ?? 0),
+            'unite_vente' => $body['unite_vente'] ?? $body['unite'] ?? null,
         ]];
     }
 

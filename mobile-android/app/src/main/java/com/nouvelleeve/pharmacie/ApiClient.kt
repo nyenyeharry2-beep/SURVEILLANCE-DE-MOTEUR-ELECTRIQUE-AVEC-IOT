@@ -13,6 +13,13 @@ import java.net.URL
 
 class ApiException(val code: Int, message: String) : Exception(message)
 
+data class VenteLigneInput(
+    val medId: Int,
+    val qty: Int,
+    val prix: Double,
+    val unite: String
+)
+
 object ApiConfig {
     const val BASE = "https://mapharmaciepk.xo.je/api"
 }
@@ -79,17 +86,18 @@ class ApiClient(
     }
 
     suspend fun createVente(
-        lignes: List<Triple<Int, Int, Double>>,
+        lignes: List<VenteLigneInput>,
         devise: String,
         clientNom: String,
         notes: String = ""
     ): JSONObject {
         val arr = org.json.JSONArray()
-        lignes.forEach { (medId, qty, prix) ->
+        lignes.forEach { line ->
             arr.put(JSONObject().apply {
-                put("medicament_id", medId)
-                put("quantite", qty)
-                if (prix > 0) put("prix_unitaire", prix)
+                put("medicament_id", line.medId)
+                put("quantite", line.qty)
+                put("unite_vente", line.unite)
+                if (line.prix > 0) put("prix_unitaire", line.prix)
             })
         }
         return execute(

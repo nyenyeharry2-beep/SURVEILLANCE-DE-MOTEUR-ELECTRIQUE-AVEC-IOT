@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 require_once __DIR__ . '/../includes/journee.php';
+require_once __DIR__ . '/../includes/medicaments_unites.php';
 
 try {
     $db = getDB();
@@ -19,7 +20,11 @@ $route = apiRoute();
 
 try {
     if ($route === 'ping' && $method === 'GET') {
-        apiJson(true, ['status' => 'ok', 'version' => '1.0'], 'API active.');
+        apiJson(true, [
+            'status' => 'ok',
+            'version' => '1.7',
+            'heure_locale' => localTimeInfo(),
+        ], 'API active.');
     }
 
     if ($route === 'auth/login' && $method === 'POST') {
@@ -65,10 +70,11 @@ try {
 
     if ($route === 'medicaments' && $method === 'GET') {
         requireApiAuth($db);
+        ensureMedicamentUnitesSchema($db);
         $q = trim($_GET['q'] ?? '');
         if ($q !== '') {
             $stmt = $db->prepare('
-                SELECT id, code, nom, prix_vente, quantite_stock, date_expiration
+                SELECT *
                 FROM medicaments
                 WHERE actif = 1 AND quantite_stock > 0
                   AND (nom LIKE ? OR code LIKE ?)
@@ -78,14 +84,57 @@ try {
             $stmt->execute([$prefix, $prefix]);
         } else {
             $stmt = $db->query('
-                SELECT id, code, nom, prix_vente, quantite_stock, date_expiration
+                SELECT *
                 FROM medicaments
                 WHERE actif = 1 AND quantite_stock > 0
                 ORDER BY nom
             ');
         }
 
-        apiJson(true, ['medicaments' => $stmt->fetchAll()]);
+        $rows = array_map(static function (array $row): array {
+            $enriched = enrichMedicamentRow($row);
+
+            return [
+                'id' => (int) $enriched['id'],
+                'code' => $enriched['code'],
+                'nom' => $enriched['nom'],
+                'type_unite' => $enriched['type_unite'],
+                'prix_vente' => (float) $enriched['prix_vente'],
+                'prix_comprime' => (float) $enriched['prix_comprime'],
+                'prix_plaquette' => (float) $enriched['prix_plaquette'],
+                'prix_flacon' => (float) $enriched['prix_flacon'],
+                'comprimes_par_plaquette' => (int) $enriched['comprimes_par_plaquette'],
+                'quantite_stock' => (int) $enriched['quantite_stock'],
+                'stock_label' => $enriched['stock_label'],
+                'unites_vente' => $enriched['unites_vente'],
+                'stock_max' => $enriched['stock_max'],
+                'date_expiration' => $enriched['date_expiration'] ?? null,
+            ];
+        }, $stmt->fetchAll());
+
+        apiJson(true, ['medicaments' => $rows, 'heure_locale' => localTimeInfo()]);
+    }
+
+    if ($route === 'medicaments/import' && $method === 'POST') {
+        $user = requireApiAuth($db);
+        if ($user['role'] !== 'admin') {
+            apiError('Import réservé aux administrateurs.', 403);
+        }
+
+        ensureMedicamentUnitesSchema($db);
+        $body = apiBody();
+        $rows = [];
+
+        if (!empty($body['rows']) && is_array($body['rows'])) {
+            $rows = $body['rows'];
+        } elseif (!empty($body['csv'])) {
+            $rows = parseImportSpreadsheet((string) $body['csv']);
+        } else {
+            apiError('Fournissez un fichier CSV ou un tableau rows[].');
+        }
+
+        $result = importMedicamentsFromRows($db, $rows);
+        apiJson(true, $result, 'Import terminé.');
     }
 
     if ($route === 'stock' && $method === 'GET') {
@@ -232,6 +281,7 @@ try {
         require_once __DIR__ . '/../includes/journee.php';
         $date = trim($_GET['date'] ?? '') ?: getBusinessDate();
         $status = getJourneeStatus($db, $date);
+        $status['heure_locale'] = localTimeInfo();
         apiJson(true, $status);
     }
 

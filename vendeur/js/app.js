@@ -133,27 +133,66 @@
       list.innerHTML = meds.map((m) => `
         <div class="med-item" data-id="${m.id}">
           <strong>${escapeHtml(m.nom)}</strong>
-          <small>${escapeHtml(m.code || '')} — Stock: ${m.quantite_stock} — ${Format.money(m.prix_vente)}</small>
+          <small>${escapeHtml(m.code || '')} — ${escapeHtml(m.stock_label || ('Stock: ' + m.quantite_stock))} — ${m.type_unite === 'flacon'
+            ? Format.money(m.prix_flacon) + '/fl'
+            : Format.money(m.prix_comprime || m.prix_vente) + '/cp · ' + Format.money(m.prix_plaquette) + '/plt'
+          }</small>
         </div>
       `).join('');
       list.querySelectorAll('.med-item').forEach((el) => {
-        el.addEventListener('click', () => addToCart(meds.find((x) => String(x.id) === el.dataset.id)));
+        el.addEventListener('click', () => promptUniteAndAdd(meds.find((x) => String(x.id) === el.dataset.id)));
       });
     } catch (ex) {
       list.innerHTML = `<p class="empty">${escapeHtml(ex.message)}</p>`;
     }
   }
 
-  function addToCart(med) {
+  function addToCart(med, unite) {
     if (!med) return;
-    const existing = cart.find((c) => c.id === med.id);
+    const unites = med.unites_vente || (med.type_unite === 'flacon' ? ['flacon'] : ['comprime', 'plaquette']);
+    const chosen = unite || unites[0];
+    const stockMax = med.stock_max || {};
+    const stock = chosen === 'plaquette' ? (stockMax.plaquette || 0)
+      : chosen === 'flacon' ? (stockMax.flacon || 0)
+      : (stockMax.comprime || med.quantite_stock || 0);
+    const prix = chosen === 'plaquette' ? (med.prix_plaquette || 0)
+      : chosen === 'flacon' ? (med.prix_flacon || 0)
+      : (med.prix_comprime || med.prix_vente || 0);
+    const uniteLabels = { comprime: 'Comprimé', plaquette: 'Plaquette', flacon: 'Flacon' };
+
+    const existing = cart.find((c) => c.id === med.id && c.unite === chosen);
     if (existing) {
-      existing.qty = Math.min(existing.qty + 1, med.quantite_stock);
+      existing.qty = Math.min(existing.qty + 1, existing.stock);
     } else {
-      cart.push({ id: med.id, nom: med.nom, code: med.code, stock: med.quantite_stock, prix: med.prix_vente, qty: 1 });
+      cart.push({
+        id: med.id,
+        nom: med.nom,
+        code: med.code,
+        stock,
+        prix,
+        qty: 1,
+        unite: chosen,
+        uniteLabel: uniteLabels[chosen] || chosen,
+      });
     }
     renderCart();
     showToast('Ajouté à la facture');
+  }
+
+  function promptUniteAndAdd(med) {
+    const unites = med.unites_vente || (med.type_unite === 'flacon' ? ['flacon'] : ['comprime', 'plaquette']);
+    if (unites.length === 1) {
+      addToCart(med, unites[0]);
+      return;
+    }
+    const labels = unites.map((u) => {
+      if (u === 'plaquette') return `Plaquette (${Format.money(med.prix_plaquette || 0)})`;
+      if (u === 'flacon') return `Flacon (${Format.money(med.prix_flacon || 0)})`;
+      return `Comprimé (${Format.money(med.prix_comprime || med.prix_vente || 0)})`;
+    });
+    const choice = window.prompt(`${med.nom}\nChoisissez l'unité:\n${labels.map((l, i) => `${i + 1}. ${l}`).join('\n')}`, '1');
+    const idx = (parseInt(choice, 10) || 1) - 1;
+    addToCart(med, unites[Math.max(0, Math.min(idx, unites.length - 1))]);
   }
 
   function renderCart() {
@@ -172,6 +211,7 @@
       return `
         <div class="move-item">
           <strong>${escapeHtml(c.nom)}</strong>
+          <small>${escapeHtml(c.uniteLabel || c.unite || '')}</small>
           <input type="number" min="1" max="${c.stock}" value="${c.qty}" class="cart-qty" data-i="${i}" style="width:70px;margin:4px 0">
           <button type="button" class="btn btn-outline btn-sm cart-rm" data-i="${i}">Retirer</button>
         </div>`;
@@ -202,6 +242,7 @@
         lignes: cart.map((c) => ({
           medicament_id: c.id,
           quantite: c.qty,
+          unite_vente: c.unite,
           prix_unitaire: devise === 'USD' ? c.prix / tauxJour : c.prix,
         })),
         devise,

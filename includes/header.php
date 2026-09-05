@@ -92,8 +92,13 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <main id="page-content" class="flex-grow-1">
         <header class="app-topbar d-flex align-items-center justify-content-between px-4 py-2">
             <h1 class="app-topbar-title mb-0"><?= e($pageTitle ?? appName()) ?></h1>
-            <div class="app-topbar-logo-wrap">
-                <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-topbar-logo" width="40" height="40">
+            <div class="d-flex align-items-center gap-3">
+                <small class="text-muted" title="<?= e(appTimezone()->getName()) ?>">
+                    <i class="bi bi-clock me-1"></i><?= e(localTimeInfo()['label']) ?>
+                </small>
+                <div class="app-topbar-logo-wrap">
+                    <img src="<?= e(appLogo()) ?>" alt="<?= e(appName()) ?>" class="app-topbar-logo" width="40" height="40">
+                </div>
             </div>
         </header>
         <div class="container-fluid p-4">

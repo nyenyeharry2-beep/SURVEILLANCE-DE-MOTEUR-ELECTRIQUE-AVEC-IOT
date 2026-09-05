@@ -378,3 +378,51 @@ function sqlIntervalExpirationAlerte(): string
 {
     return getAlerteExpirationMois() . ' MONTH';
 }
+
+function appTimezone(): DateTimeZone
+{
+    $tz = defined('TIMEZONE') ? TIMEZONE : 'Africa/Kinshasa';
+
+    return new DateTimeZone($tz);
+}
+
+function nowLocal(): DateTime
+{
+    return new DateTime('now', appTimezone());
+}
+
+function formatDateTimeLocal(?string $datetime): string
+{
+    if (!$datetime) {
+        return '—';
+    }
+    try {
+        $dt = new DateTime($datetime, appTimezone());
+
+        return $dt->format('d/m/Y H:i');
+    } catch (Throwable $e) {
+        return date('d/m/Y H:i', strtotime($datetime));
+    }
+}
+
+function formatTimeLocal(?string $datetime = null): string
+{
+    if ($datetime === null) {
+        return nowLocal()->format('H:i');
+    }
+
+    return formatDateTimeLocal($datetime);
+}
+
+function localTimeInfo(): array
+{
+    $now = nowLocal();
+
+    return [
+        'timezone' => appTimezone()->getName(),
+        'datetime' => $now->format('Y-m-d H:i:s'),
+        'date' => $now->format('Y-m-d'),
+        'heure' => $now->format('H:i'),
+        'label' => $now->format('d/m/Y H:i'),
+    ];
+}

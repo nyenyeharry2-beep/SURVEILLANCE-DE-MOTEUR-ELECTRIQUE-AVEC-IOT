@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/caisse.php';
+require_once __DIR__ . '/../includes/medicaments_unites.php';
 
 function apiEnsureSession(): void
 {
@@ -180,6 +181,10 @@ function ensureApiSchema(PDO $db): void
         require_once __DIR__ . '/../includes/ventes.php';
         ensureVenteSchema($db);
     }
+    if (file_exists(__DIR__ . '/../includes/medicaments_unites.php')) {
+        require_once __DIR__ . '/../includes/medicaments_unites.php';
+        ensureMedicamentUnitesSchema($db);
+    }
 
     $ready = true;
 }
@@ -288,7 +293,15 @@ function createVente(PDO $db, array $user, array $body): array
 
 function venteDetailsSql(): string
 {
-    return '(SELECT GROUP_CONCAT(CONCAT(m.nom, " x", vl.quantite) SEPARATOR ", ")
+    return '(SELECT GROUP_CONCAT(
+                CONCAT(m.nom, " x", vl.quantite,
+                    CASE COALESCE(vl.unite_vente, "unite")
+                        WHEN "comprime" THEN " cp"
+                        WHEN "plaquette" THEN " plt"
+                        WHEN "flacon" THEN " fl"
+                        ELSE ""
+                    END
+                ) SEPARATOR ", ")
              FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
              WHERE vl.vente_id = v.id) AS details';
 }
@@ -396,10 +409,15 @@ function fetchVenteRecu(PDO $db, int $id): array
             'equivalent' => formatDualMoney($montant, $devise),
         ],
         'lignes' => array_map(static function (array $l): array {
+            $unite = normalizeUniteVente($l['unite_vente'] ?? 'unite');
+            $qty = (int) $l['quantite'];
+
             return [
                 'code' => $l['code'],
                 'nom' => $l['nom'],
-                'quantite' => (int) $l['quantite'],
+                'quantite' => $qty,
+                'unite_vente' => $unite,
+                'unite_label' => uniteVenteLabel($unite, $qty),
                 'prix_unitaire' => (float) $l['prix_unitaire'],
                 'sous_total' => (float) $l['sous_total'],
             ];
