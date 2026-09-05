@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/journee.php';
 require_once __DIR__ . '/medicaments_unites.php';
+require_once __DIR__ . '/schema_util.php';
 
 function ensureVenteSchema(PDO $db): void
 {
@@ -114,19 +115,31 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
            ->execute([$numero, $user['id'], $clientNom ?: null, $montantTotal, $devise, $notes ?: null, $dateJour]);
         $venteId = (int) $db->lastInsertId();
 
-        $insertLine = $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, unite_vente, quantite, stock_deduit, prix_unitaire, sous_total) VALUES (?,?,?,?,?,?,?)');
+        $insertLine = dbColumnExists($db, 'vente_lignes', 'unite_vente')
+            ? $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, unite_vente, quantite, stock_deduit, prix_unitaire, sous_total) VALUES (?,?,?,?,?,?,?)')
+            : $db->prepare('INSERT INTO vente_lignes (vente_id, medicament_id, quantite, prix_unitaire, sous_total) VALUES (?,?,?,?,?)');
         $updateStock = $db->prepare('UPDATE medicaments SET quantite_stock = quantite_stock - ? WHERE id = ?');
 
         foreach ($prepared as $line) {
-            $insertLine->execute([
-                $venteId,
-                $line['medicament_id'],
-                $line['unite_vente'],
-                $line['quantite'],
-                $line['stock_deduit'],
-                $line['prix_unitaire'],
-                $line['sous_total'],
-            ]);
+            if (dbColumnExists($db, 'vente_lignes', 'unite_vente')) {
+                $insertLine->execute([
+                    $venteId,
+                    $line['medicament_id'],
+                    $line['unite_vente'],
+                    $line['quantite'],
+                    $line['stock_deduit'],
+                    $line['prix_unitaire'],
+                    $line['sous_total'],
+                ]);
+            } else {
+                $insertLine->execute([
+                    $venteId,
+                    $line['medicament_id'],
+                    $line['quantite'],
+                    $line['prix_unitaire'],
+                    $line['sous_total'],
+                ]);
+            }
             $updateStock->execute([$line['stock_deduit'], $line['medicament_id']]);
         }
 
@@ -137,7 +150,9 @@ function createVenteTransaction(PDO $db, array $user, array $body): array
     }
 
     $details = array_map(
-        static fn(array $l): string => formatLigneVenteDetail($l['nom'], $l['quantite'], $l['unite_vente']),
+        function (array $l): string {
+            return formatLigneVenteDetail($l['nom'], $l['quantite'], $l['unite_vente']);
+        },
         $prepared
     );
 

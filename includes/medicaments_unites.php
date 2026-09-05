@@ -38,6 +38,19 @@ function ensureMedicamentUnitesSchema(PDO $db): void
         }
     }
 
+    $achatColumns = [
+        'unite_entree' => "ENUM('comprime', 'plaquette', 'flacon', 'unite') NOT NULL DEFAULT 'unite' AFTER medicament_id",
+        'stock_ajoute' => 'INT NULL AFTER quantite',
+    ];
+
+    foreach ($achatColumns as $col => $def) {
+        try {
+            $db->exec("ALTER TABLE achat_lignes ADD COLUMN {$col} {$def}");
+        } catch (Throwable $e) {
+            // exists
+        }
+    }
+
     $ready = true;
 }
 

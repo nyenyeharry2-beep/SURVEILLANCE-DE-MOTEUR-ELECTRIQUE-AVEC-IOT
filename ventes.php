@@ -3,6 +3,7 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/journee.php';
 require_once __DIR__ . '/includes/ventes.php';
 require_once __DIR__ . '/includes/medicaments_unites.php';
+require_once __DIR__ . '/includes/schema_util.php';
 requireLogin();
 
 $db = getDB();
@@ -53,26 +54,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('ventes.php?date=' . urlencode($filterDate));
 }
 
-$ventes = $db->prepare('
+$detailsSql = venteDetailsSqlCompat($db);
+$ventes = $db->prepare("
     SELECT v.*, u.nom AS vendeur, ua.nom AS annulee_par_nom,
-           (SELECT GROUP_CONCAT(
-                CONCAT(m.nom, " x", vl.quantite,
-                    CASE COALESCE(vl.unite_vente, "unite")
-                        WHEN "comprime" THEN " cp"
-                        WHEN "plaquette" THEN " plt"
-                        WHEN "flacon" THEN " fl"
-                        ELSE ""
-                    END
-                ) SEPARATOR ", ")
-            FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
-            WHERE vl.vente_id = v.id) AS details,
+           {$detailsSql},
            (SELECT COUNT(*) FROM vente_lignes vl WHERE vl.vente_id = v.id) AS nb_lignes
     FROM ventes v
     JOIN utilisateurs u ON u.id = v.utilisateur_id
     LEFT JOIN utilisateurs ua ON ua.id = v.annulee_par
     WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = ?
     ORDER BY v.date_vente DESC
-');
+");
 $ventes->execute([$filterDate]);
 $listeVentes = $ventes->fetchAll();
 

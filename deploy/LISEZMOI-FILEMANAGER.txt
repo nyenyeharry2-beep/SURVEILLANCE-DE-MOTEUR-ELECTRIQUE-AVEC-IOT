@@ -173,11 +173,10 @@ database/               → Scripts SQL migrations
 ═══════════════════════════════════════════════════════════════
 
 Page blanche / ne charge pas :
-  → config/config.php existe ? (copier depuis config.example.php)
-  → ZIP bien extrait dans htdocs/ (pas dans un sous-dossier) ?
-  → Vous n'avez pas uploadé mobile-android/ ou l'APK dans htdocs/ ?
-  → Testez : https://mapharmaciepk.xo.je/login.php
-  → Testez : https://mapharmaciepk.xo.je/api/ping.php
+  → Ouvrez : https://mapharmaciepk.xo.je/diagnostic.php
+  → Vérifiez config/config.php existe
+  → Puis ouvrez install_migration.php (connecté admin) pour migrer la base
+  → 403 sur achats.php : supprimez le dossier htdocs/achats/ s'il existe
 
 « Token manquant » sur APK :
   → Vérifiez api/bootstrap.php et api/.htaccess sont à jour

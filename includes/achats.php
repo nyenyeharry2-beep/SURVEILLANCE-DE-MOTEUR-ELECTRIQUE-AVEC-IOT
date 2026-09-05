@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/medicaments_unites.php';
 require_once __DIR__ . '/journee.php';
+require_once __DIR__ . '/schema_util.php';
 
 function ensureAchatSchema(PDO $db): void
 {
@@ -135,22 +136,38 @@ function createAchatTransaction(PDO $db, array $user, array $body): array
            ->execute([$fournisseurId, $user['id'], $dateAchat, $montantTotal, $notes ?: null]);
         $achatId = (int) $db->lastInsertId();
 
-        $insertLine = $db->prepare('
-            INSERT INTO achat_lignes (achat_id, medicament_id, unite_entree, quantite, stock_ajoute, prix_unitaire, date_fabrication, date_expiration)
-            VALUES (?,?,?,?,?,?,?,?)
-        ');
+        $insertLine = dbColumnExists($db, 'achat_lignes', 'unite_entree')
+            ? $db->prepare('
+                INSERT INTO achat_lignes (achat_id, medicament_id, unite_entree, quantite, stock_ajoute, prix_unitaire, date_fabrication, date_expiration)
+                VALUES (?,?,?,?,?,?,?,?)
+            ')
+            : $db->prepare('
+                INSERT INTO achat_lignes (achat_id, medicament_id, quantite, prix_unitaire, date_fabrication, date_expiration)
+                VALUES (?,?,?,?,?,?)
+            ');
 
         foreach ($prepared as $line) {
-            $insertLine->execute([
-                $achatId,
-                $line['medicament_id'],
-                $line['unite_entree'],
-                $line['quantite'],
-                $line['stock_ajoute'],
-                $line['prix_unitaire'],
-                $line['date_fabrication'],
-                $line['date_expiration'],
-            ]);
+            if (dbColumnExists($db, 'achat_lignes', 'unite_entree')) {
+                $insertLine->execute([
+                    $achatId,
+                    $line['medicament_id'],
+                    $line['unite_entree'],
+                    $line['quantite'],
+                    $line['stock_ajoute'],
+                    $line['prix_unitaire'],
+                    $line['date_fabrication'],
+                    $line['date_expiration'],
+                ]);
+            } else {
+                $insertLine->execute([
+                    $achatId,
+                    $line['medicament_id'],
+                    $line['quantite'],
+                    $line['prix_unitaire'],
+                    $line['date_fabrication'],
+                    $line['date_expiration'],
+                ]);
+            }
 
             $updateSql = 'UPDATE medicaments SET quantite_stock = quantite_stock + ?';
             $params = [$line['stock_ajoute']];
@@ -183,7 +200,9 @@ function createAchatTransaction(PDO $db, array $user, array $body): array
     }
 
     $details = array_map(
-        static fn(array $l): string => formatLigneVenteDetail($l['nom'], $l['quantite'], $l['unite_entree']),
+        function (array $l): string {
+            return formatLigneVenteDetail($l['nom'], $l['quantite'], $l['unite_entree']);
+        },
         $prepared
     );
 

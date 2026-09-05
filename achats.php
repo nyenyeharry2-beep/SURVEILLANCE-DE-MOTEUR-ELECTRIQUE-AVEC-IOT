@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/journee.php';
 require_once __DIR__ . '/includes/achats.php';
+require_once __DIR__ . '/includes/schema_util.php';
 requireLogin();
 
 $db = getDB();
@@ -35,17 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('achats.php');
 }
 
-$achats = $db->query('
+$achatDetailSql = sqlAchatLigneDetailExpr($db, 'al', 'm');
+$achats = $db->query("
     SELECT a.*, f.nom AS fournisseur_nom, u.nom AS utilisateur_nom,
-           (SELECT GROUP_CONCAT(
-                CONCAT(m.nom, " +", COALESCE(al.stock_ajoute, al.quantite),
-                    CASE COALESCE(al.unite_entree, "unite")
-                        WHEN "comprime" THEN " cp"
-                        WHEN "plaquette" THEN " plt"
-                        WHEN "flacon" THEN " fl"
-                        ELSE ""
-                    END
-                ) SEPARATOR ", ")
+           (SELECT GROUP_CONCAT({$achatDetailSql} SEPARATOR ', ')
             FROM achat_lignes al
             JOIN medicaments m ON m.id = al.medicament_id
             WHERE al.achat_id = a.id) AS details,
@@ -55,7 +49,7 @@ $achats = $db->query('
     JOIN utilisateurs u ON u.id = a.utilisateur_id
     ORDER BY a.date_achat DESC, a.id DESC
     LIMIT 80
-')->fetchAll();
+")->fetchAll();
 
 $medicamentsRaw = $db->query('SELECT * FROM medicaments WHERE actif = 1 ORDER BY nom')->fetchAll();
 $medicaments = array_map('enrichMedicamentRow', $medicamentsRaw);

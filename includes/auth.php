@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/schema_util.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

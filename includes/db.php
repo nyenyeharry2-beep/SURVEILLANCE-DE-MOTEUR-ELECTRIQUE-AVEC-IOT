@@ -24,6 +24,16 @@ function getDB(): PDO
         } catch (PDOException $e) {
             dbFail('Erreur de connexion à la base de données.');
         }
+
+        static $schemaReady = false;
+        if (!$schemaReady) {
+            $schemaFile = __DIR__ . '/medicaments_unites.php';
+            if (file_exists($schemaFile)) {
+                require_once $schemaFile;
+                ensureMedicamentUnitesSchema($pdo);
+            }
+            $schemaReady = true;
+        }
     }
 
     return $pdo;

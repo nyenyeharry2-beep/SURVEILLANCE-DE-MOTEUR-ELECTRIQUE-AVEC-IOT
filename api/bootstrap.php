@@ -20,6 +20,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/caisse.php';
 require_once __DIR__ . '/../includes/medicaments_unites.php';
+require_once __DIR__ . '/../includes/schema_util.php';
 
 function apiEnsureSession(): void
 {
@@ -293,17 +294,10 @@ function createVente(PDO $db, array $user, array $body): array
 
 function venteDetailsSql(): string
 {
-    return '(SELECT GROUP_CONCAT(
-                CONCAT(m.nom, " x", vl.quantite,
-                    CASE COALESCE(vl.unite_vente, "unite")
-                        WHEN "comprime" THEN " cp"
-                        WHEN "plaquette" THEN " plt"
-                        WHEN "flacon" THEN " fl"
-                        ELSE ""
-                    END
-                ) SEPARATOR ", ")
-             FROM vente_lignes vl JOIN medicaments m ON m.id = vl.medicament_id
-             WHERE vl.vente_id = v.id) AS details';
+    $db = getDB();
+    ensureMedicamentUnitesSchema($db);
+
+    return venteDetailsSqlCompat($db);
 }
 
 function enrichVenteRow(array $row): array
