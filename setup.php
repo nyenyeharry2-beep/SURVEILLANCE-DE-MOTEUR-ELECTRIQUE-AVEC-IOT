@@ -159,6 +159,7 @@ $hasExample = file_exists($examplePath);
         </div>
         <ol class="small text-muted mb-4">
             <li>Si c'est une <strong>nouvelle</strong> installation, importez <code>database/schema_nouvelle_eve.sql</code> dans phpMyAdmin.</li>
+            <li>Si <strong>dashboard.php</strong> affiche une erreur 500, ouvrez <a href="reparer.php">reparer.php</a> (connecté admin).</li>
             <li>Si le site existait déjà, connectez-vous en admin puis ouvrez <a href="install_migration.php">install_migration.php</a>.</li>
             <li>Vérifiez le serveur avec <a href="diagnostic.php">diagnostic.php</a>.</li>
         </ol>

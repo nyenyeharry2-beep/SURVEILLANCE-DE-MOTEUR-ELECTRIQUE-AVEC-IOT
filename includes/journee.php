@@ -62,7 +62,8 @@ function ensureJourneeSchema(PDO $db): void
         return;
     }
 
-    $db->exec('
+    try {
+        $db->exec('
         CREATE TABLE IF NOT EXISTS journaux_quotidiens (
             id INT AUTO_INCREMENT PRIMARY KEY,
             date_jour DATE NOT NULL UNIQUE,
@@ -87,6 +88,9 @@ function ensureJourneeSchema(PDO $db): void
             FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ');
+    } catch (Throwable $e) {
+        // Table exists or host restricts DDL
+    }
 
     $columns = [
         'taux_usd_cdf' => 'DECIMAL(12, 2) NULL AFTER date_jour',

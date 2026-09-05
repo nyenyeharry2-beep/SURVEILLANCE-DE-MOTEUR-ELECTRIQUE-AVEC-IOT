@@ -27,10 +27,16 @@ function getDB(): PDO
 
         static $schemaReady = false;
         if (!$schemaReady) {
-            $schemaFile = __DIR__ . '/medicaments_unites.php';
-            if (file_exists($schemaFile)) {
-                require_once $schemaFile;
-                ensureMedicamentUnitesSchema($pdo);
+            $bootstrap = __DIR__ . '/schema_bootstrap.php';
+            if (file_exists($bootstrap)) {
+                require_once $bootstrap;
+                ensureAllSchemas($pdo);
+            } else {
+                $schemaFile = __DIR__ . '/medicaments_unites.php';
+                if (file_exists($schemaFile)) {
+                    require_once $schemaFile;
+                    ensureMedicamentUnitesSchema($pdo);
+                }
             }
             $schemaReady = true;
         }

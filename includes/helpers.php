@@ -254,18 +254,30 @@ function formatDualMoney(float $amount, string $devise): string
 function sommeVentesDual(PDO $db, string $whereSql = '1=1', array $params = []): array
 {
     $taux = getTauxUsdCdf();
+    $deviseExpr = 'CDF';
+    $annuleeFilter = '';
+
+    if (function_exists('dbColumnExists')) {
+        if (dbColumnExists($db, 'ventes', 'devise')) {
+            $deviseExpr = "COALESCE(devise, 'CDF')";
+        }
+        if (dbColumnExists($db, 'ventes', 'annulee')) {
+            $annuleeFilter = ' AND COALESCE(annulee, 0) = 0';
+        }
+    }
+
     $sql = "
         SELECT
-            COALESCE(SUM(CASE WHEN COALESCE(devise, 'CDF') = 'CDF' THEN montant_total ELSE 0 END), 0) AS total_cdf_brut,
-            COALESCE(SUM(CASE WHEN COALESCE(devise, 'CDF') = 'USD' THEN montant_total ELSE 0 END), 0) AS total_usd_brut,
+            COALESCE(SUM(CASE WHEN {$deviseExpr} = 'CDF' THEN montant_total ELSE 0 END), 0) AS total_cdf_brut,
+            COALESCE(SUM(CASE WHEN {$deviseExpr} = 'USD' THEN montant_total ELSE 0 END), 0) AS total_usd_brut,
             COALESCE(SUM(
-                CASE WHEN COALESCE(devise, 'CDF') = 'CDF' THEN montant_total ELSE montant_total * ?
+                CASE WHEN {$deviseExpr} = 'CDF' THEN montant_total ELSE montant_total * ?
             END), 0) AS total_cdf,
             COALESCE(SUM(
-                CASE WHEN COALESCE(devise, 'CDF') = 'USD' THEN montant_total ELSE montant_total / ?
+                CASE WHEN {$deviseExpr} = 'USD' THEN montant_total ELSE montant_total / ?
             END), 0) AS total_usd
         FROM ventes
-        WHERE {$whereSql} AND COALESCE(annulee, 0) = 0
+        WHERE {$whereSql}{$annuleeFilter}
     ";
 
     $stmt = $db->prepare($sql);
