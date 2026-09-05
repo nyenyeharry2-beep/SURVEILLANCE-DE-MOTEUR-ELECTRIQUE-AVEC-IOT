@@ -50,11 +50,14 @@ Sans config/config.php, le site NE CHARGE PAS (page blanche ou erreur).
    NE SUPPRIMEZ PAS l'ancien config/config.php !
    Uploadez seulement les fichiers PHP mis à jour par-dessus.
 
-→ Première installation :
-   1. Copiez config.example.php
-   2. Renommez la copie en config.php
-   3. Ouvrez config.php et mettez vos identifiants InfinityFree :
-        DB_HOST, DB_NAME, DB_USER, DB_PASS
+→ Première installation (recommandé) :
+   1. Uploadez et extrayez pharmagest-filemanager-complet.zip dans htdocs/
+   2. Ouvrez https://votre-site.xo.je/setup.php
+   3. Remplissez DB_HOST, DB_NAME, DB_USER, DB_PASS → Enregistrer
+
+→ Alternative manuelle :
+   1. Copiez config.example.php → config.php
+   2. Éditez DB_HOST, DB_NAME, DB_USER, DB_PASS
 
 ═══════════════════════════════════════════════════════════════════
  ✅ CE QUI DOIT ÊTRE DANS htdocs/ (structure correcte)
