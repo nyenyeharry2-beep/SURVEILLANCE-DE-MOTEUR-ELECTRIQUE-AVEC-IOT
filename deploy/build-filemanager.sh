@@ -9,7 +9,7 @@ rm -rf "$STAGE"
 mkdir -p "$STAGE/config" "$STAGE/database"
 
 # Pages web racine
-for f in index.php login.php logout.php setup.php reparer.php dashboard.php medicaments.php medicaments_import.php achats.php achats_import.php stock.php diagnostic.php install_migration.php \
+for f in index.php login.php logout.php setup.php reparer.php test_dashboard.php dashboard.php medicaments.php medicaments_import.php achats.php achats_import.php stock.php diagnostic.php install_migration.php \
          ventes.php achats.php caisse.php journal.php rapports.php recu.php \
          categories.php fournisseurs.php utilisateurs.php; do
   [ -f "$ROOT/$f" ] && cp "$ROOT/$f" "$STAGE/"

@@ -9,12 +9,13 @@ function ensureCaisseTable(PDO $db): void
         return;
     }
 
-    $db->exec('
+    try {
+        $db->exec('
         CREATE TABLE IF NOT EXISTS mouvements_caisse (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            type ENUM("entree", "sortie") NOT NULL,
+            type ENUM(\'entree\', \'sortie\') NOT NULL,
             montant DECIMAL(12, 2) NOT NULL,
-            devise ENUM("CDF", "USD") NOT NULL DEFAULT "CDF",
+            devise ENUM(\'CDF\', \'USD\') NOT NULL DEFAULT \'CDF\',
             motif VARCHAR(255) NOT NULL,
             utilisateur_id INT NOT NULL,
             date_mouvement DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -24,6 +25,9 @@ function ensureCaisseTable(PDO $db): void
             INDEX idx_type (type)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ');
+    } catch (Throwable $e) {
+        // Table exists or host restricts DDL
+    }
 
     $ready = true;
 }

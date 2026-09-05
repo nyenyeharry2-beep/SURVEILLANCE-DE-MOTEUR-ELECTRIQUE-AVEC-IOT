@@ -2,48 +2,64 @@
 require_once __DIR__ . '/includes/auth.php';
 requireLogin();
 
-$db = getDB();
-$interval = sqlIntervalExpirationAlerte();
-$moisAlerte = getAlerteExpirationMois();
+try {
+    $db = getDB();
+    $interval = sqlIntervalExpirationAlerte();
+    $moisAlerte = getAlerteExpirationMois();
 
-$stats = [
-    'medicaments' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1')->fetchColumn(),
-    'stock_faible' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND quantite_stock <= seuil_alerte')->fetchColumn(),
-    'a_ecouler' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration >= CURDATE() AND date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})")->fetchColumn(),
-    'expires' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration < CURDATE()")->fetchColumn(),
-    'sans_dates' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND (date_expiration IS NULL OR date_fabrication IS NULL)')->fetchColumn(),
-];
+    $stats = [
+        'medicaments' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1')->fetchColumn(),
+        'stock_faible' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND quantite_stock <= seuil_alerte')->fetchColumn(),
+        'a_ecouler' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration >= CURDATE() AND date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})")->fetchColumn(),
+        'expires' => (int) $db->query("SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND date_expiration IS NOT NULL AND date_expiration < CURDATE()")->fetchColumn(),
+        'sans_dates' => (int) $db->query('SELECT COUNT(*) FROM medicaments WHERE actif = 1 AND (date_expiration IS NULL OR date_fabrication IS NULL)')->fetchColumn(),
+    ];
 
-$ventesJour = sommeVentesDual($db, 'DATE(date_vente) = CURDATE()');
-$ventesMois = sommeVentesDual($db, 'MONTH(date_vente) = MONTH(CURDATE()) AND YEAR(date_vente) = YEAR(CURDATE())');
+    $ventesJour = sommeVentesDual($db, 'DATE(date_vente) = CURDATE()');
+    $ventesMois = sommeVentesDual($db, 'MONTH(date_vente) = MONTH(CURDATE()) AND YEAR(date_vente) = YEAR(CURDATE())');
 
-$alertesStock = $db->query('
-    SELECT m.*, c.nom AS categorie_nom
-    FROM medicaments m
-    LEFT JOIN categories c ON c.id = m.categorie_id
-    WHERE m.actif = 1 AND m.quantite_stock <= m.seuil_alerte
-    ORDER BY m.quantite_stock ASC
-    LIMIT 5
-')->fetchAll();
+    $alertesStock = $db->query('
+        SELECT m.*, c.nom AS categorie_nom
+        FROM medicaments m
+        LEFT JOIN categories c ON c.id = m.categorie_id
+        WHERE m.actif = 1 AND m.quantite_stock <= m.seuil_alerte
+        ORDER BY m.quantite_stock ASC
+        LIMIT 5
+    ')->fetchAll();
 
-$alertesExpiration = $db->query("
-    SELECT m.*, c.nom AS categorie_nom
-    FROM medicaments m
-    LEFT JOIN categories c ON c.id = m.categorie_id
-    WHERE m.actif = 1 AND m.date_expiration IS NOT NULL
-      AND m.date_expiration >= CURDATE()
-      AND m.date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})
-    ORDER BY m.date_expiration ASC
-    LIMIT 5
-")->fetchAll();
+    $alertesExpiration = $db->query("
+        SELECT m.*, c.nom AS categorie_nom
+        FROM medicaments m
+        LEFT JOIN categories c ON c.id = m.categorie_id
+        WHERE m.actif = 1 AND m.date_expiration IS NOT NULL
+          AND m.date_expiration >= CURDATE()
+          AND m.date_expiration <= DATE_ADD(CURDATE(), INTERVAL {$interval})
+        ORDER BY m.date_expiration ASC
+        LIMIT 5
+    ")->fetchAll();
 
-$dernieresVentes = $db->query('
-    SELECT v.*, u.nom AS vendeur
-    FROM ventes v
-    JOIN utilisateurs u ON u.id = v.utilisateur_id
-    ORDER BY v.date_vente DESC
-    LIMIT 5
-')->fetchAll();
+    $dernieresVentes = $db->query('
+        SELECT v.*, u.nom AS vendeur
+        FROM ventes v
+        JOIN utilisateurs u ON u.id = v.utilisateur_id
+        ORDER BY v.date_vente DESC
+        LIMIT 5
+    ')->fetchAll();
+} catch (Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Erreur tableau de bord</title>';
+    echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-4">';
+    echo '<div class="container" style="max-width:720px"><h1 class="h4">Erreur tableau de bord</h1>';
+    echo '<div class="alert alert-danger"><strong>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</strong></div>';
+    echo '<ol><li>Ouvrez <a href="test_dashboard.php">test_dashboard.php</a> pour voir l\'étape qui échoue</li>';
+    echo '<li>Ouvrez <a href="diagnostic.php">diagnostic.php</a></li>';
+    echo '<li>Importez <code>database/schema_nouvelle_eve_complet_v1.7.sql</code> si les tables manquent</li>';
+    echo '<li>Remplacez <code>includes/medicaments_unites.php</code> par la dernière version</li>';
+    echo '<li>Puis <a href="reparer.php">reparer.php</a></li></ol>';
+    echo '<a href="login.php" class="btn btn-primary">Connexion</a></div></body></html>';
+    exit;
+}
 
 $pageTitle = 'Tableau de bord';
 require_once __DIR__ . '/includes/header.php';
