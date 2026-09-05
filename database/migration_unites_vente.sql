@@ -16,6 +16,10 @@ ALTER TABLE vente_lignes
     ADD COLUMN IF NOT EXISTS unite_vente ENUM('comprime', 'plaquette', 'flacon', 'unite') NOT NULL DEFAULT 'unite' AFTER medicament_id,
     ADD COLUMN IF NOT EXISTS stock_deduit INT NULL AFTER quantite;
 
+ALTER TABLE achat_lignes
+    ADD COLUMN IF NOT EXISTS unite_entree ENUM('comprime', 'plaquette', 'flacon', 'unite') NOT NULL DEFAULT 'unite' AFTER medicament_id,
+    ADD COLUMN IF NOT EXISTS stock_ajoute INT NULL AFTER quantite;
+
 -- Remplir les prix unitaires à partir du prix_vente existant
 UPDATE medicaments
 SET prix_comprime = prix_vente

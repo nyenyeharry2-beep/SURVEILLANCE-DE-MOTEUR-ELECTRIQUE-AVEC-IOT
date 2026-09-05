@@ -1,6 +1,6 @@
 PHARMACIE NOUVELLE EVE — PACKAGE COMPLET InfinityFree File Manager
 ==================================================================
-Version site + API + vendeur PC — v1.7.0 (Mars 2026)
+Version site + API + vendeur PC — v1.7.1 (Mars 2026)
 
 Ce ZIP contient TOUT le site web + API mobile + portail vendeur PC.
 Un seul upload suffit (plus besoin de plusieurs ZIP séparés).
@@ -101,6 +101,9 @@ Connexion admin :
 SITE WEB (superviseur / admin) :
   ✓ Dashboard, médicaments, stock, achats, catégories
   ✓ Import Excel/CSV des médicaments (admin → Médicaments → Import)
+  ✓ Import Excel entrées stock (Achats → Import entrées)
+  ✓ Mode ajouter ou remplacer le stock via Excel
+  ✓ Prix achat + prix vente (cp / plt / flacon) via Excel
   ✓ Heure locale Kinshasa affichée dans l'en-tête
   ✓ Ventes — facture MULTI-PRODUITS (panier)
   ✓ Vente par COMPRIMÉ, PLAQUETTE ou FLACON selon le produit
@@ -110,7 +113,8 @@ SITE WEB (superviseur / admin) :
   ✓ Journée métier 6h–20h (après 20h = nouveau jour)
   ✓ Caisse entrées/sorties avec motif
   ✓ Rapports par journée
-  ✓ Reçus imprimables
+  ✓ Achats / entrées MULTI-PRODUITS avec unités (cp, plt, flacon)
+  ✓ Historique achats détaillé + sync journal auto
 
 API (connecte APK + portail vendeur) :
   ✓ Auth token + session (InfinityFree)

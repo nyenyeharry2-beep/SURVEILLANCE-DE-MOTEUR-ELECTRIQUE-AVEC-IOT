@@ -1,8 +1,24 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/medicaments_unites.php';
 requireLogin();
 
 $db = getDB();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+    if (($_POST['action'] ?? '') === 'retirer_expire') {
+        require_once __DIR__ . '/includes/achats.php';
+        try {
+            retirerStockExpire($db, (int) ($_POST['medicament_id'] ?? 0));
+            flash('success', 'Stock expiré retiré (mis à 0).');
+        } catch (InvalidArgumentException $e) {
+            flash('danger', $e->getMessage());
+        }
+        redirect('stock.php?tab=expiration');
+    }
+}
+
 $tab = $_GET['tab'] ?? 'stock';
 $moisAlerte = getAlerteExpirationMois();
 $interval = sqlIntervalExpirationAlerte();
@@ -85,23 +101,29 @@ require_once __DIR__ . '/includes/header.php';
             <thead class="table-light">
                 <tr>
                     <th>Code</th><th>Médicament</th><th>Stock</th>
-                    <th>Fabrication</th><th>Expiration</th><th>Mois restants</th><th>Action suggérée</th>
+                    <th>Fabrication</th><th>Expiration</th><th>Mois restants</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($aEcouler as $m): ?>
+            <?php foreach ($aEcouler as $m):
+                $m = enrichMedicamentRow($m);
+            ?>
             <tr class="table-warning">
                 <td><code><?= e($m['code']) ?></code></td>
                 <td><?= e($m['nom']) ?></td>
-                <td><span class="badge bg-primary"><?= $m['quantite_stock'] ?> unités</span></td>
+                <td><span class="badge bg-primary"><?= e($m['stock_label']) ?></span></td>
                 <td><?= formatDate($m['date_fabrication']) ?></td>
                 <td><?= formatDate($m['date_expiration']) ?></td>
                 <td><strong><?= moisRestantsExpiration($m['date_expiration']) ?> mois</strong></td>
-                <td><small>Promouvoir la vente, proposer remise, contacter le fournisseur</small></td>
+                <td><small>Promouvoir la vente, proposer remise</small></td>
+                <td>
+                    <a href="achats.php?medicament_id=<?= $m['id'] ?>" class="btn btn-sm btn-outline-success">Entrée stock</a>
+                    <a href="ventes.php" class="btn btn-sm btn-outline-primary">Vendre</a>
+                </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($aEcouler)): ?>
-            <tr><td colspan="7" class="text-center text-muted py-4">Aucun produit à écouler pour le moment.</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Aucun produit à écouler pour le moment.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
@@ -116,21 +138,31 @@ require_once __DIR__ . '/includes/header.php';
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-light">
-                <tr><th>Code</th><th>Médicament</th><th>Stock</th><th>Fabrication</th><th>Expiration</th><th>Statut</th></tr>
+                <tr><th>Code</th><th>Médicament</th><th>Stock</th><th>Fabrication</th><th>Expiration</th><th>Statut</th><th>Actions</th></tr>
             </thead>
             <tbody>
-            <?php foreach ($expires as $m): ?>
+            <?php foreach ($expires as $m):
+                $m = enrichMedicamentRow($m);
+            ?>
             <tr class="table-danger">
                 <td><code><?= e($m['code']) ?></code></td>
                 <td><?= e($m['nom']) ?></td>
-                <td><?= $m['quantite_stock'] ?></td>
+                <td><?= e($m['stock_label']) ?></td>
                 <td><?= formatDate($m['date_fabrication']) ?></td>
                 <td><?= formatDate($m['date_expiration']) ?></td>
                 <td><span class="badge badge-expired">Expiré depuis <?= abs(daysUntilExpiry($m['date_expiration'])) ?> jours</span></td>
+                <td>
+                    <form method="post" class="d-inline" data-confirm="Retirer tout le stock de ce produit expiré ?">
+                        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+                        <input type="hidden" name="action" value="retirer_expire">
+                        <input type="hidden" name="medicament_id" value="<?= $m['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-danger">Retirer du stock</button>
+                    </form>
+                </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($expires)): ?>
-            <tr><td colspan="6" class="text-center text-muted py-4">Aucun produit expiré.</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-4">Aucun produit expiré.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
@@ -169,20 +201,26 @@ require_once __DIR__ . '/includes/header.php';
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>Code</th><th>Médicament</th><th>Catégorie</th><th>Stock actuel</th><th>Seuil alerte</th><th>Manquant</th></tr></thead>
+            <thead class="table-light"><tr><th>Code</th><th>Médicament</th><th>Catégorie</th><th>Stock actuel</th><th>Seuil alerte</th><th>Manquant</th><th>Actions</th></tr></thead>
             <tbody>
-            <?php foreach ($stockFaible as $m): ?>
+            <?php foreach ($stockFaible as $m):
+                $m = enrichMedicamentRow($m);
+            ?>
             <tr>
                 <td><code><?= e($m['code']) ?></code></td>
                 <td><?= e($m['nom']) ?></td>
                 <td><?= e($m['categorie_nom'] ?? '—') ?></td>
-                <td><span class="badge bg-danger"><?= $m['quantite_stock'] ?></span></td>
+                <td><span class="badge bg-danger"><?= e($m['stock_label']) ?></span></td>
                 <td><?= $m['seuil_alerte'] ?></td>
-                <td><?= max(0, $m['seuil_alerte'] - $m['quantite_stock']) ?> unités</td>
+                <td><?= max(0, $m['seuil_alerte'] - $m['quantite_stock']) ?></td>
+                <td>
+                    <a href="achats.php?medicament_id=<?= $m['id'] ?>" class="btn btn-sm btn-success">Entrée stock</a>
+                    <a href="achats_import.php" class="btn btn-sm btn-outline-primary">Import Excel</a>
+                </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($stockFaible)): ?>
-            <tr><td colspan="6" class="text-center text-muted py-4">Tous les stocks sont suffisants.</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-4">Tous les stocks sont suffisants.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

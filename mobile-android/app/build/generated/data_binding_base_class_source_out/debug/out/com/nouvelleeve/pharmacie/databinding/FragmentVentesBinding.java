@@ -8,7 +8,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,9 +43,6 @@ public final class FragmentVentesBinding implements ViewBinding {
   public final TextInputEditText inputNotes;
 
   @NonNull
-  public final TextInputEditText inputQuantite;
-
-  @NonNull
   public final TextInputEditText inputSearchMed;
 
   @NonNull
@@ -59,10 +55,13 @@ public final class FragmentVentesBinding implements ViewBinding {
   public final RadioButton radioUsd;
 
   @NonNull
+  public final RecyclerView recyclerCart;
+
+  @NonNull
   public final RecyclerView recyclerHistorique;
 
   @NonNull
-  public final Spinner spinnerMedicament;
+  public final RecyclerView recyclerMedicaments;
 
   @NonNull
   public final SwipeRefreshLayout swipeHistorique;
@@ -71,32 +70,45 @@ public final class FragmentVentesBinding implements ViewBinding {
   public final TabLayout tabVentes;
 
   @NonNull
+  public final TextView textCartTotal;
+
+  @NonNull
+  public final TextView textJourneeStatus;
+
+  @NonNull
+  public final TextView textSearchHint;
+
+  @NonNull
   public final TextView textVenteResult;
 
   private FragmentVentesBinding(@NonNull LinearLayout rootView,
       @NonNull MaterialButton btnValiderVente, @NonNull MaterialButton btnVoirRecu,
       @NonNull RadioGroup groupDevise, @NonNull TextInputEditText inputClient,
-      @NonNull TextInputEditText inputNotes, @NonNull TextInputEditText inputQuantite,
-      @NonNull TextInputEditText inputSearchMed, @NonNull ScrollView panelNouvelleVente,
-      @NonNull RadioButton radioCdf, @NonNull RadioButton radioUsd,
-      @NonNull RecyclerView recyclerHistorique, @NonNull Spinner spinnerMedicament,
+      @NonNull TextInputEditText inputNotes, @NonNull TextInputEditText inputSearchMed,
+      @NonNull ScrollView panelNouvelleVente, @NonNull RadioButton radioCdf,
+      @NonNull RadioButton radioUsd, @NonNull RecyclerView recyclerCart,
+      @NonNull RecyclerView recyclerHistorique, @NonNull RecyclerView recyclerMedicaments,
       @NonNull SwipeRefreshLayout swipeHistorique, @NonNull TabLayout tabVentes,
-      @NonNull TextView textVenteResult) {
+      @NonNull TextView textCartTotal, @NonNull TextView textJourneeStatus,
+      @NonNull TextView textSearchHint, @NonNull TextView textVenteResult) {
     this.rootView = rootView;
     this.btnValiderVente = btnValiderVente;
     this.btnVoirRecu = btnVoirRecu;
     this.groupDevise = groupDevise;
     this.inputClient = inputClient;
     this.inputNotes = inputNotes;
-    this.inputQuantite = inputQuantite;
     this.inputSearchMed = inputSearchMed;
     this.panelNouvelleVente = panelNouvelleVente;
     this.radioCdf = radioCdf;
     this.radioUsd = radioUsd;
+    this.recyclerCart = recyclerCart;
     this.recyclerHistorique = recyclerHistorique;
-    this.spinnerMedicament = spinnerMedicament;
+    this.recyclerMedicaments = recyclerMedicaments;
     this.swipeHistorique = swipeHistorique;
     this.tabVentes = tabVentes;
+    this.textCartTotal = textCartTotal;
+    this.textJourneeStatus = textJourneeStatus;
+    this.textSearchHint = textSearchHint;
     this.textVenteResult = textVenteResult;
   }
 
@@ -157,12 +169,6 @@ public final class FragmentVentesBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.inputQuantite;
-      TextInputEditText inputQuantite = ViewBindings.findChildViewById(rootView, id);
-      if (inputQuantite == null) {
-        break missingId;
-      }
-
       id = R.id.inputSearchMed;
       TextInputEditText inputSearchMed = ViewBindings.findChildViewById(rootView, id);
       if (inputSearchMed == null) {
@@ -187,15 +193,21 @@ public final class FragmentVentesBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.recyclerCart;
+      RecyclerView recyclerCart = ViewBindings.findChildViewById(rootView, id);
+      if (recyclerCart == null) {
+        break missingId;
+      }
+
       id = R.id.recyclerHistorique;
       RecyclerView recyclerHistorique = ViewBindings.findChildViewById(rootView, id);
       if (recyclerHistorique == null) {
         break missingId;
       }
 
-      id = R.id.spinnerMedicament;
-      Spinner spinnerMedicament = ViewBindings.findChildViewById(rootView, id);
-      if (spinnerMedicament == null) {
+      id = R.id.recyclerMedicaments;
+      RecyclerView recyclerMedicaments = ViewBindings.findChildViewById(rootView, id);
+      if (recyclerMedicaments == null) {
         break missingId;
       }
 
@@ -211,6 +223,24 @@ public final class FragmentVentesBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.textCartTotal;
+      TextView textCartTotal = ViewBindings.findChildViewById(rootView, id);
+      if (textCartTotal == null) {
+        break missingId;
+      }
+
+      id = R.id.textJourneeStatus;
+      TextView textJourneeStatus = ViewBindings.findChildViewById(rootView, id);
+      if (textJourneeStatus == null) {
+        break missingId;
+      }
+
+      id = R.id.textSearchHint;
+      TextView textSearchHint = ViewBindings.findChildViewById(rootView, id);
+      if (textSearchHint == null) {
+        break missingId;
+      }
+
       id = R.id.textVenteResult;
       TextView textVenteResult = ViewBindings.findChildViewById(rootView, id);
       if (textVenteResult == null) {
@@ -218,9 +248,9 @@ public final class FragmentVentesBinding implements ViewBinding {
       }
 
       return new FragmentVentesBinding((LinearLayout) rootView, btnValiderVente, btnVoirRecu,
-          groupDevise, inputClient, inputNotes, inputQuantite, inputSearchMed, panelNouvelleVente,
-          radioCdf, radioUsd, recyclerHistorique, spinnerMedicament, swipeHistorique, tabVentes,
-          textVenteResult);
+          groupDevise, inputClient, inputNotes, inputSearchMed, panelNouvelleVente, radioCdf,
+          radioUsd, recyclerCart, recyclerHistorique, recyclerMedicaments, swipeHistorique,
+          tabVentes, textCartTotal, textJourneeStatus, textSearchHint, textVenteResult);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

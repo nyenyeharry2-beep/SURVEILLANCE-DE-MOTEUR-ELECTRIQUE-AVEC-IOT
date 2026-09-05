@@ -244,19 +244,22 @@ function formatLigneVenteDetail(string $nom, int $quantite, string $uniteVente):
 /**
  * Importe des médicaments depuis un tableau associatif (ligne CSV/Excel).
  *
+ * @param array{mode?: string} $options mode: replace|add_stock
  * @return array{imported: int, updated: int, errors: string[]}
  */
-function importMedicamentsFromRows(PDO $db, array $rows): array
+function importMedicamentsFromRows(PDO $db, array $rows, array $options = []): array
 {
     ensureMedicamentUnitesSchema($db);
 
+    $mode = ($options['mode'] ?? 'replace') === 'add_stock' ? 'add_stock' : 'replace';
     $imported = 0;
     $updated = 0;
     $errors = [];
 
     $findCat = $db->prepare('SELECT id FROM categories WHERE nom = ? LIMIT 1');
     $insertCat = $db->prepare('INSERT INTO categories (nom) VALUES (?)');
-    $findMed = $db->prepare('SELECT id FROM medicaments WHERE code = ? LIMIT 1');
+    $findMedByCode = $db->prepare('SELECT id, quantite_stock, prix_achat FROM medicaments WHERE code = ? LIMIT 1');
+    $findMedByNom = $db->prepare('SELECT id, quantite_stock, prix_achat FROM medicaments WHERE nom = ? AND actif = 1 LIMIT 1');
     $insertMed = $db->prepare('
         INSERT INTO medicaments (
             code, nom, categorie_id, prix_achat, prix_vente, type_unite,
@@ -294,22 +297,48 @@ function importMedicamentsFromRows(PDO $db, array $rows): array
         $prixPlaquette = (float) ($row['prix_plaquette'] ?? $row['prix plt'] ?? 0);
         $prixFlacon = (float) ($row['prix_flacon'] ?? 0);
         $prixVente = (float) ($row['prix_vente'] ?? $row['prix'] ?? 0);
-        $prixAchat = (float) ($row['prix_achat'] ?? 0);
-        $stock = (int) ($row['quantite_stock'] ?? $row['stock'] ?? 0);
+        $prixAchat = (float) ($row['prix_achat'] ?? $row['prix_achat_unitaire'] ?? 0);
+        $stock = (int) ($row['quantite_stock'] ?? $row['stock'] ?? $row['qte'] ?? 0);
+        $stockAjout = (int) ($row['stock_a_ajouter'] ?? $row['ajout_stock'] ?? 0);
         $seuil = (int) ($row['seuil_alerte'] ?? 10);
-        $expiration = trim((string) ($row['date_expiration'] ?? $row['expiration'] ?? ''));
-        $expiration = $expiration !== '' ? $expiration : null;
+        $expiration = normalizeImportDate($row['date_expiration'] ?? $row['expiration'] ?? '');
         $description = trim((string) ($row['description'] ?? ''));
+
+        $existingId = null;
+        $existingStock = 0;
+        $existingPrixAchat = 0.0;
+        if ($code !== '') {
+            $findMedByCode->execute([$code]);
+            $found = $findMedByCode->fetch();
+            if ($found) {
+                $existingId = (int) $found['id'];
+                $existingStock = (int) $found['quantite_stock'];
+                $existingPrixAchat = (float) $found['prix_achat'];
+            }
+        }
+        if (!$existingId && $nom !== '') {
+            $findMedByNom->execute([$nom]);
+            $found = $findMedByNom->fetch();
+            if ($found) {
+                $existingId = (int) $found['id'];
+                $existingStock = (int) $found['quantite_stock'];
+                $existingPrixAchat = (float) $found['prix_achat'];
+            }
+        }
+
+        $skipPriceCheck = $existingId && $mode === 'add_stock' && ($stockAjout > 0 || $stock > 0);
 
         if ($type === 'flacon') {
             if ($prixFlacon <= 0 && $prixVente > 0) {
                 $prixFlacon = $prixVente;
             }
-            if ($prixFlacon <= 0) {
+            if ($prixFlacon <= 0 && !$skipPriceCheck) {
                 $errors[] = "Ligne {$lineNo} ({$nom}) : prix flacon requis.";
                 continue;
             }
-            $prixVente = $prixFlacon;
+            if ($prixFlacon > 0) {
+                $prixVente = $prixFlacon;
+            }
         } else {
             if ($prixComprime <= 0 && $prixVente > 0) {
                 $prixComprime = $prixVente;
@@ -317,11 +346,13 @@ function importMedicamentsFromRows(PDO $db, array $rows): array
             if ($prixPlaquette <= 0 && $prixComprime > 0) {
                 $prixPlaquette = $prixComprime * $cpp;
             }
-            if ($prixComprime <= 0) {
+            if ($prixComprime <= 0 && !$skipPriceCheck) {
                 $errors[] = "Ligne {$lineNo} ({$nom}) : prix comprimé requis.";
                 continue;
             }
-            $prixVente = $prixComprime;
+            if ($prixComprime > 0) {
+                $prixVente = $prixComprime;
+            }
         }
 
         $catId = null;
@@ -338,18 +369,33 @@ function importMedicamentsFromRows(PDO $db, array $rows): array
         }
 
         try {
-            $findMed->execute([$code]);
-            $existingId = $findMed->fetchColumn();
+            $finalStock = $stock;
+            if ($existingId && $mode === 'add_stock') {
+                $add = $stockAjout > 0 ? $stockAjout : $stock;
+                $finalStock = $existingStock + $add;
+            }
+
+            $finalPrixAchat = $prixAchat > 0 ? $prixAchat : ($existingId ? $existingPrixAchat : 0);
 
             if ($existingId) {
-                $updateMed->execute([
-                    $nom, $catId, $prixAchat, $prixVente, $type,
-                    $type === 'flacon' ? null : $prixComprime,
-                    $type === 'flacon' ? null : $prixPlaquette,
-                    $type === 'flacon' ? $prixFlacon : null,
-                    $cpp, $stock, $seuil, $expiration, $description,
-                    (int) $existingId,
-                ]);
+                if ($mode === 'add_stock' && $skipPriceCheck) {
+                    $db->prepare('
+                        UPDATE medicaments SET quantite_stock = ?, seuil_alerte = ?,
+                        date_expiration = COALESCE(?, date_expiration),
+                        prix_achat = CASE WHEN ? > 0 THEN ? ELSE prix_achat END,
+                        actif = 1
+                        WHERE id = ?
+                    ')->execute([$finalStock, $seuil, $expiration, $prixAchat, $prixAchat, $existingId]);
+                } else {
+                    $updateMed->execute([
+                        $nom, $catId, $finalPrixAchat, $prixVente, $type,
+                        $type === 'flacon' ? null : $prixComprime,
+                        $type === 'flacon' ? null : $prixPlaquette,
+                        $type === 'flacon' ? $prixFlacon : null,
+                        $cpp, $finalStock, $seuil, $expiration, $description,
+                        $existingId,
+                    ]);
+                }
                 $updated++;
             } else {
                 $insertMed->execute([
@@ -536,4 +582,35 @@ function columnIndexFromLetters(string $letters): int
     }
 
     return $index - 1;
+}
+
+/** Convertit date Excel (numéro série) ou texte en AAAA-MM-JJ */
+function normalizeImportDate(?string $value): ?string
+{
+    if ($value === null || trim($value) === '') {
+        return null;
+    }
+
+    $value = trim($value);
+
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+        return $value;
+    }
+
+    if (preg_match('/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/', $value, $m)) {
+        return sprintf('%04d-%02d-%02d', (int) $m[3], (int) $m[2], (int) $m[1]);
+    }
+
+    if (is_numeric($value)) {
+        $serial = (float) $value;
+        if ($serial > 30000 && $serial < 60000) {
+            $unix = (int) round(($serial - 25569) * 86400);
+
+            return gmdate('Y-m-d', $unix);
+        }
+    }
+
+    $ts = strtotime($value);
+
+    return $ts ? date('Y-m-d', $ts) : null;
 }

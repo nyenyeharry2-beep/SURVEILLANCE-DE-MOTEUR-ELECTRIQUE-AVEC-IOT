@@ -22,14 +22,27 @@ function getPreviousClosedJournal(PDO $db, string $date): ?array
 
 function getEntreesProduitJour(PDO $db, string $date): array
 {
-    $stmt = $db->prepare('
-        SELECT al.medicament_id, COALESCE(SUM(al.quantite), 0) AS qte,
+    static $hasStockAjoute = null;
+    if ($hasStockAjoute === null) {
+        try {
+            $db->query('SELECT stock_ajoute FROM achat_lignes LIMIT 1');
+            $hasStockAjoute = true;
+        } catch (Throwable $e) {
+            $hasStockAjoute = false;
+        }
+    }
+    $qteExpr = $hasStockAjoute
+        ? 'COALESCE(SUM(COALESCE(al.stock_ajoute, al.quantite)), 0)'
+        : 'COALESCE(SUM(al.quantite), 0)';
+
+    $stmt = $db->prepare("
+        SELECT al.medicament_id, {$qteExpr} AS qte,
                COALESCE(SUM(al.quantite * al.prix_unitaire), 0) AS montant_cdf
         FROM achat_lignes al
         JOIN achats a ON a.id = al.achat_id
         WHERE a.date_achat = ?
         GROUP BY al.medicament_id
-    ');
+    ");
     $stmt->execute([$date]);
     $rows = $stmt->fetchAll();
     $map = [];
@@ -41,24 +54,49 @@ function getEntreesProduitJour(PDO $db, string $date): array
 
 function getSortiesProduitJour(PDO $db, string $date): array
 {
+    static $hasStockDeduit = null;
+    if ($hasStockDeduit === null) {
+        try {
+            $db->query('SELECT stock_deduit FROM vente_lignes LIMIT 1');
+            $hasStockDeduit = true;
+        } catch (Throwable $e) {
+            $hasStockDeduit = false;
+        }
+    }
+    static $hasAnnulee = null;
+    if ($hasAnnulee === null) {
+        try {
+            $db->query('SELECT annulee FROM ventes LIMIT 1');
+            $hasAnnulee = true;
+        } catch (Throwable $e) {
+            $hasAnnulee = false;
+        }
+    }
+
+    $qteExpr = $hasStockDeduit
+        ? 'COALESCE(SUM(COALESCE(vl.stock_deduit, vl.quantite)), 0)'
+        : 'COALESCE(SUM(vl.quantite), 0)';
+    $annuleeFilter = $hasAnnulee ? 'AND COALESCE(v.annulee, 0) = 0' : '';
+
     $taux = getTauxUsdCdf();
-    $stmt = $db->prepare('
-        SELECT vl.medicament_id, COALESCE(SUM(vl.quantite), 0) AS qte,
+    $stmt = $db->prepare("
+        SELECT vl.medicament_id, {$qteExpr} AS qte,
                COALESCE(SUM(
-                   CASE WHEN COALESCE(v.devise, "CDF") = "CDF" THEN vl.sous_total
+                   CASE WHEN COALESCE(v.devise, \"CDF\") = \"CDF\" THEN vl.sous_total
                         ELSE vl.sous_total * ?
                    END
                ), 0) AS montant_cdf,
                COALESCE(SUM(
-                   CASE WHEN COALESCE(v.devise, "CDF") = "USD" THEN vl.sous_total
+                   CASE WHEN COALESCE(v.devise, \"USD\") = \"USD\" THEN vl.sous_total
                         ELSE vl.sous_total / ?
                    END
                ), 0) AS montant_usd
         FROM vente_lignes vl
         JOIN ventes v ON v.id = vl.vente_id
-        WHERE DATE(v.date_vente) = ?
+        WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = ?
+          {$annuleeFilter}
         GROUP BY vl.medicament_id
-    ');
+    ");
     $stmt->execute([$taux, $taux, $date]);
     $rows = $stmt->fetchAll();
     $map = [];
@@ -74,7 +112,7 @@ function getTotauxArgentJour(PDO $db, string $date): array
     $entrees->execute([$date]);
     $entreesCdf = (float) $entrees->fetchColumn();
 
-    $ventes = sommeVentesDual($db, 'DATE(date_vente) = ?', [$date]);
+    $ventes = sommeVentesDual($db, 'COALESCE(date_jour, DATE(date_vente)) = ?', [$date]);
 
     return [
         'entrees_cdf' => $entreesCdf,
