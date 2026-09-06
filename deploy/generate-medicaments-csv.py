@@ -83,3 +83,26 @@ def main(count: int = 1000, seed: int = 42) -> None:
 
 if __name__ == "__main__":
     main()
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.utils import get_column_letter
+
+        xlsx_out = ROOT / "deploy" / "modele_medicaments_1000.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Medicaments"
+        with OUT.open(encoding="utf-8-sig", newline="") as f:
+            for r_idx, row in enumerate(csv.reader(f, delimiter=";"), 1):
+                for c_idx, val in enumerate(row, 1):
+                    cell = ws.cell(row=r_idx, column=c_idx, value=val)
+                    if r_idx == 1:
+                        cell.font = Font(bold=True, color="FFFFFF")
+                        cell.fill = PatternFill("solid", fgColor="2E7D32")
+        for i, w in enumerate([12, 38, 18, 18, 12, 14, 14, 12, 10, 14, 14, 12, 14, 42], 1):
+            ws.column_dimensions[get_column_letter(i)].width = w
+        ws.freeze_panes = "A2"
+        wb.save(xlsx_out)
+        print(f"OK: {xlsx_out}")
+    except ImportError:
+        print("openpyxl absent — xlsx non généré")
