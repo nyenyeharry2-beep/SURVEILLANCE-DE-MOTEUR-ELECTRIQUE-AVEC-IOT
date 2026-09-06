@@ -1,5 +1,25 @@
 <?php
 
+require_once __DIR__ . '/schema_util.php';
+
+function sqlVenteJourExpr(PDO $db, string $alias = 'v'): string
+{
+    if (dbColumnExists($db, 'ventes', 'date_jour')) {
+        return 'COALESCE(' . $alias . '.date_jour, DATE(' . $alias . '.date_vente))';
+    }
+
+    return 'DATE(' . $alias . '.date_vente)';
+}
+
+function sqlVenteDeviseExpr(PDO $db, string $alias = 'v'): string
+{
+    if (dbColumnExists($db, 'ventes', 'devise')) {
+        return 'COALESCE(' . $alias . '.devise, \'CDF\')';
+    }
+
+    return '\'CDF\'';
+}
+
 function getJournal(PDO $db, string $date): ?array
 {
     $stmt = $db->prepare('SELECT * FROM journaux_quotidiens WHERE date_jour = ?');
@@ -77,23 +97,25 @@ function getSortiesProduitJour(PDO $db, string $date): array
         ? 'COALESCE(SUM(COALESCE(vl.stock_deduit, vl.quantite)), 0)'
         : 'COALESCE(SUM(vl.quantite), 0)';
     $annuleeFilter = $hasAnnulee ? 'AND COALESCE(v.annulee, 0) = 0' : '';
-
+    $dateExpr = sqlVenteJourExpr($db, 'v');
+    $deviseExpr = sqlVenteDeviseExpr($db, 'v');
     $taux = getTauxUsdCdf();
+
     $stmt = $db->prepare("
         SELECT vl.medicament_id, {$qteExpr} AS qte,
                COALESCE(SUM(
-                   CASE WHEN COALESCE(v.devise, \"CDF\") = \"CDF\" THEN vl.sous_total
+                   CASE WHEN {$deviseExpr} = 'CDF' THEN vl.sous_total
                         ELSE vl.sous_total * ?
                    END
                ), 0) AS montant_cdf,
                COALESCE(SUM(
-                   CASE WHEN COALESCE(v.devise, \"USD\") = \"USD\" THEN vl.sous_total
+                   CASE WHEN {$deviseExpr} = 'USD' THEN vl.sous_total
                         ELSE vl.sous_total / ?
                    END
                ), 0) AS montant_usd
         FROM vente_lignes vl
         JOIN ventes v ON v.id = vl.vente_id
-        WHERE COALESCE(v.date_jour, DATE(v.date_vente)) = ?
+        WHERE {$dateExpr} = ?
           {$annuleeFilter}
         GROUP BY vl.medicament_id
     ");
@@ -112,7 +134,8 @@ function getTotauxArgentJour(PDO $db, string $date): array
     $entrees->execute([$date]);
     $entreesCdf = (float) $entrees->fetchColumn();
 
-    $ventes = sommeVentesDual($db, 'COALESCE(date_jour, DATE(date_vente)) = ?', [$date]);
+    $dateFilter = sqlVenteJourExpr($db, 'ventes') . ' = ?';
+    $ventes = sommeVentesDual($db, $dateFilter, [$date]);
 
     return [
         'entrees_cdf' => $entreesCdf,
@@ -205,7 +228,7 @@ function openJournalDay(PDO $db, string $date): int
 
         $db->commit();
         return $journalId;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $db->rollBack();
         throw $e;
     }
@@ -321,7 +344,7 @@ function syncJournalDay(PDO $db, int $journalId, string $date): void
         ]);
 
         $db->commit();
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $db->rollBack();
         throw $e;
     }

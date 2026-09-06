@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             updateJournalStockFinal($db, (int) $_POST['line_id'], (int) $_POST['stock_final']);
             flash('success', 'Stock final soir enregistré.');
         }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         flash('danger', 'Erreur : ' . $e->getMessage());
     }
 
@@ -73,6 +73,10 @@ $journal = getJournal($db, $date);
 $lines = $journal ? getJournalLines($db, (int) $journal['id']) : [];
 $prevJournal = getPreviousClosedJournal($db, $date);
 $journeeStatus = getJourneeStatus($db, $date);
+$journeeBloquante = null;
+if (!$journal) {
+    $journeeBloquante = $db->query('SELECT date_jour FROM journaux_quotidiens WHERE cloture = 0 LIMIT 1')->fetch() ?: null;
+}
 
 $pageTitle = 'Journal quotidien';
 require_once __DIR__ . '/includes/header.php';
@@ -100,6 +104,13 @@ require_once __DIR__ . '/includes/header.php';
         <i class="bi bi-sunrise text-warning" style="font-size:3rem;"></i>
         <h4 class="mt-3">Ouvrir la journée du <?= formatDate($date) ?></h4>
         <p class="text-muted">Indiquez le fond de caisse du matin et le taux USD/FC du jour. Les ventes ne sont possibles qu'après ouverture.</p>
+        <?php if ($journeeBloquante && ($journeeBloquante['date_jour'] ?? '') !== $date): ?>
+        <div class="alert alert-warning text-start mx-auto" style="max-width:420px">
+            <strong>Journée déjà ouverte</strong> pour le <?= formatDate($journeeBloquante['date_jour']) ?>.
+            <a href="journal.php?date=<?= e($journeeBloquante['date_jour']) ?>" class="alert-link">Ouvrir cette date</a>
+            et clôturez-la avant d'en ouvrir une nouvelle.
+        </div>
+        <?php endif; ?>
         <form method="post" class="text-start mx-auto" style="max-width:420px">
             <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
             <input type="hidden" name="action" value="open">

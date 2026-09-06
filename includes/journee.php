@@ -108,6 +108,30 @@ function ensureJourneeSchema(PDO $db): void
         }
     }
 
+    try {
+        $db->exec('
+        CREATE TABLE IF NOT EXISTS journal_produits (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            journal_id INT NOT NULL,
+            medicament_id INT NOT NULL,
+            stock_initial INT NOT NULL DEFAULT 0,
+            entrees INT NOT NULL DEFAULT 0,
+            sorties INT NOT NULL DEFAULT 0,
+            stock_final INT NOT NULL DEFAULT 0,
+            stock_final_manuel INT NULL,
+            valeur_initial_cdf DECIMAL(14, 2) NOT NULL DEFAULT 0,
+            valeur_entrees_cdf DECIMAL(14, 2) NOT NULL DEFAULT 0,
+            valeur_sorties_cdf DECIMAL(14, 2) NOT NULL DEFAULT 0,
+            valeur_final_cdf DECIMAL(14, 2) NOT NULL DEFAULT 0,
+            UNIQUE KEY uk_journal_med (journal_id, medicament_id),
+            FOREIGN KEY (journal_id) REFERENCES journaux_quotidiens(id) ON DELETE CASCADE,
+            FOREIGN KEY (medicament_id) REFERENCES medicaments(id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ');
+    } catch (Throwable $e) {
+        // Table exists or host restricts DDL
+    }
+
     $ready = true;
 }
 
