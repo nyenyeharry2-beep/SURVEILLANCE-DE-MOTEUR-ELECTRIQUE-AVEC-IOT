@@ -1,0 +1,18 @@
+# Protéger le dossier config
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+</IfModule>
+
+# Page d'accueil
+DirectoryIndex index.php
+
+# Sécurité basique
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# NOTE : php_flag/php_value retirés — provoquent erreur 500 sur InfinityFree

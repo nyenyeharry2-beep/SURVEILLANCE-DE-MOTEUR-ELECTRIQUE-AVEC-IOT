@@ -1,0 +1,24 @@
+MISE À JOUR API — OBLIGATOIRE pour l'application mobile
+========================================================
+
+Si l'app affiche « Token manquant », uploadez ces fichiers sur InfinityFree :
+
+1. Ouvrez File Manager → htdocs → api
+2. Uploadez / remplacez ces fichiers (depuis le dossier api/ du projet) :
+
+   - bootstrap.php   (IMPORTANT)
+   - index.php       (IMPORTANT)
+   - .htaccess       (nouveau)
+   - recu.php        (si pas encore fait)
+
+3. Vérifiez dans le navigateur :
+   https://mapharmaciepk.xo.je/api/ping.php
+   → doit afficher du JSON (pas une page HTML)
+
+4. Sur le téléphone :
+   - Désinstallez l'ancienne app
+   - Installez nouvelle-eve-mobile.apk (Version 1.4.2)
+   - Connectez-vous à nouveau
+
+Sans bootstrap.php à jour sur le site, l'application ne peut pas
+accéder au stock ni aux rapports (même si le site web fonctionne).

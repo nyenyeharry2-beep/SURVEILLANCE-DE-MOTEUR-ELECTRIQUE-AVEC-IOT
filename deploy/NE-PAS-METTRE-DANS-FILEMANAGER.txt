@@ -1,0 +1,107 @@
+╔══════════════════════════════════════════════════════════════════╗
+║  PHARMACIE NOUVELLE EVE — NE PAS METTRE DANS FILE MANAGER       ║
+║  (InfinityFree → htdocs/)                                        ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Si la page ne s'affiche pas (écran blanc, erreur 500, page vide),
+lisez d'abord cette liste.
+
+═══════════════════════════════════════════════════════════════════
+ ❌ NE METTEZ PAS CES FICHIERS / DOSSIERS DANS htdocs/
+═══════════════════════════════════════════════════════════════════
+
+Ces éléments viennent du dépôt GitHub ou de votre PC.
+Ils ne servent PAS sur le site web et peuvent casser l'affichage :
+
+  ❌ mobile-android/          → Projet APK (téléphone seulement)
+  ❌ deploy/                  → Dossier de build sur GitHub
+  ❌ nouvelle-eve-mobile.apk  → Application Android (pas pour le site)
+  ❌ *.zip non extrait          → Le ZIP seul ne fait pas tourner le site
+  ❌ .git/                      → Historique Git
+  ❌ .gradle/                   → Fichiers de compilation Android
+  ❌ node_modules/              → Si présent, inutile sur le serveur
+
+═══════════════════════════════════════════════════════════════════
+ ⚠️ LE ZIP : NE PAS LE LAISSER SEUL
+═══════════════════════════════════════════════════════════════════
+
+1. Uploadez pharmagest-filemanager-complet.zip dans htdocs/
+2. Clic droit → Extract / Extraire DANS htdocs/
+3. Vous devez voir directement :
+      htdocs/login.php
+      htdocs/index.php
+      htdocs/api/
+      htdocs/includes/
+   PAS :
+      htdocs/pharmagest-filemanager-complet/login.php  ← MAUVAIS (sous-dossier)
+
+4. Après extraction réussie, vous pouvez SUPPRIMER le .zip du File Manager.
+
+═══════════════════════════════════════════════════════════════════
+ ✅ OBLIGATOIRE : config/config.php
+═══════════════════════════════════════════════════════════════════
+
+Le package contient seulement :
+  config/config.example.php
+
+Sans config/config.php, le site NE CHARGE PAS (page blanche ou erreur).
+
+→ Si vous aviez déjà un site en ligne :
+   NE SUPPRIMEZ PAS l'ancien config/config.php !
+   Uploadez seulement les fichiers PHP mis à jour par-dessus.
+
+→ Première installation (recommandé) :
+   1. Uploadez et extrayez pharmagest-filemanager-complet.zip dans htdocs/
+   2. Ouvrez https://votre-site.xo.je/setup.php
+   3. Remplissez DB_HOST, DB_NAME, DB_USER, DB_PASS → Enregistrer
+
+→ Alternative manuelle :
+   1. Copiez config.example.php → config.php
+   2. Éditez DB_HOST, DB_NAME, DB_USER, DB_PASS
+
+═══════════════════════════════════════════════════════════════════
+ ✅ CE QUI DOIT ÊTRE DANS htdocs/ (structure correcte)
+═══════════════════════════════════════════════════════════════════
+
+htdocs/
+  index.php
+  login.php
+  dashboard.php
+  ventes.php
+  medicaments.php
+  medicaments_import.php
+  journal.php
+  ...
+  api/           ← dossier entier
+  includes/      ← dossier entier
+  assets/        ← dossier entier
+  vendeur/       ← dossier entier
+  config/
+      config.php ← OBLIGATOIRE (pas seulement .example)
+  database/      ← SQL pour phpMyAdmin (optionnel sur le web)
+
+═══════════════════════════════════════════════════════════════════
+ 🔧 SI LA PAGE NE CHARGE TOUJOURS PAS
+═══════════════════════════════════════════════════════════════════
+
+1. Vérifiez : https://mapharmaciepk.xo.je/login.php
+   (pas seulement la page d'accueil)
+
+2. Vérifiez que config/config.php existe dans File Manager
+
+3. Vérifiez qu'il n'y a pas un sous-dossier en trop (voir ci-dessus)
+
+4. Test API : https://mapharmaciepk.xo.je/api/ping.php
+   → Doit afficher du JSON {"success":true,...}
+
+5. Si erreur 500 : remettez l'ancien config/config.php
+   ou recréez-le depuis config.example.php
+
+═══════════════════════════════════════════════════════════════════
+ 📱 APK (hors File Manager)
+═══════════════════════════════════════════════════════════════════
+
+nouvelle-eve-mobile.apk → Installez sur le téléphone des vendeurs.
+Ne l'uploadez PAS dans htdocs/ (inutile pour le site web).
+
+Téléphone pharmacie : +243990525309

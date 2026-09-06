@@ -1,0 +1,20 @@
+{
+  "name": "Pharmacie Nouvelle Eve — Vendeur",
+  "short_name": "NE Vendeur",
+  "description": "Portail vendeur PC — ventes, caisse, stock, rapports",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#134952",
+  "theme_color": "#134952",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

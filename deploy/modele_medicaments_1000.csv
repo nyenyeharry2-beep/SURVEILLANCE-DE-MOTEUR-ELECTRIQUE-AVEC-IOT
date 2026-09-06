@@ -1,0 +1,1001 @@
+﻿code;nom;categorie;type_unite;prix_achat;prix_comprime;prix_plaquette;prix_flacon;comprimes_par_plaquette;quantite_stock;stock_a_ajouter;seuil_alerte;date_expiration;description
+MED-0001;Prednisolone 500mg;Antalgiques;comprime_plaquette;1670;3137;24566;0;8;712;0;28;2028-09-13;Vente par comprimé ou plaquette — import catalogue
+MED-0002;Ibuprofène 5mg;Vitamines;comprime_plaquette;105;230;3313;0;15;47;0;22;2027-09-24;Vente par comprimé ou plaquette — import catalogue
+MED-0003;Fluconazole 10mg;Antipaludéens;comprime_plaquette;585;1002;14872;0;15;797;0;30;2027-08-15;Vente par comprimé ou plaquette — import catalogue
+MED-0004;Fluconazole 50mg;Dermatologie;comprime_plaquette;614;1238;14856;0;12;364;0;8;2027-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0005;Acide folique 500mg;Antihypertenseurs;comprime_plaquette;951;1508;18096;0;12;767;0;19;2028-09-04;Vente par comprimé ou plaquette — import catalogue
+MED-0006;Metronidazole 50mg;Antidiabétiques;comprime_plaquette;1270;2361;18888;0;8;390;0;23;2027-09-17;Vente par comprimé ou plaquette — import catalogue
+MED-0007;Sirop antipaludéen 60ml;Antipaludéens;flacon;987;0;0;6917;0;34;0;29;2027-12-26;Vente par flacon — import catalogue
+MED-0008;Ibuprofène 400mg;Sirops;comprime_plaquette;289;513;15390;0;30;393;0;10;2028-03-18;Vente par comprimé ou plaquette — import catalogue
+MED-0009;Fer 400mg;Gastro;comprime_plaquette;788;1193;28632;0;24;93;0;24;2028-12-14;Vente par comprimé ou plaquette — import catalogue
+MED-0010;Azithromycine 10mg;Ophtalmologie;comprime_plaquette;549;1102;26448;0;24;675;0;27;2028-09-25;Vente par comprimé ou plaquette — import catalogue
+MED-0011;Chloroquine 1000mg;Pédiatrie;comprime_plaquette;2217;3247;89867;0;30;343;0;17;2027-12-04;Vente par comprimé ou plaquette — import catalogue
+MED-0012;Ibuprofène 400mg;Gynécologie;comprime_plaquette;1654;3040;60800;0;20;425;0;25;2028-06-16;Vente par comprimé ou plaquette — import catalogue
+MED-0013;Ciprofloxacine 875mg;Antihistaminiques;comprime_plaquette;747;1110;11100;0;10;784;0;23;2028-05-16;Vente par comprimé ou plaquette — import catalogue
+MED-0014;Sirop vitamine 15ml #14;Vitamines;flacon;2435;0;0;4465;0;33;0;9;2028-08-07;Vente par flacon — import catalogue
+MED-0015;Amlodipine 500mg;Antibiotiques;comprime_plaquette;206;292;8171;0;30;716;0;18;2028-11-04;Vente par comprimé ou plaquette — import catalogue
+MED-0016;Ibuprofène 50mg;Antalgiques;comprime_plaquette;1902;2540;38100;0;15;586;0;5;2029-01-29;Vente par comprimé ou plaquette — import catalogue
+MED-0017;Albendazole 500mg;Vitamines;comprime_plaquette;1552;2299;55176;0;24;368;0;8;2027-12-30;Vente par comprimé ou plaquette — import catalogue
+MED-0018;Oméprazole 100mg;Antipaludéens;comprime_plaquette;83;113;1695;0;15;289;0;21;2027-09-03;Vente par comprimé ou plaquette — import catalogue
+MED-0019;Losartan 500mg;Dermatologie;comprime_plaquette;1435;2661;79830;0;30;643;0;11;2027-08-08;Vente par comprimé ou plaquette — import catalogue
+MED-0020;Fer 100mg;Antihypertenseurs;comprime_plaquette;2390;3289;65780;0;20;633;0;15;2028-07-17;Vente par comprimé ou plaquette — import catalogue
+MED-0021;Sirop paracétamol 60ml #21;Sirops;flacon;1258;0;0;4473;0;44;0;12;2027-05-03;Vente par flacon — import catalogue
+MED-0022;Chloroquine 5mg;Antiseptiques;comprime_plaquette;301;450;3600;0;8;798;0;22;2027-07-11;Vente par comprimé ou plaquette — import catalogue
+MED-0023;Ciprofloxacine 200mg;Sirops;comprime_plaquette;410;776;15520;0;20;453;0;11;2028-09-07;Vente par comprimé ou plaquette — import catalogue
+MED-0024;Zinc 400mg;Gastro;comprime_plaquette;783;1376;33024;0;24;402;0;19;2028-08-15;Vente par comprimé ou plaquette — import catalogue
+MED-0025;Metformine 500mg;Ophtalmologie;comprime_plaquette;478;1020;9835;0;10;622;0;12;2027-03-12;Vente par comprimé ou plaquette — import catalogue
+MED-0026;Ibuprofène 250mg (ref 26);Pédiatrie;comprime_plaquette;271;376;3760;0;10;92;0;21;2027-11-03;Vente par comprimé ou plaquette — import catalogue
+MED-0027;Artéméther 200mg (ref 27);Gynécologie;comprime_plaquette;1130;2308;23080;0;10;604;0;23;2028-07-01;Vente par comprimé ou plaquette — import catalogue
+MED-0028;Lotion cutanée 100ml #28;Dermatologie;flacon;4013;0;0;5374;0;57;0;11;2027-06-09;Vente par flacon — import catalogue
+MED-0029;Metronidazole 50mg (ref 29);Cardiologie;comprime_plaquette;1051;1834;22008;0;12;75;0;26;2029-01-02;Vente par comprimé ou plaquette — import catalogue
+MED-0030;Prednisolone 500mg (ref 30);Antibiotiques;comprime_plaquette;1169;1749;13992;0;8;131;0;12;2027-09-17;Vente par comprimé ou plaquette — import catalogue
+MED-0031;Doxycycline 10mg (ref 31);Antalgiques;comprime_plaquette;388;674;9503;0;15;97;0;19;2028-09-18;Vente par comprimé ou plaquette — import catalogue
+MED-0032;Metronidazole 250mg (ref 32);Vitamines;comprime_plaquette;1621;2314;55536;0;24;791;0;12;2027-08-22;Vente par comprimé ou plaquette — import catalogue
+MED-0033;Oméprazole 200mg (ref 33);Antipaludéens;comprime_plaquette;691;975;14625;0;15;188;0;17;2027-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0034;Acide folique 875mg (ref 34);Dermatologie;comprime_plaquette;1944;3315;99450;0;30;768;0;30;2028-09-24;Vente par comprimé ou plaquette — import catalogue
+MED-0035;Collyre 200ml #35;Ophtalmologie;flacon;1434;0;0;3055;0;42;0;11;2027-05-03;Vente par flacon — import catalogue
+MED-0036;Tramadol 10mg (ref 36);Antidiabétiques;comprime_plaquette;1720;3163;24244;0;8;563;0;10;2027-05-02;Vente par comprimé ou plaquette — import catalogue
+MED-0037;Losartan 500mg (ref 37);Antiseptiques;comprime_plaquette;405;861;25544;0;30;433;0;8;2028-10-08;Vente par comprimé ou plaquette — import catalogue
+MED-0038;Chloroquine 5mg (ref 38);Sirops;comprime_plaquette;166;262;5240;0;20;617;0;23;2028-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0039;Vitamine B 875mg (ref 39);Gastro;comprime_plaquette;1890;2843;27055;0;10;707;0;25;2028-01-06;Vente par comprimé ou plaquette — import catalogue
+MED-0040;Metformine 1000mg (ref 40);Ophtalmologie;comprime_plaquette;179;397;11910;0;30;596;0;8;2027-05-19;Vente par comprimé ou plaquette — import catalogue
+MED-0041;Céfixime 400mg (ref 41);Pédiatrie;comprime_plaquette;580;1186;23720;0;20;90;0;12;2028-03-17;Vente par comprimé ou plaquette — import catalogue
+MED-0042;Solution buvable 120ml #42;Pédiatrie;flacon;1446;0;0;5089;0;74;0;27;2028-01-08;Vente par flacon — import catalogue
+MED-0043;Diclofénac 10mg (ref 43);Antihistaminiques;comprime_plaquette;1970;2835;22069;0;8;157;0;13;2027-07-01;Vente par comprimé ou plaquette — import catalogue
+MED-0044;Metronidazole 10mg (ref 44);Cardiologie;comprime_plaquette;649;1215;11511;0;10;723;0;25;2027-11-30;Vente par comprimé ou plaquette — import catalogue
+MED-0045;Losartan 200mg (ref 45);Antibiotiques;comprime_plaquette;147;308;3696;0;12;303;0;6;2027-03-08;Vente par comprimé ou plaquette — import catalogue
+MED-0046;Vitamine B 100mg (ref 46);Antalgiques;comprime_plaquette;584;1172;28128;0;24;742;0;18;2028-09-29;Vente par comprimé ou plaquette — import catalogue
+MED-0047;Paracétamol 500mg (ref 47);Vitamines;comprime_plaquette;2113;2930;23440;0;8;398;0;23;2028-09-20;Vente par comprimé ou plaquette — import catalogue
+MED-0048;Ciprofloxacine 50mg (ref 48);Antipaludéens;comprime_plaquette;147;271;2710;0;10;60;0;16;2027-10-06;Vente par comprimé ou plaquette — import catalogue
+MED-0049;Solution antiseptique 100ml #49;Antiseptiques;flacon;3531;0;0;2342;0;50;0;29;2028-09-28;Vente par flacon — import catalogue
+MED-0050;Oméprazole 5mg (ref 50);Antihypertenseurs;comprime_plaquette;533;733;16413;0;24;201;0;18;2027-03-30;Vente par comprimé ou plaquette — import catalogue
+MED-0051;Azithromycine 1000mg (ref 51);Antidiabétiques;comprime_plaquette;1233;1786;53580;0;30;274;0;13;2027-08-15;Vente par comprimé ou plaquette — import catalogue
+MED-0052;Fluconazole 500mg (ref 52);Antiseptiques;comprime_plaquette;182;258;3813;0;15;491;0;16;2028-01-11;Vente par comprimé ou plaquette — import catalogue
+MED-0053;Chloroquine 400mg (ref 53);Sirops;comprime_plaquette;1423;2803;22424;0;8;91;0;29;2027-12-15;Vente par comprimé ou plaquette — import catalogue
+MED-0054;Fer 10mg (ref 54);Gastro;comprime_plaquette;2145;2883;43245;0;15;48;0;8;2027-11-27;Vente par comprimé ou plaquette — import catalogue
+MED-0055;Azithromycine 5mg (ref 55);Ophtalmologie;comprime_plaquette;123;256;3072;0;12;766;0;30;2028-01-20;Vente par comprimé ou plaquette — import catalogue
+MED-0056;Gouttes auriculaires 200ml #56;Antiseptiques;flacon;3283;0;0;5689;0;19;0;17;2028-10-15;Vente par flacon — import catalogue
+MED-0057;Doxycycline 875mg (ref 57);Gynécologie;comprime_plaquette;1744;3003;24024;0;8;571;0;26;2029-01-19;Vente par comprimé ou plaquette — import catalogue
+MED-0058;Doxycycline 1000mg (ref 58);Antihistaminiques;comprime_plaquette;283;386;5790;0;15;658;0;15;2029-01-12;Vente par comprimé ou plaquette — import catalogue
+MED-0059;Metronidazole 875mg (ref 59);Cardiologie;comprime_plaquette;887;1366;27320;0;20;733;0;14;2028-09-22;Vente par comprimé ou plaquette — import catalogue
+MED-0060;Ciprofloxacine 400mg (ref 60);Antibiotiques;comprime_plaquette;2066;2823;42345;0;15;198;0;24;2028-10-07;Vente par comprimé ou plaquette — import catalogue
+MED-0061;Vitamine C 50mg (ref 61);Antalgiques;comprime_plaquette;54;101;1985;0;20;641;0;25;2028-01-28;Vente par comprimé ou plaquette — import catalogue
+MED-0062;Metformine 200mg (ref 62);Vitamines;comprime_plaquette;1473;2867;43005;0;15;773;0;10;2029-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0063;Suspension amoxicilline 60ml #63;Antibiotiques;flacon;1962;0;0;5722;0;47;0;7;2027-10-31;Vente par flacon — import catalogue
+MED-0064;Cotrimoxazole 875mg (ref 64);Dermatologie;comprime_plaquette;1734;3403;31974;0;10;506;0;24;2027-05-18;Vente par comprimé ou plaquette — import catalogue
+MED-0065;Metformine 50mg (ref 65);Antihypertenseurs;comprime_plaquette;1248;2457;58968;0;24;526;0;17;2027-11-09;Vente par comprimé ou plaquette — import catalogue
+MED-0066;Ciprofloxacine 250mg (ref 66);Antidiabétiques;comprime_plaquette;2328;3254;97620;0;30;244;0;10;2029-02-14;Vente par comprimé ou plaquette — import catalogue
+MED-0067;Losartan 200mg (ref 67);Antiseptiques;comprime_plaquette;1250;2383;19064;0;8;487;0;9;2028-06-22;Vente par comprimé ou plaquette — import catalogue
+MED-0068;Cotrimoxazole 10mg (ref 68);Sirops;comprime_plaquette;1383;2538;50760;0;20;473;0;24;2028-08-02;Vente par comprimé ou plaquette — import catalogue
+MED-0069;Oméprazole 10mg (ref 69);Gastro;comprime_plaquette;505;751;11265;0;15;285;0;29;2027-11-13;Vente par comprimé ou plaquette — import catalogue
+MED-0070;Sirop toux 120ml #70;Sirops;flacon;3936;0;0;7870;0;71;0;20;2028-12-05;Vente par flacon — import catalogue
+MED-0071;Chloroquine 875mg (ref 71);Pédiatrie;comprime_plaquette;276;417;5922;0;15;573;0;7;2027-07-24;Vente par comprimé ou plaquette — import catalogue
+MED-0072;Ciprofloxacine 400mg (ref 72);Gynécologie;comprime_plaquette;1458;2942;42064;0;15;358;0;22;2028-06-24;Vente par comprimé ou plaquette — import catalogue
+MED-0073;Oméprazole 250mg (ref 73);Antihistaminiques;comprime_plaquette;1031;1820;18200;0;10;732;0;5;2028-10-14;Vente par comprimé ou plaquette — import catalogue
+MED-0074;Acide folique 200mg (ref 74);Cardiologie;comprime_plaquette;830;1540;12320;0;8;449;0;22;2028-09-14;Vente par comprimé ou plaquette — import catalogue
+MED-0075;Diclofénac 400mg (ref 75);Antibiotiques;comprime_plaquette;530;998;14970;0;15;418;0;15;2029-01-17;Vente par comprimé ou plaquette — import catalogue
+MED-0076;Cotrimoxazole 50mg (ref 76);Antalgiques;comprime_plaquette;544;776;18624;0;24;657;0;22;2027-04-01;Vente par comprimé ou plaquette — import catalogue
+MED-0077;Sirop antipaludéen 200ml #77;Antipaludéens;flacon;3224;0;0;6123;0;8;0;7;2028-12-22;Vente par flacon — import catalogue
+MED-0078;Oméprazole 100mg (ref 78);Antipaludéens;comprime_plaquette;1004;1991;56515;0;30;485;0;15;2028-02-13;Vente par comprimé ou plaquette — import catalogue
+MED-0079;Zinc 50mg (ref 79);Dermatologie;comprime_plaquette;2338;3180;38160;0;12;103;0;20;2027-03-24;Vente par comprimé ou plaquette — import catalogue
+MED-0080;Albendazole 10mg (ref 80);Antihypertenseurs;comprime_plaquette;792;1533;12222;0;8;61;0;29;2027-04-05;Vente par comprimé ou plaquette — import catalogue
+MED-0081;Chloroquine 400mg (ref 81);Antidiabétiques;comprime_plaquette;116;183;5258;0;30;137;0;23;2027-10-14;Vente par comprimé ou plaquette — import catalogue
+MED-0082;Metformine 875mg (ref 82);Antiseptiques;comprime_plaquette;805;1610;48300;0;30;785;0;27;2027-06-30;Vente par comprimé ou plaquette — import catalogue
+MED-0083;Zinc 100mg (ref 83);Sirops;comprime_plaquette;337;542;6504;0;12;609;0;26;2028-03-23;Vente par comprimé ou plaquette — import catalogue
+MED-0084;Sirop vitamine 200ml #84;Vitamines;flacon;3728;0;0;3124;0;14;0;23;2029-02-09;Vente par flacon — import catalogue
+MED-0085;Prednisolone 400mg (ref 85);Ophtalmologie;comprime_plaquette;2014;2955;23640;0;8;634;0;30;2027-07-06;Vente par comprimé ou plaquette — import catalogue
+MED-0086;Tramadol 250mg (ref 86);Pédiatrie;comprime_plaquette;1320;2282;27384;0;12;538;0;25;2028-02-17;Vente par comprimé ou plaquette — import catalogue
+MED-0087;Paracétamol 50mg (ref 87);Gynécologie;comprime_plaquette;1014;2107;63210;0;30;670;0;19;2027-08-08;Vente par comprimé ou plaquette — import catalogue
+MED-0088;Oméprazole 100mg (ref 88);Antihistaminiques;comprime_plaquette;1654;2237;52864;0;24;571;0;29;2028-07-12;Vente par comprimé ou plaquette — import catalogue
+MED-0089;Metformine 50mg (ref 89);Cardiologie;comprime_plaquette;1942;3094;92820;0;30;271;0;7;2027-12-15;Vente par comprimé ou plaquette — import catalogue
+MED-0090;Metformine 400mg (ref 90);Antibiotiques;comprime_plaquette;1243;2003;60090;0;30;364;0;5;2028-07-23;Vente par comprimé ou plaquette — import catalogue
+MED-0091;Sirop paracétamol 120ml #91;Sirops;flacon;1544;0;0;5494;0;32;0;16;2027-11-24;Vente par flacon — import catalogue
+MED-0092;Vitamine B 875mg (ref 92);Vitamines;comprime_plaquette;2122;2972;59440;0;20;549;0;11;2027-05-31;Vente par comprimé ou plaquette — import catalogue
+MED-0093;Chloroquine 50mg (ref 93);Antipaludéens;comprime_plaquette;1608;2374;35610;0;15;681;0;27;2028-07-19;Vente par comprimé ou plaquette — import catalogue
+MED-0094;Metformine 250mg (ref 94);Dermatologie;comprime_plaquette;674;1305;10440;0;8;333;0;26;2028-10-20;Vente par comprimé ou plaquette — import catalogue
+MED-0095;Fer 200mg (ref 95);Antihypertenseurs;comprime_plaquette;1257;2274;45480;0;20;583;0;15;2028-02-28;Vente par comprimé ou plaquette — import catalogue
+MED-0096;Fluconazole 200mg (ref 96);Antidiabétiques;comprime_plaquette;711;1355;15209;0;12;142;0;28;2028-09-03;Vente par comprimé ou plaquette — import catalogue
+MED-0097;Zinc 100mg (ref 97);Antiseptiques;comprime_plaquette;662;986;9536;0;10;798;0;21;2028-11-05;Vente par comprimé ou plaquette — import catalogue
+MED-0098;Lotion cutanée 120ml #98;Dermatologie;flacon;1211;0;0;8320;0;29;0;14;2027-10-23;Vente par flacon — import catalogue
+MED-0099;Fer 100mg (ref 99);Gastro;comprime_plaquette;103;157;1740;0;12;75;0;22;2027-12-29;Vente par comprimé ou plaquette — import catalogue
+MED-0100;Fluconazole 100mg (ref 100);Ophtalmologie;comprime_plaquette;1901;3183;76392;0;24;607;0;14;2028-06-27;Vente par comprimé ou plaquette — import catalogue
+MED-0101;Amlodipine 200mg (ref 101);Pédiatrie;comprime_plaquette;632;855;10146;0;12;136;0;7;2028-04-18;Vente par comprimé ou plaquette — import catalogue
+MED-0102;Amlodipine 500mg (ref 102);Gynécologie;comprime_plaquette;1756;2678;52750;0;20;331;0;7;2027-11-14;Vente par comprimé ou plaquette — import catalogue
+MED-0103;Metronidazole 10mg (ref 103);Antihistaminiques;comprime_plaquette;1139;1804;54120;0;30;251;0;29;2028-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0104;Acide folique 200mg (ref 104);Cardiologie;comprime_plaquette;932;1317;19755;0;15;332;0;23;2028-11-29;Vente par comprimé ou plaquette — import catalogue
+MED-0105;Collyre 60ml #105;Ophtalmologie;flacon;3297;0;0;7562;0;17;0;29;2027-10-03;Vente par flacon — import catalogue
+MED-0106;Prednisolone 400mg (ref 106);Antalgiques;comprime_plaquette;1330;2805;32453;0;12;180;0;5;2028-04-26;Vente par comprimé ou plaquette — import catalogue
+MED-0107;Metformine 5mg (ref 107);Vitamines;comprime_plaquette;594;1292;18267;0;15;484;0;7;2029-02-05;Vente par comprimé ou plaquette — import catalogue
+MED-0108;Chloroquine 875mg (ref 108);Antipaludéens;comprime_plaquette;2129;3340;100200;0;30;222;0;18;2027-06-30;Vente par comprimé ou plaquette — import catalogue
+MED-0109;Céfixime 400mg (ref 109);Dermatologie;comprime_plaquette;512;710;17040;0;24;93;0;6;2027-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0110;Vitamine C 5mg (ref 110);Antihypertenseurs;comprime_plaquette;2157;3476;77580;0;24;725;0;14;2029-02-18;Vente par comprimé ou plaquette — import catalogue
+MED-0111;Acide folique 875mg (ref 111);Antidiabétiques;comprime_plaquette;1382;2311;42669;0;20;462;0;28;2028-01-29;Vente par comprimé ou plaquette — import catalogue
+MED-0112;Solution buvable 15ml #112;Pédiatrie;flacon;1825;0;0;1711;0;16;0;12;2029-01-23;Vente par flacon — import catalogue
+MED-0113;Tramadol 5mg (ref 113);Sirops;comprime_plaquette;2106;3232;23870;0;8;794;0;10;2028-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0114;Losartan 200mg (ref 114);Gastro;comprime_plaquette;631;843;10116;0;12;523;0;7;2028-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0115;Fer 50mg (ref 115);Ophtalmologie;comprime_plaquette;921;1415;16980;0;12;357;0;18;2029-02-12;Vente par comprimé ou plaquette — import catalogue
+MED-0116;Amlodipine 875mg (ref 116);Pédiatrie;comprime_plaquette;1207;1740;41760;0;24;485;0;7;2028-01-21;Vente par comprimé ou plaquette — import catalogue
+MED-0117;Artéméther 1000mg (ref 117);Gynécologie;comprime_plaquette;1864;3264;26112;0;8;21;0;26;2028-09-10;Vente par comprimé ou plaquette — import catalogue
+MED-0118;Metformine 50mg (ref 118);Antihistaminiques;comprime_plaquette;525;868;6944;0;8;530;0;25;2028-05-30;Vente par comprimé ou plaquette — import catalogue
+MED-0119;Solution antiseptique 60ml #119;Antiseptiques;flacon;1633;0;0;3687;0;75;0;9;2027-12-24;Vente par flacon — import catalogue
+MED-0120;Metformine 200mg (ref 120);Antibiotiques;comprime_plaquette;161;218;1744;0;8;265;0;27;2027-08-14;Vente par comprimé ou plaquette — import catalogue
+MED-0121;Vitamine C 10mg (ref 121);Antalgiques;comprime_plaquette;1352;2362;18656;0;8;136;0;19;2027-07-03;Vente par comprimé ou plaquette — import catalogue
+MED-0122;Prednisolone 100mg (ref 122);Vitamines;comprime_plaquette;1631;3035;45525;0;15;445;0;20;2028-06-30;Vente par comprimé ou plaquette — import catalogue
+MED-0123;Chloroquine 200mg (ref 123);Antipaludéens;comprime_plaquette;391;692;13840;0;20;540;0;28;2027-07-22;Vente par comprimé ou plaquette — import catalogue
+MED-0124;Ibuprofène 875mg (ref 124);Dermatologie;comprime_plaquette;2355;3335;100050;0;30;539;0;13;2027-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0125;Vitamine C 875mg (ref 125);Antihypertenseurs;comprime_plaquette;1562;2504;75120;0;30;172;0;19;2028-09-06;Vente par comprimé ou plaquette — import catalogue
+MED-0126;Gouttes auriculaires 200ml #126;Antiseptiques;flacon;2213;0;0;4223;0;75;0;29;2028-09-11;Vente par flacon — import catalogue
+MED-0127;Acide folique 200mg (ref 127);Antiseptiques;comprime_plaquette;648;872;9947;0;12;440;0;6;2028-01-24;Vente par comprimé ou plaquette — import catalogue
+MED-0128;Albendazole 200mg (ref 128);Sirops;comprime_plaquette;1931;3423;82152;0;24;687;0;9;2028-07-24;Vente par comprimé ou plaquette — import catalogue
+MED-0129;Amoxicilline 100mg (ref 129);Gastro;comprime_plaquette;1383;2517;49715;0;20;122;0;21;2028-06-14;Vente par comprimé ou plaquette — import catalogue
+MED-0130;Paracétamol 100mg (ref 130);Ophtalmologie;comprime_plaquette;2060;2781;40985;0;15;291;0;15;2028-12-02;Vente par comprimé ou plaquette — import catalogue
+MED-0131;Fluconazole 50mg (ref 131);Pédiatrie;comprime_plaquette;301;428;10272;0;24;566;0;17;2028-01-23;Vente par comprimé ou plaquette — import catalogue
+MED-0132;Prednisolone 200mg (ref 132);Gynécologie;comprime_plaquette;1067;2316;67429;0;30;314;0;12;2027-06-05;Vente par comprimé ou plaquette — import catalogue
+MED-0133;Suspension amoxicilline 200ml #133;Antibiotiques;flacon;1203;0;0;7728;0;17;0;19;2027-08-22;Vente par flacon — import catalogue
+MED-0134;Fluconazole 875mg (ref 134);Cardiologie;comprime_plaquette;157;288;2185;0;8;461;0;9;2027-11-10;Vente par comprimé ou plaquette — import catalogue
+MED-0135;Losartan 50mg (ref 135);Antibiotiques;comprime_plaquette;1988;2892;53578;0;20;411;0;24;2029-02-01;Vente par comprimé ou plaquette — import catalogue
+MED-0136;Chloroquine 200mg (ref 136);Antalgiques;comprime_plaquette;356;686;13720;0;20;490;0;13;2029-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0137;Paracétamol 200mg (ref 137);Vitamines;comprime_plaquette;1765;2875;34348;0;12;621;0;14;2028-12-18;Vente par comprimé ou plaquette — import catalogue
+MED-0138;Oméprazole 875mg (ref 138);Antipaludéens;comprime_plaquette;681;1337;20055;0;15;514;0;8;2027-11-02;Vente par comprimé ou plaquette — import catalogue
+MED-0139;Acide folique 5mg (ref 139);Dermatologie;comprime_plaquette;1322;2454;29448;0;12;42;0;26;2028-04-13;Vente par comprimé ou plaquette — import catalogue
+MED-0140;Sirop toux 120ml #140;Sirops;flacon;833;0;0;6136;0;11;0;24;2028-07-25;Vente par flacon — import catalogue
+MED-0141;Vitamine C 400mg (ref 141);Antidiabétiques;comprime_plaquette;1880;3384;67680;0;20;655;0;13;2029-01-27;Vente par comprimé ou plaquette — import catalogue
+MED-0142;Zinc 100mg (ref 142);Antiseptiques;comprime_plaquette;358;497;11928;0;24;336;0;30;2028-05-29;Vente par comprimé ou plaquette — import catalogue
+MED-0143;Amoxicilline 5mg (ref 143);Sirops;comprime_plaquette;1516;3099;37188;0;12;354;0;28;2028-05-03;Vente par comprimé ou plaquette — import catalogue
+MED-0144;Azithromycine 400mg (ref 144);Gastro;comprime_plaquette;2031;3321;33210;0;10;563;0;21;2027-12-09;Vente par comprimé ou plaquette — import catalogue
+MED-0145;Azithromycine 875mg (ref 145);Ophtalmologie;comprime_plaquette;1534;2073;61545;0;30;137;0;19;2027-05-21;Vente par comprimé ou plaquette — import catalogue
+MED-0146;Ciprofloxacine 400mg (ref 146);Pédiatrie;comprime_plaquette;1915;2870;86100;0;30;590;0;16;2027-06-05;Vente par comprimé ou plaquette — import catalogue
+MED-0147;Sirop antipaludéen 200ml #147;Antipaludéens;flacon;857;0;0;3666;0;73;0;8;2028-06-12;Vente par flacon — import catalogue
+MED-0148;Fer 875mg (ref 148);Antihistaminiques;comprime_plaquette;1156;1660;33200;0;20;130;0;26;2027-10-30;Vente par comprimé ou plaquette — import catalogue
+MED-0149;Amlodipine 250mg (ref 149);Cardiologie;comprime_plaquette;1315;2399;47980;0;20;683;0;7;2028-12-14;Vente par comprimé ou plaquette — import catalogue
+MED-0150;Metformine 875mg (ref 150);Antibiotiques;comprime_plaquette;859;1772;39252;0;24;524;0;8;2027-06-12;Vente par comprimé ou plaquette — import catalogue
+MED-0151;Chloroquine 10mg (ref 151);Antalgiques;comprime_plaquette;991;1691;16910;0;10;780;0;27;2028-09-08;Vente par comprimé ou plaquette — import catalogue
+MED-0152;Oméprazole 5mg (ref 152);Vitamines;comprime_plaquette;1526;3076;73824;0;24;121;0;20;2028-11-24;Vente par comprimé ou plaquette — import catalogue
+MED-0153;Oméprazole 875mg (ref 153);Antipaludéens;comprime_plaquette;1642;2927;23416;0;8;261;0;16;2027-06-14;Vente par comprimé ou plaquette — import catalogue
+MED-0154;Sirop vitamine 120ml #154;Vitamines;flacon;3030;0;0;6782;0;50;0;6;2028-04-15;Vente par flacon — import catalogue
+MED-0155;Artéméther 400mg (ref 155);Antihypertenseurs;comprime_plaquette;2037;3475;27800;0;8;677;0;25;2028-11-05;Vente par comprimé ou plaquette — import catalogue
+MED-0156;Paracétamol 250mg (ref 156);Antidiabétiques;comprime_plaquette;766;1466;42448;0;30;90;0;29;2028-09-22;Vente par comprimé ou plaquette — import catalogue
+MED-0157;Doxycycline 5mg (ref 157);Antiseptiques;comprime_plaquette;2438;3430;34300;0;10;171;0;30;2028-11-04;Vente par comprimé ou plaquette — import catalogue
+MED-0158;Paracétamol 875mg (ref 158);Sirops;comprime_plaquette;516;692;20760;0;30;198;0;8;2029-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0159;Paracétamol 100mg (ref 159);Gastro;comprime_plaquette;1076;1567;11857;0;8;198;0;13;2027-04-27;Vente par comprimé ou plaquette — import catalogue
+MED-0160;Ciprofloxacine 50mg (ref 160);Ophtalmologie;comprime_plaquette;380;565;11300;0;20;390;0;21;2028-11-01;Vente par comprimé ou plaquette — import catalogue
+MED-0161;Sirop paracétamol 60ml #161;Sirops;flacon;2651;0;0;5627;0;33;0;24;2027-04-18;Vente par flacon — import catalogue
+MED-0162;Albendazole 10mg (ref 162);Gynécologie;comprime_plaquette;1270;1976;23709;0;12;431;0;18;2029-02-04;Vente par comprimé ou plaquette — import catalogue
+MED-0163;Metronidazole 200mg (ref 163);Antihistaminiques;comprime_plaquette;904;1916;44543;0;24;87;0;9;2027-12-11;Vente par comprimé ou plaquette — import catalogue
+MED-0164;Diclofénac 5mg (ref 164);Cardiologie;comprime_plaquette;1651;3016;60320;0;20;563;0;14;2028-06-11;Vente par comprimé ou plaquette — import catalogue
+MED-0165;Losartan 5mg (ref 165);Antibiotiques;comprime_plaquette;348;506;7380;0;15;584;0;28;2027-10-11;Vente par comprimé ou plaquette — import catalogue
+MED-0166;Oméprazole 200mg (ref 166);Antalgiques;comprime_plaquette;989;1794;17940;0;10;445;0;28;2027-06-10;Vente par comprimé ou plaquette — import catalogue
+MED-0167;Vitamine B 50mg (ref 167);Vitamines;comprime_plaquette;1486;2824;33888;0;12;723;0;20;2027-05-12;Vente par comprimé ou plaquette — import catalogue
+MED-0168;Lotion cutanée 60ml #168;Dermatologie;flacon;4206;0;0;2199;0;16;0;18;2027-06-11;Vente par flacon — import catalogue
+MED-0169;Albendazole 1000mg (ref 169);Dermatologie;comprime_plaquette;389;632;18960;0;30;595;0;22;2028-02-05;Vente par comprimé ou plaquette — import catalogue
+MED-0170;Cotrimoxazole 500mg (ref 170);Antihypertenseurs;comprime_plaquette;1102;1548;23220;0;15;453;0;28;2027-04-26;Vente par comprimé ou plaquette — import catalogue
+MED-0171;Vitamine C 5mg (ref 171);Antidiabétiques;comprime_plaquette;740;1540;18480;0;12;178;0;26;2028-07-10;Vente par comprimé ou plaquette — import catalogue
+MED-0172;Chloroquine 500mg (ref 172);Antiseptiques;comprime_plaquette;1332;2378;28536;0;12;607;0;12;2028-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0173;Céfixime 5mg (ref 173);Sirops;comprime_plaquette;1841;2864;56955;0;20;730;0;13;2027-04-03;Vente par comprimé ou plaquette — import catalogue
+MED-0174;Azithromycine 875mg (ref 174);Gastro;comprime_plaquette;1748;3222;77328;0;24;26;0;10;2027-07-29;Vente par comprimé ou plaquette — import catalogue
+MED-0175;Collyre 15ml #175;Ophtalmologie;flacon;3492;0;0;4783;0;13;0;9;2028-12-12;Vente par flacon — import catalogue
+MED-0176;Paracétamol 500mg (ref 176);Pédiatrie;comprime_plaquette;1169;2272;54528;0;24;369;0;10;2028-03-17;Vente par comprimé ou plaquette — import catalogue
+MED-0177;Vitamine C 1000mg (ref 177);Gynécologie;comprime_plaquette;1524;2424;72720;0;30;179;0;10;2028-11-26;Vente par comprimé ou plaquette — import catalogue
+MED-0178;Amoxicilline 500mg (ref 178);Antihistaminiques;comprime_plaquette;1241;1914;22968;0;12;472;0;18;2027-12-09;Vente par comprimé ou plaquette — import catalogue
+MED-0179;Doxycycline 10mg (ref 179);Cardiologie;comprime_plaquette;875;1513;11792;0;8;518;0;21;2029-01-16;Vente par comprimé ou plaquette — import catalogue
+MED-0180;Vitamine C 250mg (ref 180);Antibiotiques;comprime_plaquette;1280;1718;16086;0;10;236;0;29;2027-07-23;Vente par comprimé ou plaquette — import catalogue
+MED-0181;Zinc 875mg (ref 181);Antalgiques;comprime_plaquette;701;1443;17316;0;12;460;0;10;2027-07-15;Vente par comprimé ou plaquette — import catalogue
+MED-0182;Solution buvable 200ml #182;Pédiatrie;flacon;2981;0;0;7264;0;34;0;21;2028-09-27;Vente par flacon — import catalogue
+MED-0183;Cotrimoxazole 1000mg (ref 183);Antipaludéens;comprime_plaquette;1222;1726;12724;0;8;99;0;15;2028-10-14;Vente par comprimé ou plaquette — import catalogue
+MED-0184;Oméprazole 5mg (ref 184);Dermatologie;comprime_plaquette;1929;3006;42943;0;15;352;0;10;2028-11-26;Vente par comprimé ou plaquette — import catalogue
+MED-0185;Metformine 1000mg (ref 185);Antihypertenseurs;comprime_plaquette;1327;1888;14607;0;8;556;0;7;2028-04-13;Vente par comprimé ou plaquette — import catalogue
+MED-0186;Vitamine C 1000mg (ref 186);Antidiabétiques;comprime_plaquette;1000;1464;14210;0;10;563;0;21;2027-09-19;Vente par comprimé ou plaquette — import catalogue
+MED-0187;Zinc 1000mg (ref 187);Antiseptiques;comprime_plaquette;2270;3079;36948;0;12;171;0;12;2027-06-18;Vente par comprimé ou plaquette — import catalogue
+MED-0188;Ciprofloxacine 875mg (ref 188);Sirops;comprime_plaquette;510;810;8100;0;10;691;0;7;2027-09-02;Vente par comprimé ou plaquette — import catalogue
+MED-0189;Solution antiseptique 200ml #189;Antiseptiques;flacon;2700;0;0;7680;0;77;0;29;2028-10-18;Vente par flacon — import catalogue
+MED-0190;Metformine 5mg (ref 190);Ophtalmologie;comprime_plaquette;2015;2702;64848;0;24;662;0;15;2027-08-06;Vente par comprimé ou plaquette — import catalogue
+MED-0191;Metformine 500mg (ref 191);Pédiatrie;comprime_plaquette;1221;1911;28665;0;15;625;0;6;2028-02-28;Vente par comprimé ou plaquette — import catalogue
+MED-0192;Losartan 500mg (ref 192);Gynécologie;comprime_plaquette;1165;1991;23570;0;12;98;0;25;2027-06-05;Vente par comprimé ou plaquette — import catalogue
+MED-0193;Diclofénac 5mg (ref 193);Antihistaminiques;comprime_plaquette;985;1674;33480;0;20;776;0;6;2028-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0194;Tramadol 400mg (ref 194);Cardiologie;comprime_plaquette;1527;2578;28614;0;12;125;0;30;2028-02-19;Vente par comprimé ou plaquette — import catalogue
+MED-0195;Fluconazole 500mg (ref 195);Antibiotiques;comprime_plaquette;1377;2746;52449;0;20;469;0;21;2028-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0196;Gouttes auriculaires 15ml #196;Antiseptiques;flacon;1450;0;0;4481;0;52;0;14;2028-04-04;Vente par flacon — import catalogue
+MED-0197;Oméprazole 1000mg (ref 197);Vitamines;comprime_plaquette;1186;2548;61152;0;24;362;0;7;2028-02-05;Vente par comprimé ou plaquette — import catalogue
+MED-0198;Metronidazole 10mg (ref 198);Antipaludéens;comprime_plaquette;900;1683;40392;0;24;692;0;24;2027-08-05;Vente par comprimé ou plaquette — import catalogue
+MED-0199;Vitamine B 500mg (ref 199);Dermatologie;comprime_plaquette;1387;2818;56360;0;20;691;0;27;2029-01-11;Vente par comprimé ou plaquette — import catalogue
+MED-0200;Acide folique 100mg (ref 200);Antihypertenseurs;comprime_plaquette;2196;3003;60060;0;20;405;0;25;2028-02-04;Vente par comprimé ou plaquette — import catalogue
+MED-0201;Ciprofloxacine 10mg (ref 201);Antidiabétiques;comprime_plaquette;1788;2746;21968;0;8;38;0;16;2028-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0202;Azithromycine 400mg (ref 202);Antiseptiques;comprime_plaquette;1929;3238;36175;0;12;99;0;14;2027-06-16;Vente par comprimé ou plaquette — import catalogue
+MED-0203;Suspension amoxicilline 15ml #203;Antibiotiques;flacon;3957;0;0;5921;0;72;0;6;2029-01-10;Vente par flacon — import catalogue
+MED-0204;Vitamine B 5mg (ref 204);Gastro;comprime_plaquette;1433;2546;25116;0;10;659;0;30;2027-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0205;Albendazole 200mg (ref 205);Ophtalmologie;comprime_plaquette;996;1782;14256;0;8;474;0;24;2027-12-21;Vente par comprimé ou plaquette — import catalogue
+MED-0206;Zinc 200mg (ref 206);Pédiatrie;comprime_plaquette;1193;2287;22870;0;10;500;0;11;2028-03-15;Vente par comprimé ou plaquette — import catalogue
+MED-0207;Cotrimoxazole 5mg (ref 207);Gynécologie;comprime_plaquette;1355;1991;29865;0;15;534;0;21;2028-05-06;Vente par comprimé ou plaquette — import catalogue
+MED-0208;Azithromycine 400mg (ref 208);Antihistaminiques;comprime_plaquette;1266;2576;75061;0;30;400;0;22;2027-06-18;Vente par comprimé ou plaquette — import catalogue
+MED-0209;Fluconazole 10mg (ref 209);Cardiologie;comprime_plaquette;326;610;18300;0;30;299;0;19;2028-08-11;Vente par comprimé ou plaquette — import catalogue
+MED-0210;Sirop toux 100ml #210;Sirops;flacon;4203;0;0;5083;0;16;0;12;2028-06-08;Vente par flacon — import catalogue
+MED-0211;Fer 250mg (ref 211);Antalgiques;comprime_plaquette;180;318;4770;0;15;415;0;7;2028-03-22;Vente par comprimé ou plaquette — import catalogue
+MED-0212;Chloroquine 250mg (ref 212);Vitamines;comprime_plaquette;354;505;6060;0;12;169;0;9;2027-04-13;Vente par comprimé ou plaquette — import catalogue
+MED-0213;Vitamine C 200mg (ref 213);Antipaludéens;comprime_plaquette;452;668;16032;0;24;650;0;5;2027-05-25;Vente par comprimé ou plaquette — import catalogue
+MED-0214;Paracétamol 875mg (ref 214);Dermatologie;comprime_plaquette;437;712;7120;0;10;560;0;18;2027-06-26;Vente par comprimé ou plaquette — import catalogue
+MED-0215;Zinc 875mg (ref 215);Antihypertenseurs;comprime_plaquette;648;1333;12944;0;10;657;0;19;2027-05-08;Vente par comprimé ou plaquette — import catalogue
+MED-0216;Metronidazole 200mg (ref 216);Antidiabétiques;comprime_plaquette;1044;2295;45900;0;20;267;0;27;2027-07-30;Vente par comprimé ou plaquette — import catalogue
+MED-0217;Sirop antipaludéen 120ml #217;Antipaludéens;flacon;2558;0;0;1512;0;50;0;12;2028-10-09;Vente par flacon — import catalogue
+MED-0218;Oméprazole 100mg (ref 218);Sirops;comprime_plaquette;1349;2837;68088;0;24;89;0;21;2028-09-12;Vente par comprimé ou plaquette — import catalogue
+MED-0219;Losartan 10mg (ref 219);Gastro;comprime_plaquette;103;183;3660;0;20;670;0;17;2028-03-21;Vente par comprimé ou plaquette — import catalogue
+MED-0220;Artéméther 250mg (ref 220);Ophtalmologie;comprime_plaquette;1565;3329;38852;0;12;126;0;29;2028-10-20;Vente par comprimé ou plaquette — import catalogue
+MED-0221;Albendazole 1000mg (ref 221);Pédiatrie;comprime_plaquette;156;281;2810;0;10;678;0;10;2029-02-03;Vente par comprimé ou plaquette — import catalogue
+MED-0222;Metformine 200mg (ref 222);Gynécologie;comprime_plaquette;586;846;19940;0;24;488;0;6;2027-12-30;Vente par comprimé ou plaquette — import catalogue
+MED-0223;Doxycycline 250mg (ref 223);Antihistaminiques;comprime_plaquette;656;917;27510;0;30;337;0;21;2028-04-15;Vente par comprimé ou plaquette — import catalogue
+MED-0224;Sirop vitamine 15ml #224;Vitamines;flacon;2739;0;0;3575;0;9;0;29;2028-12-26;Vente par flacon — import catalogue
+MED-0225;Doxycycline 875mg (ref 225);Antibiotiques;comprime_plaquette;1531;3298;39576;0;12;299;0;8;2028-03-15;Vente par comprimé ou plaquette — import catalogue
+MED-0226;Oméprazole 50mg (ref 226);Antalgiques;comprime_plaquette;1365;1901;45624;0;24;211;0;20;2029-02-10;Vente par comprimé ou plaquette — import catalogue
+MED-0227;Amlodipine 1000mg (ref 227);Vitamines;comprime_plaquette;1179;2226;63705;0;30;460;0;24;2027-09-05;Vente par comprimé ou plaquette — import catalogue
+MED-0228;Céfixime 875mg (ref 228);Antipaludéens;comprime_plaquette;246;520;6240;0;12;333;0;19;2028-11-11;Vente par comprimé ou plaquette — import catalogue
+MED-0229;Fluconazole 50mg (ref 229);Dermatologie;comprime_plaquette;1705;2925;29250;0;10;764;0;16;2028-11-23;Vente par comprimé ou plaquette — import catalogue
+MED-0230;Oméprazole 875mg (ref 230);Antihypertenseurs;comprime_plaquette;2453;3341;77858;0;24;392;0;21;2029-01-28;Vente par comprimé ou plaquette — import catalogue
+MED-0231;Sirop paracétamol 100ml #231;Sirops;flacon;927;0;0;2669;0;61;0;6;2027-07-12;Vente par flacon — import catalogue
+MED-0232;Ibuprofène 400mg (ref 232);Antiseptiques;comprime_plaquette;1535;2742;82260;0;30;600;0;6;2028-11-13;Vente par comprimé ou plaquette — import catalogue
+MED-0233;Ciprofloxacine 200mg (ref 233);Sirops;comprime_plaquette;946;1623;18132;0;12;395;0;17;2028-01-20;Vente par comprimé ou plaquette — import catalogue
+MED-0234;Prednisolone 875mg (ref 234);Gastro;comprime_plaquette;258;564;5422;0;10;595;0;8;2027-11-28;Vente par comprimé ou plaquette — import catalogue
+MED-0235;Zinc 875mg (ref 235);Ophtalmologie;comprime_plaquette;991;1927;46248;0;24;730;0;20;2027-09-25;Vente par comprimé ou plaquette — import catalogue
+MED-0236;Metronidazole 100mg (ref 236);Pédiatrie;comprime_plaquette;236;403;12090;0;30;475;0;7;2029-01-31;Vente par comprimé ou plaquette — import catalogue
+MED-0237;Vitamine B 1000mg (ref 237);Gynécologie;comprime_plaquette;224;365;8269;0;24;181;0;27;2029-02-19;Vente par comprimé ou plaquette — import catalogue
+MED-0238;Lotion cutanée 100ml #238;Dermatologie;flacon;4050;0;0;4461;0;70;0;12;2027-07-07;Vente par flacon — import catalogue
+MED-0239;Doxycycline 100mg (ref 239);Cardiologie;comprime_plaquette;1996;3337;33370;0;10;606;0;16;2028-06-25;Vente par comprimé ou plaquette — import catalogue
+MED-0240;Céfixime 100mg (ref 240);Antibiotiques;comprime_plaquette;212;453;9060;0;20;754;0;28;2028-07-07;Vente par comprimé ou plaquette — import catalogue
+MED-0241;Losartan 50mg (ref 241);Antalgiques;comprime_plaquette;1238;1777;53192;0;30;677;0;7;2028-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0242;Metformine 10mg (ref 242);Vitamines;comprime_plaquette;445;625;7500;0;12;675;0;23;2027-09-07;Vente par comprimé ou plaquette — import catalogue
+MED-0243;Zinc 100mg (ref 243);Antipaludéens;comprime_plaquette;1561;2159;30115;0;15;176;0;14;2027-08-20;Vente par comprimé ou plaquette — import catalogue
+MED-0244;Azithromycine 1000mg (ref 244);Dermatologie;comprime_plaquette;566;1023;24552;0;24;310;0;7;2027-11-16;Vente par comprimé ou plaquette — import catalogue
+MED-0245;Collyre 100ml #245;Ophtalmologie;flacon;3401;0;0;6012;0;40;0;9;2028-12-04;Vente par flacon — import catalogue
+MED-0246;Vitamine C 5mg (ref 246);Antidiabétiques;comprime_plaquette;289;482;9594;0;20;177;0;10;2029-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0247;Diclofénac 5mg (ref 247);Antiseptiques;comprime_plaquette;1113;2408;28896;0;12;103;0;6;2028-12-20;Vente par comprimé ou plaquette — import catalogue
+MED-0248;Zinc 5mg (ref 248);Sirops;comprime_plaquette;1420;2767;33204;0;12;652;0;25;2027-04-05;Vente par comprimé ou plaquette — import catalogue
+MED-0249;Amlodipine 10mg (ref 249);Gastro;comprime_plaquette;2011;2729;32748;0;12;721;0;17;2028-01-03;Vente par comprimé ou plaquette — import catalogue
+MED-0250;Metformine 500mg (ref 250);Ophtalmologie;comprime_plaquette;171;345;8280;0;24;495;0;11;2028-02-16;Vente par comprimé ou plaquette — import catalogue
+MED-0251;Diclofénac 100mg (ref 251);Pédiatrie;comprime_plaquette;1660;3042;36504;0;12;373;0;17;2027-07-16;Vente par comprimé ou plaquette — import catalogue
+MED-0252;Solution buvable 120ml #252;Pédiatrie;flacon;2909;0;0;6101;0;18;0;15;2027-11-07;Vente par flacon — import catalogue
+MED-0253;Metformine 500mg (ref 253);Antihistaminiques;comprime_plaquette;1017;1941;21969;0;12;413;0;24;2028-05-06;Vente par comprimé ou plaquette — import catalogue
+MED-0254;Chloroquine 100mg (ref 254);Cardiologie;comprime_plaquette;1052;1441;43230;0;30;214;0;29;2027-08-15;Vente par comprimé ou plaquette — import catalogue
+MED-0255;Amlodipine 10mg (ref 255);Antibiotiques;comprime_plaquette;1528;2142;32130;0;15;112;0;17;2028-08-03;Vente par comprimé ou plaquette — import catalogue
+MED-0256;Metformine 400mg (ref 256);Antalgiques;comprime_plaquette;1383;2489;23884;0;10;689;0;26;2028-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0257;Vitamine C 10mg (ref 257);Vitamines;comprime_plaquette;312;540;4320;0;8;764;0;16;2028-04-20;Vente par comprimé ou plaquette — import catalogue
+MED-0258;Fer 250mg (ref 258);Antipaludéens;comprime_plaquette;191;309;4469;0;15;95;0;17;2028-08-02;Vente par comprimé ou plaquette — import catalogue
+MED-0259;Solution antiseptique 200ml #259;Antiseptiques;flacon;3930;0;0;6004;0;40;0;24;2029-01-29;Vente par flacon — import catalogue
+MED-0260;Diclofénac 500mg (ref 260);Antihypertenseurs;comprime_plaquette;281;496;4960;0;10;367;0;22;2028-03-13;Vente par comprimé ou plaquette — import catalogue
+MED-0261;Zinc 100mg (ref 261);Antidiabétiques;comprime_plaquette;1547;2567;25670;0;10;66;0;6;2027-07-23;Vente par comprimé ou plaquette — import catalogue
+MED-0262;Fluconazole 1000mg (ref 262);Antiseptiques;comprime_plaquette;1235;2040;60676;0;30;163;0;15;2028-11-21;Vente par comprimé ou plaquette — import catalogue
+MED-0263;Vitamine B 100mg (ref 263);Sirops;comprime_plaquette;1763;2625;37284;0;15;541;0;22;2028-07-18;Vente par comprimé ou plaquette — import catalogue
+MED-0264;Fluconazole 5mg (ref 264);Gastro;comprime_plaquette;1420;2045;24540;0;12;709;0;8;2028-05-04;Vente par comprimé ou plaquette — import catalogue
+MED-0265;Tramadol 875mg (ref 265);Ophtalmologie;comprime_plaquette;2184;3070;92100;0;30;631;0;20;2027-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0266;Gouttes auriculaires 15ml #266;Antiseptiques;flacon;3165;0;0;3364;0;11;0;23;2028-07-08;Vente par flacon — import catalogue
+MED-0267;Azithromycine 10mg (ref 267);Gynécologie;comprime_plaquette;1941;3053;73272;0;24;171;0;26;2027-11-08;Vente par comprimé ou plaquette — import catalogue
+MED-0268;Amoxicilline 5mg (ref 268);Antihistaminiques;comprime_plaquette;278;550;13200;0;24;448;0;9;2028-04-30;Vente par comprimé ou plaquette — import catalogue
+MED-0269;Fluconazole 400mg (ref 269);Cardiologie;comprime_plaquette;1470;2155;32325;0;15;773;0;28;2027-05-07;Vente par comprimé ou plaquette — import catalogue
+MED-0270;Fluconazole 100mg (ref 270);Antibiotiques;comprime_plaquette;586;949;18980;0;20;509;0;21;2028-03-24;Vente par comprimé ou plaquette — import catalogue
+MED-0271;Vitamine B 100mg (ref 271);Antalgiques;comprime_plaquette;1261;2283;34245;0;15;758;0;26;2028-12-22;Vente par comprimé ou plaquette — import catalogue
+MED-0272;Fluconazole 875mg (ref 272);Vitamines;comprime_plaquette;1057;2083;40187;0;20;250;0;14;2027-12-25;Vente par comprimé ou plaquette — import catalogue
+MED-0273;Suspension amoxicilline 100ml #273;Antibiotiques;flacon;3627;0;0;7275;0;67;0;15;2028-07-08;Vente par flacon — import catalogue
+MED-0274;Fer 10mg (ref 274);Dermatologie;comprime_plaquette;1625;3055;89278;0;30;408;0;17;2028-02-21;Vente par comprimé ou plaquette — import catalogue
+MED-0275;Zinc 100mg (ref 275);Antihypertenseurs;comprime_plaquette;145;272;3264;0;12;374;0;19;2029-01-04;Vente par comprimé ou plaquette — import catalogue
+MED-0276;Artéméther 200mg (ref 276);Antidiabétiques;comprime_plaquette;647;927;8945;0;10;298;0;9;2027-06-24;Vente par comprimé ou plaquette — import catalogue
+MED-0277;Diclofénac 5mg (ref 277);Antiseptiques;comprime_plaquette;508;1093;10930;0;10;251;0;25;2027-10-29;Vente par comprimé ou plaquette — import catalogue
+MED-0278;Amoxicilline 500mg (ref 278);Sirops;comprime_plaquette;965;1452;21380;0;15;25;0;22;2027-08-13;Vente par comprimé ou plaquette — import catalogue
+MED-0279;Oméprazole 200mg (ref 279);Gastro;comprime_plaquette;1409;2764;41460;0;15;348;0;14;2028-12-25;Vente par comprimé ou plaquette — import catalogue
+MED-0280;Sirop toux 60ml #280;Sirops;flacon;3948;0;0;2232;0;78;0;12;2028-09-02;Vente par flacon — import catalogue
+MED-0281;Albendazole 250mg (ref 281);Pédiatrie;comprime_plaquette;1294;1811;17993;0;10;426;0;30;2028-07-24;Vente par comprimé ou plaquette — import catalogue
+MED-0282;Azithromycine 875mg (ref 282);Gynécologie;comprime_plaquette;73;137;1096;0;8;363;0;14;2028-06-12;Vente par comprimé ou plaquette — import catalogue
+MED-0283;Prednisolone 10mg (ref 283);Antihistaminiques;comprime_plaquette;1521;2123;40775;0;20;299;0;11;2027-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0284;Vitamine B 100mg (ref 284);Cardiologie;comprime_plaquette;1275;1979;47496;0;24;34;0;28;2028-02-13;Vente par comprimé ou plaquette — import catalogue
+MED-0285;Vitamine C 5mg (ref 285);Antibiotiques;comprime_plaquette;1625;3201;76824;0;24;674;0;17;2028-05-15;Vente par comprimé ou plaquette — import catalogue
+MED-0286;Losartan 1000mg (ref 286);Antalgiques;comprime_plaquette;1133;1741;12970;0;8;351;0;12;2027-03-11;Vente par comprimé ou plaquette — import catalogue
+MED-0287;Sirop antipaludéen 120ml #287;Antipaludéens;flacon;2371;0;0;3429;0;62;0;29;2027-12-03;Vente par flacon — import catalogue
+MED-0288;Vitamine B 875mg (ref 288);Antipaludéens;comprime_plaquette;1902;3060;58064;0;20;261;0;6;2029-01-16;Vente par comprimé ou plaquette — import catalogue
+MED-0289;Metronidazole 200mg (ref 289);Dermatologie;comprime_plaquette;431;754;9048;0;12;740;0;29;2028-01-17;Vente par comprimé ou plaquette — import catalogue
+MED-0290;Fluconazole 500mg (ref 290);Antihypertenseurs;comprime_plaquette;732;1308;31284;0;24;509;0;9;2028-06-12;Vente par comprimé ou plaquette — import catalogue
+MED-0291;Albendazole 5mg (ref 291);Antidiabétiques;comprime_plaquette;1191;1803;21636;0;12;795;0;22;2029-01-13;Vente par comprimé ou plaquette — import catalogue
+MED-0292;Doxycycline 400mg (ref 292);Antiseptiques;comprime_plaquette;2006;3191;76584;0;24;558;0;19;2028-08-26;Vente par comprimé ou plaquette — import catalogue
+MED-0293;Fluconazole 1000mg (ref 293);Sirops;comprime_plaquette;1165;2410;19280;0;8;537;0;11;2028-10-11;Vente par comprimé ou plaquette — import catalogue
+MED-0294;Sirop vitamine 15ml #294;Vitamines;flacon;1413;0;0;2847;0;46;0;21;2028-05-30;Vente par flacon — import catalogue
+MED-0295;Metronidazole 400mg (ref 295);Ophtalmologie;comprime_plaquette;1484;2488;59712;0;24;476;0;30;2027-04-30;Vente par comprimé ou plaquette — import catalogue
+MED-0296;Metformine 100mg (ref 296);Pédiatrie;comprime_plaquette;1057;1801;34470;0;20;335;0;28;2027-03-27;Vente par comprimé ou plaquette — import catalogue
+MED-0297;Acide folique 875mg (ref 297);Gynécologie;comprime_plaquette;75;112;3360;0;30;66;0;18;2028-02-20;Vente par comprimé ou plaquette — import catalogue
+MED-0298;Fluconazole 500mg (ref 298);Antihistaminiques;comprime_plaquette;252;346;6883;0;20;52;0;14;2028-04-26;Vente par comprimé ou plaquette — import catalogue
+MED-0299;Azithromycine 100mg (ref 299);Cardiologie;comprime_plaquette;2027;2727;81810;0;30;450;0;16;2028-03-30;Vente par comprimé ou plaquette — import catalogue
+MED-0300;Metformine 50mg (ref 300);Antibiotiques;comprime_plaquette;280;428;6420;0;15;572;0;9;2029-01-02;Vente par comprimé ou plaquette — import catalogue
+MED-0301;Sirop paracétamol 120ml #301;Sirops;flacon;1285;0;0;2962;0;73;0;17;2028-08-27;Vente par flacon — import catalogue
+MED-0302;Ciprofloxacine 400mg (ref 302);Vitamines;comprime_plaquette;77;114;3420;0;30;494;0;26;2028-09-12;Vente par comprimé ou plaquette — import catalogue
+MED-0303;Oméprazole 10mg (ref 303);Antipaludéens;comprime_plaquette;1801;3472;52080;0;15;178;0;13;2027-09-14;Vente par comprimé ou plaquette — import catalogue
+MED-0304;Albendazole 500mg (ref 304);Dermatologie;comprime_plaquette;2213;3415;27320;0;8;36;0;12;2027-10-02;Vente par comprimé ou plaquette — import catalogue
+MED-0305;Ibuprofène 500mg (ref 305);Antihypertenseurs;comprime_plaquette;138;237;4740;0;20;69;0;12;2027-04-19;Vente par comprimé ou plaquette — import catalogue
+MED-0306;Acide folique 200mg (ref 306);Antidiabétiques;comprime_plaquette;1190;2310;23100;0;10;77;0;9;2028-08-01;Vente par comprimé ou plaquette — import catalogue
+MED-0307;Vitamine C 400mg (ref 307);Antiseptiques;comprime_plaquette;1928;3096;92880;0;30;708;0;15;2027-11-02;Vente par comprimé ou plaquette — import catalogue
+MED-0308;Lotion cutanée 120ml #308;Dermatologie;flacon;4389;0;0;2673;0;71;0;12;2028-05-01;Vente par flacon — import catalogue
+MED-0309;Vitamine C 875mg (ref 309);Gastro;comprime_plaquette;1748;2380;19040;0;8;199;0;25;2029-01-28;Vente par comprimé ou plaquette — import catalogue
+MED-0310;Oméprazole 10mg (ref 310);Ophtalmologie;comprime_plaquette;216;292;4380;0;15;707;0;17;2028-08-23;Vente par comprimé ou plaquette — import catalogue
+MED-0311;Vitamine B 50mg (ref 311);Pédiatrie;comprime_plaquette;383;711;10270;0;15;266;0;12;2028-01-06;Vente par comprimé ou plaquette — import catalogue
+MED-0312;Fluconazole 100mg (ref 312);Gynécologie;comprime_plaquette;1445;1996;59880;0;30;446;0;22;2028-08-28;Vente par comprimé ou plaquette — import catalogue
+MED-0313;Ciprofloxacine 50mg (ref 313);Antihistaminiques;comprime_plaquette;584;1144;11440;0;10;480;0;16;2027-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0314;Céfixime 400mg (ref 314);Cardiologie;comprime_plaquette;675;1199;9592;0;8;60;0;7;2027-09-13;Vente par comprimé ou plaquette — import catalogue
+MED-0315;Collyre 15ml #315;Ophtalmologie;flacon;3766;0;0;7000;0;76;0;11;2028-07-07;Vente par flacon — import catalogue
+MED-0316;Doxycycline 1000mg (ref 316);Antalgiques;comprime_plaquette;83;162;1903;0;12;784;0;29;2028-07-07;Vente par comprimé ou plaquette — import catalogue
+MED-0317;Chloroquine 5mg (ref 317);Vitamines;comprime_plaquette;533;937;21267;0;24;309;0;17;2028-06-24;Vente par comprimé ou plaquette — import catalogue
+MED-0318;Céfixime 1000mg (ref 318);Antipaludéens;comprime_plaquette;653;1171;14052;0;12;497;0;8;2028-06-27;Vente par comprimé ou plaquette — import catalogue
+MED-0319;Zinc 1000mg (ref 319);Dermatologie;comprime_plaquette;879;1618;16004;0;10;779;0;9;2027-03-21;Vente par comprimé ou plaquette — import catalogue
+MED-0320;Artéméther 10mg (ref 320);Antihypertenseurs;comprime_plaquette;1646;2472;46260;0;20;255;0;17;2028-10-08;Vente par comprimé ou plaquette — import catalogue
+MED-0321;Chloroquine 200mg (ref 321);Antidiabétiques;comprime_plaquette;2038;2781;55620;0;20;520;0;28;2028-12-21;Vente par comprimé ou plaquette — import catalogue
+MED-0322;Solution buvable 200ml #322;Pédiatrie;flacon;2687;0;0;2878;0;50;0;10;2027-07-26;Vente par flacon — import catalogue
+MED-0323;Albendazole 10mg (ref 323);Sirops;comprime_plaquette;618;853;12795;0;15;677;0;6;2028-08-22;Vente par comprimé ou plaquette — import catalogue
+MED-0324;Amoxicilline 500mg (ref 324);Gastro;comprime_plaquette;1317;2837;79237;0;30;665;0;12;2027-05-13;Vente par comprimé ou plaquette — import catalogue
+MED-0325;Fluconazole 100mg (ref 325);Ophtalmologie;comprime_plaquette;598;995;7960;0;8;652;0;25;2029-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0326;Diclofénac 200mg (ref 326);Pédiatrie;comprime_plaquette;954;2098;50352;0;24;441;0;5;2027-03-22;Vente par comprimé ou plaquette — import catalogue
+MED-0327;Losartan 875mg (ref 327);Gynécologie;comprime_plaquette;579;1274;25480;0;20;710;0;18;2027-09-04;Vente par comprimé ou plaquette — import catalogue
+MED-0328;Metronidazole 500mg (ref 328);Antihistaminiques;comprime_plaquette;370;709;14180;0;20;278;0;16;2027-12-03;Vente par comprimé ou plaquette — import catalogue
+MED-0329;Solution antiseptique 200ml #329;Antiseptiques;flacon;1123;0;0;4556;0;56;0;19;2028-10-03;Vente par flacon — import catalogue
+MED-0330;Chloroquine 400mg (ref 330);Antibiotiques;comprime_plaquette;2026;2901;34788;0;12;685;0;29;2027-04-06;Vente par comprimé ou plaquette — import catalogue
+MED-0331;Ibuprofène 50mg (ref 331);Antalgiques;comprime_plaquette;1012;1644;22705;0;15;195;0;7;2028-07-28;Vente par comprimé ou plaquette — import catalogue
+MED-0332;Oméprazole 1000mg (ref 332);Vitamines;comprime_plaquette;352;490;9800;0;20;255;0;11;2029-02-10;Vente par comprimé ou plaquette — import catalogue
+MED-0333;Tramadol 200mg (ref 333);Antipaludéens;comprime_plaquette;210;290;3480;0;12;307;0;22;2028-10-02;Vente par comprimé ou plaquette — import catalogue
+MED-0334;Cotrimoxazole 250mg (ref 334);Dermatologie;comprime_plaquette;631;1388;12929;0;10;749;0;17;2027-05-22;Vente par comprimé ou plaquette — import catalogue
+MED-0335;Vitamine C 100mg (ref 335);Antihypertenseurs;comprime_plaquette;672;1084;21680;0;20;713;0;22;2028-02-07;Vente par comprimé ou plaquette — import catalogue
+MED-0336;Gouttes auriculaires 200ml #336;Antiseptiques;flacon;3894;0;0;7559;0;22;0;30;2029-02-07;Vente par flacon — import catalogue
+MED-0337;Albendazole 500mg (ref 337);Antiseptiques;comprime_plaquette;2340;3153;60220;0;20;97;0;15;2028-11-13;Vente par comprimé ou plaquette — import catalogue
+MED-0338;Zinc 5mg (ref 338);Sirops;comprime_plaquette;1276;1724;34480;0;20;669;0;13;2028-06-08;Vente par comprimé ou plaquette — import catalogue
+MED-0339;Amlodipine 400mg (ref 339);Gastro;comprime_plaquette;1731;2365;28380;0;12;716;0;23;2029-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0340;Acide folique 500mg (ref 340);Ophtalmologie;comprime_plaquette;1418;2633;73135;0;30;294;0;9;2028-03-28;Vente par comprimé ou plaquette — import catalogue
+MED-0341;Fluconazole 100mg (ref 341);Pédiatrie;comprime_plaquette;923;1695;37442;0;24;335;0;19;2028-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0342;Zinc 875mg (ref 342);Gynécologie;comprime_plaquette;305;642;5136;0;8;590;0;22;2028-08-10;Vente par comprimé ou plaquette — import catalogue
+MED-0343;Suspension amoxicilline 200ml #343;Antibiotiques;flacon;1223;0;0;1715;0;16;0;16;2028-09-22;Vente par flacon — import catalogue
+MED-0344;Ibuprofène 5mg (ref 344);Cardiologie;comprime_plaquette;1813;3313;66260;0;20;318;0;18;2028-04-05;Vente par comprimé ou plaquette — import catalogue
+MED-0345;Zinc 500mg (ref 345);Antibiotiques;comprime_plaquette;1725;2391;57384;0;24;605;0;21;2027-08-25;Vente par comprimé ou plaquette — import catalogue
+MED-0346;Cotrimoxazole 50mg (ref 346);Antalgiques;comprime_plaquette;354;668;6223;0;10;191;0;18;2027-12-12;Vente par comprimé ou plaquette — import catalogue
+MED-0347;Oméprazole 875mg (ref 347);Vitamines;comprime_plaquette;1563;3305;46586;0;15;660;0;20;2028-11-02;Vente par comprimé ou plaquette — import catalogue
+MED-0348;Diclofénac 400mg (ref 348);Antipaludéens;comprime_plaquette;263;538;7679;0;15;655;0;17;2028-02-05;Vente par comprimé ou plaquette — import catalogue
+MED-0349;Metformine 1000mg (ref 349);Dermatologie;comprime_plaquette;2397;3440;51600;0;15;628;0;9;2028-01-06;Vente par comprimé ou plaquette — import catalogue
+MED-0350;Sirop toux 120ml #350;Sirops;flacon;3270;0;0;7195;0;30;0;20;2028-01-20;Vente par flacon — import catalogue
+MED-0351;Azithromycine 50mg (ref 351);Antidiabétiques;comprime_plaquette;866;1293;15516;0;12;609;0;30;2027-11-08;Vente par comprimé ou plaquette — import catalogue
+MED-0352;Vitamine B 50mg (ref 352);Antiseptiques;comprime_plaquette;2361;3444;41328;0;12;597;0;11;2028-10-31;Vente par comprimé ou plaquette — import catalogue
+MED-0353;Céfixime 100mg (ref 353);Sirops;comprime_plaquette;1995;3244;77856;0;24;492;0;27;2027-10-05;Vente par comprimé ou plaquette — import catalogue
+MED-0354;Metformine 875mg (ref 354);Gastro;comprime_plaquette;1382;2937;88110;0;30;438;0;26;2028-07-28;Vente par comprimé ou plaquette — import catalogue
+MED-0355;Ciprofloxacine 875mg (ref 355);Ophtalmologie;comprime_plaquette;734;1134;11340;0;10;406;0;7;2028-06-06;Vente par comprimé ou plaquette — import catalogue
+MED-0356;Diclofénac 200mg (ref 356);Pédiatrie;comprime_plaquette;1062;1741;34820;0;20;728;0;18;2028-09-11;Vente par comprimé ou plaquette — import catalogue
+MED-0357;Sirop antipaludéen 60ml #357;Antipaludéens;flacon;4038;0;0;4445;0;73;0;24;2028-12-17;Vente par flacon — import catalogue
+MED-0358;Ibuprofène 500mg (ref 358);Antihistaminiques;comprime_plaquette;722;1116;33480;0;30;682;0;24;2027-04-19;Vente par comprimé ou plaquette — import catalogue
+MED-0359;Tramadol 50mg (ref 359);Cardiologie;comprime_plaquette;1078;1458;43740;0;30;30;0;8;2027-11-24;Vente par comprimé ou plaquette — import catalogue
+MED-0360;Chloroquine 10mg (ref 360);Antibiotiques;comprime_plaquette;1373;2224;53376;0;24;246;0;19;2028-03-22;Vente par comprimé ou plaquette — import catalogue
+MED-0361;Acide folique 200mg (ref 361);Antalgiques;comprime_plaquette;1806;2883;86490;0;30;373;0;5;2028-07-11;Vente par comprimé ou plaquette — import catalogue
+MED-0362;Metronidazole 875mg (ref 362);Vitamines;comprime_plaquette;218;451;6765;0;15;165;0;16;2028-01-18;Vente par comprimé ou plaquette — import catalogue
+MED-0363;Vitamine B 200mg (ref 363);Antipaludéens;comprime_plaquette;574;947;28410;0;30;119;0;19;2029-02-15;Vente par comprimé ou plaquette — import catalogue
+MED-0364;Sirop vitamine 200ml #364;Vitamines;flacon;2106;0;0;2050;0;43;0;6;2027-06-30;Vente par flacon — import catalogue
+MED-0365;Paracétamol 1000mg (ref 365);Antihypertenseurs;comprime_plaquette;357;547;13111;0;24;269;0;21;2027-08-30;Vente par comprimé ou plaquette — import catalogue
+MED-0366;Céfixime 100mg (ref 366);Antidiabétiques;comprime_plaquette;1382;2393;28716;0;12;434;0;25;2027-09-09;Vente par comprimé ou plaquette — import catalogue
+MED-0367;Azithromycine 50mg (ref 367);Antiseptiques;comprime_plaquette;146;219;3285;0;15;480;0;23;2028-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0368;Acide folique 250mg (ref 368);Sirops;comprime_plaquette;500;979;23496;0;24;84;0;23;2027-06-17;Vente par comprimé ou plaquette — import catalogue
+MED-0369;Céfixime 100mg (ref 369);Gastro;comprime_plaquette;730;1435;16766;0;12;521;0;21;2028-12-18;Vente par comprimé ou plaquette — import catalogue
+MED-0370;Vitamine B 5mg (ref 370);Ophtalmologie;comprime_plaquette;1477;2603;37020;0;15;488;0;24;2027-08-28;Vente par comprimé ou plaquette — import catalogue
+MED-0371;Sirop paracétamol 120ml #371;Sirops;flacon;3316;0;0;6334;0;15;0;26;2027-07-20;Vente par flacon — import catalogue
+MED-0372;Vitamine B 500mg (ref 372);Gynécologie;comprime_plaquette;654;1350;13500;0;10;164;0;21;2028-04-05;Vente par comprimé ou plaquette — import catalogue
+MED-0373;Oméprazole 5mg (ref 373);Antihistaminiques;comprime_plaquette;1386;2454;23824;0;10;730;0;25;2027-08-29;Vente par comprimé ou plaquette — import catalogue
+MED-0374;Céfixime 100mg (ref 374);Cardiologie;comprime_plaquette;631;1283;19245;0;15;481;0;24;2027-04-28;Vente par comprimé ou plaquette — import catalogue
+MED-0375;Fer 250mg (ref 375);Antibiotiques;comprime_plaquette;335;659;9885;0;15;595;0;21;2029-01-01;Vente par comprimé ou plaquette — import catalogue
+MED-0376;Amlodipine 50mg (ref 376);Antalgiques;comprime_plaquette;1214;2114;50736;0;24;520;0;10;2027-05-28;Vente par comprimé ou plaquette — import catalogue
+MED-0377;Tramadol 250mg (ref 377);Vitamines;comprime_plaquette;1660;3217;90525;0;30;315;0;10;2028-06-15;Vente par comprimé ou plaquette — import catalogue
+MED-0378;Lotion cutanée 15ml #378;Dermatologie;flacon;3841;0;0;7828;0;68;0;22;2028-08-09;Vente par flacon — import catalogue
+MED-0379;Metronidazole 5mg (ref 379);Dermatologie;comprime_plaquette;816;1197;9576;0;8;395;0;22;2027-04-16;Vente par comprimé ou plaquette — import catalogue
+MED-0380;Zinc 200mg (ref 380);Antihypertenseurs;comprime_plaquette;743;995;19629;0;20;789;0;12;2028-01-03;Vente par comprimé ou plaquette — import catalogue
+MED-0381;Amoxicilline 200mg (ref 381);Antidiabétiques;comprime_plaquette;1082;1527;18126;0;12;140;0;29;2027-11-02;Vente par comprimé ou plaquette — import catalogue
+MED-0382;Doxycycline 5mg (ref 382);Antiseptiques;comprime_plaquette;1087;1536;36864;0;24;458;0;10;2028-11-24;Vente par comprimé ou plaquette — import catalogue
+MED-0383;Ciprofloxacine 400mg (ref 383);Sirops;comprime_plaquette;654;947;28410;0;30;565;0;13;2028-11-05;Vente par comprimé ou plaquette — import catalogue
+MED-0384;Céfixime 100mg (ref 384);Gastro;comprime_plaquette;1604;2983;35796;0;12;546;0;26;2027-06-10;Vente par comprimé ou plaquette — import catalogue
+MED-0385;Collyre 100ml #385;Ophtalmologie;flacon;3872;0;0;7936;0;57;0;6;2027-12-13;Vente par flacon — import catalogue
+MED-0386;Prednisolone 100mg (ref 386);Pédiatrie;comprime_plaquette;337;643;15432;0;24;273;0;29;2029-01-25;Vente par comprimé ou plaquette — import catalogue
+MED-0387;Acide folique 200mg (ref 387);Gynécologie;comprime_plaquette;1576;2465;24650;0;10;404;0;19;2027-05-21;Vente par comprimé ou plaquette — import catalogue
+MED-0388;Prednisolone 500mg (ref 388);Antihistaminiques;comprime_plaquette;1492;2211;33165;0;15;397;0;19;2028-07-16;Vente par comprimé ou plaquette — import catalogue
+MED-0389;Vitamine B 5mg (ref 389);Cardiologie;comprime_plaquette;2302;3270;26101;0;8;670;0;26;2029-02-16;Vente par comprimé ou plaquette — import catalogue
+MED-0390;Fer 500mg (ref 390);Antibiotiques;comprime_plaquette;1303;2289;68670;0;30;236;0;20;2027-12-04;Vente par comprimé ou plaquette — import catalogue
+MED-0391;Vitamine B 875mg (ref 391);Antalgiques;comprime_plaquette;1459;2341;28092;0;12;516;0;30;2028-02-19;Vente par comprimé ou plaquette — import catalogue
+MED-0392;Solution buvable 60ml #392;Pédiatrie;flacon;988;0;0;2315;0;63;0;5;2027-07-10;Vente par flacon — import catalogue
+MED-0393;Azithromycine 200mg (ref 393);Antipaludéens;comprime_plaquette;76;102;1530;0;15;725;0;9;2028-12-29;Vente par comprimé ou plaquette — import catalogue
+MED-0394;Vitamine C 100mg (ref 394);Dermatologie;comprime_plaquette;584;1222;36660;0;30;104;0;16;2029-01-13;Vente par comprimé ou plaquette — import catalogue
+MED-0395;Prednisolone 100mg (ref 395);Antihypertenseurs;comprime_plaquette;1098;1723;13784;0;8;793;0;12;2028-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0396;Prednisolone 500mg (ref 396);Antidiabétiques;comprime_plaquette;220;489;11736;0;24;155;0;23;2027-10-22;Vente par comprimé ou plaquette — import catalogue
+MED-0397;Losartan 200mg (ref 397);Antiseptiques;comprime_plaquette;87;133;1064;0;8;452;0;27;2027-07-18;Vente par comprimé ou plaquette — import catalogue
+MED-0398;Amlodipine 500mg (ref 398);Sirops;comprime_plaquette;795;1669;16690;0;10;125;0;15;2028-03-15;Vente par comprimé ou plaquette — import catalogue
+MED-0399;Solution antiseptique 120ml #399;Antiseptiques;flacon;1361;0;0;4635;0;22;0;25;2029-01-26;Vente par flacon — import catalogue
+MED-0400;Ciprofloxacine 500mg (ref 400);Ophtalmologie;comprime_plaquette;1089;2407;48140;0;20;470;0;16;2027-10-09;Vente par comprimé ou plaquette — import catalogue
+MED-0401;Prednisolone 100mg (ref 401);Pédiatrie;comprime_plaquette;1720;2623;39345;0;15;108;0;8;2027-07-26;Vente par comprimé ou plaquette — import catalogue
+MED-0402;Zinc 500mg (ref 402);Gynécologie;comprime_plaquette;1746;3090;61800;0;20;342;0;30;2027-07-26;Vente par comprimé ou plaquette — import catalogue
+MED-0403;Chloroquine 875mg (ref 403);Antihistaminiques;comprime_plaquette;233;445;10680;0;24;758;0;24;2027-12-21;Vente par comprimé ou plaquette — import catalogue
+MED-0404;Zinc 250mg (ref 404);Cardiologie;comprime_plaquette;1992;2796;81242;0;30;213;0;28;2028-04-09;Vente par comprimé ou plaquette — import catalogue
+MED-0405;Vitamine C 250mg (ref 405);Antibiotiques;comprime_plaquette;2467;3351;100530;0;30;135;0;12;2028-07-28;Vente par comprimé ou plaquette — import catalogue
+MED-0406;Gouttes auriculaires 15ml #406;Antiseptiques;flacon;1090;0;0;5827;0;6;0;16;2028-01-23;Vente par flacon — import catalogue
+MED-0407;Ciprofloxacine 50mg (ref 407);Vitamines;comprime_plaquette;1399;2428;72840;0;30;196;0;29;2028-06-29;Vente par comprimé ou plaquette — import catalogue
+MED-0408;Zinc 500mg (ref 408);Antipaludéens;comprime_plaquette;1178;2505;18500;0;8;81;0;30;2028-04-15;Vente par comprimé ou plaquette — import catalogue
+MED-0409;Losartan 875mg (ref 409);Dermatologie;comprime_plaquette;1811;3018;72432;0;24;738;0;17;2027-05-28;Vente par comprimé ou plaquette — import catalogue
+MED-0410;Prednisolone 10mg (ref 410);Antihypertenseurs;comprime_plaquette;1300;2623;48594;0;20;228;0;30;2027-08-11;Vente par comprimé ou plaquette — import catalogue
+MED-0411;Céfixime 1000mg (ref 411);Antidiabétiques;comprime_plaquette;1602;2502;37530;0;15;717;0;25;2027-05-11;Vente par comprimé ou plaquette — import catalogue
+MED-0412;Vitamine C 50mg (ref 412);Antiseptiques;comprime_plaquette;503;1077;24678;0;24;484;0;24;2028-11-17;Vente par comprimé ou plaquette — import catalogue
+MED-0413;Suspension amoxicilline 60ml #413;Antibiotiques;flacon;2066;0;0;6956;0;27;0;8;2027-03-17;Vente par flacon — import catalogue
+MED-0414;Fluconazole 100mg (ref 414);Gastro;comprime_plaquette;72;146;3504;0;24;555;0;21;2027-11-25;Vente par comprimé ou plaquette — import catalogue
+MED-0415;Azithromycine 1000mg (ref 415);Ophtalmologie;comprime_plaquette;2170;3171;31421;0;10;50;0;15;2028-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0416;Artéméther 10mg (ref 416);Pédiatrie;comprime_plaquette;781;1177;9416;0;8;98;0;20;2028-06-13;Vente par comprimé ou plaquette — import catalogue
+MED-0417;Losartan 1000mg (ref 417);Gynécologie;comprime_plaquette;1518;2146;16010;0;8;125;0;23;2029-01-23;Vente par comprimé ou plaquette — import catalogue
+MED-0418;Albendazole 500mg (ref 418);Antihistaminiques;comprime_plaquette;1888;3134;30996;0;10;270;0;6;2028-06-30;Vente par comprimé ou plaquette — import catalogue
+MED-0419;Fer 50mg (ref 419);Cardiologie;comprime_plaquette;607;833;8330;0;10;586;0;30;2029-01-04;Vente par comprimé ou plaquette — import catalogue
+MED-0420;Sirop toux 200ml #420;Sirops;flacon;1719;0;0;4136;0;36;0;18;2028-01-26;Vente par flacon — import catalogue
+MED-0421;Artéméther 500mg (ref 421);Antalgiques;comprime_plaquette;790;1627;32540;0;20;73;0;10;2027-10-19;Vente par comprimé ou plaquette — import catalogue
+MED-0422;Losartan 250mg (ref 422);Vitamines;comprime_plaquette;272;382;5730;0;15;338;0;15;2027-06-01;Vente par comprimé ou plaquette — import catalogue
+MED-0423;Céfixime 200mg (ref 423);Antipaludéens;comprime_plaquette;821;1611;12888;0;8;331;0;28;2028-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0424;Chloroquine 200mg (ref 424);Dermatologie;comprime_plaquette;1870;2523;30276;0;12;220;0;28;2028-09-14;Vente par comprimé ou plaquette — import catalogue
+MED-0425;Zinc 400mg (ref 425);Antihypertenseurs;comprime_plaquette;91;126;1213;0;10;671;0;27;2027-03-14;Vente par comprimé ou plaquette — import catalogue
+MED-0426;Vitamine B 250mg (ref 426);Antidiabétiques;comprime_plaquette;1571;2792;83760;0;30;334;0;8;2027-10-01;Vente par comprimé ou plaquette — import catalogue
+MED-0427;Sirop antipaludéen 15ml #427;Antipaludéens;flacon;1775;0;0;4939;0;67;0;6;2027-07-28;Vente par flacon — import catalogue
+MED-0428;Fluconazole 875mg (ref 428);Sirops;comprime_plaquette;202;279;2232;0;8;552;0;18;2029-02-19;Vente par comprimé ou plaquette — import catalogue
+MED-0429;Fer 200mg (ref 429);Gastro;comprime_plaquette;279;447;10728;0;24;672;0;17;2027-05-20;Vente par comprimé ou plaquette — import catalogue
+MED-0430;Tramadol 5mg (ref 430);Ophtalmologie;comprime_plaquette;1220;1881;14195;0;8;342;0;30;2028-04-10;Vente par comprimé ou plaquette — import catalogue
+MED-0431;Fluconazole 1000mg (ref 431);Pédiatrie;comprime_plaquette;1038;1954;21952;0;12;618;0;8;2027-08-11;Vente par comprimé ou plaquette — import catalogue
+MED-0432;Metronidazole 100mg (ref 432);Gynécologie;comprime_plaquette;1092;2008;28573;0;15;232;0;19;2028-01-14;Vente par comprimé ou plaquette — import catalogue
+MED-0433;Metformine 875mg (ref 433);Antihistaminiques;comprime_plaquette;281;591;17730;0;30;331;0;27;2029-02-15;Vente par comprimé ou plaquette — import catalogue
+MED-0434;Sirop vitamine 15ml #434;Vitamines;flacon;965;0;0;3261;0;46;0;9;2027-06-06;Vente par flacon — import catalogue
+MED-0435;Fluconazole 400mg (ref 435);Antibiotiques;comprime_plaquette;1040;1723;20676;0;12;286;0;10;2027-04-05;Vente par comprimé ou plaquette — import catalogue
+MED-0436;Acide folique 200mg (ref 436);Antalgiques;comprime_plaquette;1945;3164;58733;0;20;163;0;8;2027-03-17;Vente par comprimé ou plaquette — import catalogue
+MED-0437;Amoxicilline 400mg (ref 437);Vitamines;comprime_plaquette;635;911;9110;0;10;665;0;25;2027-05-30;Vente par comprimé ou plaquette — import catalogue
+MED-0438;Tramadol 5mg (ref 438);Antipaludéens;comprime_plaquette;1620;3429;41148;0;12;222;0;25;2028-06-01;Vente par comprimé ou plaquette — import catalogue
+MED-0439;Ciprofloxacine 500mg (ref 439);Dermatologie;comprime_plaquette;2422;3497;104425;0;30;71;0;10;2028-10-12;Vente par comprimé ou plaquette — import catalogue
+MED-0440;Oméprazole 50mg (ref 440);Antihypertenseurs;comprime_plaquette;124;220;3300;0;15;382;0;11;2027-09-12;Vente par comprimé ou plaquette — import catalogue
+MED-0441;Sirop paracétamol 120ml #441;Sirops;flacon;1946;0;0;5153;0;24;0;6;2028-11-22;Vente par flacon — import catalogue
+MED-0442;Diclofénac 5mg (ref 442);Antiseptiques;comprime_plaquette;1481;2751;27510;0;10;583;0;20;2027-05-06;Vente par comprimé ou plaquette — import catalogue
+MED-0443;Ibuprofène 875mg (ref 443);Sirops;comprime_plaquette;381;662;9930;0;15;558;0;12;2028-12-09;Vente par comprimé ou plaquette — import catalogue
+MED-0444;Céfixime 250mg (ref 444);Gastro;comprime_plaquette;2192;3302;49530;0;15;516;0;16;2028-10-04;Vente par comprimé ou plaquette — import catalogue
+MED-0445;Losartan 1000mg (ref 445);Ophtalmologie;comprime_plaquette;608;1207;18105;0;15;244;0;5;2027-12-17;Vente par comprimé ou plaquette — import catalogue
+MED-0446;Amoxicilline 200mg (ref 446);Pédiatrie;comprime_plaquette;1063;1564;31280;0;20;183;0;8;2027-11-13;Vente par comprimé ou plaquette — import catalogue
+MED-0447;Cotrimoxazole 400mg (ref 447);Gynécologie;comprime_plaquette;1587;2285;27420;0;12;77;0;29;2027-10-15;Vente par comprimé ou plaquette — import catalogue
+MED-0448;Lotion cutanée 15ml #448;Dermatologie;flacon;4267;0;0;8032;0;54;0;16;2027-08-29;Vente par flacon — import catalogue
+MED-0449;Azithromycine 400mg (ref 449);Cardiologie;comprime_plaquette;969;1402;28040;0;20;625;0;5;2029-02-22;Vente par comprimé ou plaquette — import catalogue
+MED-0450;Fluconazole 1000mg (ref 450);Antibiotiques;comprime_plaquette;1186;2408;48160;0;20;524;0;22;2028-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0451;Azithromycine 200mg (ref 451);Antalgiques;comprime_plaquette;218;469;3752;0;8;40;0;21;2028-07-06;Vente par comprimé ou plaquette — import catalogue
+MED-0452;Paracétamol 1000mg (ref 452);Vitamines;comprime_plaquette;640;925;18500;0;20;201;0;30;2028-01-30;Vente par comprimé ou plaquette — import catalogue
+MED-0453;Amoxicilline 250mg (ref 453);Antipaludéens;comprime_plaquette;1654;2502;23240;0;10;558;0;16;2027-05-18;Vente par comprimé ou plaquette — import catalogue
+MED-0454;Fer 50mg (ref 454);Dermatologie;comprime_plaquette;282;513;10260;0;20;181;0;28;2028-05-25;Vente par comprimé ou plaquette — import catalogue
+MED-0455;Collyre 200ml #455;Ophtalmologie;flacon;3459;0;0;4099;0;27;0;27;2028-09-30;Vente par flacon — import catalogue
+MED-0456;Fluconazole 5mg (ref 456);Antidiabétiques;comprime_plaquette;806;1561;46830;0;30;199;0;17;2028-01-13;Vente par comprimé ou plaquette — import catalogue
+MED-0457;Albendazole 875mg (ref 457);Antiseptiques;comprime_plaquette;552;827;8270;0;10;606;0;17;2028-10-06;Vente par comprimé ou plaquette — import catalogue
+MED-0458;Amoxicilline 100mg (ref 458);Sirops;comprime_plaquette;1019;1403;28060;0;20;246;0;25;2028-10-04;Vente par comprimé ou plaquette — import catalogue
+MED-0459;Metronidazole 200mg (ref 459);Gastro;comprime_plaquette;980;1456;14539;0;10;191;0;25;2027-06-03;Vente par comprimé ou plaquette — import catalogue
+MED-0460;Fluconazole 1000mg (ref 460);Ophtalmologie;comprime_plaquette;77;146;2026;0;15;282;0;30;2027-06-23;Vente par comprimé ou plaquette — import catalogue
+MED-0461;Albendazole 250mg (ref 461);Pédiatrie;comprime_plaquette;976;1680;13440;0;8;190;0;18;2028-07-21;Vente par comprimé ou plaquette — import catalogue
+MED-0462;Solution buvable 200ml #462;Pédiatrie;flacon;2238;0;0;5973;0;53;0;8;2028-07-07;Vente par flacon — import catalogue
+MED-0463;Tramadol 400mg (ref 463);Antihistaminiques;comprime_plaquette;919;1948;19480;0;10;321;0;5;2028-01-25;Vente par comprimé ou plaquette — import catalogue
+MED-0464;Artéméther 500mg (ref 464);Cardiologie;comprime_plaquette;751;1500;12000;0;8;769;0;7;2028-09-15;Vente par comprimé ou plaquette — import catalogue
+MED-0465;Ibuprofène 1000mg (ref 465);Antibiotiques;comprime_plaquette;1876;2613;52260;0;20;461;0;25;2027-08-20;Vente par comprimé ou plaquette — import catalogue
+MED-0466;Diclofénac 50mg (ref 466);Antalgiques;comprime_plaquette;153;319;2983;0;10;733;0;22;2028-09-08;Vente par comprimé ou plaquette — import catalogue
+MED-0467;Artéméther 875mg (ref 467);Vitamines;comprime_plaquette;513;1072;12864;0;12;582;0;20;2027-08-09;Vente par comprimé ou plaquette — import catalogue
+MED-0468;Amoxicilline 1000mg (ref 468);Antipaludéens;comprime_plaquette;881;1851;14808;0;8;660;0;24;2028-07-08;Vente par comprimé ou plaquette — import catalogue
+MED-0469;Solution antiseptique 100ml #469;Antiseptiques;flacon;1197;0;0;1710;0;31;0;10;2028-12-17;Vente par flacon — import catalogue
+MED-0470;Vitamine C 500mg (ref 470);Antihypertenseurs;comprime_plaquette;310;573;8595;0;15;520;0;26;2027-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0471;Ibuprofène 10mg (ref 471);Antidiabétiques;comprime_plaquette;481;857;12855;0;15;211;0;19;2027-04-19;Vente par comprimé ou plaquette — import catalogue
+MED-0472;Artéméther 200mg (ref 472);Antiseptiques;comprime_plaquette;610;1178;16343;0;15;790;0;27;2029-01-16;Vente par comprimé ou plaquette — import catalogue
+MED-0473;Metronidazole 500mg (ref 473);Sirops;comprime_plaquette;1044;1508;36192;0;24;794;0;23;2027-10-23;Vente par comprimé ou plaquette — import catalogue
+MED-0474;Céfixime 250mg (ref 474);Gastro;comprime_plaquette;1171;1685;50550;0;30;568;0;26;2028-07-03;Vente par comprimé ou plaquette — import catalogue
+MED-0475;Tramadol 400mg (ref 475);Ophtalmologie;comprime_plaquette;627;1324;19860;0;15;751;0;6;2028-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0476;Gouttes auriculaires 15ml #476;Antiseptiques;flacon;4488;0;0;5733;0;78;0;26;2028-11-29;Vente par flacon — import catalogue
+MED-0477;Ciprofloxacine 500mg (ref 477);Gynécologie;comprime_plaquette;973;1939;58170;0;30;236;0;30;2027-09-18;Vente par comprimé ou plaquette — import catalogue
+MED-0478;Ciprofloxacine 250mg (ref 478);Antihistaminiques;comprime_plaquette;313;420;6300;0;15;662;0;9;2028-11-03;Vente par comprimé ou plaquette — import catalogue
+MED-0479;Artéméther 1000mg (ref 479);Cardiologie;comprime_plaquette;1601;3406;81744;0;24;426;0;22;2028-02-01;Vente par comprimé ou plaquette — import catalogue
+MED-0480;Artéméther 10mg (ref 480);Antibiotiques;comprime_plaquette;102;150;2250;0;15;555;0;30;2028-05-07;Vente par comprimé ou plaquette — import catalogue
+MED-0481;Metronidazole 50mg (ref 481);Antalgiques;comprime_plaquette;438;707;7070;0;10;122;0;8;2028-10-01;Vente par comprimé ou plaquette — import catalogue
+MED-0482;Zinc 500mg (ref 482);Vitamines;comprime_plaquette;902;1271;38130;0;30;440;0;13;2028-03-31;Vente par comprimé ou plaquette — import catalogue
+MED-0483;Suspension amoxicilline 200ml #483;Antibiotiques;flacon;3143;0;0;6488;0;65;0;6;2027-08-28;Vente par flacon — import catalogue
+MED-0484;Artéméther 50mg (ref 484);Dermatologie;comprime_plaquette;1664;2632;26320;0;10;59;0;17;2028-02-07;Vente par comprimé ou plaquette — import catalogue
+MED-0485;Fluconazole 400mg (ref 485);Antihypertenseurs;comprime_plaquette;1868;3154;23965;0;8;365;0;30;2028-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0486;Vitamine C 875mg (ref 486);Antidiabétiques;comprime_plaquette;1494;2113;63390;0;30;253;0;9;2028-01-06;Vente par comprimé ou plaquette — import catalogue
+MED-0487;Albendazole 200mg (ref 487);Antiseptiques;comprime_plaquette;1902;3482;104460;0;30;639;0;25;2027-06-04;Vente par comprimé ou plaquette — import catalogue
+MED-0488;Doxycycline 200mg (ref 488);Sirops;comprime_plaquette;1987;3474;34740;0;10;548;0;16;2027-05-01;Vente par comprimé ou plaquette — import catalogue
+MED-0489;Losartan 100mg (ref 489);Gastro;comprime_plaquette;910;1374;10992;0;8;556;0;23;2027-04-03;Vente par comprimé ou plaquette — import catalogue
+MED-0490;Sirop toux 100ml #490;Sirops;flacon;1589;0;0;8323;0;30;0;6;2027-11-15;Vente par flacon — import catalogue
+MED-0491;Amoxicilline 200mg (ref 491);Pédiatrie;comprime_plaquette;1042;1576;12429;0;8;537;0;17;2028-12-14;Vente par comprimé ou plaquette — import catalogue
+MED-0492;Metronidazole 250mg (ref 492);Gynécologie;comprime_plaquette;969;1625;16250;0;10;505;0;23;2028-09-19;Vente par comprimé ou plaquette — import catalogue
+MED-0493;Fer 1000mg (ref 493);Antihistaminiques;comprime_plaquette;781;1159;11590;0;10;311;0;5;2028-04-03;Vente par comprimé ou plaquette — import catalogue
+MED-0494;Amoxicilline 100mg (ref 494);Cardiologie;comprime_plaquette;1670;2443;68724;0;30;250;0;26;2027-10-02;Vente par comprimé ou plaquette — import catalogue
+MED-0495;Artéméther 50mg (ref 495);Antibiotiques;comprime_plaquette;129;182;3640;0;20;718;0;5;2028-07-02;Vente par comprimé ou plaquette — import catalogue
+MED-0496;Ciprofloxacine 100mg (ref 496);Antalgiques;comprime_plaquette;1529;3380;66545;0;20;332;0;27;2028-12-22;Vente par comprimé ou plaquette — import catalogue
+MED-0497;Sirop antipaludéen 120ml #497;Antipaludéens;flacon;2535;0;0;4584;0;49;0;19;2027-11-18;Vente par flacon — import catalogue
+MED-0498;Doxycycline 200mg (ref 498);Antipaludéens;comprime_plaquette;1741;2873;34476;0;12;618;0;8;2027-03-12;Vente par comprimé ou plaquette — import catalogue
+MED-0499;Losartan 1000mg (ref 499);Dermatologie;comprime_plaquette;1727;2751;53630;0;20;513;0;7;2028-02-12;Vente par comprimé ou plaquette — import catalogue
+MED-0500;Artéméther 1000mg (ref 500);Antihypertenseurs;comprime_plaquette;651;1234;37020;0;30;687;0;14;2027-09-13;Vente par comprimé ou plaquette — import catalogue
+MED-0501;Ciprofloxacine 10mg (ref 501);Antidiabétiques;comprime_plaquette;780;1084;32520;0;30;634;0;17;2029-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0502;Vitamine B 100mg (ref 502);Antiseptiques;comprime_plaquette;131;204;4896;0;24;285;0;18;2028-04-22;Vente par comprimé ou plaquette — import catalogue
+MED-0503;Acide folique 250mg (ref 503);Sirops;comprime_plaquette;2245;3000;60000;0;20;371;0;28;2027-10-18;Vente par comprimé ou plaquette — import catalogue
+MED-0504;Sirop vitamine 15ml #504;Vitamines;flacon;3414;0;0;7929;0;65;0;26;2028-03-06;Vente par flacon — import catalogue
+MED-0505;Losartan 875mg (ref 505);Ophtalmologie;comprime_plaquette;558;796;23880;0;30;205;0;14;2027-06-12;Vente par comprimé ou plaquette — import catalogue
+MED-0506;Amlodipine 100mg (ref 506);Pédiatrie;comprime_plaquette;773;1159;27816;0;24;207;0;26;2028-02-11;Vente par comprimé ou plaquette — import catalogue
+MED-0507;Prednisolone 500mg (ref 507);Gynécologie;comprime_plaquette;803;1555;15550;0;10;450;0;30;2028-02-07;Vente par comprimé ou plaquette — import catalogue
+MED-0508;Fer 875mg (ref 508);Antihistaminiques;comprime_plaquette;768;1304;24105;0;20;669;0;23;2028-10-19;Vente par comprimé ou plaquette — import catalogue
+MED-0509;Diclofénac 500mg (ref 509);Cardiologie;comprime_plaquette;537;896;13440;0;15;410;0;21;2028-01-04;Vente par comprimé ou plaquette — import catalogue
+MED-0510;Oméprazole 250mg (ref 510);Antibiotiques;comprime_plaquette;352;717;20493;0;30;603;0;19;2027-07-29;Vente par comprimé ou plaquette — import catalogue
+MED-0511;Sirop paracétamol 120ml #511;Sirops;flacon;4332;0;0;7362;0;28;0;29;2027-05-26;Vente par flacon — import catalogue
+MED-0512;Amlodipine 1000mg (ref 512);Vitamines;comprime_plaquette;448;824;18909;0;24;234;0;29;2027-08-24;Vente par comprimé ou plaquette — import catalogue
+MED-0513;Tramadol 100mg (ref 513);Antipaludéens;comprime_plaquette;2251;3316;48205;0;15;668;0;18;2028-04-21;Vente par comprimé ou plaquette — import catalogue
+MED-0514;Oméprazole 200mg (ref 514);Dermatologie;comprime_plaquette;54;119;1695;0;15;34;0;15;2028-08-29;Vente par comprimé ou plaquette — import catalogue
+MED-0515;Doxycycline 250mg (ref 515);Antihypertenseurs;comprime_plaquette;74;116;2715;0;24;372;0;14;2027-07-15;Vente par comprimé ou plaquette — import catalogue
+MED-0516;Metronidazole 50mg (ref 516);Antidiabétiques;comprime_plaquette;1360;2511;46386;0;20;317;0;19;2028-08-18;Vente par comprimé ou plaquette — import catalogue
+MED-0517;Diclofénac 10mg (ref 517);Antiseptiques;comprime_plaquette;1343;1876;22512;0;12;370;0;20;2028-03-06;Vente par comprimé ou plaquette — import catalogue
+MED-0518;Lotion cutanée 100ml #518;Dermatologie;flacon;1475;0;0;8151;0;56;0;5;2027-10-24;Vente par flacon — import catalogue
+MED-0519;Chloroquine 100mg (ref 519);Gastro;comprime_plaquette;1418;3106;31060;0;10;146;0;16;2028-12-30;Vente par comprimé ou plaquette — import catalogue
+MED-0520;Amoxicilline 50mg (ref 520);Ophtalmologie;comprime_plaquette;781;1147;27528;0;24;628;0;6;2029-01-10;Vente par comprimé ou plaquette — import catalogue
+MED-0521;Metronidazole 250mg (ref 521);Pédiatrie;comprime_plaquette;1417;2925;23400;0;8;146;0;22;2027-11-18;Vente par comprimé ou plaquette — import catalogue
+MED-0522;Amlodipine 100mg (ref 522);Gynécologie;comprime_plaquette;1932;2947;28104;0;10;123;0;26;2028-08-18;Vente par comprimé ou plaquette — import catalogue
+MED-0523;Artéméther 5mg (ref 523);Antihistaminiques;comprime_plaquette;1458;2970;59400;0;20;127;0;21;2028-11-26;Vente par comprimé ou plaquette — import catalogue
+MED-0524;Metronidazole 875mg (ref 524);Cardiologie;comprime_plaquette;1596;3314;24814;0;8;289;0;21;2027-09-27;Vente par comprimé ou plaquette — import catalogue
+MED-0525;Collyre 120ml #525;Ophtalmologie;flacon;3681;0;0;4856;0;42;0;10;2027-04-14;Vente par flacon — import catalogue
+MED-0526;Céfixime 200mg (ref 526);Antalgiques;comprime_plaquette;2129;2918;29180;0;10;22;0;5;2029-01-20;Vente par comprimé ou plaquette — import catalogue
+MED-0527;Ibuprofène 500mg (ref 527);Vitamines;comprime_plaquette;1594;2451;68177;0;30;543;0;7;2027-06-16;Vente par comprimé ou plaquette — import catalogue
+MED-0528;Artéméther 400mg (ref 528);Antipaludéens;comprime_plaquette;694;1312;19385;0;15;60;0;14;2028-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0529;Cotrimoxazole 1000mg (ref 529);Dermatologie;comprime_plaquette;1514;3125;46875;0;15;66;0;5;2027-07-24;Vente par comprimé ou plaquette — import catalogue
+MED-0530;Cotrimoxazole 100mg (ref 530);Antihypertenseurs;comprime_plaquette;1123;1564;18768;0;12;294;0;28;2027-06-08;Vente par comprimé ou plaquette — import catalogue
+MED-0531;Fer 1000mg (ref 531);Antidiabétiques;comprime_plaquette;322;566;5660;0;10;298;0;17;2029-02-08;Vente par comprimé ou plaquette — import catalogue
+MED-0532;Solution buvable 200ml #532;Pédiatrie;flacon;4076;0;0;4954;0;26;0;8;2027-07-18;Vente par flacon — import catalogue
+MED-0533;Fluconazole 250mg (ref 533);Sirops;comprime_plaquette;361;752;22560;0;30;514;0;30;2028-10-07;Vente par comprimé ou plaquette — import catalogue
+MED-0534;Cotrimoxazole 200mg (ref 534);Gastro;comprime_plaquette;1467;2603;26030;0;10;49;0;26;2027-07-16;Vente par comprimé ou plaquette — import catalogue
+MED-0535;Amlodipine 200mg (ref 535);Ophtalmologie;comprime_plaquette;1038;1784;13878;0;8;32;0;27;2029-01-27;Vente par comprimé ou plaquette — import catalogue
+MED-0536;Losartan 5mg (ref 536);Pédiatrie;comprime_plaquette;1248;2414;57936;0;24;366;0;21;2028-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0537;Fluconazole 5mg (ref 537);Gynécologie;comprime_plaquette;1214;1872;14192;0;8;712;0;25;2028-04-02;Vente par comprimé ou plaquette — import catalogue
+MED-0538;Ciprofloxacine 10mg (ref 538);Antihistaminiques;comprime_plaquette;146;323;6460;0;20;537;0;20;2028-07-24;Vente par comprimé ou plaquette — import catalogue
+MED-0539;Solution antiseptique 100ml #539;Antiseptiques;flacon;1106;0;0;7655;0;67;0;15;2027-11-06;Vente par flacon — import catalogue
+MED-0540;Vitamine B 875mg (ref 540);Antibiotiques;comprime_plaquette;1124;2176;17408;0;8;432;0;12;2027-05-24;Vente par comprimé ou plaquette — import catalogue
+MED-0541;Metformine 200mg (ref 541);Antalgiques;comprime_plaquette;1430;2447;73410;0;30;477;0;15;2027-07-04;Vente par comprimé ou plaquette — import catalogue
+MED-0542;Amlodipine 250mg (ref 542);Vitamines;comprime_plaquette;1005;1752;14016;0;8;20;0;7;2028-11-12;Vente par comprimé ou plaquette — import catalogue
+MED-0543;Diclofénac 875mg (ref 543);Antipaludéens;comprime_plaquette;1230;2403;48060;0;20;369;0;16;2027-04-29;Vente par comprimé ou plaquette — import catalogue
+MED-0544;Chloroquine 200mg (ref 544);Dermatologie;comprime_plaquette;1628;2394;28728;0;12;753;0;26;2028-03-11;Vente par comprimé ou plaquette — import catalogue
+MED-0545;Fluconazole 200mg (ref 545);Antihypertenseurs;comprime_plaquette;338;499;3781;0;8;668;0;30;2027-12-28;Vente par comprimé ou plaquette — import catalogue
+MED-0546;Gouttes auriculaires 15ml #546;Antiseptiques;flacon;2938;0;0;4562;0;18;0;6;2027-08-20;Vente par flacon — import catalogue
+MED-0547;Amlodipine 100mg (ref 547);Antiseptiques;comprime_plaquette;2042;3036;91080;0;30;280;0;24;2027-09-21;Vente par comprimé ou plaquette — import catalogue
+MED-0548;Doxycycline 500mg (ref 548);Sirops;comprime_plaquette;879;1709;51270;0;30;215;0;27;2028-02-14;Vente par comprimé ou plaquette — import catalogue
+MED-0549;Metronidazole 50mg (ref 549);Gastro;comprime_plaquette;1888;2693;21544;0;8;481;0;19;2029-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0550;Tramadol 10mg (ref 550);Ophtalmologie;comprime_plaquette;967;2143;21430;0;10;586;0;18;2028-10-24;Vente par comprimé ou plaquette — import catalogue
+MED-0551;Amlodipine 10mg (ref 551);Pédiatrie;comprime_plaquette;542;825;24384;0;30;126;0;17;2029-01-06;Vente par comprimé ou plaquette — import catalogue
+MED-0552;Diclofénac 5mg (ref 552);Gynécologie;comprime_plaquette;1545;2164;25968;0;12;643;0;27;2027-11-14;Vente par comprimé ou plaquette — import catalogue
+MED-0553;Suspension amoxicilline 120ml #553;Antibiotiques;flacon;2429;0;0;4308;0;42;0;19;2027-07-19;Vente par flacon — import catalogue
+MED-0554;Ciprofloxacine 50mg (ref 554);Cardiologie;comprime_plaquette;2124;2967;59340;0;20;738;0;22;2028-01-20;Vente par comprimé ou plaquette — import catalogue
+MED-0555;Fluconazole 10mg (ref 555);Antibiotiques;comprime_plaquette;505;990;23760;0;24;317;0;26;2028-02-21;Vente par comprimé ou plaquette — import catalogue
+MED-0556;Cotrimoxazole 100mg (ref 556);Antalgiques;comprime_plaquette;2050;2762;63861;0;24;672;0;15;2027-07-01;Vente par comprimé ou plaquette — import catalogue
+MED-0557;Zinc 1000mg (ref 557);Vitamines;comprime_plaquette;1291;2067;41340;0;20;747;0;18;2029-01-23;Vente par comprimé ou plaquette — import catalogue
+MED-0558;Albendazole 10mg (ref 558);Antipaludéens;comprime_plaquette;1267;1830;21960;0;12;45;0;17;2027-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0559;Amoxicilline 250mg (ref 559);Dermatologie;comprime_plaquette;805;1193;11249;0;10;276;0;9;2027-05-07;Vente par comprimé ou plaquette — import catalogue
+MED-0560;Sirop toux 120ml #560;Sirops;flacon;1635;0;0;7673;0;74;0;6;2028-03-06;Vente par flacon — import catalogue
+MED-0561;Metformine 500mg (ref 561);Antidiabétiques;comprime_plaquette;1925;2866;57320;0;20;780;0;25;2028-09-29;Vente par comprimé ou plaquette — import catalogue
+MED-0562;Acide folique 400mg (ref 562);Antiseptiques;comprime_plaquette;2282;3312;66240;0;20;729;0;26;2027-04-22;Vente par comprimé ou plaquette — import catalogue
+MED-0563;Acide folique 50mg (ref 563);Sirops;comprime_plaquette;2471;3328;49920;0;15;585;0;6;2027-03-18;Vente par comprimé ou plaquette — import catalogue
+MED-0564;Albendazole 875mg (ref 564);Gastro;comprime_plaquette;1876;2641;26410;0;10;473;0;12;2028-12-12;Vente par comprimé ou plaquette — import catalogue
+MED-0565;Fluconazole 1000mg (ref 565);Ophtalmologie;comprime_plaquette;1541;2510;75300;0;30;762;0;11;2027-12-31;Vente par comprimé ou plaquette — import catalogue
+MED-0566;Metformine 100mg (ref 566);Pédiatrie;comprime_plaquette;204;405;9341;0;24;406;0;6;2028-05-16;Vente par comprimé ou plaquette — import catalogue
+MED-0567;Sirop antipaludéen 120ml #567;Antipaludéens;flacon;3079;0;0;3664;0;21;0;10;2028-10-23;Vente par flacon — import catalogue
+MED-0568;Artéméther 250mg (ref 568);Antihistaminiques;comprime_plaquette;1332;2010;22486;0;12;350;0;24;2027-04-26;Vente par comprimé ou plaquette — import catalogue
+MED-0569;Zinc 5mg (ref 569);Cardiologie;comprime_plaquette;1518;2811;84330;0;30;583;0;16;2027-05-18;Vente par comprimé ou plaquette — import catalogue
+MED-0570;Fluconazole 1000mg (ref 570);Antibiotiques;comprime_plaquette;737;1000;20000;0;20;537;0;10;2028-05-03;Vente par comprimé ou plaquette — import catalogue
+MED-0571;Céfixime 10mg (ref 571);Antalgiques;comprime_plaquette;264;476;7140;0;15;699;0;15;2028-02-07;Vente par comprimé ou plaquette — import catalogue
+MED-0572;Fer 875mg (ref 572);Vitamines;comprime_plaquette;2022;3182;31820;0;10;594;0;29;2028-12-28;Vente par comprimé ou plaquette — import catalogue
+MED-0573;Paracétamol 500mg (ref 573);Antipaludéens;comprime_plaquette;885;1517;36408;0;24;648;0;24;2027-11-09;Vente par comprimé ou plaquette — import catalogue
+MED-0574;Sirop vitamine 60ml #574;Vitamines;flacon;3595;0;0;4129;0;53;0;30;2027-06-29;Vente par flacon — import catalogue
+MED-0575;Acide folique 875mg (ref 575);Antihypertenseurs;comprime_plaquette;1639;3065;61300;0;20;403;0;21;2028-08-06;Vente par comprimé ou plaquette — import catalogue
+MED-0576;Metformine 200mg (ref 576);Antidiabétiques;comprime_plaquette;945;1314;10103;0;8;118;0;10;2028-09-05;Vente par comprimé ou plaquette — import catalogue
+MED-0577;Céfixime 250mg (ref 577);Antiseptiques;comprime_plaquette;188;368;8832;0;24;238;0;26;2028-05-12;Vente par comprimé ou plaquette — import catalogue
+MED-0578;Metronidazole 400mg (ref 578);Sirops;comprime_plaquette;2308;3494;69880;0;20;465;0;25;2027-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0579;Albendazole 100mg (ref 579);Gastro;comprime_plaquette;1316;1980;14665;0;8;202;0;30;2027-11-17;Vente par comprimé ou plaquette — import catalogue
+MED-0580;Céfixime 500mg (ref 580);Ophtalmologie;comprime_plaquette;1795;3465;65907;0;20;665;0;17;2028-05-21;Vente par comprimé ou plaquette — import catalogue
+MED-0581;Sirop paracétamol 120ml #581;Sirops;flacon;869;0;0;4690;0;20;0;22;2027-03-11;Vente par flacon — import catalogue
+MED-0582;Prednisolone 5mg (ref 582);Gynécologie;comprime_plaquette;2153;3196;25257;0;8;386;0;21;2027-06-21;Vente par comprimé ou plaquette — import catalogue
+MED-0583;Vitamine C 875mg (ref 583);Antihistaminiques;comprime_plaquette;242;454;9080;0;20;410;0;17;2029-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0584;Paracétamol 200mg (ref 584);Cardiologie;comprime_plaquette;1178;2285;22850;0;10;578;0;14;2028-12-13;Vente par comprimé ou plaquette — import catalogue
+MED-0585;Ciprofloxacine 875mg (ref 585);Antibiotiques;comprime_plaquette;2383;3356;80544;0;24;31;0;22;2028-09-23;Vente par comprimé ou plaquette — import catalogue
+MED-0586;Ciprofloxacine 500mg (ref 586);Antalgiques;comprime_plaquette;74;120;960;0;8;580;0;7;2028-01-11;Vente par comprimé ou plaquette — import catalogue
+MED-0587;Doxycycline 1000mg (ref 587);Vitamines;comprime_plaquette;1291;1790;17900;0;10;165;0;10;2027-09-09;Vente par comprimé ou plaquette — import catalogue
+MED-0588;Lotion cutanée 100ml #588;Dermatologie;flacon;3326;0;0;8338;0;37;0;11;2027-06-30;Vente par flacon — import catalogue
+MED-0589;Azithromycine 5mg (ref 589);Dermatologie;comprime_plaquette;227;322;9660;0;30;582;0;19;2028-12-24;Vente par comprimé ou plaquette — import catalogue
+MED-0590;Céfixime 500mg (ref 590);Antihypertenseurs;comprime_plaquette;1340;2851;33460;0;12;518;0;15;2028-03-04;Vente par comprimé ou plaquette — import catalogue
+MED-0591;Ciprofloxacine 400mg (ref 591);Antidiabétiques;comprime_plaquette;805;1267;10136;0;8;345;0;20;2028-06-08;Vente par comprimé ou plaquette — import catalogue
+MED-0592;Vitamine B 5mg (ref 592);Antiseptiques;comprime_plaquette;889;1352;31323;0;24;343;0;18;2027-08-24;Vente par comprimé ou plaquette — import catalogue
+MED-0593;Paracétamol 1000mg (ref 593);Sirops;comprime_plaquette;1713;3318;33180;0;10;466;0;13;2028-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0594;Ciprofloxacine 1000mg (ref 594);Gastro;comprime_plaquette;1164;1995;29925;0;15;518;0;22;2027-06-24;Vente par comprimé ou plaquette — import catalogue
+MED-0595;Collyre 100ml #595;Ophtalmologie;flacon;3444;0;0;6469;0;15;0;13;2027-07-26;Vente par flacon — import catalogue
+MED-0596;Céfixime 400mg (ref 596);Pédiatrie;comprime_plaquette;2222;3104;34492;0;12;39;0;21;2028-12-10;Vente par comprimé ou plaquette — import catalogue
+MED-0597;Paracétamol 5mg (ref 597);Gynécologie;comprime_plaquette;1197;1759;32468;0;20;286;0;22;2028-09-07;Vente par comprimé ou plaquette — import catalogue
+MED-0598;Amlodipine 100mg (ref 598);Antihistaminiques;comprime_plaquette;882;1707;20484;0;12;770;0;14;2027-07-20;Vente par comprimé ou plaquette — import catalogue
+MED-0599;Metformine 10mg (ref 599);Cardiologie;comprime_plaquette;267;470;9400;0;20;698;0;12;2028-11-22;Vente par comprimé ou plaquette — import catalogue
+MED-0600;Cotrimoxazole 100mg (ref 600);Antibiotiques;comprime_plaquette;1085;2205;63855;0;30;599;0;26;2027-08-01;Vente par comprimé ou plaquette — import catalogue
+MED-0601;Albendazole 200mg (ref 601);Antalgiques;comprime_plaquette;136;265;3180;0;12;84;0;13;2028-03-17;Vente par comprimé ou plaquette — import catalogue
+MED-0602;Solution buvable 100ml #602;Pédiatrie;flacon;975;0;0;6977;0;31;0;21;2028-03-08;Vente par flacon — import catalogue
+MED-0603;Acide folique 200mg (ref 603);Antipaludéens;comprime_plaquette;133;290;4350;0;15;125;0;27;2028-08-19;Vente par comprimé ou plaquette — import catalogue
+MED-0604;Prednisolone 875mg (ref 604);Dermatologie;comprime_plaquette;1659;3138;94140;0;30;198;0;17;2029-01-02;Vente par comprimé ou plaquette — import catalogue
+MED-0605;Acide folique 1000mg (ref 605);Antihypertenseurs;comprime_plaquette;1997;2776;52195;0;20;248;0;21;2028-04-23;Vente par comprimé ou plaquette — import catalogue
+MED-0606;Fer 1000mg (ref 606);Antidiabétiques;comprime_plaquette;1989;3346;50190;0;15;533;0;9;2028-05-28;Vente par comprimé ou plaquette — import catalogue
+MED-0607;Azithromycine 400mg (ref 607);Antiseptiques;comprime_plaquette;1419;2207;16507;0;8;390;0;24;2027-07-04;Vente par comprimé ou plaquette — import catalogue
+MED-0608;Cotrimoxazole 400mg (ref 608);Sirops;comprime_plaquette;1878;3422;49996;0;15;510;0;11;2028-10-29;Vente par comprimé ou plaquette — import catalogue
+MED-0609;Solution antiseptique 100ml #609;Antiseptiques;flacon;3451;0;0;8326;0;57;0;5;2027-11-09;Vente par flacon — import catalogue
+MED-0610;Amoxicilline 100mg (ref 610);Ophtalmologie;comprime_plaquette;1258;2526;50520;0;20;60;0;23;2027-08-02;Vente par comprimé ou plaquette — import catalogue
+MED-0611;Amoxicilline 100mg (ref 611);Pédiatrie;comprime_plaquette;506;837;10044;0;12;597;0;25;2027-03-24;Vente par comprimé ou plaquette — import catalogue
+MED-0612;Albendazole 875mg (ref 612);Gynécologie;comprime_plaquette;577;987;7896;0;8;513;0;10;2027-10-15;Vente par comprimé ou plaquette — import catalogue
+MED-0613;Oméprazole 5mg (ref 613);Antihistaminiques;comprime_plaquette;2095;3354;33540;0;10;658;0;26;2028-08-09;Vente par comprimé ou plaquette — import catalogue
+MED-0614;Artéméther 100mg (ref 614);Cardiologie;comprime_plaquette;1607;2908;69792;0;24;624;0;7;2027-10-26;Vente par comprimé ou plaquette — import catalogue
+MED-0615;Acide folique 50mg (ref 615);Antibiotiques;comprime_plaquette;247;544;5440;0;10;536;0;26;2028-05-07;Vente par comprimé ou plaquette — import catalogue
+MED-0616;Gouttes auriculaires 100ml #616;Antiseptiques;flacon;3280;0;0;2288;0;27;0;20;2028-11-23;Vente par flacon — import catalogue
+MED-0617;Diclofénac 250mg (ref 617);Vitamines;comprime_plaquette;1367;2276;65451;0;30;153;0;24;2028-09-07;Vente par comprimé ou plaquette — import catalogue
+MED-0618;Paracétamol 50mg (ref 618);Antipaludéens;comprime_plaquette;1022;1823;35088;0;20;254;0;30;2028-07-10;Vente par comprimé ou plaquette — import catalogue
+MED-0619;Zinc 50mg (ref 619);Dermatologie;comprime_plaquette;1736;2512;30144;0;12;733;0;23;2027-06-13;Vente par comprimé ou plaquette — import catalogue
+MED-0620;Oméprazole 100mg (ref 620);Antihypertenseurs;comprime_plaquette;1396;2054;24648;0;12;105;0;14;2028-11-06;Vente par comprimé ou plaquette — import catalogue
+MED-0621;Céfixime 50mg (ref 621);Antidiabétiques;comprime_plaquette;394;874;10488;0;12;27;0;23;2028-08-21;Vente par comprimé ou plaquette — import catalogue
+MED-0622;Metronidazole 10mg (ref 622);Antiseptiques;comprime_plaquette;1057;1636;13088;0;8;343;0;18;2028-03-09;Vente par comprimé ou plaquette — import catalogue
+MED-0623;Suspension amoxicilline 60ml #623;Antibiotiques;flacon;1433;0;0;4990;0;79;0;13;2027-11-27;Vente par flacon — import catalogue
+MED-0624;Céfixime 50mg (ref 624);Gastro;comprime_plaquette;1011;1597;31940;0;20;426;0;29;2027-09-29;Vente par comprimé ou plaquette — import catalogue
+MED-0625;Oméprazole 10mg (ref 625);Ophtalmologie;comprime_plaquette;1417;2383;71490;0;30;588;0;20;2027-11-19;Vente par comprimé ou plaquette — import catalogue
+MED-0626;Vitamine C 5mg (ref 626);Pédiatrie;comprime_plaquette;2164;3271;39252;0;12;695;0;8;2027-10-26;Vente par comprimé ou plaquette — import catalogue
+MED-0627;Metformine 100mg (ref 627);Gynécologie;comprime_plaquette;589;978;7824;0;8;583;0;24;2029-02-15;Vente par comprimé ou plaquette — import catalogue
+MED-0628;Cotrimoxazole 250mg (ref 628);Antihistaminiques;comprime_plaquette;1251;1693;15698;0;10;168;0;20;2028-11-08;Vente par comprimé ou plaquette — import catalogue
+MED-0629;Oméprazole 500mg (ref 629);Cardiologie;comprime_plaquette;607;1177;8691;0;8;413;0;17;2028-11-22;Vente par comprimé ou plaquette — import catalogue
+MED-0630;Sirop toux 15ml #630;Sirops;flacon;1973;0;0;7329;0;12;0;29;2027-08-31;Vente par flacon — import catalogue
+MED-0631;Prednisolone 200mg (ref 631);Antalgiques;comprime_plaquette;73;143;2145;0;15;550;0;14;2027-09-20;Vente par comprimé ou plaquette — import catalogue
+MED-0632;Amoxicilline 5mg (ref 632);Vitamines;comprime_plaquette;1458;2212;44240;0;20;710;0;6;2028-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0633;Chloroquine 250mg (ref 633);Antipaludéens;comprime_plaquette;340;455;4550;0;10;381;0;26;2028-04-12;Vente par comprimé ou plaquette — import catalogue
+MED-0634;Acide folique 5mg (ref 634);Dermatologie;comprime_plaquette;1009;2220;22200;0;10;112;0;22;2027-12-21;Vente par comprimé ou plaquette — import catalogue
+MED-0635;Albendazole 10mg (ref 635);Antihypertenseurs;comprime_plaquette;845;1525;30500;0;20;251;0;24;2027-09-20;Vente par comprimé ou plaquette — import catalogue
+MED-0636;Metformine 50mg (ref 636);Antidiabétiques;comprime_plaquette;62;119;2380;0;20;129;0;22;2027-05-18;Vente par comprimé ou plaquette — import catalogue
+MED-0637;Sirop antipaludéen 15ml #637;Antipaludéens;flacon;2005;0;0;4285;0;19;0;30;2028-08-11;Vente par flacon — import catalogue
+MED-0638;Artéméther 10mg (ref 638);Sirops;comprime_plaquette;2084;3349;100470;0;30;406;0;23;2028-07-12;Vente par comprimé ou plaquette — import catalogue
+MED-0639;Zinc 400mg (ref 639);Gastro;comprime_plaquette;1100;1491;44730;0;30;491;0;23;2027-04-02;Vente par comprimé ou plaquette — import catalogue
+MED-0640;Amlodipine 500mg (ref 640);Ophtalmologie;comprime_plaquette;212;376;4512;0;12;245;0;26;2029-02-20;Vente par comprimé ou plaquette — import catalogue
+MED-0641;Chloroquine 1000mg (ref 641);Pédiatrie;comprime_plaquette;935;1546;22878;0;15;274;0;14;2027-06-08;Vente par comprimé ou plaquette — import catalogue
+MED-0642;Acide folique 1000mg (ref 642);Gynécologie;comprime_plaquette;1729;2371;18968;0;8;382;0;11;2028-10-12;Vente par comprimé ou plaquette — import catalogue
+MED-0643;Artéméther 100mg (ref 643);Antihistaminiques;comprime_plaquette;2112;2898;68089;0;24;260;0;28;2027-11-07;Vente par comprimé ou plaquette — import catalogue
+MED-0644;Sirop vitamine 120ml #644;Vitamines;flacon;1646;0;0;3377;0;30;0;12;2028-11-27;Vente par flacon — import catalogue
+MED-0645;Fer 100mg (ref 645);Antibiotiques;comprime_plaquette;260;536;16023;0;30;524;0;24;2027-03-11;Vente par comprimé ou plaquette — import catalogue
+MED-0646;Zinc 10mg (ref 646);Antalgiques;comprime_plaquette;1164;2075;16600;0;8;608;0;13;2028-07-19;Vente par comprimé ou plaquette — import catalogue
+MED-0647;Azithromycine 10mg (ref 647);Vitamines;comprime_plaquette;893;1729;20748;0;12;75;0;21;2028-05-11;Vente par comprimé ou plaquette — import catalogue
+MED-0648;Amlodipine 10mg (ref 648);Antipaludéens;comprime_plaquette;1195;2158;17264;0;8;198;0;19;2027-07-06;Vente par comprimé ou plaquette — import catalogue
+MED-0649;Fluconazole 10mg (ref 649);Dermatologie;comprime_plaquette;914;1392;19561;0;15;614;0;8;2028-02-01;Vente par comprimé ou plaquette — import catalogue
+MED-0650;Fer 5mg (ref 650);Antihypertenseurs;comprime_plaquette;588;1163;32850;0;30;647;0;15;2028-03-13;Vente par comprimé ou plaquette — import catalogue
+MED-0651;Sirop paracétamol 100ml #651;Sirops;flacon;2842;0;0;4972;0;31;0;18;2029-02-19;Vente par flacon — import catalogue
+MED-0652;Zinc 1000mg (ref 652);Antiseptiques;comprime_plaquette;928;1740;19428;0;12;609;0;26;2027-10-25;Vente par comprimé ou plaquette — import catalogue
+MED-0653;Metronidazole 875mg (ref 653);Sirops;comprime_plaquette;656;1065;31950;0;30;220;0;9;2027-08-05;Vente par comprimé ou plaquette — import catalogue
+MED-0654;Amlodipine 250mg (ref 654);Gastro;comprime_plaquette;1095;1826;18260;0;10;665;0;21;2028-09-01;Vente par comprimé ou plaquette — import catalogue
+MED-0655;Albendazole 1000mg (ref 655);Ophtalmologie;comprime_plaquette;1130;2093;62790;0;30;601;0;6;2028-04-15;Vente par comprimé ou plaquette — import catalogue
+MED-0656;Metronidazole 100mg (ref 656);Pédiatrie;comprime_plaquette;681;982;7856;0;8;664;0;8;2028-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0657;Albendazole 1000mg (ref 657);Gynécologie;comprime_plaquette;880;1578;18936;0;12;283;0;16;2027-03-25;Vente par comprimé ou plaquette — import catalogue
+MED-0658;Lotion cutanée 200ml #658;Dermatologie;flacon;1296;0;0;4376;0;30;0;23;2028-10-14;Vente par flacon — import catalogue
+MED-0659;Prednisolone 10mg (ref 659);Cardiologie;comprime_plaquette;1764;3296;32960;0;10;542;0;20;2028-06-04;Vente par comprimé ou plaquette — import catalogue
+MED-0660;Ibuprofène 50mg (ref 660);Antibiotiques;comprime_plaquette;749;1273;25460;0;20;191;0;25;2028-02-13;Vente par comprimé ou plaquette — import catalogue
+MED-0661;Oméprazole 5mg (ref 661);Antalgiques;comprime_plaquette;1238;1757;32784;0;20;253;0;15;2028-01-23;Vente par comprimé ou plaquette — import catalogue
+MED-0662;Prednisolone 875mg (ref 662);Vitamines;comprime_plaquette;754;1195;28680;0;24;475;0;29;2028-03-10;Vente par comprimé ou plaquette — import catalogue
+MED-0663;Albendazole 5mg (ref 663);Antipaludéens;comprime_plaquette;1116;1944;35841;0;20;765;0;12;2029-01-10;Vente par comprimé ou plaquette — import catalogue
+MED-0664;Artéméther 500mg (ref 664);Dermatologie;comprime_plaquette;445;783;7790;0;10;504;0;22;2027-04-29;Vente par comprimé ou plaquette — import catalogue
+MED-0665;Collyre 60ml #665;Ophtalmologie;flacon;3957;0;0;4752;0;72;0;29;2027-05-29;Vente par flacon — import catalogue
+MED-0666;Metronidazole 875mg (ref 666);Antidiabétiques;comprime_plaquette;349;736;14720;0;20;419;0;14;2027-10-25;Vente par comprimé ou plaquette — import catalogue
+MED-0667;Chloroquine 875mg (ref 667);Antiseptiques;comprime_plaquette;1300;2666;39990;0;15;194;0;5;2027-04-09;Vente par comprimé ou plaquette — import catalogue
+MED-0668;Cotrimoxazole 1000mg (ref 668);Sirops;comprime_plaquette;1015;1432;42960;0;30;573;0;13;2028-09-16;Vente par comprimé ou plaquette — import catalogue
+MED-0669;Metformine 100mg (ref 669);Gastro;comprime_plaquette;1161;2308;55392;0;24;666;0;28;2028-12-15;Vente par comprimé ou plaquette — import catalogue
+MED-0670;Tramadol 50mg (ref 670);Ophtalmologie;comprime_plaquette;1745;2720;54400;0;20;375;0;20;2028-09-07;Vente par comprimé ou plaquette — import catalogue
+MED-0671;Chloroquine 500mg (ref 671);Pédiatrie;comprime_plaquette;761;1361;19277;0;15;20;0;21;2027-07-22;Vente par comprimé ou plaquette — import catalogue
+MED-0672;Solution buvable 120ml #672;Pédiatrie;flacon;1974;0;0;5343;0;73;0;5;2029-02-06;Vente par flacon — import catalogue
+MED-0673;Amlodipine 200mg (ref 673);Antihistaminiques;comprime_plaquette;93;137;1644;0;12;631;0;12;2027-03-12;Vente par comprimé ou plaquette — import catalogue
+MED-0674;Céfixime 1000mg (ref 674);Cardiologie;comprime_plaquette;1276;1786;17860;0;10;275;0;10;2028-12-25;Vente par comprimé ou plaquette — import catalogue
+MED-0675;Acide folique 50mg (ref 675);Antibiotiques;comprime_plaquette;557;1177;11770;0;10;549;0;29;2028-11-21;Vente par comprimé ou plaquette — import catalogue
+MED-0676;Fluconazole 875mg (ref 676);Antalgiques;comprime_plaquette;1854;2756;33072;0;12;442;0;11;2027-05-14;Vente par comprimé ou plaquette — import catalogue
+MED-0677;Azithromycine 100mg (ref 677);Vitamines;comprime_plaquette;353;552;6624;0;12;298;0;27;2028-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0678;Amlodipine 400mg (ref 678);Antipaludéens;comprime_plaquette;88;179;2148;0;12;42;0;10;2027-06-17;Vente par comprimé ou plaquette — import catalogue
+MED-0679;Solution antiseptique 120ml #679;Antiseptiques;flacon;1902;0;0;2524;0;61;0;28;2027-03-13;Vente par flacon — import catalogue
+MED-0680;Chloroquine 500mg (ref 680);Antihypertenseurs;comprime_plaquette;95;160;1600;0;10;339;0;30;2028-07-27;Vente par comprimé ou plaquette — import catalogue
+MED-0681;Fer 200mg (ref 681);Antidiabétiques;comprime_plaquette;1535;3341;78583;0;24;169;0;6;2027-12-02;Vente par comprimé ou plaquette — import catalogue
+MED-0682;Zinc 50mg (ref 682);Antiseptiques;comprime_plaquette;1373;2324;18356;0;8;410;0;5;2027-07-07;Vente par comprimé ou plaquette — import catalogue
+MED-0683;Zinc 400mg (ref 683);Sirops;comprime_plaquette;2419;3258;48848;0;15;223;0;19;2027-06-09;Vente par comprimé ou plaquette — import catalogue
+MED-0684;Losartan 400mg (ref 684);Gastro;comprime_plaquette;1107;1693;25395;0;15;350;0;10;2028-12-08;Vente par comprimé ou plaquette — import catalogue
+MED-0685;Albendazole 250mg (ref 685);Ophtalmologie;comprime_plaquette;1425;2351;54792;0;24;223;0;16;2027-04-27;Vente par comprimé ou plaquette — import catalogue
+MED-0686;Gouttes auriculaires 100ml #686;Antiseptiques;flacon;1262;0;0;3433;0;60;0;15;2027-03-20;Vente par flacon — import catalogue
+MED-0687;Azithromycine 875mg (ref 687);Gynécologie;comprime_plaquette;335;590;11770;0;20;615;0;30;2029-02-09;Vente par comprimé ou plaquette — import catalogue
+MED-0688;Amlodipine 5mg (ref 688);Antihistaminiques;comprime_plaquette;1104;1621;15561;0;10;722;0;24;2028-02-14;Vente par comprimé ou plaquette — import catalogue
+MED-0689;Zinc 250mg (ref 689);Cardiologie;comprime_plaquette;1001;1556;12448;0;8;129;0;9;2028-07-16;Vente par comprimé ou plaquette — import catalogue
+MED-0690;Chloroquine 1000mg (ref 690);Antibiotiques;comprime_plaquette;2141;3329;66580;0;20;469;0;28;2027-09-18;Vente par comprimé ou plaquette — import catalogue
+MED-0691;Paracétamol 50mg (ref 691);Antalgiques;comprime_plaquette;1504;3067;36804;0;12;516;0;27;2028-05-26;Vente par comprimé ou plaquette — import catalogue
+MED-0692;Céfixime 875mg (ref 692);Vitamines;comprime_plaquette;1764;2955;59100;0;20;576;0;16;2028-01-30;Vente par comprimé ou plaquette — import catalogue
+MED-0693;Suspension amoxicilline 200ml #693;Antibiotiques;flacon;1927;0;0;8310;0;75;0;10;2027-05-14;Vente par flacon — import catalogue
+MED-0694;Losartan 100mg (ref 694);Dermatologie;comprime_plaquette;912;1311;19665;0;15;484;0;5;2028-12-17;Vente par comprimé ou plaquette — import catalogue
+MED-0695;Losartan 50mg (ref 695);Antihypertenseurs;comprime_plaquette;614;859;20616;0;24;392;0;29;2028-11-29;Vente par comprimé ou plaquette — import catalogue
+MED-0696;Chloroquine 1000mg (ref 696);Antidiabétiques;comprime_plaquette;232;359;8616;0;24;416;0;11;2028-08-22;Vente par comprimé ou plaquette — import catalogue
+MED-0697;Cotrimoxazole 200mg (ref 697);Antiseptiques;comprime_plaquette;1170;2358;67399;0;30;349;0;8;2027-06-11;Vente par comprimé ou plaquette — import catalogue
+MED-0698;Losartan 500mg (ref 698);Sirops;comprime_plaquette;317;631;4687;0;8;216;0;8;2027-04-06;Vente par comprimé ou plaquette — import catalogue
+MED-0699;Tramadol 50mg (ref 699);Gastro;comprime_plaquette;1279;2106;50544;0;24;282;0;6;2028-03-14;Vente par comprimé ou plaquette — import catalogue
+MED-0700;Sirop toux 100ml #700;Sirops;flacon;3281;0;0;7380;0;14;0;5;2027-10-04;Vente par flacon — import catalogue
+MED-0701;Prednisolone 200mg (ref 701);Pédiatrie;comprime_plaquette;252;427;12810;0;30;389;0;22;2028-05-03;Vente par comprimé ou plaquette — import catalogue
+MED-0702;Fer 250mg (ref 702);Gynécologie;comprime_plaquette;1391;2626;72921;0;30;331;0;7;2027-10-12;Vente par comprimé ou plaquette — import catalogue
+MED-0703;Losartan 500mg (ref 703);Antihistaminiques;comprime_plaquette;1594;3070;24560;0;8;217;0;21;2029-01-05;Vente par comprimé ou plaquette — import catalogue
+MED-0704;Chloroquine 5mg (ref 704);Cardiologie;comprime_plaquette;513;832;19968;0;24;784;0;8;2028-12-17;Vente par comprimé ou plaquette — import catalogue
+MED-0705;Tramadol 1000mg (ref 705);Antibiotiques;comprime_plaquette;1306;1978;47472;0;24;126;0;10;2027-09-05;Vente par comprimé ou plaquette — import catalogue
+MED-0706;Céfixime 50mg (ref 706);Antalgiques;comprime_plaquette;959;1482;29640;0;20;634;0;19;2028-02-28;Vente par comprimé ou plaquette — import catalogue
+MED-0707;Sirop antipaludéen 120ml #707;Antipaludéens;flacon;3053;0;0;4159;0;52;0;18;2028-12-12;Vente par flacon — import catalogue
+MED-0708;Oméprazole 1000mg (ref 708);Antipaludéens;comprime_plaquette;671;1085;21293;0;20;782;0;13;2028-03-07;Vente par comprimé ou plaquette — import catalogue
+MED-0709;Metformine 200mg (ref 709);Dermatologie;comprime_plaquette;66;100;1500;0;15;630;0;5;2028-08-16;Vente par comprimé ou plaquette — import catalogue
+MED-0710;Ciprofloxacine 875mg (ref 710);Antihypertenseurs;comprime_plaquette;991;1330;10056;0;8;726;0;13;2028-09-21;Vente par comprimé ou plaquette — import catalogue
+MED-0711;Losartan 10mg (ref 711);Antidiabétiques;comprime_plaquette;1211;2441;46303;0;20;161;0;13;2028-03-14;Vente par comprimé ou plaquette — import catalogue
+MED-0712;Tramadol 400mg (ref 712);Antiseptiques;comprime_plaquette;796;1149;10938;0;10;242;0;28;2027-05-23;Vente par comprimé ou plaquette — import catalogue
+MED-0713;Albendazole 1000mg (ref 713);Sirops;comprime_plaquette;1041;2076;62280;0;30;726;0;27;2028-10-15;Vente par comprimé ou plaquette — import catalogue
+MED-0714;Sirop vitamine 60ml #714;Vitamines;flacon;3238;0;0;6761;0;43;0;6;2028-10-15;Vente par flacon — import catalogue
+MED-0715;Acide folique 500mg (ref 715);Ophtalmologie;comprime_plaquette;239;329;9870;0;30;464;0;18;2027-07-06;Vente par comprimé ou plaquette — import catalogue
+MED-0716;Zinc 400mg (ref 716);Pédiatrie;comprime_plaquette;1954;2773;66552;0;24;669;0;29;2028-12-11;Vente par comprimé ou plaquette — import catalogue
+MED-0717;Acide folique 250mg (ref 717);Gynécologie;comprime_plaquette;1038;2247;26964;0;12;173;0;15;2028-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0718;Fluconazole 400mg (ref 718);Antihistaminiques;comprime_plaquette;199;306;3060;0;10;476;0;29;2028-11-03;Vente par comprimé ou plaquette — import catalogue
+MED-0719;Tramadol 10mg (ref 719);Cardiologie;comprime_plaquette;584;1009;8072;0;8;171;0;9;2028-02-12;Vente par comprimé ou plaquette — import catalogue
+MED-0720;Ibuprofène 200mg (ref 720);Antibiotiques;comprime_plaquette;1465;3152;63040;0;20;107;0;17;2028-07-30;Vente par comprimé ou plaquette — import catalogue
+MED-0721;Sirop paracétamol 200ml #721;Sirops;flacon;3969;0;0;7216;0;21;0;29;2027-07-21;Vente par flacon — import catalogue
+MED-0722;Amlodipine 10mg (ref 722);Vitamines;comprime_plaquette;1192;2098;20980;0;10;594;0;24;2028-08-22;Vente par comprimé ou plaquette — import catalogue
+MED-0723;Chloroquine 400mg (ref 723);Antipaludéens;comprime_plaquette;812;1190;9520;0;8;609;0;7;2027-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0724;Cotrimoxazole 50mg (ref 724);Dermatologie;comprime_plaquette;884;1596;23940;0;15;628;0;25;2027-03-29;Vente par comprimé ou plaquette — import catalogue
+MED-0725;Zinc 875mg (ref 725);Antihypertenseurs;comprime_plaquette;972;1532;15320;0;10;472;0;24;2027-08-01;Vente par comprimé ou plaquette — import catalogue
+MED-0726;Metformine 250mg (ref 726);Antidiabétiques;comprime_plaquette;538;1056;31680;0;30;795;0;28;2027-05-31;Vente par comprimé ou plaquette — import catalogue
+MED-0727;Metronidazole 250mg (ref 727);Antiseptiques;comprime_plaquette;1924;2643;26430;0;10;314;0;5;2028-02-19;Vente par comprimé ou plaquette — import catalogue
+MED-0728;Lotion cutanée 60ml #728;Dermatologie;flacon;2049;0;0;5186;0;65;0;5;2028-02-07;Vente par flacon — import catalogue
+MED-0729;Doxycycline 10mg (ref 729);Gastro;comprime_plaquette;573;934;9340;0;10;581;0;20;2028-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0730;Albendazole 100mg (ref 730);Ophtalmologie;comprime_plaquette;1926;2962;71088;0;24;699;0;21;2027-04-18;Vente par comprimé ou plaquette — import catalogue
+MED-0731;Artéméther 100mg (ref 731);Pédiatrie;comprime_plaquette;644;1263;10104;0;8;297;0;6;2028-06-23;Vente par comprimé ou plaquette — import catalogue
+MED-0732;Prednisolone 250mg (ref 732);Gynécologie;comprime_plaquette;1095;1691;13528;0;8;695;0;16;2027-06-23;Vente par comprimé ou plaquette — import catalogue
+MED-0733;Paracétamol 875mg (ref 733);Antihistaminiques;comprime_plaquette;1561;2759;82770;0;30;540;0;27;2027-06-14;Vente par comprimé ou plaquette — import catalogue
+MED-0734;Vitamine B 200mg (ref 734);Cardiologie;comprime_plaquette;1551;2545;73299;0;30;488;0;22;2027-03-27;Vente par comprimé ou plaquette — import catalogue
+MED-0735;Collyre 60ml #735;Ophtalmologie;flacon;1813;0;0;5836;0;44;0;15;2028-07-18;Vente par flacon — import catalogue
+MED-0736;Acide folique 100mg (ref 736);Antalgiques;comprime_plaquette;996;1520;12160;0;8;329;0;12;2028-07-30;Vente par comprimé ou plaquette — import catalogue
+MED-0737;Artéméther 250mg (ref 737);Vitamines;comprime_plaquette;824;1155;27720;0;24;50;0;22;2027-12-16;Vente par comprimé ou plaquette — import catalogue
+MED-0738;Chloroquine 100mg (ref 738);Antipaludéens;comprime_plaquette;1105;1709;19494;0;12;714;0;24;2028-12-04;Vente par comprimé ou plaquette — import catalogue
+MED-0739;Cotrimoxazole 400mg (ref 739);Dermatologie;comprime_plaquette;674;1084;16260;0;15;339;0;24;2028-02-05;Vente par comprimé ou plaquette — import catalogue
+MED-0740;Metformine 10mg (ref 740);Antihypertenseurs;comprime_plaquette;610;946;9460;0;10;720;0;30;2027-09-28;Vente par comprimé ou plaquette — import catalogue
+MED-0741;Ciprofloxacine 875mg (ref 741);Antidiabétiques;comprime_plaquette;2150;2988;71712;0;24;460;0;29;2027-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0742;Solution buvable 15ml #742;Pédiatrie;flacon;1447;0;0;4100;0;13;0;22;2028-08-31;Vente par flacon — import catalogue
+MED-0743;Albendazole 500mg (ref 743);Sirops;comprime_plaquette;982;1400;12913;0;10;346;0;18;2028-04-29;Vente par comprimé ou plaquette — import catalogue
+MED-0744;Vitamine C 200mg (ref 744);Gastro;comprime_plaquette;2488;3465;83160;0;24;300;0;9;2027-09-13;Vente par comprimé ou plaquette — import catalogue
+MED-0745;Metronidazole 100mg (ref 745);Ophtalmologie;comprime_plaquette;140;207;2070;0;10;293;0;24;2028-10-05;Vente par comprimé ou plaquette — import catalogue
+MED-0746;Diclofénac 400mg (ref 746);Pédiatrie;comprime_plaquette;545;1051;19472;0;20;508;0;9;2028-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0747;Diclofénac 200mg (ref 747);Gynécologie;comprime_plaquette;1551;2760;66240;0;24;523;0;20;2027-07-23;Vente par comprimé ou plaquette — import catalogue
+MED-0748;Azithromycine 400mg (ref 748);Antihistaminiques;comprime_plaquette;132;232;2320;0;10;296;0;18;2027-10-18;Vente par comprimé ou plaquette — import catalogue
+MED-0749;Solution antiseptique 100ml #749;Antiseptiques;flacon;3903;0;0;3175;0;13;0;10;2028-05-27;Vente par flacon — import catalogue
+MED-0750;Diclofénac 200mg (ref 750);Antibiotiques;comprime_plaquette;1015;1430;34320;0;24;457;0;17;2027-04-16;Vente par comprimé ou plaquette — import catalogue
+MED-0751;Diclofénac 50mg (ref 751);Antalgiques;comprime_plaquette;784;1381;33144;0;24;605;0;24;2028-09-04;Vente par comprimé ou plaquette — import catalogue
+MED-0752;Losartan 250mg (ref 752);Vitamines;comprime_plaquette;320;547;10940;0;20;63;0;12;2028-08-17;Vente par comprimé ou plaquette — import catalogue
+MED-0753;Céfixime 50mg (ref 753);Antipaludéens;comprime_plaquette;160;260;6240;0;24;665;0;6;2027-09-15;Vente par comprimé ou plaquette — import catalogue
+MED-0754;Vitamine C 200mg (ref 754);Dermatologie;comprime_plaquette;918;1347;18857;0;15;321;0;24;2027-04-29;Vente par comprimé ou plaquette — import catalogue
+MED-0755;Fluconazole 10mg (ref 755);Antihypertenseurs;comprime_plaquette;1396;1998;19980;0;10;759;0;21;2027-06-28;Vente par comprimé ou plaquette — import catalogue
+MED-0756;Gouttes auriculaires 100ml #756;Antiseptiques;flacon;3989;0;0;6295;0;74;0;9;2028-04-10;Vente par flacon — import catalogue
+MED-0757;Oméprazole 1000mg (ref 757);Antiseptiques;comprime_plaquette;101;202;3030;0;15;749;0;11;2028-06-12;Vente par comprimé ou plaquette — import catalogue
+MED-0758;Ibuprofène 875mg (ref 758);Sirops;comprime_plaquette;1890;2933;35196;0;12;187;0;27;2027-07-09;Vente par comprimé ou plaquette — import catalogue
+MED-0759;Ibuprofène 500mg (ref 759);Gastro;comprime_plaquette;1242;1940;45469;0;24;764;0;30;2028-08-09;Vente par comprimé ou plaquette — import catalogue
+MED-0760;Diclofénac 100mg (ref 760);Ophtalmologie;comprime_plaquette;1328;2354;35310;0;15;363;0;23;2029-01-08;Vente par comprimé ou plaquette — import catalogue
+MED-0761;Ciprofloxacine 100mg (ref 761);Pédiatrie;comprime_plaquette;348;692;20760;0;30;449;0;14;2028-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0762;Albendazole 200mg (ref 762);Gynécologie;comprime_plaquette;1343;2665;31980;0;12;227;0;5;2028-12-01;Vente par comprimé ou plaquette — import catalogue
+MED-0763;Suspension amoxicilline 120ml #763;Antibiotiques;flacon;850;0;0;5257;0;68;0;20;2028-09-11;Vente par flacon — import catalogue
+MED-0764;Paracétamol 5mg (ref 764);Cardiologie;comprime_plaquette;553;1074;16110;0;15;484;0;18;2028-05-30;Vente par comprimé ou plaquette — import catalogue
+MED-0765;Ibuprofène 5mg (ref 765);Antibiotiques;comprime_plaquette;65;126;2520;0;20;654;0;25;2028-09-25;Vente par comprimé ou plaquette — import catalogue
+MED-0766;Doxycycline 250mg (ref 766);Antalgiques;comprime_plaquette;329;707;7070;0;10;168;0;6;2029-01-16;Vente par comprimé ou plaquette — import catalogue
+MED-0767;Tramadol 5mg (ref 767);Vitamines;comprime_plaquette;1057;1456;16657;0;12;202;0;10;2029-01-21;Vente par comprimé ou plaquette — import catalogue
+MED-0768;Vitamine C 5mg (ref 768);Antipaludéens;comprime_plaquette;1934;2932;70368;0;24;595;0;10;2028-06-13;Vente par comprimé ou plaquette — import catalogue
+MED-0769;Albendazole 5mg (ref 769);Dermatologie;comprime_plaquette;117;246;2802;0;12;408;0;7;2028-05-15;Vente par comprimé ou plaquette — import catalogue
+MED-0770;Sirop toux 15ml #770;Sirops;flacon;1065;0;0;3898;0;65;0;9;2027-07-07;Vente par flacon — import catalogue
+MED-0771;Fluconazole 875mg (ref 771);Antidiabétiques;comprime_plaquette;1296;2258;25381;0;12;79;0;8;2028-10-10;Vente par comprimé ou plaquette — import catalogue
+MED-0772;Albendazole 10mg (ref 772);Antiseptiques;comprime_plaquette;1388;2081;16648;0;8;743;0;14;2028-05-15;Vente par comprimé ou plaquette — import catalogue
+MED-0773;Diclofénac 1000mg (ref 773);Sirops;comprime_plaquette;1401;2252;27024;0;12;152;0;24;2028-10-01;Vente par comprimé ou plaquette — import catalogue
+MED-0774;Amlodipine 10mg (ref 774);Gastro;comprime_plaquette;1610;2688;64512;0;24;644;0;12;2027-12-27;Vente par comprimé ou plaquette — import catalogue
+MED-0775;Doxycycline 250mg (ref 775);Ophtalmologie;comprime_plaquette;116;198;1584;0;8;775;0;11;2028-11-24;Vente par comprimé ou plaquette — import catalogue
+MED-0776;Oméprazole 50mg (ref 776);Pédiatrie;comprime_plaquette;814;1467;11736;0;8;237;0;5;2028-12-19;Vente par comprimé ou plaquette — import catalogue
+MED-0777;Sirop antipaludéen 100ml #777;Antipaludéens;flacon;3626;0;0;3807;0;37;0;30;2027-05-13;Vente par flacon — import catalogue
+MED-0778;Vitamine C 875mg (ref 778);Antihistaminiques;comprime_plaquette;1286;2352;45857;0;20;369;0;17;2028-10-07;Vente par comprimé ou plaquette — import catalogue
+MED-0779;Diclofénac 250mg (ref 779);Cardiologie;comprime_plaquette;416;819;24570;0;30;708;0;20;2028-07-02;Vente par comprimé ou plaquette — import catalogue
+MED-0780;Amoxicilline 100mg (ref 780);Antibiotiques;comprime_plaquette;469;736;11040;0;15;569;0;15;2028-06-20;Vente par comprimé ou plaquette — import catalogue
+MED-0781;Oméprazole 250mg (ref 781);Antalgiques;comprime_plaquette;1205;2234;67020;0;30;343;0;22;2028-09-03;Vente par comprimé ou plaquette — import catalogue
+MED-0782;Paracétamol 400mg (ref 782);Vitamines;comprime_plaquette;1597;2907;58140;0;20;382;0;7;2027-08-04;Vente par comprimé ou plaquette — import catalogue
+MED-0783;Artéméther 250mg (ref 783);Antipaludéens;comprime_plaquette;1043;1636;19632;0;12;604;0;24;2028-04-06;Vente par comprimé ou plaquette — import catalogue
+MED-0784;Sirop vitamine 100ml #784;Vitamines;flacon;3237;0;0;2457;0;44;0;27;2028-01-21;Vente par flacon — import catalogue
+MED-0785;Fluconazole 250mg (ref 785);Antihypertenseurs;comprime_plaquette;854;1795;21540;0;12;400;0;19;2028-01-08;Vente par comprimé ou plaquette — import catalogue
+MED-0786;Doxycycline 10mg (ref 786);Antidiabétiques;comprime_plaquette;394;816;9792;0;12;226;0;7;2028-06-01;Vente par comprimé ou plaquette — import catalogue
+MED-0787;Losartan 250mg (ref 787);Antiseptiques;comprime_plaquette;1497;2076;58992;0;30;515;0;28;2028-08-22;Vente par comprimé ou plaquette — import catalogue
+MED-0788;Vitamine C 1000mg (ref 788);Sirops;comprime_plaquette;2313;3251;32510;0;10;548;0;26;2027-07-18;Vente par comprimé ou plaquette — import catalogue
+MED-0789;Doxycycline 250mg (ref 789);Gastro;comprime_plaquette;1120;1687;25305;0;15;24;0;14;2027-04-19;Vente par comprimé ou plaquette — import catalogue
+MED-0790;Cotrimoxazole 5mg (ref 790);Ophtalmologie;comprime_plaquette;250;456;13680;0;30;125;0;21;2029-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0791;Sirop paracétamol 120ml #791;Sirops;flacon;892;0;0;6231;0;44;0;25;2027-10-05;Vente par flacon — import catalogue
+MED-0792;Vitamine B 400mg (ref 792);Gynécologie;comprime_plaquette;678;1273;12730;0;10;471;0;26;2027-07-03;Vente par comprimé ou plaquette — import catalogue
+MED-0793;Artéméther 100mg (ref 793);Antihistaminiques;comprime_plaquette;590;1220;12200;0;10;593;0;21;2027-06-17;Vente par comprimé ou plaquette — import catalogue
+MED-0794;Doxycycline 10mg (ref 794);Cardiologie;comprime_plaquette;1282;2350;27533;0;12;310;0;23;2027-11-10;Vente par comprimé ou plaquette — import catalogue
+MED-0795;Azithromycine 500mg (ref 795);Antibiotiques;comprime_plaquette;1873;2611;31332;0;12;71;0;9;2027-04-03;Vente par comprimé ou plaquette — import catalogue
+MED-0796;Amlodipine 250mg (ref 796);Antalgiques;comprime_plaquette;778;1671;13368;0;8;203;0;27;2028-11-04;Vente par comprimé ou plaquette — import catalogue
+MED-0797;Tramadol 200mg (ref 797);Vitamines;comprime_plaquette;846;1556;31120;0;20;750;0;29;2029-01-19;Vente par comprimé ou plaquette — import catalogue
+MED-0798;Lotion cutanée 15ml #798;Dermatologie;flacon;1121;0;0;7691;0;64;0;23;2027-07-17;Vente par flacon — import catalogue
+MED-0799;Ibuprofène 200mg (ref 799);Dermatologie;comprime_plaquette;1067;1966;15728;0;8;496;0;20;2027-10-28;Vente par comprimé ou plaquette — import catalogue
+MED-0800;Chloroquine 100mg (ref 800);Antihypertenseurs;comprime_plaquette;1384;2626;78780;0;30;207;0;27;2029-01-14;Vente par comprimé ou plaquette — import catalogue
+MED-0801;Vitamine B 1000mg (ref 801);Antidiabétiques;comprime_plaquette;962;2096;31440;0;15;379;0;20;2028-06-19;Vente par comprimé ou plaquette — import catalogue
+MED-0802;Azithromycine 875mg (ref 802);Antiseptiques;comprime_plaquette;964;1527;42522;0;30;751;0;30;2027-06-22;Vente par comprimé ou plaquette — import catalogue
+MED-0803;Vitamine B 10mg (ref 803);Sirops;comprime_plaquette;268;390;9360;0;24;430;0;23;2028-05-01;Vente par comprimé ou plaquette — import catalogue
+MED-0804;Chloroquine 5mg (ref 804);Gastro;comprime_plaquette;1166;2344;23440;0;10;87;0;15;2027-10-04;Vente par comprimé ou plaquette — import catalogue
+MED-0805;Collyre 15ml #805;Ophtalmologie;flacon;2565;0;0;7925;0;60;0;23;2028-02-18;Vente par flacon — import catalogue
+MED-0806;Céfixime 400mg (ref 806);Pédiatrie;comprime_plaquette;1831;2814;28140;0;10;748;0;23;2028-07-15;Vente par comprimé ou plaquette — import catalogue
+MED-0807;Metronidazole 5mg (ref 807);Gynécologie;comprime_plaquette;1093;1996;38148;0;20;335;0;17;2027-05-15;Vente par comprimé ou plaquette — import catalogue
+MED-0808;Diclofénac 500mg (ref 808);Antihistaminiques;comprime_plaquette;2159;3434;82416;0;24;355;0;20;2028-12-24;Vente par comprimé ou plaquette — import catalogue
+MED-0809;Cotrimoxazole 250mg (ref 809);Cardiologie;comprime_plaquette;688;991;7928;0;8;793;0;25;2027-03-05;Vente par comprimé ou plaquette — import catalogue
+MED-0810;Zinc 100mg (ref 810);Antibiotiques;comprime_plaquette;416;711;16539;0;24;477;0;11;2027-10-01;Vente par comprimé ou plaquette — import catalogue
+MED-0811;Cotrimoxazole 1000mg (ref 811);Antalgiques;comprime_plaquette;1676;2435;29220;0;12;465;0;27;2028-02-20;Vente par comprimé ou plaquette — import catalogue
+MED-0812;Solution buvable 60ml #812;Pédiatrie;flacon;3186;0;0;1566;0;70;0;17;2027-07-13;Vente par flacon — import catalogue
+MED-0813;Vitamine C 250mg (ref 813);Antipaludéens;comprime_plaquette;1738;2348;27184;0;12;387;0;8;2027-12-18;Vente par comprimé ou plaquette — import catalogue
+MED-0814;Paracétamol 400mg (ref 814);Dermatologie;comprime_plaquette;1866;2976;44640;0;15;748;0;17;2028-04-23;Vente par comprimé ou plaquette — import catalogue
+MED-0815;Acide folique 50mg (ref 815);Antihypertenseurs;comprime_plaquette;626;965;19300;0;20;212;0;22;2028-04-01;Vente par comprimé ou plaquette — import catalogue
+MED-0816;Fer 50mg (ref 816);Antidiabétiques;comprime_plaquette;959;1281;12810;0;10;157;0;5;2027-05-17;Vente par comprimé ou plaquette — import catalogue
+MED-0817;Prednisolone 250mg (ref 817);Antiseptiques;comprime_plaquette;2185;3054;30540;0;10;159;0;7;2027-07-23;Vente par comprimé ou plaquette — import catalogue
+MED-0818;Prednisolone 50mg (ref 818);Sirops;comprime_plaquette;1412;1967;59010;0;30;455;0;24;2027-09-05;Vente par comprimé ou plaquette — import catalogue
+MED-0819;Solution antiseptique 200ml #819;Antiseptiques;flacon;2886;0;0;4974;0;75;0;19;2028-04-01;Vente par flacon — import catalogue
+MED-0820;Fer 400mg (ref 820);Ophtalmologie;comprime_plaquette;1161;1839;18390;0;10;768;0;12;2028-07-30;Vente par comprimé ou plaquette — import catalogue
+MED-0821;Artéméther 50mg (ref 821);Pédiatrie;comprime_plaquette;1377;2460;49200;0;20;601;0;20;2028-03-16;Vente par comprimé ou plaquette — import catalogue
+MED-0822;Metronidazole 5mg (ref 822);Gynécologie;comprime_plaquette;1387;2928;43920;0;15;559;0;29;2027-12-16;Vente par comprimé ou plaquette — import catalogue
+MED-0823;Metformine 10mg (ref 823);Antihistaminiques;comprime_plaquette;1608;2243;17186;0;8;779;0;26;2029-01-17;Vente par comprimé ou plaquette — import catalogue
+MED-0824;Ibuprofène 10mg (ref 824);Cardiologie;comprime_plaquette;1345;2474;70322;0;30;31;0;20;2028-06-11;Vente par comprimé ou plaquette — import catalogue
+MED-0825;Losartan 200mg (ref 825);Antibiotiques;comprime_plaquette;1706;3105;62100;0;20;321;0;14;2027-08-23;Vente par comprimé ou plaquette — import catalogue
+MED-0826;Gouttes auriculaires 60ml #826;Antiseptiques;flacon;3646;0;0;6395;0;43;0;28;2028-10-02;Vente par flacon — import catalogue
+MED-0827;Artéméther 250mg (ref 827);Vitamines;comprime_plaquette;1270;2038;48912;0;24;692;0;14;2028-12-03;Vente par comprimé ou plaquette — import catalogue
+MED-0828;Paracétamol 875mg (ref 828);Antipaludéens;comprime_plaquette;213;437;6441;0;15;278;0;9;2028-11-24;Vente par comprimé ou plaquette — import catalogue
+MED-0829;Artéméther 875mg (ref 829);Dermatologie;comprime_plaquette;523;1152;32277;0;30;625;0;28;2027-08-06;Vente par comprimé ou plaquette — import catalogue
+MED-0830;Cotrimoxazole 200mg (ref 830);Antihypertenseurs;comprime_plaquette;1712;3408;40896;0;12;261;0;20;2027-09-06;Vente par comprimé ou plaquette — import catalogue
+MED-0831;Losartan 250mg (ref 831);Antidiabétiques;comprime_plaquette;329;445;5340;0;12;177;0;20;2028-04-30;Vente par comprimé ou plaquette — import catalogue
+MED-0832;Zinc 50mg (ref 832);Antiseptiques;comprime_plaquette;1633;2806;28060;0;10;235;0;23;2028-02-21;Vente par comprimé ou plaquette — import catalogue
+MED-0833;Suspension amoxicilline 60ml #833;Antibiotiques;flacon;3430;0;0;3665;0;19;0;6;2027-08-23;Vente par flacon — import catalogue
+MED-0834;Metformine 50mg (ref 834);Gastro;comprime_plaquette;790;1334;20010;0;15;565;0;12;2028-03-27;Vente par comprimé ou plaquette — import catalogue
+MED-0835;Cotrimoxazole 50mg (ref 835);Ophtalmologie;comprime_plaquette;579;1175;17625;0;15;32;0;14;2028-06-06;Vente par comprimé ou plaquette — import catalogue
+MED-0836;Acide folique 1000mg (ref 836);Pédiatrie;comprime_plaquette;2134;2897;55767;0;20;382;0;18;2028-11-19;Vente par comprimé ou plaquette — import catalogue
+MED-0837;Prednisolone 875mg (ref 837);Gynécologie;comprime_plaquette;639;1207;14083;0;12;420;0;19;2029-01-24;Vente par comprimé ou plaquette — import catalogue
+MED-0838;Albendazole 400mg (ref 838);Antihistaminiques;comprime_plaquette;1787;2852;64819;0;24;726;0;10;2028-01-19;Vente par comprimé ou plaquette — import catalogue
+MED-0839;Céfixime 250mg (ref 839);Cardiologie;comprime_plaquette;93;134;2983;0;24;126;0;26;2028-06-03;Vente par comprimé ou plaquette — import catalogue
+MED-0840;Sirop toux 120ml #840;Sirops;flacon;1698;0;0;7441;0;41;0;13;2027-09-18;Vente par flacon — import catalogue
+MED-0841;Amoxicilline 250mg (ref 841);Antalgiques;comprime_plaquette;222;476;9520;0;20;242;0;24;2028-12-17;Vente par comprimé ou plaquette — import catalogue
+MED-0842;Metronidazole 500mg (ref 842);Vitamines;comprime_plaquette;1259;2576;20608;0;8;683;0;23;2027-09-10;Vente par comprimé ou plaquette — import catalogue
+MED-0843;Metronidazole 100mg (ref 843);Antipaludéens;comprime_plaquette;770;1306;15672;0;12;674;0;19;2027-12-13;Vente par comprimé ou plaquette — import catalogue
+MED-0844;Zinc 50mg (ref 844);Dermatologie;comprime_plaquette;1929;2834;68016;0;24;185;0;29;2027-05-19;Vente par comprimé ou plaquette — import catalogue
+MED-0845;Artéméther 250mg (ref 845);Antihypertenseurs;comprime_plaquette;929;1691;25274;0;15;291;0;10;2028-05-29;Vente par comprimé ou plaquette — import catalogue
+MED-0846;Ibuprofène 200mg (ref 846);Antidiabétiques;comprime_plaquette;1475;2599;25990;0;10;131;0;9;2028-09-08;Vente par comprimé ou plaquette — import catalogue
+MED-0847;Sirop antipaludéen 200ml #847;Antipaludéens;flacon;1694;0;0;6529;0;18;0;19;2027-11-25;Vente par flacon — import catalogue
+MED-0848;Metronidazole 250mg (ref 848);Sirops;comprime_plaquette;241;388;2966;0;8;529;0;9;2029-01-01;Vente par comprimé ou plaquette — import catalogue
+MED-0849;Prednisolone 250mg (ref 849);Gastro;comprime_plaquette;1600;2822;21365;0;8;420;0;23;2027-03-08;Vente par comprimé ou plaquette — import catalogue
+MED-0850;Losartan 200mg (ref 850);Ophtalmologie;comprime_plaquette;1077;1886;28290;0;15;91;0;22;2027-10-22;Vente par comprimé ou plaquette — import catalogue
+MED-0851;Paracétamol 50mg (ref 851);Pédiatrie;comprime_plaquette;2359;3450;79721;0;24;387;0;15;2029-01-31;Vente par comprimé ou plaquette — import catalogue
+MED-0852;Vitamine C 50mg (ref 852);Gynécologie;comprime_plaquette;2014;2689;21512;0;8;394;0;22;2028-02-16;Vente par comprimé ou plaquette — import catalogue
+MED-0853;Ibuprofène 200mg (ref 853);Antihistaminiques;comprime_plaquette;1739;3239;93706;0;30;413;0;26;2027-09-16;Vente par comprimé ou plaquette — import catalogue
+MED-0854;Sirop vitamine 120ml #854;Vitamines;flacon;3650;0;0;4695;0;18;0;25;2029-02-07;Vente par flacon — import catalogue
+MED-0855;Fer 200mg (ref 855);Antibiotiques;comprime_plaquette;1564;2691;19867;0;8;45;0;28;2028-11-01;Vente par comprimé ou plaquette — import catalogue
+MED-0856;Chloroquine 200mg (ref 856);Antalgiques;comprime_plaquette;246;358;5370;0;15;531;0;22;2028-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0857;Paracétamol 250mg (ref 857);Vitamines;comprime_plaquette;181;329;3948;0;12;435;0;8;2027-10-07;Vente par comprimé ou plaquette — import catalogue
+MED-0858;Prednisolone 10mg (ref 858);Antipaludéens;comprime_plaquette;2045;2877;43155;0;15;778;0;23;2027-10-29;Vente par comprimé ou plaquette — import catalogue
+MED-0859;Ibuprofène 250mg (ref 859);Dermatologie;comprime_plaquette;405;679;16174;0;24;653;0;6;2027-11-08;Vente par comprimé ou plaquette — import catalogue
+MED-0860;Fluconazole 100mg (ref 860);Antihypertenseurs;comprime_plaquette;515;805;6440;0;8;119;0;19;2028-11-19;Vente par comprimé ou plaquette — import catalogue
+MED-0861;Sirop paracétamol 100ml #861;Sirops;flacon;4221;0;0;6341;0;13;0;8;2027-06-29;Vente par flacon — import catalogue
+MED-0862;Amlodipine 5mg (ref 862);Antiseptiques;comprime_plaquette;1352;2621;78630;0;30;456;0;15;2029-01-27;Vente par comprimé ou plaquette — import catalogue
+MED-0863;Acide folique 1000mg (ref 863);Sirops;comprime_plaquette;1807;2902;22912;0;8;238;0;29;2027-04-20;Vente par comprimé ou plaquette — import catalogue
+MED-0864;Tramadol 100mg (ref 864);Gastro;comprime_plaquette;174;358;4095;0;12;733;0;16;2028-09-21;Vente par comprimé ou plaquette — import catalogue
+MED-0865;Azithromycine 200mg (ref 865);Ophtalmologie;comprime_plaquette;1147;2483;24526;0;10;647;0;17;2027-08-13;Vente par comprimé ou plaquette — import catalogue
+MED-0866;Paracétamol 200mg (ref 866);Pédiatrie;comprime_plaquette;56;126;1008;0;8;743;0;25;2028-11-01;Vente par comprimé ou plaquette — import catalogue
+MED-0867;Vitamine C 50mg (ref 867);Gynécologie;comprime_plaquette;2342;3407;81768;0;24;149;0;11;2027-07-29;Vente par comprimé ou plaquette — import catalogue
+MED-0868;Lotion cutanée 120ml #868;Dermatologie;flacon;2942;0;0;5189;0;57;0;12;2027-08-30;Vente par flacon — import catalogue
+MED-0869;Diclofénac 250mg (ref 869);Cardiologie;comprime_plaquette;556;837;16740;0;20;110;0;25;2028-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0870;Fer 50mg (ref 870);Antibiotiques;comprime_plaquette;1241;2384;18355;0;8;117;0;24;2028-03-09;Vente par comprimé ou plaquette — import catalogue
+MED-0871;Zinc 10mg (ref 871);Antalgiques;comprime_plaquette;588;998;19960;0;20;233;0;13;2027-04-28;Vente par comprimé ou plaquette — import catalogue
+MED-0872;Doxycycline 500mg (ref 872);Vitamines;comprime_plaquette;466;711;21330;0;30;505;0;20;2027-09-01;Vente par comprimé ou plaquette — import catalogue
+MED-0873;Azithromycine 250mg (ref 873);Antipaludéens;comprime_plaquette;1532;2741;20614;0;8;651;0;30;2028-06-11;Vente par comprimé ou plaquette — import catalogue
+MED-0874;Amoxicilline 500mg (ref 874);Dermatologie;comprime_plaquette;228;314;7406;0;24;516;0;21;2027-07-01;Vente par comprimé ou plaquette — import catalogue
+MED-0875;Collyre 60ml #875;Ophtalmologie;flacon;4466;0;0;3427;0;61;0;23;2028-10-18;Vente par flacon — import catalogue
+MED-0876;Vitamine B 50mg (ref 876);Antidiabétiques;comprime_plaquette;2063;3160;31600;0;10;132;0;15;2027-10-24;Vente par comprimé ou plaquette — import catalogue
+MED-0877;Metronidazole 400mg (ref 877);Antiseptiques;comprime_plaquette;1271;1789;42936;0;24;245;0;7;2028-06-29;Vente par comprimé ou plaquette — import catalogue
+MED-0878;Tramadol 200mg (ref 878);Sirops;comprime_plaquette;930;1885;15080;0;8;485;0;10;2028-04-04;Vente par comprimé ou plaquette — import catalogue
+MED-0879;Fer 100mg (ref 879);Gastro;comprime_plaquette;1549;3048;45720;0;15;296;0;11;2028-02-11;Vente par comprimé ou plaquette — import catalogue
+MED-0880;Ciprofloxacine 250mg (ref 880);Ophtalmologie;comprime_plaquette;1136;2429;57604;0;24;489;0;18;2027-08-27;Vente par comprimé ou plaquette — import catalogue
+MED-0881;Zinc 1000mg (ref 881);Pédiatrie;comprime_plaquette;825;1308;13080;0;10;673;0;24;2027-08-26;Vente par comprimé ou plaquette — import catalogue
+MED-0882;Solution buvable 15ml #882;Pédiatrie;flacon;3064;0;0;3381;0;16;0;18;2028-08-20;Vente par flacon — import catalogue
+MED-0883;Amlodipine 400mg (ref 883);Antihistaminiques;comprime_plaquette;1429;2039;39899;0;20;773;0;12;2027-11-13;Vente par comprimé ou plaquette — import catalogue
+MED-0884;Vitamine B 50mg (ref 884);Cardiologie;comprime_plaquette;724;1010;20200;0;20;172;0;23;2027-03-10;Vente par comprimé ou plaquette — import catalogue
+MED-0885;Oméprazole 250mg (ref 885);Antibiotiques;comprime_plaquette;1358;2027;16216;0;8;455;0;21;2028-04-11;Vente par comprimé ou plaquette — import catalogue
+MED-0886;Amlodipine 500mg (ref 886);Antalgiques;comprime_plaquette;1111;2128;31920;0;15;32;0;27;2028-04-24;Vente par comprimé ou plaquette — import catalogue
+MED-0887;Doxycycline 100mg (ref 887);Vitamines;comprime_plaquette;683;1311;15732;0;12;36;0;20;2029-01-18;Vente par comprimé ou plaquette — import catalogue
+MED-0888;Vitamine C 100mg (ref 888);Antipaludéens;comprime_plaquette;1401;1981;47544;0;24;44;0;19;2028-06-21;Vente par comprimé ou plaquette — import catalogue
+MED-0889;Solution antiseptique 100ml #889;Antiseptiques;flacon;4380;0;0;7260;0;56;0;10;2028-03-18;Vente par flacon — import catalogue
+MED-0890;Prednisolone 200mg (ref 890);Antihypertenseurs;comprime_plaquette;1213;2694;64656;0;24;414;0;27;2028-02-08;Vente par comprimé ou plaquette — import catalogue
+MED-0891;Losartan 250mg (ref 891);Antidiabétiques;comprime_plaquette;1246;1844;22128;0;12;647;0;22;2028-10-14;Vente par comprimé ou plaquette — import catalogue
+MED-0892;Doxycycline 500mg (ref 892);Antiseptiques;comprime_plaquette;989;1475;29370;0;20;710;0;16;2027-04-26;Vente par comprimé ou plaquette — import catalogue
+MED-0893;Metronidazole 50mg (ref 893);Sirops;comprime_plaquette;1275;2006;24072;0;12;199;0;25;2028-09-27;Vente par comprimé ou plaquette — import catalogue
+MED-0894;Fluconazole 500mg (ref 894);Gastro;comprime_plaquette;2049;3005;56902;0;20;572;0;8;2028-12-28;Vente par comprimé ou plaquette — import catalogue
+MED-0895;Amlodipine 5mg (ref 895);Ophtalmologie;comprime_plaquette;1527;2978;89340;0;30;250;0;15;2028-02-29;Vente par comprimé ou plaquette — import catalogue
+MED-0896;Gouttes auriculaires 120ml #896;Antiseptiques;flacon;2862;0;0;7072;0;59;0;13;2027-04-29;Vente par flacon — import catalogue
+MED-0897;Ibuprofène 1000mg (ref 897);Gynécologie;comprime_plaquette;1163;1953;23436;0;12;145;0;20;2028-08-30;Vente par comprimé ou plaquette — import catalogue
+MED-0898;Cotrimoxazole 10mg (ref 898);Antihistaminiques;comprime_plaquette;1241;1951;23412;0;12;729;0;30;2027-05-11;Vente par comprimé ou plaquette — import catalogue
+MED-0899;Doxycycline 200mg (ref 899);Cardiologie;comprime_plaquette;242;428;3412;0;8;98;0;8;2027-08-20;Vente par comprimé ou plaquette — import catalogue
+MED-0900;Artéméther 500mg (ref 900);Antibiotiques;comprime_plaquette;422;706;16944;0;24;553;0;25;2027-03-28;Vente par comprimé ou plaquette — import catalogue
+MED-0901;Vitamine C 50mg (ref 901);Antalgiques;comprime_plaquette;1690;2317;55608;0;24;450;0;19;2028-12-24;Vente par comprimé ou plaquette — import catalogue
+MED-0902;Paracétamol 875mg (ref 902);Vitamines;comprime_plaquette;163;357;3570;0;10;552;0;25;2028-02-11;Vente par comprimé ou plaquette — import catalogue
+MED-0903;Suspension amoxicilline 200ml #903;Antibiotiques;flacon;3170;0;0;4308;0;46;0;20;2028-11-01;Vente par flacon — import catalogue
+MED-0904;Cotrimoxazole 10mg (ref 904);Dermatologie;comprime_plaquette;1369;2346;70380;0;30;155;0;30;2028-01-12;Vente par comprimé ou plaquette — import catalogue
+MED-0905;Azithromycine 875mg (ref 905);Antihypertenseurs;comprime_plaquette;1169;2083;20572;0;10;171;0;16;2027-12-21;Vente par comprimé ou plaquette — import catalogue
+MED-0906;Metformine 100mg (ref 906);Antidiabétiques;comprime_plaquette;502;758;15127;0;20;745;0;27;2029-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0907;Ciprofloxacine 100mg (ref 907);Antiseptiques;comprime_plaquette;267;578;5780;0;10;149;0;19;2027-11-26;Vente par comprimé ou plaquette — import catalogue
+MED-0908;Fer 100mg (ref 908);Sirops;comprime_plaquette;1591;2403;24030;0;10;372;0;9;2028-03-20;Vente par comprimé ou plaquette — import catalogue
+MED-0909;Metformine 10mg (ref 909);Gastro;comprime_plaquette;1234;2285;22850;0;10;434;0;20;2027-07-31;Vente par comprimé ou plaquette — import catalogue
+MED-0910;Sirop toux 200ml #910;Sirops;flacon;2111;0;0;2778;0;5;0;28;2028-09-14;Vente par flacon — import catalogue
+MED-0911;Losartan 1000mg (ref 911);Pédiatrie;comprime_plaquette;1610;2989;71736;0;24;792;0;23;2029-01-15;Vente par comprimé ou plaquette — import catalogue
+MED-0912;Ciprofloxacine 5mg (ref 912);Gynécologie;comprime_plaquette;1053;1910;43929;0;24;61;0;9;2029-01-27;Vente par comprimé ou plaquette — import catalogue
+MED-0913;Céfixime 500mg (ref 913);Antihistaminiques;comprime_plaquette;114;201;2412;0;12;476;0;16;2027-06-07;Vente par comprimé ou plaquette — import catalogue
+MED-0914;Vitamine B 250mg (ref 914);Cardiologie;comprime_plaquette;1386;2726;54520;0;20;304;0;11;2027-03-28;Vente par comprimé ou plaquette — import catalogue
+MED-0915;Ibuprofène 10mg (ref 915);Antibiotiques;comprime_plaquette;1256;1924;57720;0;30;544;0;17;2027-09-20;Vente par comprimé ou plaquette — import catalogue
+MED-0916;Amlodipine 1000mg (ref 916);Antalgiques;comprime_plaquette;1555;2578;50185;0;20;427;0;9;2028-05-15;Vente par comprimé ou plaquette — import catalogue
+MED-0917;Sirop antipaludéen 120ml #917;Antipaludéens;flacon;2381;0;0;4554;0;6;0;14;2028-02-21;Vente par flacon — import catalogue
+MED-0918;Fer 875mg (ref 918);Antipaludéens;comprime_plaquette;1141;2397;35955;0;15;474;0;28;2028-05-03;Vente par comprimé ou plaquette — import catalogue
+MED-0919;Metformine 875mg (ref 919);Dermatologie;comprime_plaquette;2272;3400;34000;0;10;766;0;18;2027-07-25;Vente par comprimé ou plaquette — import catalogue
+MED-0920;Tramadol 5mg (ref 920);Antihypertenseurs;comprime_plaquette;352;688;5504;0;8;557;0;15;2027-05-11;Vente par comprimé ou plaquette — import catalogue
+MED-0921;Tramadol 50mg (ref 921);Antidiabétiques;comprime_plaquette;72;127;1016;0;8;444;0;10;2028-09-24;Vente par comprimé ou plaquette — import catalogue
+MED-0922;Metformine 5mg (ref 922);Antiseptiques;comprime_plaquette;336;660;19800;0;30;316;0;22;2028-07-19;Vente par comprimé ou plaquette — import catalogue
+MED-0923;Amoxicilline 875mg (ref 923);Sirops;comprime_plaquette;1351;2497;74910;0;30;494;0;12;2027-04-01;Vente par comprimé ou plaquette — import catalogue
+MED-0924;Sirop vitamine 60ml #924;Vitamines;flacon;1430;0;0;3651;0;43;0;25;2028-12-15;Vente par flacon — import catalogue
+MED-0925;Amlodipine 500mg (ref 925);Ophtalmologie;comprime_plaquette;2029;2827;67848;0;24;523;0;27;2028-12-24;Vente par comprimé ou plaquette — import catalogue
+MED-0926;Chloroquine 250mg (ref 926);Pédiatrie;comprime_plaquette;1723;3232;25856;0;8;88;0;24;2028-03-09;Vente par comprimé ou plaquette — import catalogue
+MED-0927;Tramadol 200mg (ref 927);Gynécologie;comprime_plaquette;1340;1886;37720;0;20;507;0;27;2027-07-05;Vente par comprimé ou plaquette — import catalogue
+MED-0928;Fer 10mg (ref 928);Antihistaminiques;comprime_plaquette;1118;2456;56971;0;24;169;0;15;2028-06-19;Vente par comprimé ou plaquette — import catalogue
+MED-0929;Fluconazole 100mg (ref 929);Cardiologie;comprime_plaquette;357;768;9216;0;12;671;0;16;2027-04-23;Vente par comprimé ou plaquette — import catalogue
+MED-0930;Vitamine C 875mg (ref 930);Antibiotiques;comprime_plaquette;1985;2717;54340;0;20;663;0;10;2027-06-09;Vente par comprimé ou plaquette — import catalogue
+MED-0931;Sirop paracétamol 15ml #931;Sirops;flacon;3882;0;0;2869;0;74;0;15;2028-01-22;Vente par flacon — import catalogue
+MED-0932;Cotrimoxazole 875mg (ref 932);Vitamines;comprime_plaquette;1916;2907;34884;0;12;567;0;23;2028-02-28;Vente par comprimé ou plaquette — import catalogue
+MED-0933;Ciprofloxacine 250mg (ref 933);Antipaludéens;comprime_plaquette;1187;2222;22220;0;10;441;0;15;2027-08-18;Vente par comprimé ou plaquette — import catalogue
+MED-0934;Metronidazole 400mg (ref 934);Dermatologie;comprime_plaquette;1115;2161;21432;0;10;648;0;27;2028-08-24;Vente par comprimé ou plaquette — import catalogue
+MED-0935;Céfixime 10mg (ref 935);Antihypertenseurs;comprime_plaquette;2208;3197;76728;0;24;98;0;8;2027-07-17;Vente par comprimé ou plaquette — import catalogue
+MED-0936;Paracétamol 200mg (ref 936);Antidiabétiques;comprime_plaquette;904;1376;15774;0;12;631;0;21;2028-02-18;Vente par comprimé ou plaquette — import catalogue
+MED-0937;Azithromycine 875mg (ref 937);Antiseptiques;comprime_plaquette;2186;3149;24903;0;8;165;0;27;2027-10-23;Vente par comprimé ou plaquette — import catalogue
+MED-0938;Lotion cutanée 120ml #938;Dermatologie;flacon;1313;0;0;3219;0;21;0;7;2028-05-13;Vente par flacon — import catalogue
+MED-0939;Fluconazole 500mg (ref 939);Gastro;comprime_plaquette;120;177;1416;0;8;63;0;11;2027-06-23;Vente par comprimé ou plaquette — import catalogue
+MED-0940;Amoxicilline 10mg (ref 940);Ophtalmologie;comprime_plaquette;202;342;6840;0;20;64;0;7;2028-01-07;Vente par comprimé ou plaquette — import catalogue
+MED-0941;Cotrimoxazole 250mg (ref 941);Pédiatrie;comprime_plaquette;338;495;14850;0;30;230;0;23;2027-09-25;Vente par comprimé ou plaquette — import catalogue
+MED-0942;Azithromycine 1000mg (ref 942);Gynécologie;comprime_plaquette;232;471;3768;0;8;304;0;23;2028-02-24;Vente par comprimé ou plaquette — import catalogue
+MED-0943;Fer 100mg (ref 943);Antihistaminiques;comprime_plaquette;1471;2150;64500;0;30;537;0;23;2027-05-13;Vente par comprimé ou plaquette — import catalogue
+MED-0944;Metronidazole 5mg (ref 944);Cardiologie;comprime_plaquette;95;157;4710;0;30;308;0;10;2028-09-05;Vente par comprimé ou plaquette — import catalogue
+MED-0945;Collyre 60ml #945;Ophtalmologie;flacon;3771;0;0;2308;0;32;0;21;2028-07-03;Vente par flacon — import catalogue
+MED-0946;Fer 5mg (ref 946);Antalgiques;comprime_plaquette;1238;1900;18748;0;10;408;0;18;2027-10-10;Vente par comprimé ou plaquette — import catalogue
+MED-0947;Losartan 400mg (ref 947);Vitamines;comprime_plaquette;381;562;8430;0;15;497;0;8;2028-08-18;Vente par comprimé ou plaquette — import catalogue
+MED-0948;Ciprofloxacine 200mg (ref 948);Antipaludéens;comprime_plaquette;1044;1579;47370;0;30;61;0;7;2028-02-03;Vente par comprimé ou plaquette — import catalogue
+MED-0949;Amlodipine 500mg (ref 949);Dermatologie;comprime_plaquette;740;1261;18915;0;15;723;0;19;2027-10-22;Vente par comprimé ou plaquette — import catalogue
+MED-0950;Céfixime 50mg (ref 950);Antihypertenseurs;comprime_plaquette;938;1852;21941;0;12;507;0;26;2028-03-15;Vente par comprimé ou plaquette — import catalogue
+MED-0951;Azithromycine 250mg (ref 951);Antidiabétiques;comprime_plaquette;1376;2113;50712;0;24;555;0;26;2029-01-25;Vente par comprimé ou plaquette — import catalogue
+MED-0952;Solution buvable 60ml #952;Pédiatrie;flacon;1288;0;0;2674;0;55;0;17;2029-02-13;Vente par flacon — import catalogue
+MED-0953;Tramadol 500mg (ref 953);Sirops;comprime_plaquette;371;791;18984;0;24;366;0;11;2028-11-03;Vente par comprimé ou plaquette — import catalogue
+MED-0954;Acide folique 500mg (ref 954);Gastro;comprime_plaquette;1227;1839;17968;0;10;615;0;23;2027-12-09;Vente par comprimé ou plaquette — import catalogue
+MED-0955;Zinc 50mg (ref 955);Ophtalmologie;comprime_plaquette;1331;2048;24576;0;12;516;0;21;2027-12-15;Vente par comprimé ou plaquette — import catalogue
+MED-0956;Ciprofloxacine 200mg (ref 956);Pédiatrie;comprime_plaquette;315;600;4800;0;8;663;0;9;2027-04-04;Vente par comprimé ou plaquette — import catalogue
+MED-0957;Metronidazole 250mg (ref 957);Gynécologie;comprime_plaquette;227;379;10623;0;30;639;0;26;2028-02-02;Vente par comprimé ou plaquette — import catalogue
+MED-0958;Ciprofloxacine 875mg (ref 958);Antihistaminiques;comprime_plaquette;1270;2652;51986;0;20;524;0;30;2028-06-24;Vente par comprimé ou plaquette — import catalogue
+MED-0959;Solution antiseptique 100ml #959;Antiseptiques;flacon;2002;0;0;6923;0;68;0;20;2028-08-02;Vente par flacon — import catalogue
+MED-0960;Artéméther 10mg (ref 960);Antibiotiques;comprime_plaquette;2417;3415;40980;0;12;52;0;18;2027-07-04;Vente par comprimé ou plaquette — import catalogue
+MED-0961;Acide folique 200mg (ref 961);Antalgiques;comprime_plaquette;956;1641;18395;0;12;695;0;29;2028-01-09;Vente par comprimé ou plaquette — import catalogue
+MED-0962;Fluconazole 100mg (ref 962);Vitamines;comprime_plaquette;914;1864;27960;0;15;519;0;29;2027-06-25;Vente par comprimé ou plaquette — import catalogue
+MED-0963;Tramadol 200mg (ref 963);Antipaludéens;comprime_plaquette;1552;2368;56832;0;24;507;0;22;2027-08-12;Vente par comprimé ou plaquette — import catalogue
+MED-0964;Losartan 250mg (ref 964);Dermatologie;comprime_plaquette;704;1178;17670;0;15;651;0;26;2028-02-29;Vente par comprimé ou plaquette — import catalogue
+MED-0965;Zinc 875mg (ref 965);Antihypertenseurs;comprime_plaquette;160;351;4157;0;12;377;0;30;2028-10-22;Vente par comprimé ou plaquette — import catalogue
+MED-0966;Gouttes auriculaires 60ml #966;Antiseptiques;flacon;3934;0;0;6621;0;48;0;17;2027-06-12;Vente par flacon — import catalogue
+MED-0967;Oméprazole 1000mg (ref 967);Antiseptiques;comprime_plaquette;992;1787;21444;0;12;273;0;12;2028-12-27;Vente par comprimé ou plaquette — import catalogue
+MED-0968;Vitamine C 5mg (ref 968);Sirops;comprime_plaquette;1370;2918;23344;0;8;365;0;10;2027-03-25;Vente par comprimé ou plaquette — import catalogue
+MED-0969;Céfixime 1000mg (ref 969);Gastro;comprime_plaquette;1286;1987;15896;0;8;547;0;18;2027-12-03;Vente par comprimé ou plaquette — import catalogue
+MED-0970;Paracétamol 200mg (ref 970);Ophtalmologie;comprime_plaquette;142;191;3820;0;20;419;0;15;2028-10-11;Vente par comprimé ou plaquette — import catalogue
+MED-0971;Metronidazole 200mg (ref 971);Pédiatrie;comprime_plaquette;1911;2929;23432;0;8;534;0;30;2029-01-16;Vente par comprimé ou plaquette — import catalogue
+MED-0972;Vitamine B 100mg (ref 972);Gynécologie;comprime_plaquette;741;1326;26520;0;20;528;0;25;2027-05-21;Vente par comprimé ou plaquette — import catalogue
+MED-0973;Suspension amoxicilline 15ml #973;Antibiotiques;flacon;1676;0;0;3854;0;38;0;6;2028-01-03;Vente par flacon — import catalogue
+MED-0974;Tramadol 50mg (ref 974);Cardiologie;comprime_plaquette;653;1025;30750;0;30;754;0;23;2027-06-10;Vente par comprimé ou plaquette — import catalogue
+MED-0975;Tramadol 1000mg (ref 975);Antibiotiques;comprime_plaquette;232;375;4500;0;12;457;0;11;2028-02-23;Vente par comprimé ou plaquette — import catalogue
+MED-0976;Ibuprofène 875mg (ref 976);Antalgiques;comprime_plaquette;1832;3393;67860;0;20;340;0;11;2028-05-02;Vente par comprimé ou plaquette — import catalogue
+MED-0977;Acide folique 875mg (ref 977);Vitamines;comprime_plaquette;1294;2210;44200;0;20;204;0;5;2028-12-06;Vente par comprimé ou plaquette — import catalogue
+MED-0978;Fluconazole 10mg (ref 978);Antipaludéens;comprime_plaquette;538;864;25841;0;30;780;0;19;2027-12-04;Vente par comprimé ou plaquette — import catalogue
+MED-0979;Prednisolone 10mg (ref 979);Dermatologie;comprime_plaquette;1846;2616;78480;0;30;599;0;28;2028-12-05;Vente par comprimé ou plaquette — import catalogue
+MED-0980;Sirop toux 60ml #980;Sirops;flacon;2939;0;0;3143;0;51;0;19;2027-08-03;Vente par flacon — import catalogue
+MED-0981;Chloroquine 100mg (ref 981);Antidiabétiques;comprime_plaquette;1975;2907;69768;0;24;440;0;15;2027-05-09;Vente par comprimé ou plaquette — import catalogue
+MED-0982;Prednisolone 400mg (ref 982);Antiseptiques;comprime_plaquette;948;1789;50065;0;30;723;0;24;2027-11-01;Vente par comprimé ou plaquette — import catalogue
+MED-0983;Acide folique 400mg (ref 983);Sirops;comprime_plaquette;362;714;5633;0;8;495;0;20;2028-09-28;Vente par comprimé ou plaquette — import catalogue
+MED-0984;Oméprazole 50mg (ref 984);Gastro;comprime_plaquette;128;251;5556;0;24;304;0;26;2028-09-18;Vente par comprimé ou plaquette — import catalogue
+MED-0985;Azithromycine 250mg (ref 985);Ophtalmologie;comprime_plaquette;1430;2090;49744;0;24;341;0;24;2028-01-04;Vente par comprimé ou plaquette — import catalogue
+MED-0986;Ibuprofène 50mg (ref 986);Pédiatrie;comprime_plaquette;1845;2851;34056;0;12;761;0;9;2027-11-01;Vente par comprimé ou plaquette — import catalogue
+MED-0987;Sirop antipaludéen 60ml #987;Antipaludéens;flacon;3138;0;0;7516;0;69;0;8;2028-08-20;Vente par flacon — import catalogue
+MED-0988;Cotrimoxazole 5mg (ref 988);Antihistaminiques;comprime_plaquette;1182;2251;67530;0;30;263;0;24;2027-07-08;Vente par comprimé ou plaquette — import catalogue
+MED-0989;Zinc 1000mg (ref 989);Cardiologie;comprime_plaquette;1673;2493;29916;0;12;781;0;12;2028-05-11;Vente par comprimé ou plaquette — import catalogue
+MED-0990;Doxycycline 100mg (ref 990);Antibiotiques;comprime_plaquette;420;817;6226;0;8;623;0;6;2028-07-19;Vente par comprimé ou plaquette — import catalogue
+MED-0991;Céfixime 1000mg (ref 991);Antalgiques;comprime_plaquette;306;562;13488;0;24;719;0;12;2027-12-14;Vente par comprimé ou plaquette — import catalogue
+MED-0992;Ciprofloxacine 1000mg (ref 992);Vitamines;comprime_plaquette;1698;3031;45465;0;15;680;0;24;2027-04-09;Vente par comprimé ou plaquette — import catalogue
+MED-0993;Albendazole 250mg (ref 993);Antipaludéens;comprime_plaquette;2169;3330;75985;0;24;674;0;27;2028-03-10;Vente par comprimé ou plaquette — import catalogue
+MED-0994;Sirop vitamine 60ml #994;Vitamines;flacon;2990;0;0;3436;0;61;0;17;2027-03-13;Vente par flacon — import catalogue
+MED-0995;Acide folique 875mg (ref 995);Antihypertenseurs;comprime_plaquette;342;469;5628;0;12;324;0;11;2027-08-16;Vente par comprimé ou plaquette — import catalogue
+MED-0996;Metformine 1000mg (ref 996);Antidiabétiques;comprime_plaquette;2084;3240;97200;0;30;300;0;7;2028-07-20;Vente par comprimé ou plaquette — import catalogue
+MED-0997;Amlodipine 50mg (ref 997);Antiseptiques;comprime_plaquette;972;1462;43860;0;30;122;0;10;2029-02-17;Vente par comprimé ou plaquette — import catalogue
+MED-0998;Artéméther 10mg (ref 998);Sirops;comprime_plaquette;888;1541;12328;0;8;580;0;28;2028-02-02;Vente par comprimé ou plaquette — import catalogue
+MED-0999;Metformine 250mg (ref 999);Gastro;comprime_plaquette;201;313;8971;0;30;676;0;9;2027-03-08;Vente par comprimé ou plaquette — import catalogue
+MED-1000;Acide folique 400mg (ref 1000);Ophtalmologie;comprime_plaquette;735;1351;30239;0;24;548;0;27;2028-12-28;Vente par comprimé ou plaquette — import catalogue
