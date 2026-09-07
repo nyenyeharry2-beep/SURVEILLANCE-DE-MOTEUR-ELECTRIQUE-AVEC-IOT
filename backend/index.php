@@ -17,6 +17,9 @@ echo json_encode([
         'POST /api/admin/login.php' => 'Connexion administrateur',
         'POST /api/admin/upload.php' => 'Import PDF (header X-Admin-Token)',
         'GET /api/admin/stats.php' => 'Statistiques admin',
+        'POST /api/messages/send.php' => 'Signalement parent → facturation',
+        'GET /api/admin/messages.php' => 'Liste messages (header X-Admin-Token)',
+        'POST /api/admin/messages.php' => 'Mettre à jour statut message',
     ],
     'documentation' => 'Voir README.md',
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

@@ -19,6 +19,18 @@ interface AdminApi {
         @Part pdf: MultipartBody.Part,
         @Part("type") type: RequestBody
     ): UploadResponse
+
+    @GET("api/admin/messages.php")
+    suspend fun getMessages(
+        @Header("X-Admin-Token") token: String,
+        @Query("statut") statut: String? = null
+    ): MessagesResponse
+
+    @POST("api/admin/messages.php")
+    suspend fun updateMessageStatus(
+        @Header("X-Admin-Token") token: String,
+        @Body body: UpdateMessageRequest
+    ): MessageActionResponse
 }
 
 data class LoginRequest(val password: String)
@@ -75,4 +87,47 @@ data class UploadResult(
     @SerializedName("section_detectee") val sectionDetectee: String? = null,
     val classes: Map<String, Int>? = null,
     @SerializedName("par_classe") val parClasse: Map<String, Int>? = null
+)
+
+data class MessagesResponse(
+    val success: Boolean,
+    val messages: List<ParentMessage>? = null,
+    val counts: MessageCounts? = null,
+    val error: String? = null
+)
+
+data class MessageCounts(
+    val nouveau: Int,
+    val en_cours: Int,
+    val traite: Int,
+    val total: Int
+)
+
+data class ParentMessage(
+    val id: Int,
+    @SerializedName("nom_parent") val nomParent: String,
+    @SerializedName("telephone_parent") val telephoneParent: String,
+    val matricule: String,
+    @SerializedName("nom_eleve") val nomEleve: String?,
+    @SerializedName("prenom_eleve") val prenomEleve: String?,
+    @SerializedName("classe_eleve") val classeEleve: String?,
+    @SerializedName("section_eleve") val sectionEleve: String?,
+    val motif: String,
+    val message: String,
+    val statut: String,
+    @SerializedName("note_admin") val noteAdmin: String?,
+    @SerializedName("created_at") val createdAt: String
+)
+
+data class UpdateMessageRequest(
+    val action: String = "update_status",
+    val id: Int,
+    val statut: String,
+    @SerializedName("note_admin") val noteAdmin: String? = null
+)
+
+data class MessageActionResponse(
+    val success: Boolean,
+    val message: String? = null,
+    val error: String? = null
 )

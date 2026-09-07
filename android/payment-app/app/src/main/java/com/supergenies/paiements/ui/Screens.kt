@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -26,8 +27,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +47,9 @@ import retrofit2.HttpException
 @Composable
 fun SuperGeniesApp() {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Accueil", "Inscriptions", "Trousseau")
+    var lastStudent by remember { mutableStateOf<Student?>(null) }
+    var lastMatricule by remember { mutableStateOf("") }
+    val tabs = listOf("Accueil", "Messagerie", "Inscriptions", "Trousseau")
 
     Scaffold(
         topBar = {
@@ -72,7 +79,8 @@ fun SuperGeniesApp() {
                 tabs.forEachIndexed { index, label ->
                     val icon = when (index) {
                         0 -> Icons.Default.Search
-                        1 -> Icons.Default.Info
+                        1 -> Icons.Default.Email
+                        2 -> Icons.Default.Info
                         else -> Icons.Default.ShoppingBag
                     }
                     NavigationBarItem(
@@ -92,9 +100,19 @@ fun SuperGeniesApp() {
     ) { padding ->
         Box(Modifier.padding(padding)) {
             when (selectedTab) {
-                0 -> HomeScreen()
-                1 -> InscriptionsScreen()
-                2 -> TrousseauScreen()
+                0 -> HomeScreen(
+                    onStudentFound = { student, matricule ->
+                        lastStudent = student
+                        lastMatricule = matricule
+                    },
+                    onReportProblem = { selectedTab = 1 }
+                )
+                1 -> MessagerieScreen(
+                    prefilledStudent = lastStudent,
+                    prefilledMatricule = lastMatricule
+                )
+                2 -> InscriptionsScreen()
+                3 -> TrousseauScreen()
             }
         }
     }
@@ -104,7 +122,10 @@ data class CarouselItem(val imageRes: Int, val title: String)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onStudentFound: (Student, String) -> Unit = { _, _ -> },
+    onReportProblem: () -> Unit = {}
+) {
     val carouselItems = listOf(
         CarouselItem(R.drawable.carousel_felicitations, "Félicitations à nos finalistes"),
         CarouselItem(R.drawable.carousel_petrochimie, "Pétrochimie - Inscription"),
@@ -129,6 +150,7 @@ fun HomeScreen() {
             result = null
             try {
                 result = ApiClient.service.getStudent(matricule.trim().uppercase())
+                result?.student?.let { onStudentFound(it, matricule.trim().uppercase()) }
             } catch (e: HttpException) {
                 error = if (e.code() == 404) "Matricule non trouvé" else "Erreur serveur (${e.code()})"
             } catch (e: Exception) {
@@ -259,7 +281,19 @@ fun HomeScreen() {
         }
 
         result?.student?.let { student ->
-            item { StudentCard(student, result!!.summary) }
+            item {
+                StudentCard(student, result!!.summary)
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onReportProblem,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SchoolRed)
+                ) {
+                    Icon(Icons.Default.Email, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Signaler un problème de paiement")
+                }
+            }
         }
 
         result?.fees?.let { fees ->
@@ -504,6 +538,199 @@ fun TrousseauScreen() {
             }
             items(data!!.politiques) { policy ->
                 Text("• $policy", fontSize = 13.sp)
+            }
+        }
+    }
+}
+
+val MOTIFS_SIGNALEMENT = listOf(
+    "paiement_non_enregistre" to "Paiement non enregistré",
+    "montant_incorrect" to "Montant incorrect",
+    "double_paiement" to "Double paiement",
+    "probleme_inscription" to "Problème d'inscription",
+    "autre" to "Autre problème"
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MessagerieScreen(
+    prefilledStudent: Student? = null,
+    prefilledMatricule: String = ""
+) {
+    var nomParent by remember { mutableStateOf("") }
+    var telephone by remember { mutableStateOf("") }
+    var matricule by remember(prefilledMatricule) { mutableStateOf(prefilledMatricule) }
+    var motif by remember { mutableStateOf("paiement_non_enregistre") }
+    var message by remember { mutableStateOf("") }
+    var motifExpanded by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(false) }
+    var success by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
+    val motifLabel = MOTIFS_SIGNALEMENT.find { it.first == motif }?.second ?: motif
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            "Signaler un problème",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = NavyBlue
+        )
+        Text(
+            "Votre message sera transmis à la facturation pour vérification du paiement et de la classe de l'élève.",
+            fontSize = 13.sp,
+            color = Color.Gray
+        )
+
+        prefilledStudent?.let { student ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = RoyalBlue.copy(alpha = 0.08f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(Modifier.padding(12.dp)) {
+                    Text("Élève concerné", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    Text(student.nom_complet, fontWeight = FontWeight.Bold)
+                    Text("Classe: ${student.classe}", fontSize = 12.sp)
+                    student.section?.let { Text("Section: $it", fontSize = 12.sp) }
+                    Text("Matricule: ${student.matricule}", fontSize = 12.sp, color = Color.Gray)
+                }
+            }
+        }
+
+        OutlinedTextField(
+            value = nomParent,
+            onValueChange = { nomParent = it },
+            label = { Text("Nom complet du parent *") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = telephone,
+            onValueChange = { telephone = it },
+            label = { Text("Numéro de téléphone *") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+        )
+
+        OutlinedTextField(
+            value = matricule,
+            onValueChange = { matricule = it.uppercase() },
+            label = { Text("Matricule de l'élève *") },
+            placeholder = { Text("CSLSG-2026-2027-00167") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters)
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = motifExpanded,
+            onExpandedChange = { motifExpanded = it }
+        ) {
+            OutlinedTextField(
+                value = motifLabel,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Motif du signalement *") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = motifExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = motifExpanded,
+                onDismissRequest = { motifExpanded = false }
+            ) {
+                MOTIFS_SIGNALEMENT.forEach { (value, label) ->
+                    DropdownMenuItem(
+                        text = { Text(label) },
+                        onClick = {
+                            motif = value
+                            motifExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        OutlinedTextField(
+            value = message,
+            onValueChange = { message = it },
+            label = { Text("Décrivez le problème rencontré *") },
+            placeholder = { Text("Ex: J'ai payé les frais de septembre mais le statut reste impayé...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp),
+            maxLines = 6
+        )
+
+        Button(
+            onClick = {
+                scope.launch {
+                    loading = true
+                    error = null
+                    success = null
+                    try {
+                        val resp = ApiClient.service.sendMessage(
+                            MessageRequest(
+                                nom_parent = nomParent.trim(),
+                                telephone_parent = telephone.trim(),
+                                matricule = matricule.trim().uppercase(),
+                                nom_eleve = prefilledStudent?.nom,
+                                prenom_eleve = prefilledStudent?.prenom,
+                                classe_eleve = prefilledStudent?.classe,
+                                section_eleve = prefilledStudent?.section,
+                                motif = motif,
+                                message = message.trim()
+                            )
+                        )
+                        if (resp.success) {
+                            success = resp.message ?: "Message envoyé avec succès"
+                            nomParent = ""
+                            telephone = ""
+                            message = ""
+                            if (prefilledStudent == null) matricule = ""
+                        } else {
+                            error = resp.error ?: "Échec de l'envoi"
+                        }
+                    } catch (e: Exception) {
+                        error = "Connexion impossible. Réessayez plus tard."
+                    } finally {
+                        loading = false
+                    }
+                }
+            },
+            enabled = !loading && nomParent.isNotBlank() && telephone.isNotBlank()
+                    && matricule.isNotBlank() && message.length >= 10,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = SchoolRed)
+        ) {
+            if (loading) {
+                CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+            } else {
+                Icon(Icons.Default.Send, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Envoyer à la facturation")
+            }
+        }
+
+        success?.let {
+            Card(colors = CardDefaults.cardColors(containerColor = PaidGreen.copy(alpha = 0.12f)), modifier = Modifier.fillMaxWidth()) {
+                Text(it, Modifier.padding(16.dp), color = PaidGreen)
+            }
+        }
+        error?.let {
+            Card(colors = CardDefaults.cardColors(containerColor = UnpaidRed.copy(alpha = 0.12f)), modifier = Modifier.fillMaxWidth()) {
+                Text(it, Modifier.padding(16.dp), color = UnpaidRed)
             }
         }
     }

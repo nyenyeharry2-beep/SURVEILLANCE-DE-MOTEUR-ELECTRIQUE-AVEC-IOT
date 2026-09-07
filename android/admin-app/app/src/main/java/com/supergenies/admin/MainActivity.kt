@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -135,13 +136,60 @@ fun AdminApp() {
             )
         }
     } else {
-        DashboardScreen(token!!, onLogout = { token = null })
+        AdminMainScreen(token!!, onLogout = { token = null })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(token: String, onLogout: () -> Unit) {
+fun AdminMainScreen(token: String, onLogout: () -> Unit) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (selectedTab == 0) "Admin - Super Genies" else "Messagerie Facturation") },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.Logout, "Déconnexion")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1B3A6B),
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    icon = { Icon(Icons.Default.CloudUpload, null) },
+                    label = { Text("Imports") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    icon = { Icon(Icons.Default.Email, null) },
+                    label = { Text("Messages") }
+                )
+            }
+        }
+    ) { padding ->
+        Box(Modifier.padding(padding)) {
+            when (selectedTab) {
+                0 -> DashboardScreen(token)
+                1 -> MessagesScreen(token)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DashboardScreen(token: String) {
     var stats by remember { mutableStateOf<StatsResponse?>(null) }
     var importType by remember { mutableStateOf("auto") }
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
@@ -169,30 +217,12 @@ fun DashboardScreen(token: String, onLogout: () -> Unit) {
         error = null
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Admin - Super Genies") },
-                actions = {
-                    IconButton(onClick = onLogout) {
-                        Icon(Icons.Default.Logout, "Déconnexion")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1B3A6B),
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
-            )
-        }
-    ) { padding ->
-        LazyColumn(
-            Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
             stats?.stats?.let { s ->
                 item {
                     Text("Statistiques", fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -316,6 +346,165 @@ fun DashboardScreen(token: String, onLogout: () -> Unit) {
                             }
                         }
                     }
+                }
+            }
+    }
+}
+
+val MOTIF_LABELS = mapOf(
+    "paiement_non_enregistre" to "Paiement non enregistré",
+    "montant_incorrect" to "Montant incorrect",
+    "double_paiement" to "Double paiement",
+    "probleme_inscription" to "Problème d'inscription",
+    "autre" to "Autre"
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MessagesScreen(token: String) {
+    var messagesData by remember { mutableStateOf<MessagesResponse?>(null) }
+    var filter by remember { mutableStateOf("all") }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    fun loadMessages() {
+        scope.launch {
+            loading = true
+            error = null
+            try {
+                messagesData = AdminApiClient.api.getMessages(
+                    token,
+                    if (filter == "all") null else filter
+                )
+            } catch (e: Exception) {
+                error = "Impossible de charger les messages"
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    LaunchedEffect(token, filter) { loadMessages() }
+
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf("all" to "Tous", "nouveau" to "Nouveaux", "en_cours" to "En cours", "traite" to "Traités").forEach { (value, label) ->
+                FilterChip(
+                    selected = filter == value,
+                    onClick = { filter = value },
+                    label = {
+                        val count = when (value) {
+                            "nouveau" -> messagesData?.counts?.nouveau
+                            "en_cours" -> messagesData?.counts?.en_cours
+                            "traite" -> messagesData?.counts?.traite
+                            else -> messagesData?.counts?.total
+                        }
+                        Text(if (value == "all") label else "$label (${count ?: 0})")
+                    }
+                )
+            }
+        }
+
+        when {
+            loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF1B3A6B))
+            }
+            error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(error!!, color = Color.Red)
+            }
+            messagesData?.messages.isNullOrEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Aucun message", color = Color.Gray)
+            }
+            else -> LazyColumn(
+                Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(messagesData!!.messages!!) { msg ->
+                    MessageCard(msg, token) { loadMessages() }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MessageCard(msg: ParentMessage, token: String, onUpdated: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var updating by remember { mutableStateOf(false) }
+
+    val statutColor = when (msg.statut) {
+        "nouveau" -> Color(0xFFC62828)
+        "en_cours" -> Color(0xFFF57C00)
+        else -> Color(0xFF2E7D32)
+    }
+    val statutLabel = when (msg.statut) {
+        "nouveau" -> "Nouveau"
+        "en_cours" -> "En cours"
+        else -> "Traité"
+    }
+
+    Card(Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(2.dp)) {
+        Column(Modifier.padding(14.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(msg.nomParent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Surface(color = statutColor.copy(alpha = 0.15f), shape = RoundedCornerShape(8.dp)) {
+                    Text(statutLabel, Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = statutColor, fontSize = 11.sp)
+                }
+            }
+            Text("📞 ${msg.telephoneParent}", fontSize = 13.sp, color = Color.Gray)
+            Spacer(Modifier.height(6.dp))
+            Text("Élève: ${msg.nomEleve ?: ""} ${msg.prenomEleve ?: ""}".trim(), fontSize = 13.sp)
+            Text("Matricule: ${msg.matricule}", fontSize = 12.sp, color = Color.Gray)
+            msg.classeEleve?.let { Text("Classe: $it", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B3A6B)) }
+            msg.sectionEleve?.let { Text("Section: $it", fontSize = 12.sp) }
+            Spacer(Modifier.height(6.dp))
+            Surface(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(10.dp)) {
+                    Text("Motif: ${MOTIF_LABELS[msg.motif] ?: msg.motif}", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                    Text(msg.message, fontSize = 13.sp, Modifier.padding(top = 4.dp))
+                }
+            }
+            Text("Reçu le ${msg.createdAt}", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.padding(top = 6.dp))
+
+            if (msg.statut != "traite") {
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (msg.statut == "nouveau") {
+                        OutlinedButton(
+                            onClick = {
+                                scope.launch {
+                                    updating = true
+                                    try {
+                                        AdminApiClient.api.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "en_cours"))
+                                        onUpdated()
+                                    } finally { updating = false }
+                                }
+                            },
+                            enabled = !updating,
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Prendre en charge", fontSize = 11.sp) }
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                updating = true
+                                try {
+                                    AdminApiClient.api.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "traite"))
+                                    onUpdated()
+                                } finally { updating = false }
+                            }
+                        },
+                        enabled = !updating,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                    ) { Text("Marquer traité", fontSize = 11.sp) }
                 }
             }
         }

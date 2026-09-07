@@ -1,6 +1,8 @@
 package com.supergenies.paiements.data
 
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ApiService {
@@ -12,7 +14,29 @@ interface ApiService {
 
     @GET("api/info/trousseau.php")
     suspend fun getTrousseau(): TrousseauResponse
+
+    @POST("api/messages/send.php")
+    suspend fun sendMessage(@Body body: MessageRequest): MessageResponse
 }
+
+data class MessageRequest(
+    val nom_parent: String,
+    val telephone_parent: String,
+    val matricule: String,
+    val nom_eleve: String? = null,
+    val prenom_eleve: String? = null,
+    val classe_eleve: String? = null,
+    val section_eleve: String? = null,
+    val motif: String,
+    val message: String
+)
+
+data class MessageResponse(
+    val success: Boolean,
+    val message_id: Int? = null,
+    val message: String? = null,
+    val error: String? = null
+)
 
 data class StudentResponse(
     val success: Boolean,
