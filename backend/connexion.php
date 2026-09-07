@@ -121,9 +121,9 @@ $formAction = $siteUrl . '/connexion.php' . ($isApp ? '?app=1' : '');
         <?php if ($success): ?>
             <div class="msg-ok">✅ <?= htmlspecialchars($success) ?></div>
             <?php if ($isApp && $appToken): ?>
-                <p class="hint">Connexion à l'application en cours…</p>
+                <p class="hint">Ouverture de l'espace admin…</p>
             <?php else: ?>
-                <a class="btn btn-green" href="<?= $siteUrl ?>/admin/dashboard.php">Entrer dans l'espace administrateur →</a>
+                <a class="btn btn-green" href="<?= $siteUrl ?>/admin/portail.php">Entrer dans l'espace administrateur →</a>
             <?php endif; ?>
         <?php else: ?>
             <?php if ($error): ?>
@@ -146,21 +146,7 @@ $formAction = $siteUrl . '/connexion.php' . ($isApp ? '?app=1' : '');
     </div>
     <?php if ($isApp && $success && $appToken): ?>
     <script>
-        (function () {
-            var token = <?= json_encode($appToken, JSON_THROW_ON_ERROR) ?>;
-            var expires = <?= json_encode($appExpires, JSON_THROW_ON_ERROR) ?>;
-            function notifyApp() {
-                if (window.SuperGeniesApp && window.SuperGeniesApp.onLoginSuccess) {
-                    window.SuperGeniesApp.onLoginSuccess(token, expires);
-                    return true;
-                }
-                return false;
-            }
-            if (!notifyApp()) {
-                setTimeout(notifyApp, 300);
-                setTimeout(notifyApp, 1000);
-            }
-        })();
+        window.location.href = <?= json_encode($siteUrl . '/admin/portail.php', JSON_THROW_ON_ERROR) ?>;
     </script>
     <?php endif; ?>
 </body>
