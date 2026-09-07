@@ -22,7 +22,8 @@ interface AdminApi {
     suspend fun uploadPdf(
         @Header("X-Admin-Token") token: String,
         @Part pdf: MultipartBody.Part,
-        @Part("type") type: RequestBody
+        @Part("type") type: RequestBody,
+        @Part("token") tokenBody: RequestBody
     ): UploadResponse
 
     @GET("api/admin/messages.php")

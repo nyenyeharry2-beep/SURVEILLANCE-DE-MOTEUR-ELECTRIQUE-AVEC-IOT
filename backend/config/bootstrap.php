@@ -95,9 +95,19 @@ function ensureParentMessagesTable(PDO $pdo): void
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 }
 
+function getAdminTokenFromRequest(): string
+{
+    return trim(
+        $_SERVER['HTTP_X_ADMIN_TOKEN']
+        ?? $_GET['token']
+        ?? $_POST['token']
+        ?? ''
+    );
+}
+
 function requireAdminAuth(): void
 {
-    $token = $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? '';
+    $token = getAdminTokenFromRequest();
     if ($token === '') {
         jsonError('Authentification requise', 401);
     }

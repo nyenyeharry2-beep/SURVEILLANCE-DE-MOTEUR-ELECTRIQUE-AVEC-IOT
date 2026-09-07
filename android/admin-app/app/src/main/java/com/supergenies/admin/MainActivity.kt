@@ -196,7 +196,10 @@ fun DashboardScreen(token: String) {
                                 val requestFile = file.asRequestBody("application/pdf".toMediaTypeOrNull())
                                 val part = MultipartBody.Part.createFormData("pdf", file.name, requestFile)
                                 val typeBody = importType.toRequestBody("text/plain".toMediaTypeOrNull())
-                                val resp = AdminApiClient.call { it.uploadPdf(token, part, typeBody) }
+                                val tokenBody = token.toRequestBody("text/plain".toMediaTypeOrNull())
+                                val resp = AdminApiClient.call {
+                                    it.uploadPdf(token, part, typeBody, tokenBody)
+                                }
                                 if (resp.success) {
                                     uploadResult = resp.message ?: "Import réussi"
                                     refreshStats()
@@ -204,7 +207,7 @@ fun DashboardScreen(token: String) {
                                     error = resp.error ?: "Import échoué"
                                 }
                             } catch (e: Exception) {
-                                error = "Erreur: ${e.message}"
+                                error = AdminApiClient.userFriendlyMessage(e)
                             } finally {
                                 uploading = false
                             }
