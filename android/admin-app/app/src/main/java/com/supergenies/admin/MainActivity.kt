@@ -99,7 +99,7 @@ fun AdminApp() {
                 singleLine = true
             )
             if (error != null) {
-                Text(error!!, color = Color.Red, Modifier.padding(top = 8.dp))
+                Text(error!!, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
             }
             Spacer(Modifier.height(16.dp))
             Button(
@@ -468,7 +468,7 @@ fun MessageCard(msg: ParentMessage, token: String, onUpdated: () -> Unit) {
             Surface(color = Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(10.dp)) {
                     Text("Motif: ${MOTIF_LABELS[msg.motif] ?: msg.motif}", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-                    Text(msg.message, fontSize = 13.sp, Modifier.padding(top = 4.dp))
+                    Text(msg.message, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
                 }
             }
             Text("Reçu le ${msg.createdAt}", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.padding(top = 6.dp))

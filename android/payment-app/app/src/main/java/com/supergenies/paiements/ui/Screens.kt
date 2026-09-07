@@ -356,12 +356,13 @@ fun StudentCard(student: Student, summary: FeeSummary?) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        statusText,
-                        Modifier.padding(12.dp),
+                        text = statusText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
                         color = statusColor,
                         fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -465,9 +466,9 @@ fun InscriptionsScreen() {
                     Column(Modifier.padding(16.dp)) {
                         Text(section.title, fontWeight = FontWeight.Bold, color = SchoolRed)
                         section.slogan?.let { Text(it, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic, fontSize = 13.sp) }
-                        section.description?.let { Text(it, fontSize = 13.sp, Modifier.padding(top = 4.dp)) }
+                        section.description?.let { Text(it, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp)) }
                         section.notes?.forEach { note ->
-                            Text("• $note", fontSize = 12.sp, Modifier.padding(top = 4.dp))
+                            Text("• $note", fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                         }
                     }
                 }
