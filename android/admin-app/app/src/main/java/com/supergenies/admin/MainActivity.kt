@@ -31,14 +31,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,23 +43,6 @@ class MainActivity : ComponentActivity() {
                 AdminApp()
             }
         }
-    }
-}
-
-object AdminApiClient {
-    val api: AdminApi by lazy {
-        val client = OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
-            .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
-            .build()
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.API_BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AdminApi::class.java)
     }
 }
 
@@ -108,14 +86,16 @@ fun AdminApp() {
                         loading = true
                         error = null
                         try {
-                            val resp = AdminApiClient.api.login(LoginRequest(password))
+                            val resp = AdminApiClient.call { it.login(LoginRequest(password)) }
                             if (resp.success && resp.token != null) {
                                 token = resp.token
                             } else {
                                 error = resp.error ?: "Connexion échouée"
                             }
                         } catch (e: Exception) {
-                            error = "Erreur de connexion"
+                            error = if (e.message?.contains("mot de passe", true) == true)
+                                "Mot de passe incorrect"
+                            else ApiConfig.CONNECTION_HELP
                         } finally {
                             loading = false
                         }
@@ -203,7 +183,7 @@ fun DashboardScreen(token: String) {
     fun refreshStats() {
         scope.launch {
             try {
-                stats = AdminApiClient.api.getStats(token)
+                stats = AdminApiClient.call { it.getStats(token) }
             } catch (_: Exception) {}
         }
     }
@@ -278,7 +258,7 @@ fun DashboardScreen(token: String) {
                                 val requestFile = file.asRequestBody("application/pdf".toMediaTypeOrNull())
                                 val part = MultipartBody.Part.createFormData("pdf", file.name, requestFile)
                                 val typeBody = importType.toRequestBody("text/plain".toMediaTypeOrNull())
-                                val resp = AdminApiClient.api.uploadPdf(token, part, typeBody)
+                                val resp = AdminApiClient.call { it.uploadPdf(token, part, typeBody) }
                                 if (resp.success) {
                                     uploadResult = resp.message ?: "Import réussi"
                                     refreshStats()
@@ -373,10 +353,9 @@ fun MessagesScreen(token: String) {
             loading = true
             error = null
             try {
-                messagesData = AdminApiClient.api.getMessages(
-                    token,
-                    if (filter == "all") null else filter
-                )
+                messagesData = AdminApiClient.call {
+                    it.getMessages(token, if (filter == "all") null else filter)
+                }
             } catch (e: Exception) {
                 error = "Impossible de charger les messages"
             } finally {
@@ -482,7 +461,9 @@ fun MessageCard(msg: ParentMessage, token: String, onUpdated: () -> Unit) {
                                 scope.launch {
                                     updating = true
                                     try {
-                                        AdminApiClient.api.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "en_cours"))
+                                        AdminApiClient.call {
+                                            it.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "en_cours"))
+                                        }
                                         onUpdated()
                                     } finally { updating = false }
                                 }
@@ -496,7 +477,9 @@ fun MessageCard(msg: ParentMessage, token: String, onUpdated: () -> Unit) {
                             scope.launch {
                                 updating = true
                                 try {
-                                    AdminApiClient.api.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "traite"))
+                                    AdminApiClient.call {
+                                        it.updateMessageStatus(token, UpdateMessageRequest(id = msg.id, statut = "traite"))
+                                    }
                                     onUpdated()
                                 } finally { updating = false }
                             }

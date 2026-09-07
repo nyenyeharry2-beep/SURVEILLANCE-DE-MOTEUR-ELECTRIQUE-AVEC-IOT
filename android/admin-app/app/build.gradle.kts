@@ -11,9 +11,9 @@ android {
         applicationId = "com.supergenies.admin"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
-        buildConfigField("String", "API_BASE_URL", "\"https://supergenies2026.site.je/\"")
+        versionCode = 2
+        versionName = "1.0.1"
+        buildConfigField("String", "API_BASE_URL", "\"http://supergenies2026.site.je/\"")
     }
 
     buildFeatures {

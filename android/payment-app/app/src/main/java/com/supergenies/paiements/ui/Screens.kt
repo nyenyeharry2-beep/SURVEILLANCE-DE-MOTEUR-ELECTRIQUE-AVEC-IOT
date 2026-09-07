@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.supergenies.paiements.ApiClient
+import com.supergenies.paiements.ApiConfig
 import com.supergenies.paiements.R
 import com.supergenies.paiements.data.*
 import com.supergenies.paiements.ui.theme.*
@@ -149,12 +150,12 @@ fun HomeScreen(
             error = null
             result = null
             try {
-                result = ApiClient.service.getStudent(matricule.trim().uppercase())
+                result = ApiClient.call { it.getStudent(matricule.trim().uppercase()) }
                 result?.student?.let { onStudentFound(it, matricule.trim().uppercase()) }
             } catch (e: HttpException) {
                 error = if (e.code() == 404) "Matricule non trouvé" else "Erreur serveur (${e.code()})"
             } catch (e: Exception) {
-                error = "Connexion impossible. Vérifiez votre internet."
+                error = ApiConfig.CONNECTION_HELP
             } finally {
                 loading = false
             }
@@ -428,9 +429,9 @@ fun InscriptionsScreen() {
 
     LaunchedEffect(Unit) {
         try {
-            data = ApiClient.service.getInscriptions()
-        } catch (e: Exception) {
-            error = "Impossible de charger les informations"
+            data = ApiClient.call { it.getInscriptions() }
+        } catch (_: Exception) {
+            data = OfflineData.inscriptions
         } finally {
             loading = false
         }
@@ -485,9 +486,9 @@ fun TrousseauScreen() {
 
     LaunchedEffect(Unit) {
         try {
-            data = ApiClient.service.getTrousseau()
-        } catch (e: Exception) {
-            error = "Impossible de charger le trousseau"
+            data = ApiClient.call { it.getTrousseau() }
+        } catch (_: Exception) {
+            data = OfflineData.trousseau
         } finally {
             loading = false
         }
@@ -681,19 +682,21 @@ fun MessagerieScreen(
                     error = null
                     success = null
                     try {
-                        val resp = ApiClient.service.sendMessage(
-                            MessageRequest(
-                                nom_parent = nomParent.trim(),
-                                telephone_parent = telephone.trim(),
-                                matricule = matricule.trim().uppercase(),
-                                nom_eleve = prefilledStudent?.nom,
-                                prenom_eleve = prefilledStudent?.prenom,
-                                classe_eleve = prefilledStudent?.classe,
-                                section_eleve = prefilledStudent?.section,
-                                motif = motif,
-                                message = message.trim()
+                        val resp = ApiClient.call {
+                            it.sendMessage(
+                                MessageRequest(
+                                    nom_parent = nomParent.trim(),
+                                    telephone_parent = telephone.trim(),
+                                    matricule = matricule.trim().uppercase(),
+                                    nom_eleve = prefilledStudent?.nom,
+                                    prenom_eleve = prefilledStudent?.prenom,
+                                    classe_eleve = prefilledStudent?.classe,
+                                    section_eleve = prefilledStudent?.section,
+                                    motif = motif,
+                                    message = message.trim()
+                                )
                             )
-                        )
+                        }
                         if (resp.success) {
                             success = resp.message ?: "Message envoyé avec succès"
                             nomParent = ""
@@ -704,7 +707,7 @@ fun MessagerieScreen(
                             error = resp.error ?: "Échec de l'envoi"
                         }
                     } catch (e: Exception) {
-                        error = "Connexion impossible. Réessayez plus tard."
+                        error = ApiConfig.CONNECTION_HELP
                     } finally {
                         loading = false
                     }
