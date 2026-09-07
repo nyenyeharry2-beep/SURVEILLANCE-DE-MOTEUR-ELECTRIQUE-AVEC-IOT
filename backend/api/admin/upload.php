@@ -27,7 +27,7 @@ if (!in_array($mime, ['application/pdf', 'application/octet-stream'], true)) {
     jsonError('Le fichier doit être un PDF');
 }
 
-$uploadDir = __DIR__ . '/../uploads';
+$uploadDir = __DIR__ . '/../../uploads';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }

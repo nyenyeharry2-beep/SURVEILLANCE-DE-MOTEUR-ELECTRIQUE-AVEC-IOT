@@ -86,16 +86,14 @@ fun AdminApp() {
                         loading = true
                         error = null
                         try {
-                            val resp = AdminApiClient.call { it.login(LoginRequest(password)) }
+                            val resp = AdminApiClient.call { it.login(password) }
                             if (resp.success && resp.token != null) {
                                 token = resp.token
                             } else {
                                 error = resp.error ?: "Connexion échouée"
                             }
                         } catch (e: Exception) {
-                            error = if (e.message?.contains("mot de passe", true) == true)
-                                "Mot de passe incorrect"
-                            else ApiConfig.ADMIN_ERROR_NETWORK
+                            error = AdminApiClient.userFriendlyMessage(e)
                         } finally {
                             loading = false
                         }

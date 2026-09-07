@@ -6,8 +6,13 @@ import okhttp3.RequestBody
 import retrofit2.http.*
 
 interface AdminApi {
+    @FormUrlEncoded
     @POST("api/admin/login.php")
-    suspend fun login(@Body body: LoginRequest): LoginResponse
+    suspend fun login(@Field("password") password: String): LoginResponse
+
+    /** GET login.php = test léger (pas besoin de ping.php sur le serveur) */
+    @GET("api/admin/login.php")
+    suspend fun checkServer(): PingResponse
 
     @GET("api/admin/stats.php")
     suspend fun getStats(@Header("X-Admin-Token") token: String): StatsResponse
@@ -34,6 +39,8 @@ interface AdminApi {
 }
 
 data class LoginRequest(val password: String)
+
+data class PingResponse(val success: Boolean, val message: String? = null)
 
 data class LoginResponse(
     val success: Boolean,

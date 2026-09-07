@@ -54,16 +54,32 @@ function getAppConfig(): array
     return require __DIR__ . '/app.php';
 }
 
+function ensureAdminTables(PDO $pdo): void
+{
+    $pdo->exec('CREATE TABLE IF NOT EXISTS admin_sessions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        token VARCHAR(64) NOT NULL UNIQUE,
+        expires_at DATETIME NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+}
+
 function requireAdminAuth(): void
 {
     $token = $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? '';
     if ($token === '') {
         jsonError('Authentification requise', 401);
     }
-    $stmt = getPdo()->prepare('SELECT id FROM admin_sessions WHERE token = ? AND expires_at > NOW()');
-    $stmt->execute([$token]);
-    if (!$stmt->fetch()) {
-        jsonError('Session expirée ou invalide', 401);
+    try {
+        $pdo = getPdo();
+        ensureAdminTables($pdo);
+        $stmt = $pdo->prepare('SELECT id FROM admin_sessions WHERE token = ? AND expires_at > NOW()');
+        $stmt->execute([$token]);
+        if (!$stmt->fetch()) {
+            jsonError('Session expirée ou invalide', 401);
+        }
+    } catch (Throwable $e) {
+        jsonError('Authentification indisponible', 500);
     }
 }
 

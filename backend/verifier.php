@@ -25,7 +25,7 @@ header('Content-Type: text/html; charset=utf-8');
         <li>Date serveur : <?= date('Y-m-d H:i:s') ?></li>
         <li>Dossier : <?= htmlspecialchars(__DIR__) ?></li>
         <?php
-        $files = ['index.php', 'config/database.php', 'api/student.php', '.htaccess'];
+        $files = ['index.php', 'config/database.php', 'config/bootstrap.php', 'api/student.php', 'api/admin/login.php', 'api/admin/ping.php', '.htaccess'];
         foreach ($files as $f) {
             $ok = file_exists(__DIR__ . '/' . $f);
             echo '<li>Fichier ' . htmlspecialchars($f) . ' : ';
@@ -52,14 +52,34 @@ header('Content-Type: text/html; charset=utf-8');
         } catch (Throwable $e) {
             $dbMsg = 'Échec connexion MySQL (vérifiez phpMyAdmin et schema.sql)';
         }
+        $adminOk = false;
+        $adminMsg = '';
+        try {
+            if (file_exists(__DIR__ . '/config/bootstrap.php')) {
+                require_once __DIR__ . '/config/bootstrap.php';
+                $pdo = getPdo();
+                ensureAdminTables($pdo);
+                $adminOk = true;
+                $adminMsg = 'Tables admin OK (admin_sessions prête)';
+            } else {
+                $adminMsg = 'config/bootstrap.php introuvable';
+            }
+        } catch (Throwable $e) {
+            $adminMsg = 'Erreur admin : ' . $e->getMessage();
+        }
         ?>
         <li>Base MySQL : <?= $dbOk ? '<span class="ok">' . htmlspecialchars($dbMsg) . '</span>' : '<span class="fail">' . htmlspecialchars($dbMsg) . '</span>' ?></li>
+        <li>Module admin : <?= $adminOk ? '<span class="ok">' . htmlspecialchars($adminMsg) . '</span>' : '<span class="fail">' . htmlspecialchars($adminMsg) . '</span>' ?></li>
     </ul>
     <?php if ($dbOk): ?>
         <p class="ok">Tout est prêt. Les applications Android peuvent se connecter.</p>
     <?php else: ?>
         <p class="fail">Corrigez les points en rouge, puis réessayez.</p>
     <?php endif; ?>
-    <p><small>Test API : <a href="api/student.php?matricule=CSLSG-2026-2027-00167">api/student.php</a></small></p>
+    <p><small>
+        Test API : <a href="api/student.php?matricule=CSLSG-2026-2027-00167">student.php</a> ·
+        <a href="api/admin/login.php">admin/login.php (GET)</a> ·
+        <a href="api/admin/ping.php">admin/ping.php</a>
+    </small></p>
 </body>
 </html>

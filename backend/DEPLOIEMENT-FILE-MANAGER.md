@@ -51,6 +51,7 @@ htdocs/
 | `api/student.php` | Recherche matricule |
 | `api/messages/send.php` | Messagerie parents |
 | `api/admin/login.php` | Connexion admin |
+| `api/admin/ping.php` | Test API admin (optionnel) |
 | `api/admin/upload.php` | Import PDF |
 | `api/admin/stats.php` | Statistiques |
 | `api/admin/messages.php` | Messages facturation |
