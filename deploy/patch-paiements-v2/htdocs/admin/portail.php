@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $result['errors']
                             );
                             if (!empty($result['categorie_pdf'])) {
-                                $uploadMessage .= ' · Type détecté : ' . $result['categorie_pdf'];
+                                $uploadMessage .= ' · Type détecté : ' . htmlspecialchars($result['categorie_pdf']);
                             }
                         } else {
                             $uploadMessage = sprintf(
