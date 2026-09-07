@@ -18,11 +18,13 @@ shared/assets/    → Logos et images carousel
 - Carousel feuilleté : Félicitations, Pétrochimie, Inscriptions
 - Recherche par matricule (`CSLSG-2026-2027-00167`)
 - Affichage des frais et statut de paiement
+- **Messagerie** : signalement problème → facturation (nom parent, téléphone, matricule, classe, motif)
 - Onglets Inscriptions et Trousseau (informations restructurées)
 
 ### Application Administrateur (APK)
 - Connexion sécurisée
 - Upload de fiches PDF (inscriptions ou paiements)
+- **Réception messages parents** (nouveau / en cours / traité)
 - Classification automatique par classe et section
 - Statistiques et historique des imports
 
@@ -34,6 +36,7 @@ shared/assets/    → Logos et images carousel
 
 1. **Créer la base de données** via phpMyAdmin :
    - Exécuter `backend/sql/schema.sql`
+   - Si la base existe déjà : exécuter `backend/sql/migration_messages.sql`
    - Optionnel : `backend/sql/seed_demo.sql` (données de démo)
 
 2. **Uploader les fichiers** dans `htdocs/` via File Manager :
