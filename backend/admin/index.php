@@ -9,11 +9,11 @@ if (adminIsLoggedIn()) {
 }
 
 $result = null;
+$loginSuccess = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = adminAttemptLogin($_POST['password'] ?? '');
     if ($result['ok']) {
-        header('Location: dashboard.php');
-        exit;
+        $loginSuccess = $result;
     }
 }
 
@@ -27,7 +27,12 @@ adminLayoutStart('Connexion Admin');
         <h1>Administration Web</h1>
         <p class="sub"><?= htmlspecialchars($config['school_name']) ?> — Test connexion avant l'application mobile</p>
 
-        <?php if ($result && !$result['ok']): ?>
+        <?php if ($loginSuccess): ?>
+            <div class="alert alert-success">
+                ✅ <strong>Connexion réussie !</strong> Session active jusqu'à <?= htmlspecialchars($loginSuccess['expires_at']) ?>.
+            </div>
+            <a class="btn btn-green" href="dashboard.php" style="display:block;text-align:center;margin-bottom:1rem;background:#2e7d32;">Entrer dans l'espace administrateur →</a>
+        <?php elseif ($result && !$result['ok']): ?>
             <div class="alert alert-error">
                 <strong>Échec — étape : <?= htmlspecialchars($result['step']) ?></strong><br>
                 <?= htmlspecialchars($result['message']) ?>
@@ -37,7 +42,7 @@ adminLayoutStart('Connexion Admin');
             </div>
         <?php endif; ?>
 
-        <form method="post" action="">
+        <form method="post" action="index.php">
             <label for="password">Mot de passe administrateur</label>
             <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="SuperGenies2026!">
             <p class="detail" style="margin:.5rem 0 1rem;">Mot de passe par défaut : <code>SuperGenies2026!</code></p>
