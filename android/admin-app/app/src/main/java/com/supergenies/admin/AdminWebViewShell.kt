@@ -7,6 +7,7 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,14 +18,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 private const val START_URL = "http://supergenies2026.site.je/connexion.php?app=1"
 
 /**
- * Application Admin 100 % WebView — même technologie que le navigateur qui fonctionne.
- * Imports PDF, messages, stats : tout passe par le serveur web (pas d'API OkHttp).
+ * Admin 100 % WebView — identique au site web qui fonctionne.
+ * Aucun appel API OkHttp = pas de blocage InfinityFree.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun AdminWebViewShell() {
     var fileCallback by remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+
+    BackHandler(enabled = webView?.canGoBack() == true) {
+        webView?.goBack()
+    }
 
     val fileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -44,7 +49,10 @@ fun AdminWebViewShell() {
                 settings.domStorageEnabled = true
                 settings.allowFileAccess = true
                 settings.allowContentAccess = true
+                settings.databaseEnabled = true
+                settings.setSupportMultipleWindows(false)
                 CookieManager.getInstance().setAcceptCookie(true)
+                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
 
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
@@ -73,8 +81,6 @@ fun AdminWebViewShell() {
                 webView = this
             }
         },
-        update = { view ->
-            webView = view
-        }
+        update = { view -> webView = view }
     )
 }
