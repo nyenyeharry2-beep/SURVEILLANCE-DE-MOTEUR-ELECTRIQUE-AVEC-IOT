@@ -295,7 +295,7 @@ fun MessagesScreen(token: String) {
                     it.getMessages(token, if (filter == "all") null else filter)
                 }
             } catch (e: Exception) {
-                error = "Impossible de charger les messages"
+                error = AdminApiClient.userFriendlyMessage(e)
             } finally {
                 loading = false
             }

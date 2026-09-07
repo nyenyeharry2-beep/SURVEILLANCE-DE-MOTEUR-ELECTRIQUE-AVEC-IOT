@@ -58,9 +58,10 @@ header('Content-Type: text/html; charset=utf-8');
             if (file_exists(__DIR__ . '/config/bootstrap.php')) {
                 require_once __DIR__ . '/config/bootstrap.php';
                 $pdo = getPdo();
-                ensureAdminTables($pdo);
-                $adminOk = true;
-                $adminMsg = 'Tables admin OK (admin_sessions prête)';
+        ensureAdminTables($pdo);
+        ensureParentMessagesTable($pdo);
+        $adminOk = true;
+        $adminMsg = 'Tables admin OK (admin_sessions + parent_messages prêtes)';
             } else {
                 $adminMsg = 'config/bootstrap.php introuvable';
             }

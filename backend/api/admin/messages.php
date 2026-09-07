@@ -9,6 +9,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     $pdo = getPdo();
+    ensureParentMessagesTable($pdo);
 
     if ($method === 'GET') {
         $statut = $_GET['statut'] ?? null;
