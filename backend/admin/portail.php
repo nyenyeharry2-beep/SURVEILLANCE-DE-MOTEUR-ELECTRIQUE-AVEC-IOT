@@ -34,21 +34,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (trim($text) === '') {
                         $uploadError = 'PDF illisible';
                     } else {
-                        if ($type === 'auto') {
-                            $type = PdfParser::detectImportType($text);
-                        }
-                        if ($type === 'inscriptions') {
-                            $rows = PdfParser::parseInscriptions($text);
-                            $result = ImportService::importInscriptions($pdo, $rows, $filename);
-                        } else {
-                            $rows = PdfParser::parsePaiements($text);
-                            $result = ImportService::importPaiements($pdo, $rows, $filename);
-                        }
+                    if ($type === 'auto') {
+                        $type = PdfParser::detectImportType($text);
+                    }
+                    $matriculesDetectes = count(PdfParser::extractMatricules($text));
+                    if ($type === 'inscriptions') {
+                        $rows = PdfParser::parseInscriptions($text);
+                        $result = ImportService::importInscriptions($pdo, $rows, $filename);
+                    } else {
+                        $rows = PdfParser::parsePaiements($text);
+                        $result = ImportService::importPaiements($pdo, $rows, $filename);
+                    }
+                    if ($result['processed'] > 0) {
                         $uploadMessage = sprintf(
-                            'Import OK : %d ligne(s), %d erreur(s)',
+                            'Import %s OK : %d élève(s) importé(s), %d erreur(s)',
+                            $type,
                             $result['processed'],
                             $result['errors']
                         );
+                    } else {
+                        $uploadError = sprintf(
+                            'Aucune donnée importée. %d matricule(s) CSLSG détecté(s) dans le PDF (%d caractères lus). Essayez le type « Inscriptions » ou « Paiements » selon votre fiche.',
+                            $matriculesDetectes,
+                            strlen($text)
+                        );
+                    }
                     }
                 } catch (Throwable $e) {
                     $uploadError = 'Erreur : ' . $e->getMessage();
