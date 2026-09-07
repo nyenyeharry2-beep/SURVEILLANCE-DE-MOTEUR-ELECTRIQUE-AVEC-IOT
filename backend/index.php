@@ -11,6 +11,7 @@ echo json_encode([
     'version' => '1.0.0',
     'school' => 'C.S. LES SUPER GENIES',
     'endpoints' => [
+        'GET /admin/' => 'Connexion administrateur (WEB — testez ici en premier)',
         'GET /api/student.php?matricule=CSLSG-2026-2027-00167' => 'Consultation élève',
         'GET /api/info/inscriptions.php' => 'Conditions d\'admission',
         'GET /api/info/trousseau.php' => 'Trousseau et équipements',

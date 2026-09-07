@@ -1,20 +1,22 @@
 <?php
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
+if (!defined('SUPERGENIES_NO_HEADERS')) {
+    header('Content-Type: application/json; charset=utf-8');
 
-$dbConfig = require __DIR__ . '/database.php';
-$appConfig = require __DIR__ . '/app.php';
+    $dbConfig = require __DIR__ . '/database.php';
+    $appConfig = require __DIR__ . '/app.php';
 
-foreach ($appConfig['cors_origins'] as $origin) {
-    header("Access-Control-Allow-Origin: $origin");
-}
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Admin-Token');
+    foreach ($appConfig['cors_origins'] as $origin) {
+        header("Access-Control-Allow-Origin: $origin");
+    }
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Admin-Token');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(204);
+        exit;
+    }
 }
 
 function getPdo(): PDO
