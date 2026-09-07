@@ -14,9 +14,14 @@ object ApiConfig {
         "https://supergenies2026.site.je/",
     )
 
-    const val CONNECTION_HELP =
-        "Serveur inaccessible. Vérifiez que les fichiers backend sont bien uploadés " +
-        "dans htdocs sur InfinityFree et que la base MySQL est créée."
+    /** Message affiché aux parents — aucun détail technique */
+    const val PARENT_ERROR_NETWORK =
+        "Service momentanément indisponible. Vérifiez votre connexion internet " +
+        "et réessayez. Si le problème persiste, contactez le secrétariat au +243 815 454 401."
+
+    const val PARENT_ERROR_MESSAGE =
+        "Impossible d'envoyer votre message pour le moment. " +
+        "Veuillez réessayer ou appeler le secrétariat au +243 815 454 401."
 }
 
 object ApiClient {
@@ -51,6 +56,6 @@ object ApiClient {
                 lastError = e
             }
         }
-        throw lastError ?: Exception(ApiConfig.CONNECTION_HELP)
+        throw lastError ?: Exception(ApiConfig.PARENT_ERROR_NETWORK)
     }
 }

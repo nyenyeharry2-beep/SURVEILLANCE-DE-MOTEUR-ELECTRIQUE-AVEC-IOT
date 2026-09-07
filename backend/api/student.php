@@ -75,5 +75,5 @@ try {
         ],
     ]);
 } catch (Throwable $e) {
-    jsonError('Erreur serveur: ' . $e->getMessage(), 500);
+    jsonError('Service momentanément indisponible. Veuillez réessayer plus tard.', 500);
 }

@@ -12,9 +12,9 @@ object ApiConfig {
         "https://supergenies2026.site.je/",
     )
 
-    const val CONNECTION_HELP =
-        "Serveur inaccessible. Uploadez le backend dans htdocs sur InfinityFree " +
-        "et importez schema.sql dans phpMyAdmin."
+    const val ADMIN_ERROR_NETWORK =
+        "Impossible de joindre le serveur. Vérifiez votre connexion internet " +
+        "ou contactez le support informatique de l'école."
 }
 
 object AdminApiClient {
@@ -46,6 +46,6 @@ object AdminApiClient {
                 lastError = e
             }
         }
-        throw lastError ?: Exception(ApiConfig.CONNECTION_HELP)
+        throw lastError ?: Exception(ApiConfig.ADMIN_ERROR_NETWORK)
     }
 }

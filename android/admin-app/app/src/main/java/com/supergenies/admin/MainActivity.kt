@@ -95,7 +95,7 @@ fun AdminApp() {
                         } catch (e: Exception) {
                             error = if (e.message?.contains("mot de passe", true) == true)
                                 "Mot de passe incorrect"
-                            else ApiConfig.CONNECTION_HELP
+                            else ApiConfig.ADMIN_ERROR_NETWORK
                         } finally {
                             loading = false
                         }

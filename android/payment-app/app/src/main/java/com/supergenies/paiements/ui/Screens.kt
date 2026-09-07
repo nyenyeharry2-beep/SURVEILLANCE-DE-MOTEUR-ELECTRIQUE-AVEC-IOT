@@ -155,7 +155,7 @@ fun HomeScreen(
             } catch (e: HttpException) {
                 error = if (e.code() == 404) "Matricule non trouvé" else "Erreur serveur (${e.code()})"
             } catch (e: Exception) {
-                error = ApiConfig.CONNECTION_HELP
+                error = ApiConfig.PARENT_ERROR_NETWORK
             } finally {
                 loading = false
             }
@@ -707,7 +707,7 @@ fun MessagerieScreen(
                             error = resp.error ?: "Échec de l'envoi"
                         }
                     } catch (e: Exception) {
-                        error = ApiConfig.CONNECTION_HELP
+                        error = ApiConfig.PARENT_ERROR_MESSAGE
                     } finally {
                         loading = false
                     }

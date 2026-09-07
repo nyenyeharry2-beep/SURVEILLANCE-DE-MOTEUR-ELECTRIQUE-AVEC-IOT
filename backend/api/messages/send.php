@@ -88,5 +88,5 @@ try {
         'message' => 'Votre signalement a été transmis à la facturation pour vérification.',
     ], 201);
 } catch (Throwable $e) {
-    jsonError('Erreur serveur: ' . $e->getMessage(), 500);
+    jsonError('Impossible d\'envoyer votre message pour le moment. Veuillez réessayer.', 500);
 }
