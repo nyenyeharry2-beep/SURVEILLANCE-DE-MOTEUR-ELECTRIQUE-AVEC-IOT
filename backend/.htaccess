@@ -1,14 +1,10 @@
 RewriteEngine On
 
-# CORS pour les applications Android
-Header always set Access-Control-Allow-Origin "*"
-Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Admin-Token"
+# CORS géré dans les fichiers PHP (bootstrap.php)
 
 RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=204,L]
+RewriteRule ^(.*)$ - [R=204,L]
 
-# Routes API simplifiées
 RewriteRule ^api/student/?$ api/student.php [L,QSA]
 RewriteRule ^api/info/inscriptions/?$ api/info/inscriptions.php [L,QSA]
 RewriteRule ^api/info/trousseau/?$ api/info/trousseau.php [L,QSA]
@@ -17,8 +13,3 @@ RewriteRule ^api/admin/upload/?$ api/admin/upload.php [L,QSA]
 RewriteRule ^api/admin/stats/?$ api/admin/stats.php [L,QSA]
 RewriteRule ^api/admin/messages/?$ api/admin/messages.php [L,QSA]
 RewriteRule ^api/messages/send/?$ api/messages/send.php [L,QSA]
-
-# Bloquer accès aux fichiers sensibles
-<FilesMatch "\.(sql|env|log)$">
-    Require all denied
-</FilesMatch>
