@@ -148,6 +148,9 @@ class PdfParser
     {
         $header = mb_substr(mb_strtoupper($text), 0, 1200);
 
+        if (preg_match('/PAIEMENTS\s*SCOLAIRES/i', $header)) {
+            return 'mixte';
+        }
         if (preg_match('/FRAIS\s*CONNEX|FRAIS\s*D[\']?INSCRIPTION|INSCRIPTION\s*202/i', $header)) {
             return 'connexe';
         }
@@ -294,6 +297,13 @@ class PdfParser
      */
     public static function parsePaiements(string $text): array
     {
+        if (self::isSuperGeniesFinanceReport($text)) {
+            $rows = self::parseSuperGeniesFinanceReport($text);
+            if ($rows !== []) {
+                return $rows;
+            }
+        }
+
         $annee = self::extractAnnee($text);
         $docCategory = self::detectPaymentCategory($text);
         $docMois = self::extractMois($text);
@@ -323,17 +333,132 @@ class PdfParser
         return $rows;
     }
 
+    /** Rapport Super Genies Module FINANCE — PAIEMENTS SCOLAIRES avec Reçu PAY-… */
+    private static function isSuperGeniesFinanceReport(string $text): bool
+    {
+        return str_contains(mb_strtoupper($text), 'PAIEMENTS SCOLAIRES')
+            && preg_match('/PAY-\d{8}-[A-F0-9]+/i', $text);
+    }
+
+    private static function parseSuperGeniesFinanceReport(string $text): array
+    {
+        $annee = self::extractAnnee($text);
+        $rows = [];
+        $seen = [];
+
+        $pattern = '/^(\d{1,3})\s+(\d{2}\/\d{2}\/\d{4})\s+\d{2}:\d{2}(PAY-\d{8}-[A-F0-9]+)\s+(.*?)\s+([\d.]+)\s*USD\s+([\d.]+)\s+(Comptabilis[eé]|Annul[eé]|Partiel|Impay[eé])/ui';
+
+        $lines = preg_split('/\n/', $text) ?: [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!preg_match($pattern, $line, $m)) {
+                continue;
+            }
+
+            $numeroRecu = strtoupper($m[3]);
+            $datePaiement = $m[2];
+            $middle = trim($m[4]);
+            $du = (float) $m[5];
+            $paye = (float) $m[6];
+            $statutRaw = mb_strtolower($m[7]);
+
+            $nameInfo = self::parseFinanceEleveField($middle);
+            $lineCategory = self::inferCategoryFromAmount($du, $line);
+            $mois = null;
+            if ($lineCategory === 'minerval' && preg_match('/(\d{2})\/(\d{2})\/(\d{4})/', $datePaiement, $dm)) {
+                $mois = (int) $dm[2];
+            }
+
+            $statut = 'paye';
+            if (str_contains($statutRaw, 'partiel')) {
+                $statut = 'partiel';
+            } elseif (str_contains($statutRaw, 'impay') || str_contains($statutRaw, 'annul')) {
+                $statut = str_contains($statutRaw, 'annul') ? 'impaye' : 'impaye';
+            }
+
+            $label = self::buildFeeLabel($lineCategory, $line, $mois);
+            $feeTypeCode = self::mapFeeTypeCode($lineCategory, $line, $du);
+
+            $row = [
+                'matricule' => null,
+                'nom' => $nameInfo['nom'],
+                'prenom' => $nameInfo['prenom'],
+                'eleve_raw' => $nameInfo['eleve_raw'],
+                'classe_ligne' => null,
+                'numero_recu' => $numeroRecu,
+                'date_paiement' => $datePaiement,
+                'source_line' => $line,
+                'label' => $label,
+                'fee_category' => $lineCategory,
+                'fee_type_code' => $feeTypeCode,
+                'montant_du' => $du,
+                'montant_paye' => $paye,
+                'statut' => $statut,
+                'mois' => $lineCategory === 'minerval' ? $mois : null,
+                'annee_scolaire' => $annee,
+            ];
+
+            $key = $numeroRecu;
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    /** Colonne Élève(s) du rapport FINANCE Super Genies */
+    private static function parseFinanceEleveField(string $middle): array
+    {
+        $middle = trim(preg_replace('/\s+/u', ' ', $middle) ?? $middle);
+        $eleveRaw = $middle;
+
+        if (preg_match('/^[—\-–]\s*(.+)$/u', $middle, $m)) {
+            $eleveRaw = trim($m[1]);
+        } elseif (preg_match('/\s{2,}/u', $middle)) {
+            $parts = preg_split('/\s{2,}/u', $middle) ?: [];
+            $eleveRaw = trim(end($parts));
+        }
+
+        $words = array_values(array_filter(explode(' ', self::normalizeName($eleveRaw))));
+        $nom = $words[0] ?? '';
+        $prenom = count($words) >= 2 ? $words[count($words) - 1] : '';
+
+        return [
+            'eleve_raw' => $eleveRaw,
+            'nom' => $nom !== '' ? $nom : null,
+            'prenom' => $prenom !== '' ? $prenom : null,
+        ];
+    }
+
     private static function isSkippedLine(string $line): bool
     {
         if (strlen($line) < 6) {
             return true;
         }
+        if (preg_match('/^PAY-\d{8}-/i', $line)) {
+            return false;
+        }
         $u = mb_strtoupper($line);
-        $skipWords = ['TOTAL', 'SOUS-TOTAL', 'PAGE ', 'DATE ', 'RAPPORT', 'LISTE DES', 'MATRICULE', 'NOM PRENOM', 'MONTANT'];
+        $skipWords = [
+            'TOTAL', 'SOUS-TOTAL', 'PAGE ', 'RAPPORT', 'LISTE DES', 'MATRICULE',
+            'NOM PRENOM', 'MONTANT', 'MODULE :', 'RÉSULTATS', 'RESULTATS',
+            'ÉTABLISSEMENT', 'ETABLISSEMENT', 'ANNÉE SCOLAIRE', 'ANNEE SCOLAIRE',
+            'LIGNES', 'ÉQUIVALENT AFFECT', 'SIGNATURE', 'PROJET ÉDUCATIF',
+            'N° DATE', 'N°                 DATE', 'CAISSIER', 'PAYEUR',
+        ];
         foreach ($skipWords as $w) {
-            if (str_starts_with($u, $w)) {
+            if (str_contains($u, $w)) {
                 return true;
             }
+        }
+        if (preg_match('/^\d+\s*$/u', $line)) {
+            return true;
+        }
+        if (preg_match('/^[\d\s.]+\s*\$/u', $line) && !preg_match('/USD/i', $line)) {
+            return true;
         }
         return false;
     }
@@ -523,9 +648,7 @@ class PdfParser
             return 'minerval';
         }
         if (abs($du - 20.0) < 2.0 || abs($du - 25.0) < 2.0) {
-            if (preg_match('/transport|bus/i', $line)) {
-                return 'transport';
-            }
+            return 'transport';
         }
         if (preg_match('/pull|cravate|kit|combinaison|tenue|sac/i', $line)) {
             return 'equipement';
@@ -654,10 +777,63 @@ class PdfParser
         ];
     }
 
+    /** Score de correspondance nom élève PDF ↔ base inscriptions */
+    public static function scoreStudentMatch(string $eleveRaw, array $student): int
+    {
+        $eleve = self::normalizeName($eleveRaw);
+        if ($eleve === '') {
+            return 0;
+        }
+        $nom = self::normalizeName($student['nom']);
+        $prenom = self::normalizeName($student['prenom']);
+        $score = 0;
+        $nomMatched = $nom !== '' && str_contains($eleve, $nom);
+        $prenomMatched = false;
+
+        if ($nomMatched) {
+            $score += 12;
+        }
+        foreach (array_filter(explode(' ', $prenom)) as $part) {
+            if (strlen($part) >= 3 && str_contains($eleve, $part)) {
+                $score += 10;
+                $prenomMatched = true;
+            }
+        }
+        if ($nomMatched && !$prenomMatched) {
+            return 0;
+        }
+        if (!$nomMatched && !$prenomMatched) {
+            return 0;
+        }
+        $full = trim($nom . ' ' . $prenom);
+        if ($full !== '' && str_contains($eleve, $full)) {
+            $score += 25;
+        }
+
+        return $score;
+    }
+
     public static function resolveStudentFromRow(array $row, array $index): ?array
     {
         if (!empty($row['matricule']) && isset($index['by_matricule'][$row['matricule']])) {
             return $index['by_matricule'][$row['matricule']];
+        }
+
+        $eleveRaw = $row['eleve_raw'] ?? trim(($row['nom'] ?? '') . ' ' . ($row['prenom'] ?? ''));
+
+        if ($eleveRaw !== '') {
+            $best = null;
+            $bestScore = 0;
+            foreach ($index['by_matricule'] as $student) {
+                $score = self::scoreStudentMatch($eleveRaw, $student);
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $best = $student;
+                }
+            }
+            if ($best !== null && $bestScore >= 20) {
+                return $best;
+            }
         }
 
         if (!empty($row['nom'])) {
@@ -678,7 +854,7 @@ class PdfParser
             }
         }
 
-        $searchLine = self::normalizeName(($row['nom'] ?? '') . ' ' . ($row['prenom'] ?? ''));
+        $searchLine = self::normalizeName($eleveRaw);
         if ($searchLine === '' && !empty($row['source_line'])) {
             $searchLine = self::normalizeName($row['source_line']);
         }
