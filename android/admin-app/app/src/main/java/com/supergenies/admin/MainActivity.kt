@@ -107,7 +107,7 @@ fun AdminApp() {
                 else Text("Se connecter")
             }
             Text(
-                "Mot de passe par défaut: SuperGenies2026!",
+                "Version ${com.supergenies.admin.BuildConfig.VERSION_NAME} · Mot de passe : SuperGenies2026!",
                 fontSize = 11.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 16.dp)
