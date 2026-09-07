@@ -2,6 +2,7 @@ package com.supergenies.admin
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
@@ -14,10 +15,7 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
 
 object ApiConfig {
-    val BASE_URLS: List<String> = listOf(
-        "http://supergenies2026.site.je/",
-        "https://supergenies2026.site.je/",
-    )
+    const val BASE_URL = "http://supergenies2026.site.je/"
 
     const val ADMIN_ERROR_NETWORK =
         "Impossible de joindre le serveur. Vérifiez votre connexion internet " +
@@ -26,7 +24,23 @@ object ApiConfig {
 
 object AdminApiClient {
     private val gson = Gson()
+
+    private val browserHeaders = Interceptor { chain ->
+        chain.proceed(
+            chain.request().newBuilder()
+                .header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 " +
+                        "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                )
+                .header("Accept", "application/json, text/plain, */*")
+                .build()
+        )
+    }
+
     private val httpClient = OkHttpClient.Builder()
+        .cookieJar(WebViewCookieJar)
+        .addInterceptor(browserHeaders)
         .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
@@ -34,16 +48,12 @@ object AdminApiClient {
         .retryOnConnectionFailure(true)
         .build()
 
-    private val apis = ApiConfig.BASE_URLS.associateWith { baseUrl ->
-        Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(AdminApi::class.java)
-    }
-
-    val api: AdminApi get() = apis[ApiConfig.BASE_URLS.first()]!!
+    private val api: AdminApi = Retrofit.Builder()
+        .baseUrl(ApiConfig.BASE_URL)
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+        .create(AdminApi::class.java)
 
     fun parseServerError(e: HttpException): String? {
         return try {
@@ -58,33 +68,21 @@ object AdminApiClient {
         return when (e) {
             is HttpException -> parseServerError(e) ?: when (e.code()) {
                 403 -> "Mot de passe incorrect"
-                404 -> "Fichiers admin manquants sur le serveur. Uploadez le patch admin dans htdocs."
-                405 -> "Serveur à mettre à jour (login.php)"
-                500, 502, 503 -> "Serveur temporairement indisponible (erreur ${e.code()}). Réessayez dans quelques minutes."
-                else -> "Erreur serveur (${e.code()}). Vérifiez que les fichiers admin sont bien uploadés."
+                404 -> "Fichiers admin manquants sur le serveur."
+                500, 502, 503 -> "Serveur temporairement indisponible (erreur ${e.code()})."
+                else -> "Erreur serveur (${e.code()})."
             }
-            is UnknownHostException -> "Nom de domaine introuvable. Vérifiez internet ou l'URL du serveur."
-            is SocketTimeoutException -> "Délai dépassé. Le serveur met trop de temps à répondre — réessayez."
-            is SSLException -> "Problème de certificat SSL. L'app essaie aussi en HTTP automatiquement."
-            is JsonSyntaxException -> "Réponse serveur invalide. Vérifiez que login.php et bootstrap.php sont uploadés."
-            is IOException -> ApiConfig.ADMIN_ERROR_NETWORK
+            is UnknownHostException -> "Nom de domaine introuvable. Vérifiez internet."
+            is SocketTimeoutException -> "Délai dépassé — réessayez."
+            is SSLException -> "Problème SSL."
+            is JsonSyntaxException -> "Réponse serveur bloquée par InfinityFree. Utilisez la connexion web intégrée."
+            is IOException -> e.message?.takeIf { it.isNotBlank() } ?: ApiConfig.ADMIN_ERROR_NETWORK
             else -> e.message?.takeIf { it.isNotBlank() } ?: ApiConfig.ADMIN_ERROR_NETWORK
         }
     }
 
     suspend fun <T> call(block: suspend (AdminApi) -> T): T {
-        var lastError: Exception? = null
-        for ((_, api) in apis) {
-            try {
-                return block(api)
-            } catch (e: HttpException) {
-                lastError = e
-                // Erreurs métier (auth, validation) : ne pas basculer sur l'autre URL
-                if (e.code() in 400..499 && e.code() != 404) throw e
-            } catch (e: Exception) {
-                lastError = e
-            }
-        }
-        throw lastError ?: Exception(ApiConfig.ADMIN_ERROR_NETWORK)
+        WebViewCookieJar.flush()
+        return block(api)
     }
 }

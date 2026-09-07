@@ -4,6 +4,7 @@ declare(strict_types=1);
 /**
  * Page publique de connexion admin — lien direct :
  * http://supergenies2026.site.je/connexion.php
+ * Mode application Android : connexion.php?app=1
  */
 define('SUPERGENIES_NO_HEADERS', true);
 
@@ -22,10 +23,15 @@ $siteUrl = 'http://supergenies2026.site.je';
 $config = getAppConfig();
 $error = null;
 $success = null;
+$isApp = isset($_GET['app']) || isset($_POST['app']);
+$appToken = null;
+$appExpires = null;
 
 if (!empty($_SESSION['admin_token']) && !empty($_SESSION['admin_expires'])
     && strtotime($_SESSION['admin_expires']) > time()) {
     $success = 'Vous êtes déjà connecté.';
+    $appToken = $_SESSION['admin_token'];
+    $appExpires = $_SESSION['admin_expires'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -50,12 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_token'] = $token;
                 $_SESSION['admin_expires'] = $expires;
                 $success = 'Connexion réussie ! Vous pouvez entrer dans l\'espace administrateur.';
+                $appToken = $token;
+                $appExpires = $expires;
             } catch (Throwable $e) {
                 $error = 'Erreur base de données : ' . $e->getMessage();
             }
         }
     }
 }
+
+$formAction = $siteUrl . '/connexion.php' . ($isApp ? '?app=1' : '');
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -110,14 +120,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if ($success): ?>
             <div class="msg-ok">✅ <?= htmlspecialchars($success) ?></div>
-            <a class="btn btn-green" href="<?= $siteUrl ?>/admin/dashboard.php">Entrer dans l'espace administrateur →</a>
-            <p class="hint">Lien direct : <br><a href="<?= $siteUrl ?>/admin/dashboard.php"><?= $siteUrl ?>/admin/dashboard.php</a></p>
+            <?php if ($isApp && $appToken): ?>
+                <p class="hint">Connexion à l'application en cours…</p>
+            <?php else: ?>
+                <a class="btn btn-green" href="<?= $siteUrl ?>/admin/dashboard.php">Entrer dans l'espace administrateur →</a>
+            <?php endif; ?>
         <?php else: ?>
             <?php if ($error): ?>
                 <div class="msg-err">❌ <?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
-            <form method="post" action="<?= $siteUrl ?>/connexion.php">
+            <form method="post" action="<?= htmlspecialchars($formAction) ?>">
+                <?php if ($isApp): ?><input type="hidden" name="app" value="1"><?php endif; ?>
                 <label for="password">Mot de passe</label>
                 <input type="password" id="password" name="password" required
                        placeholder="Tapez votre mot de passe ici" autofocus>
@@ -126,7 +140,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="hint">Mot de passe : <code>SuperGenies2026!</code></p>
         <?php endif; ?>
 
-        <a class="link" href="<?= $siteUrl ?>/admin/diagnostic.php">Diagnostic serveur</a>
+        <?php if (!$isApp): ?>
+            <a class="link" href="<?= $siteUrl ?>/admin/diagnostic.php">Diagnostic serveur</a>
+        <?php endif; ?>
     </div>
+    <?php if ($isApp && $success && $appToken): ?>
+    <script>
+        (function () {
+            var token = <?= json_encode($appToken, JSON_THROW_ON_ERROR) ?>;
+            var expires = <?= json_encode($appExpires, JSON_THROW_ON_ERROR) ?>;
+            function notifyApp() {
+                if (window.SuperGeniesApp && window.SuperGeniesApp.onLoginSuccess) {
+                    window.SuperGeniesApp.onLoginSuccess(token, expires);
+                    return true;
+                }
+                return false;
+            }
+            if (!notifyApp()) {
+                setTimeout(notifyApp, 300);
+                setTimeout(notifyApp, 1000);
+            }
+        })();
+    </script>
+    <?php endif; ?>
 </body>
 </html>

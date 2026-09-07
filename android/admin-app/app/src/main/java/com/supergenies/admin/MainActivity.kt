@@ -50,69 +50,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AdminApp() {
     var token by remember { mutableStateOf<String?>(null) }
-    var password by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
 
     if (token == null) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Image(painterResource(R.drawable.logo_spag), null, Modifier.size(80.dp))
-            Spacer(Modifier.height(16.dp))
-            Text("Administration", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            Text("C.S. LES SUPER GENIES", color = Color.Gray)
-            Spacer(Modifier.height(24.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Mot de passe") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            if (error != null) {
-                Text(error!!, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
-            }
-            Spacer(Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    scope.launch {
-                        loading = true
-                        error = null
-                        try {
-                            val resp = AdminApiClient.call { it.login(password) }
-                            if (resp.success && resp.token != null) {
-                                token = resp.token
-                            } else {
-                                error = resp.error ?: "Connexion échouée"
-                            }
-                        } catch (e: Exception) {
-                            error = AdminApiClient.userFriendlyMessage(e)
-                        } finally {
-                            loading = false
-                        }
-                    }
-                },
-                enabled = !loading && password.isNotEmpty(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
-            ) {
-                if (loading) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
-                else Text("Se connecter")
-            }
-            Text(
-                "Version ${com.supergenies.admin.BuildConfig.VERSION_NAME} · Mot de passe : SuperGenies2026!",
-                fontSize = 11.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-        }
+        WebViewLoginScreen(onLoggedIn = { token = it })
     } else {
         AdminMainScreen(token!!, onLogout = { token = null })
     }

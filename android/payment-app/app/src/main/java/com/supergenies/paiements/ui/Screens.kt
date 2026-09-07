@@ -47,10 +47,20 @@ import retrofit2.HttpException
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuperGeniesApp() {
+    var cookiesReady by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
     var lastStudent by remember { mutableStateOf<Student?>(null) }
     var lastMatricule by remember { mutableStateOf("") }
     val tabs = listOf("Accueil", "Messagerie", "Inscriptions", "Trousseau")
+
+    InfinityFreeCookieWarmup(onReady = { cookiesReady = true })
+
+    if (!cookiesReady) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = NavyBlue)
+        }
+        return
+    }
 
     Scaffold(
         topBar = {
