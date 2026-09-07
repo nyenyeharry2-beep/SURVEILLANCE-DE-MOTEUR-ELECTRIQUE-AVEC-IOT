@@ -26,7 +26,7 @@ class PdfParser
                 $parser = new Smalot\PdfParser\Parser();
                 $pdf = $parser->parseFile($filePath);
                 $text = $pdf->getText();
-                if (trim($text) !== '') {
+                if (trim($text) !== '' && self::isExtractedTextUsable($text)) {
                     return self::normalizeText($text);
                 }
             } catch (Throwable $e) {
@@ -39,7 +39,7 @@ class PdfParser
             if (!in_array('shell_exec', $disabled, true)) {
                 $escaped = escapeshellarg($filePath);
                 $text = @shell_exec("pdftotext -layout $escaped - 2>/dev/null");
-                if ($text !== null && trim($text) !== '') {
+                if ($text !== null && trim($text) !== '' && self::isExtractedTextUsable($text)) {
                     return self::normalizeText($text);
                 }
             }
@@ -65,6 +65,24 @@ class PdfParser
             );
         }
         return self::normalizeText($text);
+    }
+
+    /** Rejette le bruit binaire (PDF wkhtmltopdf mal lu par Smalot). */
+    private static function isExtractedTextUsable(string $text): bool
+    {
+        $sample = mb_substr($text, 0, 8000);
+        if ($sample === '') {
+            return false;
+        }
+        $readable = preg_match_all('/[\p{L}\p{N}\s\-\/\.:,]/u', $sample, $m);
+        $len = max(1, mb_strlen($sample));
+        if (($readable / $len) < 0.45) {
+            return false;
+        }
+        return (bool) preg_match(
+            '/CSLSG|PAIEMENT|INSCRIPTION|Matricule|\bNom\b|Re[cç]u|FRAIS|MINERVAL|LISTE/i',
+            $sample
+        );
     }
 
     public static function normalizeText(string $text): string
