@@ -1,0 +1,4 @@
+#!/bin/sh
+# Gradle wrapper placeholder - use Android Studio or install Gradle 8.4+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec gradle "$@" -p "$DIR/.."
