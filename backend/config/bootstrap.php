@@ -143,6 +143,16 @@ function ensureCommuniquesTable(PDO $pdo): void
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 }
 
+/** @return array{students:int,fees:int,impayes:int} */
+function getImportStats(PDO $pdo): array
+{
+    return [
+        'students' => (int) $pdo->query('SELECT COUNT(*) FROM students')->fetchColumn(),
+        'fees' => (int) $pdo->query('SELECT COUNT(*) FROM student_fees')->fetchColumn(),
+        'impayes' => (int) $pdo->query('SELECT COUNT(*) FROM student_fees WHERE statut IN ("impaye", "partiel")')->fetchColumn(),
+    ];
+}
+
 /** @return list<array<string, mixed>> */
 function fetchCommuniques(PDO $pdo, int $limit = 20): array
 {

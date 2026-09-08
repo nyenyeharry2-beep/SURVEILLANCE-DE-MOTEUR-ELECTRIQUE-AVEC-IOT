@@ -155,12 +155,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($logId > 0) {
             try {
                 $result = ImportService::revertImport($pdo, $logId);
+                $statsAfter = getImportStats($pdo);
                 $uploadMessage = sprintf(
-                    'Import annulé (%s) — %d élève(s) retiré(s), %d frais supprimé(s), %d frais restauré(s).',
+                    'Import annulé (%s) — %d élève(s) retiré(s), %d frais supprimé(s), %d frais restauré(s). Stats : %d effectifs · %d frais · %d impayés.',
                     $result['fichier'],
                     $result['removed_students'],
                     $result['removed_fees'],
-                    $result['restored_fees']
+                    $result['restored_fees'],
+                    $statsAfter['students'],
+                    $statsAfter['fees'],
+                    $statsAfter['impayes']
                 );
             } catch (Throwable $e) {
                 $uploadError = 'Annulation impossible : ' . $e->getMessage();
@@ -195,11 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stats = [
-    'students' => (int) $pdo->query('SELECT COUNT(*) FROM students')->fetchColumn(),
-    'fees' => (int) $pdo->query('SELECT COUNT(*) FROM student_fees')->fetchColumn(),
-    'impayes' => (int) $pdo->query('SELECT COUNT(*) FROM student_fees WHERE statut IN ("impaye", "partiel")')->fetchColumn(),
-];
+$stats = getImportStats($pdo);
 
 $filter = $_GET['filter'] ?? 'all';
 $sql = 'SELECT * FROM parent_messages';

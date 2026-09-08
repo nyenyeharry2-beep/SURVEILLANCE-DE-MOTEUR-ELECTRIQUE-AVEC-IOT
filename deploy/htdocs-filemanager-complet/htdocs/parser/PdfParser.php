@@ -985,6 +985,7 @@ class ImportService
         $sectionDetectee = ($context['section'] ?? '') !== '' ? $context['section'] : ($classeDetectee ? detectSection($classeDetectee) : null);
 
         self::logImport($pdo, 'inscriptions', $filename, $classeDetectee, $sectionDetectee, $processed, $errors, [
+            'fee_kind' => 'inscriptions',
             'classes' => $classes,
             'matricules' => $matricules,
             'section' => $context['section'] ?? null,
@@ -1134,7 +1135,7 @@ class ImportService
         $categories = array_unique(array_column($rows, 'fee_category'));
         $docCategory = count($categories) === 1 ? ($categories[0] ?? 'mixte') : 'mixte';
 
-        self::logImport($pdo, 'paiements', $filename, $context['classe'] ?? null, $context['section'] ?? null, $processed, $errors, [
+        $logId = self::logImport($pdo, 'paiements', $filename, $context['classe'] ?? null, $context['section'] ?? null, $processed, $errors, [
             'par_classe' => $byClass,
             'inserted' => $inserted,
             'updated' => $updated,
@@ -1148,6 +1149,7 @@ class ImportService
             'inserted_fee_ids' => $insertedFeeIds,
             'updated_snapshots' => $updatedSnapshots,
         ]);
+        self::tagFeesWithImportId($pdo, $logId, $insertedFeeIds);
 
         return [
             'processed' => $processed,
@@ -1185,31 +1187,49 @@ class ImportService
                 $del->execute($matricules);
                 $removedStudents = $del->rowCount();
             }
+            if ($removedStudents === 0) {
+                $removedStudents = self::revertInscriptionsByClasse($pdo, $log, $details);
+            }
         } else {
+            $deletedIds = [];
             foreach ($details['inserted_fee_ids'] ?? [] as $feeId) {
                 $del = $pdo->prepare('DELETE FROM student_fees WHERE id = ?');
                 $del->execute([(int) $feeId]);
                 if ($del->rowCount() > 0) {
                     $removedFees++;
+                    $deletedIds[(int) $feeId] = true;
                 }
             }
+
+            $tagStmt = $pdo->prepare('DELETE FROM student_fees WHERE notes LIKE ?');
+            $tagStmt->execute(['%[import:' . $logId . ']%']);
+            $removedFees += $tagStmt->rowCount();
+
             $restore = $pdo->prepare('
                 UPDATE student_fees
                 SET fee_type_id = ?, montant_du = ?, montant_paye = ?, statut = ?, notes = ?
                 WHERE id = ?
             ');
             foreach ($details['updated_snapshots'] ?? [] as $snap) {
+                $snapId = (int) $snap['id'];
+                if (isset($deletedIds[$snapId])) {
+                    continue;
+                }
                 $restore->execute([
                     $snap['fee_type_id'],
                     $snap['montant_du'],
                     $snap['montant_paye'],
                     $snap['statut'],
                     $snap['notes'],
-                    (int) $snap['id'],
+                    $snapId,
                 ]);
                 if ($restore->rowCount() > 0) {
                     $restoredFees++;
                 }
+            }
+
+            if ($removedFees === 0 && $restoredFees === 0) {
+                $removedFees = self::revertPaiementsByCriteria($pdo, $log, $details);
             }
         }
 
@@ -1237,7 +1257,7 @@ class ImportService
         int $processed,
         int $errors,
         array $details
-    ): void {
+    ): int {
         $log = $pdo->prepare('INSERT INTO import_logs (type_import, fichier, classe_detectee, section_detectee, lignes_traitees, lignes_erreur, details) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $log->execute([
             $type,
@@ -1248,5 +1268,86 @@ class ImportService
             $errors,
             json_encode($details, JSON_UNESCAPED_UNICODE),
         ]);
+        return (int) $pdo->lastInsertId();
+    }
+
+    private static function tagFeesWithImportId(PDO $pdo, int $logId, array $feeIds): void
+    {
+        if ($feeIds === []) {
+            return;
+        }
+        $tag = ' [import:' . $logId . ']';
+        $placeholders = implode(',', array_fill(0, count($feeIds), '?'));
+        $stmt = $pdo->prepare("UPDATE student_fees SET notes = CONCAT(COALESCE(notes, ''), ?) WHERE id IN ($placeholders)");
+        $stmt->execute(array_merge([$tag], array_map('intval', $feeIds)));
+    }
+
+    /** @return list<string> */
+    private static function resolveRevertFeeLabels(string $feeKind, ?int $mois): array
+    {
+        require_once __DIR__ . '/../config/fee_catalog.php';
+        $moisNoms = getMoisScolaires();
+        $labels = [];
+
+        if ($feeKind === 'minerval') {
+            if ($mois !== null && isset($moisNoms[$mois])) {
+                $labels[] = 'Minerval — ' . $moisNoms[$mois];
+            }
+            $labels[] = 'Minerval (frais scolaires)';
+        } elseif ($feeKind === 'bus') {
+            if ($mois !== null && isset($moisNoms[$mois])) {
+                $labels[] = 'Frais de bus — ' . $moisNoms[$mois];
+            }
+            $labels[] = 'Frais de bus';
+        } else {
+            $catalog = getFeeCatalog();
+            if (isset($catalog[$feeKind]['label'])) {
+                $labels[] = $catalog[$feeKind]['label'];
+            }
+        }
+
+        return array_values(array_unique($labels));
+    }
+
+    private static function revertPaiementsByCriteria(PDO $pdo, array $log, array $details): int
+    {
+        $feeKind = (string) ($details['fee_kind'] ?? 'auto');
+        if ($feeKind === 'auto' || $feeKind === 'paiements') {
+            return 0;
+        }
+        $mois = isset($details['mois']) && $details['mois'] !== '' ? (int) $details['mois'] : null;
+        $classe = $log['classe_detectee'] ?? $details['classe'] ?? null;
+        $labels = self::resolveRevertFeeLabels($feeKind, $mois);
+        if ($labels === []) {
+            return 0;
+        }
+
+        $removed = 0;
+        foreach ($labels as $label) {
+            if ($classe !== null && $classe !== '') {
+                $stmt = $pdo->prepare('
+                    DELETE sf FROM student_fees sf
+                    INNER JOIN students s ON s.id = sf.student_id
+                    WHERE s.classe = ? AND sf.label = ? AND (sf.mois <=> ?)
+                ');
+                $stmt->execute([$classe, $label, $mois]);
+            } else {
+                $stmt = $pdo->prepare('DELETE FROM student_fees WHERE label = ? AND (mois <=> ?)');
+                $stmt->execute([$label, $mois]);
+            }
+            $removed += $stmt->rowCount();
+        }
+        return $removed;
+    }
+
+    private static function revertInscriptionsByClasse(PDO $pdo, array $log, array $details): int
+    {
+        $classe = $log['classe_detectee'] ?? $details['classe'] ?? null;
+        if ($classe === null || $classe === '') {
+            return 0;
+        }
+        $stmt = $pdo->prepare('DELETE FROM students WHERE classe = ?');
+        $stmt->execute([$classe]);
+        return $stmt->rowCount();
     }
 }
