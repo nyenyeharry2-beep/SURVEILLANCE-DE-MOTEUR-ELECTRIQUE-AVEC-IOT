@@ -138,6 +138,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $tab = 'communiques';
     }
+
+    if (isset($_POST['reset_imports'])) {
+        $confirm = trim($_POST['confirm_text'] ?? '');
+        if ($confirm !== 'REINITIALISER') {
+            $uploadError = 'Tapez REINITIALISER pour confirmer la remise à zéro.';
+        } else {
+            $pdo->exec('DELETE FROM student_fees');
+            $pdo->exec('DELETE FROM students');
+            $pdo->exec('DELETE FROM import_logs');
+            $uploadMessage = 'Données effacées (élèves + paiements). Commencez par le PDF Inscriptions.';
+        }
+        $tab = 'imports';
+    }
 }
 
 $stats = [
@@ -241,6 +254,17 @@ $motifLabels = [
             typeSel.addEventListener('change', toggleMois);
             toggleMois();
         </script>
+        <div class="card" style="margin-top:12px;border:2px solid #b71c1c;">
+            <h2>Réinitialiser — repartir à zéro</h2>
+            <p class="hint">Efface <strong>tous les élèves</strong> et <strong>tous les paiements importés</strong> pour refaire les imports dans le bon ordre. Les messages parents et communiqués sont conservés.</p>
+            <p class="warn">⚠️ Action irréversible. L'APK Suivi n'a pas besoin d'être réinstallée.</p>
+            <form method="post" action="portail.php?tab=imports" onsubmit="return confirm('Effacer tous les élèves et paiements ?');">
+                <input type="hidden" name="reset_imports" value="1">
+                <label>Tapez <strong>REINITIALISER</strong> pour confirmer</label>
+                <input type="text" name="confirm_text" required placeholder="REINITIALISER" autocomplete="off">
+                <button type="submit" class="btn" style="background:#b71c1c;">Effacer et recommencer</button>
+            </form>
+        </div>
     </div>
 
     <div id="tab-messages" class="<?= $tab === 'messages' ? '' : 'hidden' ?>">
