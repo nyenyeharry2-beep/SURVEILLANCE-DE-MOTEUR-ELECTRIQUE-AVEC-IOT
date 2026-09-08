@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.supergenies.paiements.R
+import com.supergenies.paiements.SuperGeniesJsBridge
 import com.supergenies.paiements.ui.theme.NavyBlue
 
 private const val START_URL = "http://supergenies2026.site.je/suivi.php?app=1"
@@ -79,6 +80,7 @@ fun PaymentWebViewShell() {
                     settings.textZoom = 100
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    addJavascriptInterface(SuperGeniesJsBridge(context), "SuperGeniesAndroid")
 
                     webViewClient = object : WebViewClient() {
                         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
