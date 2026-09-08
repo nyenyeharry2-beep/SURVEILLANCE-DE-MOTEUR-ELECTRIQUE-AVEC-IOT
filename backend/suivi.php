@@ -245,18 +245,27 @@ try {
             📞 <?= htmlspecialchars($config['school_phone']) ?></p>
             <h2 style="margin-top:14px;">Primaire & Maternelle</h2>
             <ul>
-                <li>Frais connexes : 30 USD (enfant d'agent : 20 USD)</li>
+                <li>Frais connexes : 30 USD (enfant d'agent / pris en charge : 20 USD)</li>
                 <li>Minerval : 65 USD × 8 mois</li>
-                <li>Frais de bus : 20 USD</li>
+                <li>Frais de bus : 20 USD / mois</li>
                 <li>Kit maternelle : 40 USD</li>
             </ul>
-            <h2>Secondaire</h2>
+            <h2>Secondaire (EB 7-8ème)</h2>
             <ul>
-                <li>Frais connexes : 30 à 50 USD</li>
-                <li>Mensualités : 65 à 120 USD selon classe</li>
+                <li>Frais connexes : 30 USD (agent : 20 USD)</li>
+                <li>Minerval : 65 USD / mois</li>
             </ul>
-            <h2>Pétrochimie</h2>
-            <p>Section spécialisée — +243 858 357 777</p>
+            <h2>Secondaire (1ère — 3ème options)</h2>
+            <ul>
+                <li>Pétrochimie, Commercial, Sciences, Électricité, Électronique, Mécanique auto, Mécanique générale</li>
+                <li>Connexe : 30 USD (agent : 20 USD)</li>
+                <li>Minerval : 75 USD / mois (HP & Sciences : 70 USD)</li>
+            </ul>
+            <h2>4ème (toutes options)</h2>
+            <ul>
+                <li>Connexe : 50 USD</li>
+                <li>Minerval : 120 USD / mois (HP & Sciences : 115 USD)</li>
+            </ul>
         </div>
     </div>
 
@@ -264,12 +273,15 @@ try {
     <div id="panel-trousseau" class="tab-panel <?= $tab === 'trousseau' ? '' : 'hidden' ?>">
         <div class="card-page">
             <h2>Trousseau & équipements</h2>
+            <p class="hint">Frais uniques — pas de mensualité.</p>
             <ul>
-                <li>Pull-over : 20 USD</li>
-                <li>Écussons : 15 USD</li>
+                <li>Cravate : 10 USD · Cravate normale : 5 USD</li>
                 <li>Combinaison : 25 USD</li>
-                <li>Tenue gym : 15 USD</li>
+                <li>Pull-over : 20 USD · Pull-over normal : 15 USD</li>
                 <li>Sac scolaire : 10 USD</li>
+                <li>Journal de classe : 12 USD</li>
+                <li>Kit maternelle : 40 USD</li>
+                <li>Tenue de gymnastique : 15 USD</li>
             </ul>
             <p style="margin-top:12px;"><strong>Uniformes :</strong> jupe/pantalon bleu + chemise blanche.</p>
             <p><strong>Coiffure :</strong> garçons ras · filles tresses poupée.</p>

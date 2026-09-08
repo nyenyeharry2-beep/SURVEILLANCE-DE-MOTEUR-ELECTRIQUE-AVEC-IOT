@@ -365,7 +365,7 @@ class PdfParser
             $nameInfo = self::parseFinanceEleveField($middle);
             $lineCategory = self::inferCategoryFromAmount($du, $line);
             $mois = null;
-            if ($lineCategory === 'minerval' && preg_match('/(\d{2})\/(\d{2})\/(\d{4})/', $datePaiement, $dm)) {
+            if (in_array($lineCategory, ['minerval', 'transport'], true) && preg_match('/(\d{2})\/(\d{2})\/(\d{4})/', $datePaiement, $dm)) {
                 $mois = (int) $dm[2];
             }
 
@@ -394,7 +394,7 @@ class PdfParser
                 'montant_du' => $du,
                 'montant_paye' => $paye,
                 'statut' => $statut,
-                'mois' => $lineCategory === 'minerval' ? $mois : null,
+                'mois' => in_array($lineCategory, ['minerval', 'transport'], true) ? $mois : null,
                 'annee_scolaire' => $annee,
             ];
 
@@ -647,10 +647,20 @@ class PdfParser
             || abs($du - 115.0) < 5.0 || abs($du - 120.0) < 5.0) {
             return 'minerval';
         }
-        if (abs($du - 20.0) < 2.0 || abs($du - 25.0) < 2.0) {
+        if (abs($du - 20.0) < 2.0 && preg_match('/\bBUS\b|TRANSPORT/i', $line)) {
             return 'transport';
         }
-        if (preg_match('/pull|cravate|kit|combinaison|tenue|sac/i', $line)) {
+        if (abs($du - 20.0) < 2.0 && preg_match('/\bCONNEX/i', $line)) {
+            return 'connexe';
+        }
+        if (abs($du - 5.0) < 1.5 || abs($du - 10.0) < 1.5 || abs($du - 12.0) < 1.5
+            || abs($du - 15.0) < 1.5 || abs($du - 25.0) < 1.5 || abs($du - 40.0) < 1.5) {
+            return 'equipement';
+        }
+        if (abs($du - 20.0) < 2.0) {
+            return 'transport';
+        }
+        if (preg_match('/pull|cravate|kit|combinaison|tenue|sac|journal/i', $line)) {
             return 'equipement';
         }
         return 'minerval';
@@ -890,111 +900,47 @@ class PdfParser
     }
 
     /** Applique le type d'import choisi (connexe, minerval, bus…) et calcule partiels/crédits */
-    public static function applyImportContext(array $rows, array $context): array
+    public static function applyImportContext(array $rows, array $context, ?array $studentIndex = null): array
     {
         require_once __DIR__ . '/../config/fee_catalog.php';
-        $feeKind = $context['fee_kind'] ?? 'auto';
-        $catalog = getFeeCatalog();
-        $moisForced = isset($context['mois']) && $context['mois'] !== '' ? (int) $context['mois'] : null;
-        $moisNoms = getMoisScolaires();
+        $feeKindImport = $context['fee_kind'] ?? 'auto';
 
         foreach ($rows as &$row) {
             $paye = (float) ($row['montant_paye'] ?? 0);
-            $kind = $feeKind;
+            $kind = $feeKindImport;
 
-            if ($kind === 'auto') {
+            if ($kind === 'auto' || $kind === 'paiements') {
                 $kind = match ($row['fee_category'] ?? '') {
                     'connexe' => 'connexe',
                     'minerval' => 'minerval',
                     'transport' => 'bus',
-                    default => self::guessKindFromAmount($paye > 0 ? $paye : (float) ($row['montant_du'] ?? 0)),
+                    'equipement' => guessFeeKindFromAmount($paye > 0 ? $paye : (float) ($row['montant_du'] ?? 0), 'auto'),
+                    default => guessFeeKindFromAmount($paye > 0 ? $paye : (float) ($row['montant_du'] ?? 0), 'auto'),
                 };
             }
 
-            if ($kind === 'auto' || !isset($catalog[$kind])) {
+            if (!isset(getFeeCatalog()[$kind])) {
                 continue;
             }
 
-            $cfg = $catalog[$kind];
-            $expected = (float) $cfg['montant_du'];
-
-            if ($kind === 'minerval') {
-                $section = $context['section'] ?? '';
-                if ($section !== '' && !in_array($section, ['Primaire', 'Maternelle', 'Toutes'], true)) {
-                    $expected = (float) ($cfg['montant_du_secondaire'] ?? 65);
-                }
-                $mois = $moisForced ?? ($row['mois'] ?? null);
-                $row['mois'] = $mois;
-                $moisLabel = $mois !== null ? ($moisNoms[$mois] ?? '') : '';
-                $row['label'] = $moisLabel !== '' ? 'Minerval — ' . $moisLabel : 'Minerval (frais scolaires)';
-                $row['fee_category'] = 'minerval';
-                $row['fee_type_code'] = $cfg['fee_type_code'];
-            } elseif ($kind === 'connexe') {
-                $row['label'] = $cfg['label'];
-                $row['fee_category'] = 'connexe';
-                $row['fee_type_code'] = $cfg['fee_type_code'];
-                $row['mois'] = null;
-            } elseif ($kind === 'bus') {
-                $row['label'] = $cfg['label'];
-                $row['fee_category'] = 'transport';
-                $row['fee_type_code'] = $cfg['fee_type_code'];
-                $row['mois'] = null;
-            } else {
-                $row['label'] = $cfg['label'];
-                $row['fee_category'] = 'equipement';
-                $row['fee_type_code'] = $cfg['fee_type_code'];
-                $row['mois'] = null;
+            $classe = $row['classe_ligne'] ?? null;
+            if (($classe === null || $classe === '') && $studentIndex !== null) {
+                $student = self::resolveStudentFromRow($row, $studentIndex);
+                $classe = $student['classe'] ?? null;
             }
 
-            $row['montant_du'] = $expected;
-            if ($paye >= $expected) {
-                $row['statut'] = 'paye';
-            } elseif ($paye > 0) {
-                $row['statut'] = 'partiel';
-            } else {
-                $row['statut'] = 'impaye';
-            }
-
-            $noteParts = [];
-            $partial = buildPartialPaymentNote($kind, $expected, $paye);
-            if ($partial !== null) {
-                $noteParts[] = $partial;
-            }
-            if (!empty($context['section']) && $context['section'] !== 'Toutes') {
-                $tag = $context['section'];
-                if (!empty($context['classe'])) {
-                    $tag .= ' · ' . $context['classe'];
-                }
-                $noteParts[] = '[' . $tag . ']';
-            }
-            if (!empty($row['numero_recu'])) {
-                $noteParts[] = 'Reçu ' . $row['numero_recu'];
-            }
-            $row['notes_extra'] = $noteParts !== [] ? implode(' ', $noteParts) : null;
+            $row = resolveImportFeeRow($row, $kind, $context, $classe);
         }
         unset($row);
 
         return $rows;
     }
 
+    /** @deprecated use guessFeeKindFromAmount in fee_catalog.php */
     private static function guessKindFromAmount(float $amount): string
     {
-        if (abs($amount - 30.0) < 2.0 || abs($amount - 50.0) < 2.0) {
-            return 'connexe';
-        }
-        if (abs($amount - 65.0) < 3.0 || abs($amount - 70.0) < 3.0) {
-            return 'minerval';
-        }
-        if (abs($amount - 15.0) < 2.0) {
-            return 'ecussons';
-        }
-        if (abs($amount - 40.0) < 2.0) {
-            return 'kit_maternelle';
-        }
-        if (abs($amount - 20.0) < 2.0) {
-            return 'bus';
-        }
-        return 'minerval';
+        require_once __DIR__ . '/../config/fee_catalog.php';
+        return guessFeeKindFromAmount($amount, 'auto');
     }
 }
 
@@ -1062,11 +1008,10 @@ class ImportService
         $byClass = [];
         $unmatchedRows = [];
 
-        if ($rows !== [] && ($context['fee_kind'] ?? 'auto') !== 'inscriptions') {
-            $rows = PdfParser::applyImportContext($rows, $context);
-        }
-
         $studentIndex = PdfParser::buildStudentIndex($pdo);
+        if ($rows !== [] && ($context['fee_kind'] ?? 'auto') !== 'inscriptions') {
+            $rows = PdfParser::applyImportContext($rows, $context, $studentIndex);
+        }
         $feeTypeIds = [];
         foreach ($pdo->query('SELECT id, code FROM fee_types')->fetchAll() as $ft) {
             $feeTypeIds[$ft['code']] = (int) $ft['id'];
@@ -1105,6 +1050,15 @@ class ImportService
                         'montant' => $row['montant_paye'],
                     ];
                     continue;
+                }
+
+                require_once __DIR__ . '/../config/fee_catalog.php';
+                $feeKind = $row['_fee_kind'] ?? ($context['fee_kind'] ?? 'auto');
+                if ($feeKind === 'auto' || $feeKind === 'paiements') {
+                    $feeKind = guessFeeKindFromAmount((float) ($row['montant_paye'] ?? 0), $feeKind);
+                }
+                if (isset(getFeeCatalog()[$feeKind])) {
+                    $row = resolveImportFeeRow($row, $feeKind, $context, $student['classe']);
                 }
 
                 $studentId = (int) $student['id'];

@@ -190,7 +190,7 @@ $motifLabels = [
         </div>
         <div class="card">
             <h2>Import PDF — ordre obligatoire</h2>
-            <div class="warn">① Inscriptions → ② Frais connexe → ③ Minerval (mois par mois) → ④ Bus → ⑤ Écussons / Pull / Kit</div>
+            <div class="warn">① Inscriptions → ② Connexe → ③ Minerval (mois par mois) → ④ Bus (mois par mois) → ⑤ Équipements (sans mois)</div>
             <?php if ($uploadMessage): ?><div class="ok"><?= htmlspecialchars($uploadMessage) ?></div><?php endif; ?>
             <?php if ($uploadError): ?><div class="err"><?= htmlspecialchars($uploadError) ?></div><?php endif; ?>
             <form method="post" enctype="multipart/form-data" action="portail.php?tab=imports">
@@ -199,7 +199,6 @@ $motifLabels = [
                     <?php foreach ($feeKinds as $k => $label): ?>
                         <option value="<?= htmlspecialchars($k) ?>"><?= htmlspecialchars($label) ?></option>
                     <?php endforeach; ?>
-                    <option value="paiements">Paiements mixtes (PDF Super Genies — auto)</option>
                 </select>
                 <div class="grid2">
                     <div>
@@ -216,7 +215,7 @@ $motifLabels = [
                     </div>
                 </div>
                 <div id="mois-field">
-                    <label>Mois scolaire (minerval)</label>
+                    <label>Mois scolaire (minerval ou bus)</label>
                     <select name="mois">
                         <option value="">— Auto depuis date PDF —</option>
                         <?php foreach ($moisScolaires as $num => $nom): ?>
@@ -224,7 +223,8 @@ $motifLabels = [
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <p class="hint">Paiement &lt; montant standard = <strong>partiel</strong> (enfant d'agent 20/30 USD, crédit ou prise en charge).</p>
+                <p class="hint">Importez un PDF par mois pour minerval et bus. Connexe 20 USD = enfant d'agent ou pris en charge (avance sur 30 USD).</p>
+                <p class="hint">Secondaire : 7-8ème 65 USD · 1-3ème 75 USD (HP/Sciences 70) · 4ème 120 USD (HP/Sciences 115) · connexe 4ème 50 USD.</p>
                 <label>Fichier PDF</label>
                 <input type="file" name="pdf" accept="application/pdf,application/octet-stream" required>
                 <button type="submit" class="btn">Publier et importer</button>
@@ -235,7 +235,7 @@ $motifLabels = [
             const moisField = document.getElementById('mois-field');
             function toggleMois() {
                 const v = typeSel.value;
-                moisField.style.display = (v === 'minerval' || v === 'paiements') ? 'block' : 'none';
+                moisField.style.display = (v === 'minerval' || v === 'bus' || v === 'paiements') ? 'block' : 'none';
             }
             typeSel.addEventListener('change', toggleMois);
             toggleMois();
