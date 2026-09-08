@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# CORS géré dans les fichiers PHP (bootstrap.php)
+
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ - [R=204,L]
+
+RewriteRule ^api/student/?$ api/student.php [L,QSA]
+RewriteRule ^api/info/inscriptions/?$ api/info/inscriptions.php [L,QSA]
+RewriteRule ^api/info/trousseau/?$ api/info/trousseau.php [L,QSA]
+RewriteRule ^api/admin/login/?$ api/admin/login.php [L,QSA]
+RewriteRule ^api/admin/ping/?$ api/admin/ping.php [L,QSA]
+RewriteRule ^api/admin/upload/?$ api/admin/upload.php [L,QSA]
+RewriteRule ^api/admin/stats/?$ api/admin/stats.php [L,QSA]
+RewriteRule ^api/admin/messages/?$ api/admin/messages.php [L,QSA]
+RewriteRule ^api/messages/send/?$ api/messages/send.php [L,QSA]

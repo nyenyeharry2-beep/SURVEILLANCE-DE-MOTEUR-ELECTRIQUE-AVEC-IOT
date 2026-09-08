@@ -22,4 +22,4 @@ Vous devez voir :
 - Champ **Matricule élève** + bouton rouge **Rechercher**
 - Barre du bas : Accueil · Messagerie · Inscriptions · Trousseau
 
-L’APK Paiements v1.1.0 (WebView) charge `suivi.php?app=1` — aucune mise à jour APK nécessaire si le serveur est à jour.
+L’APK **SuperGenies-Paiements-v1.1.1.apk** charge `suivi.php?app=1` en WebView — **même design** que le site web (pas d’interface native séparée).
