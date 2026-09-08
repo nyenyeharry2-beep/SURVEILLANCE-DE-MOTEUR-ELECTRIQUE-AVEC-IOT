@@ -76,6 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_matricule'])) 
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lookup_messages'])) {
+    $tab = 'messagerie';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     $tab = 'messagerie';
     ensureParentMessagesTable(getPdo());
@@ -103,7 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
                 $st['nom'] ?? null, $st['prenom'] ?? null, $st['classe'] ?? null, $st['section'] ?? null,
                 $motif, $message,
             ]);
-            $msgSuccess = 'Votre message a été transmis à la facturation. Merci.';
+            $msgSuccess = 'Votre message a été transmis à la facturation. Vous verrez la réponse ici dès qu\'elle sera traitée.';
+            $lookupMatricule = $matricule;
+            $parentMessages = fetchParentMessagesByMatricule($pdo, $matricule);
         } catch (Throwable $e) {
             $msgError = 'Impossible d\'envoyer le message. Réessayez ou appelez le secrétariat.';
         }
@@ -111,7 +117,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
 }
 
 $lastStudent = $_SESSION['parent_last_student'] ?? null;
+$parentMessages = [];
+$lookupMatricule = strtoupper(trim($_POST['lookup_matricule'] ?? $_POST['matricule'] ?? $lastStudent['matricule'] ?? ''));
+if ($lookupMatricule !== '') {
+    try {
+        $parentMessages = fetchParentMessagesByMatricule(getPdo(), $lookupMatricule);
+    } catch (Throwable $e) {
+        $parentMessages = [];
+    }
+}
 $moisNoms = [1=>'Janvier',2=>'Février',3=>'Mars',4=>'Avril',5=>'Mai',6=>'Juin',7=>'Juillet',8=>'Août',9=>'Septembre',10=>'Octobre',11=>'Novembre',12=>'Décembre'];
+$statutLabels = ['nouveau' => 'En attente', 'en_cours' => 'En cours de traitement', 'traite' => 'Traité'];
 
 try {
     $communiques = fetchCommuniques(getPdo());
@@ -203,7 +219,7 @@ try {
     <div id="panel-messagerie" class="tab-panel <?= $tab === 'messagerie' ? '' : 'hidden' ?>">
         <div class="card-page">
             <h2>Messagerie — Facturation</h2>
-            <p class="hint">Signalez un problème de paiement ou d'inscription.</p>
+            <p class="hint">Envoyez une demande et consultez les réponses de l'administration ci-dessous.</p>
             <?php if ($msgSuccess): ?><div class="alert-ok"><?= htmlspecialchars($msgSuccess) ?></div><?php endif; ?>
             <?php if ($msgError): ?><div class="alert-err"><?= htmlspecialchars($msgError) ?></div><?php endif; ?>
             <?php if ($lastStudent): ?>
@@ -232,6 +248,47 @@ try {
                 <textarea id="message" name="message" required placeholder="Décrivez le problème..."></textarea>
                 <button type="submit" class="btn-search">Envoyer à la facturation</button>
             </form>
+
+            <div class="parent-thread" style="margin-top:20px;">
+                <h3 style="font-size:1rem;color:#1B3A6B;margin:0 0 10px;">Mes messages</h3>
+                <form method="post" action="<?= htmlspecialchars(parentPageUrl('messagerie')) ?>" class="lookup-form">
+                    <input type="hidden" name="lookup_messages" value="1">
+                    <label for="lookup_matricule">Matricule pour voir vos messages</label>
+                    <input type="text" id="lookup_matricule" name="lookup_matricule"
+                           value="<?= htmlspecialchars($lookupMatricule) ?>"
+                           placeholder="CSLSG-2026-2027-00167">
+                    <button type="submit" class="btn-outline" style="margin-top:8px;">Actualiser</button>
+                </form>
+                <?php if ($lookupMatricule !== '' && empty($parentMessages)): ?>
+                    <p class="hint" style="margin-top:10px;">Aucun message pour ce matricule.</p>
+                <?php elseif (!empty($parentMessages)): ?>
+                    <?php foreach ($parentMessages as $pm):
+                        $stClass = $pm['statut'] === 'traite' ? 'traite' : ($pm['statut'] === 'en_cours' ? 'en_cours' : 'nouveau');
+                    ?>
+                        <div class="parent-msg <?= $stClass ?>">
+                            <div class="parent-msg-head">
+                                <strong><?= htmlspecialchars($motifs[$pm['motif']] ?? $pm['motif']) ?></strong>
+                                <span class="parent-msg-statut"><?= htmlspecialchars($statutLabels[$pm['statut']] ?? $pm['statut']) ?></span>
+                            </div>
+                            <small><?= htmlspecialchars(date('d/m/Y H:i', strtotime($pm['created_at']))) ?></small>
+                            <p><?= nl2br(htmlspecialchars($pm['message'])) ?></p>
+                            <?php if (!empty($pm['note_admin'])): ?>
+                                <div class="parent-reply">
+                                    <strong>Réponse de la facturation :</strong>
+                                    <p><?= nl2br(htmlspecialchars($pm['note_admin'])) ?></p>
+                                    <?php if (!empty($pm['reponse_at'])): ?>
+                                        <small><?= htmlspecialchars(date('d/m/Y H:i', strtotime($pm['reponse_at']))) ?></small>
+                                    <?php endif; ?>
+                                </div>
+                            <?php elseif ($pm['statut'] === 'en_cours'): ?>
+                                <p class="hint" style="margin:8px 0 0;">Votre demande est en cours de traitement…</p>
+                            <?php elseif ($pm['statut'] === 'nouveau'): ?>
+                                <p class="hint" style="margin:8px 0 0;">Message reçu — en attente de traitement.</p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
             <p class="hint" style="margin-top:12px;">📞 <?= htmlspecialchars($config['school_phone']) ?></p>
         </div>
     </div>

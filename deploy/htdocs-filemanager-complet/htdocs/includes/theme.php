@@ -100,7 +100,12 @@ function renderThemeHead(string $title, string $variant = 'app'): void
         .msg.en_cours { border-color: #F57C00; }
         .msg.traite { border-color: #2E7D32; }
         .msg-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+        .reply-form { flex: 1 1 100%; margin-top: 6px; }
+        .reply-form textarea { min-height: 70px; margin-bottom: 6px; }
+        .admin-reply { background: #e8f5e9; border-radius: 8px; padding: 10px; margin-top: 10px; font-size: .9rem; }
+        .import-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; font-size: .88rem; }
+        .import-row:last-child { border-bottom: 0; }
+        @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } .import-row { flex-direction: column; } }
     </style>
     <?php
 }

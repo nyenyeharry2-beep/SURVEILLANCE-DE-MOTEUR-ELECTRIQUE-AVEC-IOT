@@ -87,12 +87,49 @@ function ensureParentMessagesTable(PDO $pdo): void
         message TEXT NOT NULL,
         statut ENUM("nouveau", "en_cours", "traite") NOT NULL DEFAULT "nouveau",
         note_admin TEXT NULL,
+        reponse_at DATETIME NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_statut (statut),
         INDEX idx_matricule (matricule),
         INDEX idx_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    try {
+        $pdo->exec('ALTER TABLE parent_messages ADD COLUMN reponse_at DATETIME NULL AFTER note_admin');
+    } catch (Throwable $e) {
+        // colonne déjà présente
+    }
+}
+
+function ensureImportLogsTable(PDO $pdo): void
+{
+    $pdo->exec('CREATE TABLE IF NOT EXISTS import_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type_import ENUM("inscriptions", "paiements") NOT NULL,
+        fichier VARCHAR(255) NOT NULL,
+        classe_detectee VARCHAR(120) NULL,
+        section_detectee VARCHAR(80) NULL,
+        lignes_traitees INT DEFAULT 0,
+        lignes_erreur INT DEFAULT 0,
+        details JSON NULL,
+        imported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+}
+
+/** @return list<array<string, mixed>> */
+function fetchParentMessagesByMatricule(PDO $pdo, string $matricule, int $limit = 20): array
+{
+    ensureParentMessagesTable($pdo);
+    $limit = max(1, min(50, $limit));
+    $stmt = $pdo->prepare('
+        SELECT id, motif, message, statut, note_admin, reponse_at, created_at, updated_at
+        FROM parent_messages
+        WHERE matricule = ?
+        ORDER BY created_at DESC
+        LIMIT ' . $limit
+    );
+    $stmt->execute([strtoupper(trim($matricule))]);
+    return $stmt->fetchAll();
 }
 
 function ensureCommuniquesTable(PDO $pdo): void

@@ -946,11 +946,13 @@ class PdfParser
 
 class ImportService
 {
-    public static function importInscriptions(PDO $pdo, array $rows, string $filename): array
+    public static function importInscriptions(PDO $pdo, array $rows, string $filename, array $context = []): array
     {
         $processed = 0;
         $errors = 0;
         $classes = [];
+
+        $matricules = [];
 
         $upsert = $pdo->prepare('
             INSERT INTO students (matricule, nom, prenom, genre, date_naissance, classe, section, telephone, annee_scolaire, statut_inscription, date_inscription)
@@ -972,17 +974,21 @@ class ImportService
             try {
                 $upsert->execute($row);
                 $processed++;
+                $matricules[] = $row['matricule'];
                 $classes[$row['classe']] = ($classes[$row['classe']] ?? 0) + 1;
             } catch (Throwable $e) {
                 $errors++;
             }
         }
 
-        $classeDetectee = array_key_first($classes);
-        $sectionDetectee = $classeDetectee ? detectSection($classeDetectee) : null;
+        $classeDetectee = ($context['classe'] ?? '') !== '' ? $context['classe'] : array_key_first($classes);
+        $sectionDetectee = ($context['section'] ?? '') !== '' ? $context['section'] : ($classeDetectee ? detectSection($classeDetectee) : null);
 
         self::logImport($pdo, 'inscriptions', $filename, $classeDetectee, $sectionDetectee, $processed, $errors, [
             'classes' => $classes,
+            'matricules' => $matricules,
+            'section' => $context['section'] ?? null,
+            'classe' => $context['classe'] ?? null,
             'inserted' => $processed,
             'updated' => 0,
         ]);
@@ -1007,6 +1013,8 @@ class ImportService
         $unmatched = 0;
         $byClass = [];
         $unmatchedRows = [];
+        $insertedFeeIds = [];
+        $updatedSnapshots = [];
 
         $studentIndex = PdfParser::buildStudentIndex($pdo);
         if ($rows !== [] && ($context['fee_kind'] ?? 'auto') !== 'inscriptions') {
@@ -1027,7 +1035,7 @@ class ImportService
             WHERE student_id = ? AND label = ? AND annee_scolaire = ? AND (mois <=> ?)
         ');
         $findExisting = $pdo->prepare('
-            SELECT id FROM student_fees
+            SELECT id, fee_type_id, montant_du, montant_paye, statut, notes FROM student_fees
             WHERE student_id = ? AND label = ? AND annee_scolaire = ? AND (mois <=> ?)
             LIMIT 1
         ');
@@ -1080,23 +1088,23 @@ class ImportService
                     $row['annee_scolaire'],
                     $row['mois'],
                 ]);
-                $exists = (bool) $findExisting->fetch();
+                $existingRow = $findExisting->fetch() ?: null;
 
-                $updateFee->execute([
-                    $feeTypeId,
-                    $row['montant_du'],
-                    $row['montant_paye'],
-                    $row['statut'],
-                    $notes,
-                    $studentId,
-                    $row['label'],
-                    $row['annee_scolaire'],
-                    $row['mois'],
-                ]);
-
-                if ($updateFee->rowCount() > 0) {
+                if ($existingRow !== null) {
+                    $updatedSnapshots[] = $existingRow;
+                    $updateFee->execute([
+                        $feeTypeId,
+                        $row['montant_du'],
+                        $row['montant_paye'],
+                        $row['statut'],
+                        $notes,
+                        $studentId,
+                        $row['label'],
+                        $row['annee_scolaire'],
+                        $row['mois'],
+                    ]);
                     $updated++;
-                } elseif (!$exists) {
+                } else {
                     $insertFee->execute([
                         $studentId,
                         $feeTypeId,
@@ -1108,9 +1116,8 @@ class ImportService
                         $row['annee_scolaire'],
                         $notes,
                     ]);
+                    $insertedFeeIds[] = (int) $pdo->lastInsertId();
                     $inserted++;
-                } else {
-                    $updated++;
                 }
 
                 $processed++;
@@ -1136,6 +1143,10 @@ class ImportService
             'categorie_pdf' => $docCategory,
             'fee_kind' => $context['fee_kind'] ?? 'auto',
             'mois' => $context['mois'] ?? null,
+            'section' => $context['section'] ?? null,
+            'classe' => $context['classe'] ?? null,
+            'inserted_fee_ids' => $insertedFeeIds,
+            'updated_snapshots' => $updatedSnapshots,
         ]);
 
         return [
@@ -1147,6 +1158,73 @@ class ImportService
             'unmatched_rows' => $unmatchedRows,
             'par_classe' => $byClass,
             'categorie_pdf' => $docCategory,
+        ];
+    }
+
+    /** Annule un import (supprime élèves ou frais créés, restaure les mises à jour) */
+    public static function revertImport(PDO $pdo, int $logId): array
+    {
+        ensureImportLogsTable($pdo);
+        $stmt = $pdo->prepare('SELECT * FROM import_logs WHERE id = ?');
+        $stmt->execute([$logId]);
+        $log = $stmt->fetch();
+        if (!$log) {
+            throw new RuntimeException('Import introuvable.');
+        }
+
+        $details = json_decode($log['details'] ?? '{}', true) ?: [];
+        $removedStudents = 0;
+        $removedFees = 0;
+        $restoredFees = 0;
+
+        if ($log['type_import'] === 'inscriptions') {
+            $matricules = $details['matricules'] ?? [];
+            if ($matricules !== []) {
+                $placeholders = implode(',', array_fill(0, count($matricules), '?'));
+                $del = $pdo->prepare("DELETE FROM students WHERE matricule IN ($placeholders)");
+                $del->execute($matricules);
+                $removedStudents = $del->rowCount();
+            }
+        } else {
+            foreach ($details['inserted_fee_ids'] ?? [] as $feeId) {
+                $del = $pdo->prepare('DELETE FROM student_fees WHERE id = ?');
+                $del->execute([(int) $feeId]);
+                if ($del->rowCount() > 0) {
+                    $removedFees++;
+                }
+            }
+            $restore = $pdo->prepare('
+                UPDATE student_fees
+                SET fee_type_id = ?, montant_du = ?, montant_paye = ?, statut = ?, notes = ?
+                WHERE id = ?
+            ');
+            foreach ($details['updated_snapshots'] ?? [] as $snap) {
+                $restore->execute([
+                    $snap['fee_type_id'],
+                    $snap['montant_du'],
+                    $snap['montant_paye'],
+                    $snap['statut'],
+                    $snap['notes'],
+                    (int) $snap['id'],
+                ]);
+                if ($restore->rowCount() > 0) {
+                    $restoredFees++;
+                }
+            }
+        }
+
+        $uploadPath = dirname(__DIR__) . '/uploads/' . $log['fichier'];
+        if (is_file($uploadPath)) {
+            @unlink($uploadPath);
+        }
+
+        $pdo->prepare('DELETE FROM import_logs WHERE id = ?')->execute([$logId]);
+
+        return [
+            'removed_students' => $removedStudents,
+            'removed_fees' => $removedFees,
+            'restored_fees' => $restoredFees,
+            'fichier' => $log['fichier'],
         ];
     }
 

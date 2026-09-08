@@ -125,11 +125,55 @@ function getImportFeeKinds(): array
 
 function getImportSections(): array
 {
-    return [
-        'Maternelle', 'Primaire', 'EB', 'Secondaire Général', 'Secondaire Technique',
-        'Pétrochimie', 'Commercial', 'Sciences', 'Électricité', 'Électronique',
-        'Mécanique auto', 'Mécanique générale', 'Toutes',
+    return array_keys(getImportSectionsWithClasses());
+}
+
+/** Sections → classes pour l'import (matricules puis paiements par classe/mois) */
+function getImportSectionsWithClasses(): array
+{
+    $options = [
+        'Pétrochimie', 'Commercial', 'Sciences', 'HP', 'Électricité',
+        'Électronique', 'Mécanique auto', 'Mécanique générale',
     ];
+    $classes = [
+        'Maternelle' => [
+            '1ère ANNEE MATERNELLE',
+            '2ème ANNEE MATERNELLE',
+            '3ème ANNEE MATERNELLE',
+        ],
+        'Primaire' => [
+            '1ère ANNEE PRIMAIRE',
+            '2ème ANNEE PRIMAIRE',
+            '3ème ANNEE PRIMAIRE',
+            '4ème ANNEE PRIMAIRE',
+            '5ème ANNEE PRIMAIRE',
+            '6ème ANNEE PRIMAIRE',
+        ],
+        'EB (7ème — 8ème)' => [
+            '7ème ANNEE EB',
+            '8ème ANNEE EB',
+        ],
+    ];
+    foreach ($options as $opt) {
+        $key = 'Options — ' . $opt;
+        $classes[$key] = [];
+        for ($n = 1; $n <= 4; $n++) {
+            $ord = match ($n) {
+                1 => '1ère',
+                2 => '2ème',
+                3 => '3ème',
+                4 => '4ème',
+                default => $n . 'ème',
+            };
+            $classes[$key][] = $ord . ' ' . $opt;
+        }
+    }
+    return $classes;
+}
+
+function getImportSectionsWithClassesJson(): string
+{
+    return json_encode(getImportSectionsWithClasses(), JSON_UNESCAPED_UNICODE);
 }
 
 function getMoisScolaires(): array

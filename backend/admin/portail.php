@@ -8,11 +8,13 @@ adminRequireLogin();
 
 $config = getAppConfig();
 $feeKinds = getImportFeeKinds();
-$sections = getImportSections();
+$sectionsWithClasses = getImportSectionsWithClasses();
+$sections = array_keys($sectionsWithClasses);
 $moisScolaires = getMoisScolaires();
 $pdo = getPdo();
 ensureParentMessagesTable($pdo);
 ensureCommuniquesTable($pdo);
+ensureImportLogsTable($pdo);
 
 $tab = $_GET['tab'] ?? 'imports';
 $uploadMessage = null;
@@ -30,10 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $type = $_POST['type'] ?? 'inscriptions';
             $importContext = [
                 'fee_kind' => $type,
-                'section' => trim($_POST['section'] ?? 'Toutes'),
+                'section' => trim($_POST['section'] ?? ''),
                 'classe' => trim($_POST['classe'] ?? ''),
                 'mois' => $_POST['mois'] ?? '',
             ];
+            if ($type !== 'paiements' && ($importContext['section'] ?? '') === '') {
+                $uploadError = 'Choisissez une section.';
+            } elseif ($type !== 'paiements' && ($importContext['classe'] ?? '') === '') {
+                $uploadError = 'Choisissez la classe (ex: 1ère ANNEE MATERNELLE).';
+            } elseif (in_array($type, ['minerval', 'bus'], true) && ($importContext['mois'] ?? '') === '') {
+                $uploadError = 'Choisissez le mois scolaire (ex: Octobre) pour minerval ou bus.';
+            } else {
             $uploadDir = __DIR__ . '/../uploads';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
@@ -50,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } else {
                     if ($type === 'inscriptions') {
                         $rows = PdfParser::parseInscriptions($text);
-                        $result = ImportService::importInscriptions($pdo, $rows, $filename);
+                        $result = ImportService::importInscriptions($pdo, $rows, $filename, $importContext);
                     } else {
                         $studentCount = (int) $pdo->query('SELECT COUNT(*) FROM students')->fetchColumn();
                         if ($studentCount === 0) {
@@ -99,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $uploadError = 'Erreur : ' . $e->getMessage();
                 }
             }
+            }
         }
         $tab = 'imports';
     }
@@ -112,6 +122,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $actionMessage = 'Message mis à jour';
         }
         $tab = 'messages';
+    }
+
+    if (isset($_POST['reply_message'])) {
+        $id = (int) ($_POST['msg_id'] ?? 0);
+        $reponse = trim($_POST['note_admin'] ?? '');
+        if ($id <= 0) {
+            $actionMessage = 'Message introuvable.';
+        } elseif ($reponse === '' || mb_strlen($reponse) < 5) {
+            $actionMessage = 'La réponse doit contenir au moins 5 caractères.';
+        } else {
+            $stmt = $pdo->prepare('UPDATE parent_messages SET statut = "traite", note_admin = ?, reponse_at = NOW() WHERE id = ?');
+            $stmt->execute([$reponse, $id]);
+            $actionMessage = 'Réponse envoyée — visible par le parent dans Suivi.';
+        }
+        $tab = 'messages';
+    }
+
+    if (isset($_POST['delete_message'])) {
+        $id = (int) ($_POST['msg_id'] ?? 0);
+        if ($id > 0) {
+            $stmt = $pdo->prepare('DELETE FROM parent_messages WHERE id = ?');
+            $stmt->execute([$id]);
+            $actionMessage = 'Message supprimé.';
+        }
+        $tab = 'messages';
+    }
+
+    if (isset($_POST['delete_import'])) {
+        require_once __DIR__ . '/../parser/PdfParser.php';
+        $logId = (int) ($_POST['import_id'] ?? 0);
+        if ($logId > 0) {
+            try {
+                $result = ImportService::revertImport($pdo, $logId);
+                $uploadMessage = sprintf(
+                    'Import annulé (%s) — %d élève(s) retiré(s), %d frais supprimé(s), %d frais restauré(s).',
+                    $result['fichier'],
+                    $result['removed_students'],
+                    $result['removed_fees'],
+                    $result['restored_fees']
+                );
+            } catch (Throwable $e) {
+                $uploadError = 'Annulation impossible : ' . $e->getMessage();
+            }
+        }
+        $tab = 'imports';
     }
 
     if (isset($_POST['create_communique'])) {
@@ -160,6 +215,14 @@ $messages = $stmt->fetchAll();
 
 $communiques = fetchCommuniques($pdo, 50);
 
+$importLogs = $pdo->query('
+    SELECT id, type_import, fichier, classe_detectee, section_detectee,
+           lignes_traitees, lignes_erreur, details, imported_at
+    FROM import_logs
+    ORDER BY imported_at DESC
+    LIMIT 40
+')->fetchAll();
+
 $counts = $pdo->query('SELECT statut, COUNT(*) as n FROM parent_messages GROUP BY statut')->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $motifLabels = [
@@ -203,41 +266,102 @@ $motifLabels = [
                 <div class="grid2">
                     <div>
                         <label>Section *</label>
-                        <select name="section" required>
+                        <select name="section" id="import-section" required>
                             <?php foreach ($sections as $s): ?>
                                 <option value="<?= htmlspecialchars($s) ?>"><?= htmlspecialchars($s) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div>
-                        <label>Classe (ex: 1ère ANNEE MATERNELLE)</label>
-                        <input type="text" name="classe" placeholder="Optionnel si dans le PDF">
+                        <label>Classe *</label>
+                        <select name="classe" id="import-classe" required>
+                            <option value="">— Choisir section d'abord —</option>
+                        </select>
                     </div>
                 </div>
                 <div id="mois-field">
-                    <label>Mois scolaire (minerval ou bus)</label>
-                    <select name="mois">
-                        <option value="">— Auto depuis date PDF —</option>
+                    <label>Mois scolaire * (minerval ou bus)</label>
+                    <select name="mois" id="import-mois">
+                        <option value="">— Choisir le mois —</option>
                         <?php foreach ($moisScolaires as $num => $nom): ?>
                             <option value="<?= $num ?>"><?= htmlspecialchars($nom) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <p class="hint">Importez un PDF par mois pour minerval et bus. Connexe 20 USD = enfant d'agent ou pris en charge (avance sur 30 USD).</p>
-                <p class="hint">Secondaire : 7-8ème 65 USD · 1-3ème 75 USD (HP/Sciences 70) · 4ème 120 USD (HP/Sciences 115) · connexe 4ème 50 USD.</p>
+                <p class="hint">Par classe : ① Matricules → ② Connexe → ③ Minerval (1 PDF/mois) → ④ Bus (1 PDF/mois) → ⑤ Équipements.</p>
+                <p class="hint">Maternelle 1-3 · Primaire 1-6 · EB 7-8 · Options 1ère à 4ème (Pétrochimie, Commercial, Sciences, HP, etc.).</p>
+                <p class="hint">Connexe 20 USD = enfant d'agent. Secondaire : 7-8ème 65 · 1-3ème 75 (HP/Sciences 70) · 4ème 120 (HP/Sciences 115).</p>
                 <label>Fichier PDF</label>
                 <input type="file" name="pdf" accept="application/pdf,application/octet-stream" required>
                 <button type="submit" class="btn">Publier et importer</button>
             </form>
         </div>
+        <div class="card">
+            <h2>Historique des imports</h2>
+            <p class="hint">Supprimez un import pour le refaire (ex: mauvais mois ou mauvaise classe).</p>
+            <?php if (empty($importLogs)): ?>
+                <p style="color:#888;text-align:center;padding:16px;">Aucun import enregistré</p>
+            <?php else: ?>
+                <?php foreach ($importLogs as $log):
+                    $det = json_decode($log['details'] ?? '{}', true) ?: [];
+                    $feeKind = $det['fee_kind'] ?? $log['type_import'];
+                    $moisNum = $det['mois'] ?? null;
+                    $moisLabel = $moisNum ? ($moisScolaires[(int)$moisNum] ?? '') : '';
+                    $kindLabel = $feeKinds[$feeKind] ?? $log['type_import'];
+                ?>
+                    <div class="import-row">
+                        <div>
+                            <strong><?= htmlspecialchars($kindLabel) ?></strong>
+                            <?php if ($log['section_detectee']): ?> · <?= htmlspecialchars($log['section_detectee']) ?><?php endif; ?>
+                            <?php if ($log['classe_detectee']): ?> · <?= htmlspecialchars($log['classe_detectee']) ?><?php endif; ?>
+                            <?php if ($moisLabel): ?> · <?= htmlspecialchars($moisLabel) ?><?php endif; ?>
+                            <br>
+                            <small><?= htmlspecialchars(date('d/m/Y H:i', strtotime($log['imported_at']))) ?>
+                            — <?= (int)$log['lignes_traitees'] ?> ligne(s)
+                            — <?= htmlspecialchars($log['fichier']) ?></small>
+                        </div>
+                        <form method="post" action="portail.php?tab=imports" onsubmit="return confirm('Annuler cet import ? Les données importées seront retirées.');">
+                            <input type="hidden" name="delete_import" value="1">
+                            <input type="hidden" name="import_id" value="<?= (int)$log['id'] ?>">
+                            <button type="submit" class="btn btn-sm" style="background:#b71c1c;">Supprimer</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
         <script>
+            const sectionMap = <?= getImportSectionsWithClassesJson() ?>;
             const typeSel = document.getElementById('import-type');
+            const sectionSel = document.getElementById('import-section');
+            const classeSel = document.getElementById('import-classe');
             const moisField = document.getElementById('mois-field');
+            const moisSel = document.getElementById('import-mois');
+
+            function fillClasses() {
+                const section = sectionSel.value;
+                const classes = sectionMap[section] || [];
+                classeSel.innerHTML = '';
+                classes.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    classeSel.appendChild(opt);
+                });
+            }
+
             function toggleMois() {
                 const v = typeSel.value;
-                moisField.style.display = (v === 'minerval' || v === 'bus' || v === 'paiements') ? 'block' : 'none';
+                const needsMonth = v === 'minerval' || v === 'bus' || v === 'paiements';
+                moisField.style.display = needsMonth ? 'block' : 'none';
+                moisSel.required = (v === 'minerval' || v === 'bus');
+                const needsClass = v !== 'paiements';
+                sectionSel.required = needsClass;
+                classeSel.required = needsClass;
             }
+
+            sectionSel.addEventListener('change', fillClasses);
             typeSel.addEventListener('change', toggleMois);
+            fillClasses();
             toggleMois();
         </script>
     </div>
@@ -259,8 +383,18 @@ $motifLabels = [
                     <div class="msg <?= htmlspecialchars($m['statut']) ?>">
                         <strong><?= htmlspecialchars($m['nom_parent']) ?></strong> · <?= htmlspecialchars($m['telephone_parent']) ?><br>
                         <small>Élève : <?= htmlspecialchars(trim(($m['nom_eleve'] ?? '') . ' ' . ($m['prenom_eleve'] ?? ''))) ?> — <?= htmlspecialchars($m['matricule']) ?></small><br>
-                        <strong><?= htmlspecialchars($motifLabels[$m['motif']] ?? $m['motif']) ?></strong><br>
+                        <strong><?= htmlspecialchars($motifLabels[$m['motif']] ?? $m['motif']) ?></strong>
+                        <small style="color:#888;"> · <?= htmlspecialchars(date('d/m/Y H:i', strtotime($m['created_at']))) ?></small><br>
                         <?= nl2br(htmlspecialchars($m['message'])) ?>
+                        <?php if (!empty($m['note_admin'])): ?>
+                            <div class="admin-reply">
+                                <strong>Réponse admin :</strong><br>
+                                <?= nl2br(htmlspecialchars($m['note_admin'])) ?>
+                                <?php if (!empty($m['reponse_at'])): ?>
+                                    <small style="display:block;color:#666;margin-top:4px;"><?= htmlspecialchars(date('d/m/Y H:i', strtotime($m['reponse_at']))) ?></small>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="msg-actions">
                             <?php if ($m['statut'] === 'nouveau'): ?>
                                 <form method="post" action="portail.php?tab=messages" style="display:inline">
@@ -271,13 +405,18 @@ $motifLabels = [
                                 </form>
                             <?php endif; ?>
                             <?php if ($m['statut'] !== 'traite'): ?>
-                                <form method="post" action="portail.php?tab=messages" style="display:inline">
-                                    <input type="hidden" name="msg_action" value="1">
+                                <form method="post" action="portail.php?tab=messages" class="reply-form">
+                                    <input type="hidden" name="reply_message" value="1">
                                     <input type="hidden" name="msg_id" value="<?= (int)$m['id'] ?>">
-                                    <input type="hidden" name="statut" value="traite">
-                                    <button class="btn btn-sm btn-green" type="submit">Marquer traité</button>
+                                    <textarea name="note_admin" placeholder="Réponse au parent (visible dans Suivi)…" required minlength="5"></textarea>
+                                    <button class="btn btn-sm btn-green" type="submit">Répondre et clôturer</button>
                                 </form>
                             <?php endif; ?>
+                            <form method="post" action="portail.php?tab=messages" style="display:inline" onsubmit="return confirm('Supprimer ce message ?');">
+                                <input type="hidden" name="delete_message" value="1">
+                                <input type="hidden" name="msg_id" value="<?= (int)$m['id'] ?>">
+                                <button class="btn btn-sm" style="background:#b71c1c;" type="submit">Supprimer</button>
+                            </form>
                         </div>
                     </div>
                 <?php endforeach; ?>

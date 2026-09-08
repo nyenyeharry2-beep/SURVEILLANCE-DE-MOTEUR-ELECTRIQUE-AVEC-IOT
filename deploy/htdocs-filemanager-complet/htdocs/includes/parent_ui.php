@@ -193,6 +193,29 @@ function renderParentHead(string $title = 'Suivi Paiements'): void
             border-radius: 12px;
             margin-top: 16px;
         }
+        .parent-msg {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+            border-left: 4px solid #F57C00;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .parent-msg.traite { border-left-color: var(--paid); }
+        .parent-msg.en_cours { border-left-color: #F57C00; }
+        .parent-msg.nouveau { border-left-color: var(--red); }
+        .parent-msg-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+        .parent-msg-statut { font-size: .75rem; font-weight: 700; color: var(--navy); }
+        .parent-msg p { margin: 8px 0 0; font-size: .9rem; line-height: 1.45; }
+        .parent-reply {
+            background: rgba(46, 125, 50, .08);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: .88rem;
+        }
+        .parent-reply p { margin: 6px 0 0; }
+        .lookup-form input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
         .student-card {
             background: #fff;
             border-radius: 12px;

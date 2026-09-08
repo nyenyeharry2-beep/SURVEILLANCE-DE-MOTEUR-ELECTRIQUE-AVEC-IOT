@@ -66,8 +66,8 @@ try {
             }
             $noteAdmin = trim($input['note_admin'] ?? '');
 
-            $stmt = $pdo->prepare('UPDATE parent_messages SET statut = ?, note_admin = ? WHERE id = ?');
-            $stmt->execute([$statut, $noteAdmin !== '' ? $noteAdmin : null, $id]);
+            $stmt = $pdo->prepare('UPDATE parent_messages SET statut = ?, note_admin = ?, reponse_at = IF(? != "", NOW(), reponse_at) WHERE id = ?');
+            $stmt->execute([$statut, $noteAdmin !== '' ? $noteAdmin : null, $noteAdmin, $id]);
 
             if ($stmt->rowCount() === 0) {
                 jsonError('Message introuvable', 404);
@@ -77,6 +77,15 @@ try {
                 'success' => true,
                 'message' => 'Statut mis à jour',
             ]);
+        }
+
+        if ($action === 'delete') {
+            $stmt = $pdo->prepare('DELETE FROM parent_messages WHERE id = ?');
+            $stmt->execute([$id]);
+            if ($stmt->rowCount() === 0) {
+                jsonError('Message introuvable', 404);
+            }
+            jsonResponse(['success' => true, 'message' => 'Message supprimé']);
         }
 
         jsonError('Action inconnue');
