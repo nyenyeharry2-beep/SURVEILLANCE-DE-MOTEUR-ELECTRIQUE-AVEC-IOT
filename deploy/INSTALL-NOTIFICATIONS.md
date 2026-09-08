@@ -21,8 +21,14 @@ Vérification automatique toutes les 45 secondes + à l'ouverture de l'app.
 
 **Zip serveur :** `supergenies-patch-notifications-v6.zip`
 
-## APK parents v1.1.2
+## APK parents v1.1.3 (signée — installable)
 
-**Zip :** `supergenies-apk-v1.1.2.zip` → installer `SuperGenies-Paiements-v1.1.2.apk`
+**Zip :** `supergenies-apk-v1.1.3.zip`
 
-Au premier lancement, accepter **Notifications** pour les alertes système.
+Contient :
+- `SuperGenies-Paiements-v1.1.3.apk` (Suivi + notifications)
+- `SuperGenies-Admin-v1.1.2.apk` (Admin + communiqués)
+
+Au premier lancement Suivi, accepter **Notifications**.
+
+**Important :** désinstaller l'ancienne app avant d'installer la v1.1.3 si l'installation échoue.

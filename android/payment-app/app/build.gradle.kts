@@ -11,8 +11,8 @@ android {
         applicationId = "com.supergenies.paiements"
         minSdk = 24
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.1.2"
+        versionCode = 8
+        versionName = "1.1.3"
         buildConfigField("String", "API_BASE_URL", "\"http://supergenies2026.site.je/\"")
     }
 
@@ -32,6 +32,22 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../../keystore/supergenies-release.jks")
+            storePassword = "SuperGenies2026!"
+            keyAlias = "supergenies"
+            keyPassword = "SuperGenies2026!"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+        }
     }
 
     packaging {
