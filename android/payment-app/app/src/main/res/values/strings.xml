@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Super Genies - Paiements</string>
+    <string name="search_hint">Entrez le matricule (ex: CSLSG-2026-2027-00167)</string>
+    <string name="search_button">Rechercher</string>
+    <string name="tab_home">Accueil</string>
+    <string name="tab_inscriptions">Inscriptions</string>
+    <string name="tab_trousseau">Trousseau</string>
+    <string name="school_motto">Ordre · Travail · Compétence</string>
+</resources>
