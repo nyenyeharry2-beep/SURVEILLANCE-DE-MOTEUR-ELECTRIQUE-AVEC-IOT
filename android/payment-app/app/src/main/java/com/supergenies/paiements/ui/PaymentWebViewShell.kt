@@ -78,6 +78,7 @@ fun PaymentWebViewShell() {
                     settings.loadWithOverviewMode = true
                     settings.useWideViewPort = true
                     settings.textZoom = 100
+                    settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                     addJavascriptInterface(SuperGeniesJsBridge(context), "SuperGeniesAndroid")

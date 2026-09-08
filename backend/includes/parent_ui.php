@@ -6,6 +6,12 @@ function parentAsset(string $file): string
     return 'assets/' . $file;
 }
 
+/** Logo léger pour chargement rapide (60 Ko vs 600 Ko PNG) */
+function parentLogoAsset(): string
+{
+    return parentAsset('logo.jpg');
+}
+
 function parentPageUrl(string $tab): string
 {
     $url = 'suivi.php?tab=' . urlencode($tab);
@@ -321,7 +327,7 @@ function renderParentAppBar(): void
 {
     ?>
     <header class="app-bar">
-        <img src="<?= htmlspecialchars(parentAsset('logo_spag.png')) ?>" alt="Logo">
+        <img src="<?= htmlspecialchars(parentLogoAsset()) ?>" alt="Logo" width="40" height="40" decoding="async">
         <div>
             <div class="app-bar-title">C.S. LES SUPER GENIES</div>
             <div class="app-bar-sub">Suivi des paiements</div>
@@ -364,7 +370,7 @@ function renderParentCarousel(): void
         <div class="carousel" id="carousel">
             <?php foreach ($slides as $i => $s): ?>
                 <div class="carousel-slide<?= $i === 0 ? ' active' : '' ?>">
-                    <img src="<?= htmlspecialchars(parentAsset($s['img'])) ?>" alt="">
+                    <img src="<?= htmlspecialchars(parentAsset($s['img'])) ?>" alt="" loading="lazy" decoding="async">
                     <div class="carousel-caption"><?= htmlspecialchars($s['title']) ?></div>
                 </div>
             <?php endforeach; ?>
@@ -408,9 +414,9 @@ function renderParentBottomNav(string $activeTab): void
         'bag' => '<path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/>',
     ];
     ?>
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" id="bottom-nav">
         <?php foreach ($tabs as $key => $t): ?>
-            <a href="<?= htmlspecialchars(parentPageUrl($key)) ?>" class="<?= $activeTab === $key ? 'active' : '' ?>">
+            <a href="#" data-tab="<?= htmlspecialchars($key) ?>" class="nav-tab <?= $activeTab === $key ? 'active' : '' ?>">
                 <span class="nav-icon-wrap">
                     <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><?= $icons[$t['icon']] ?></svg>
                 </span>
@@ -418,12 +424,46 @@ function renderParentBottomNav(string $activeTab): void
             </a>
         <?php endforeach; ?>
     </nav>
+    <script>
+    (function(){
+        var panels = document.querySelectorAll('.tab-panel');
+        var links = document.querySelectorAll('#bottom-nav a[data-tab]');
+        function showTab(name) {
+            panels.forEach(function(p){ p.classList.add('hidden'); });
+            var panel = document.getElementById('panel-' + name);
+            if (panel) panel.classList.remove('hidden');
+            links.forEach(function(a){
+                a.classList.toggle('active', a.getAttribute('data-tab') === name);
+            });
+            window.scrollTo(0, 0);
+        }
+        links.forEach(function(a){
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                showTab(a.getAttribute('data-tab'));
+            });
+        });
+        document.querySelectorAll('a[data-goto-tab]').forEach(function(a){
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                showTab(a.getAttribute('data-goto-tab'));
+            });
+        });
+    })();
+    </script>
     <?php
 }
 
-function renderParentCommuniqueNotifier(): void
+function renderParentCommuniqueNotifier(array $initialCommuniques = []): void
 {
     $apiUrl = 'api/communiques.php';
+    $initialJson = json_encode(array_map(static function (array $c): array {
+        return [
+            'id' => (int) $c['id'],
+            'titre' => $c['titre'],
+            'contenu' => $c['contenu'],
+        ];
+    }, $initialCommuniques), JSON_UNESCAPED_UNICODE);
     ?>
     <div id="sg-communique-banner" class="sg-banner" aria-live="polite" hidden>
         <div class="sg-banner-inner">
@@ -503,6 +543,7 @@ function renderParentCommuniqueNotifier(): void
     <script>
     (function(){
         const API = <?= json_encode($apiUrl, JSON_UNESCAPED_SLASHES) ?>;
+        const INITIAL = <?= $initialJson ?: '[]' ?>;
         const DISMISSED_KEY = 'sg_communiques_dismissed';
         const NOTIFIED_KEY = 'sg_communiques_notified';
         const banner = document.getElementById('sg-communique-banner');
@@ -586,6 +627,7 @@ function renderParentCommuniqueNotifier(): void
         }
 
         async function poll() {
+            if (document.hidden) return;
             try {
                 const res = await fetch(API + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!res.ok) return;
@@ -644,8 +686,12 @@ function renderParentCommuniqueNotifier(): void
             }
         });
 
-        poll();
-        setInterval(poll, 45000);
+        if (INITIAL.length) {
+            processList(INITIAL);
+        } else {
+            poll();
+        }
+        setInterval(poll, 120000);
         document.addEventListener('visibilitychange', function(){
             if (!document.hidden) poll();
         });

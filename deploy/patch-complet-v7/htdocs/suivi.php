@@ -129,7 +129,7 @@ try {
 
 <div class="content">
     <!-- ACCUEIL -->
-    <div class="<?= $tab === 'accueil' ? '' : 'hidden' ?>">
+    <div id="panel-accueil" class="tab-panel <?= $tab === 'accueil' ? '' : 'hidden' ?>">
         <div class="welcome">
             <h1>Bienvenue chers parents</h1>
             <p>Entrez le matricule de votre enfant pour consulter ses frais et paiements.</p>
@@ -195,12 +195,12 @@ try {
                 <?php endforeach; ?>
             <?php endif; ?>
 
-            <a class="btn-outline" href="<?= htmlspecialchars(parentPageUrl('messagerie')) ?>">✉ Signaler un problème de paiement</a>
+            <a class="btn-outline" href="#" data-goto-tab="messagerie">✉ Signaler un problème de paiement</a>
         <?php endif; ?>
     </div>
 
     <!-- MESSAGERIE -->
-    <div class="<?= $tab === 'messagerie' ? '' : 'hidden' ?>">
+    <div id="panel-messagerie" class="tab-panel <?= $tab === 'messagerie' ? '' : 'hidden' ?>">
         <div class="card-page">
             <h2>Messagerie — Facturation</h2>
             <p class="hint">Signalez un problème de paiement ou d'inscription.</p>
@@ -237,7 +237,7 @@ try {
     </div>
 
     <!-- INSCRIPTIONS -->
-    <div class="<?= $tab === 'inscriptions' ? '' : 'hidden' ?>">
+    <div id="panel-inscriptions" class="tab-panel <?= $tab === 'inscriptions' ? '' : 'hidden' ?>">
         <div class="card-page">
             <h2>Inscriptions 2026-2027</h2>
             <p><strong><?= htmlspecialchars($config['school_name']) ?></strong><br>
@@ -261,7 +261,7 @@ try {
     </div>
 
     <!-- TROUSSEAU -->
-    <div class="<?= $tab === 'trousseau' ? '' : 'hidden' ?>">
+    <div id="panel-trousseau" class="tab-panel <?= $tab === 'trousseau' ? '' : 'hidden' ?>">
         <div class="card-page">
             <h2>Trousseau & équipements</h2>
             <ul>
@@ -278,6 +278,6 @@ try {
 </div>
 
 <?php renderParentBottomNav($tab); ?>
-<?php renderParentCommuniqueNotifier(); ?>
+<?php renderParentCommuniqueNotifier($communiques); ?>
 </body>
 </html>
