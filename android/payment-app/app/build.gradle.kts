@@ -11,8 +11,8 @@ android {
         applicationId = "com.supergenies.paiements"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.1.0"
+        versionCode = 6
+        versionName = "1.1.1"
         buildConfigField("String", "API_BASE_URL", "\"http://supergenies2026.site.je/\"")
     }
 

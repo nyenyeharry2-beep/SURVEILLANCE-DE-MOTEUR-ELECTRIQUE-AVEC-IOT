@@ -16,6 +16,10 @@ session_set_cookie_params([
 ]);
 session_start();
 
+if (isset($_GET['app']) && (string) $_GET['app'] === '1') {
+    $_SESSION['parent_app'] = true;
+}
+
 require_once __DIR__ . '/config/bootstrap.php';
 require_once __DIR__ . '/includes/parent_ui.php';
 
@@ -114,7 +118,7 @@ $moisNoms = [1=>'Janvier',2=>'Février',3=>'Mars',4=>'Avril',5=>'Mai',6=>'Juin',
 <head>
     <?php renderParentHead(); ?>
 </head>
-<body>
+<body<?= parentIsApp() ? ' class="app-mode"' : '' ?>>
 <?php renderParentAppBar(); ?>
 
 <div class="content">

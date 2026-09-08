@@ -9,18 +9,30 @@ function parentAsset(string $file): string
 function parentPageUrl(string $tab): string
 {
     $url = 'suivi.php?tab=' . urlencode($tab);
-    if (isset($_GET['app']) && (string) $_GET['app'] === '1') {
+    if (parentIsApp()) {
         $url .= '&app=1';
     }
     return $url;
 }
 
+function parentIsApp(): bool
+{
+    if (isset($_GET['app']) && (string) $_GET['app'] === '1') {
+        return true;
+    }
+    return !empty($_SESSION['parent_app']);
+}
+
 function renderParentHead(string $title = 'Suivi Paiements'): void
 {
+    $isApp = parentIsApp();
     ?>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1B3A6B">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title><?= htmlspecialchars($title) ?> — Super Genies</title>
     <style>
         :root {
@@ -38,8 +50,12 @@ function renderParentHead(string $title = 'Suivi Paiements'): void
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: #1a1a1a;
-            padding-bottom: 72px;
+            padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
             min-height: 100vh;
+        }
+        body.app-mode {
+            padding-top: env(safe-area-inset-top, 0px);
+            -webkit-tap-highlight-color: transparent;
         }
         .app-bar {
             background: var(--navy);
