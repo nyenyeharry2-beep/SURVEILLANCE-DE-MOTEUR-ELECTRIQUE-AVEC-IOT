@@ -95,7 +95,10 @@ function getNextCounter(string $name): int
 {
     $db = getDB();
     $year = (int) date('Y');
-    $db->beginTransaction();
+    $ownsTransaction = !$db->inTransaction();
+    if ($ownsTransaction) {
+        $db->beginTransaction();
+    }
     try {
         $stmt = $db->prepare('SELECT value FROM counters WHERE name = ? AND year = ? FOR UPDATE');
         $stmt->execute([$name, $year]);
@@ -107,10 +110,14 @@ function getNextCounter(string $name): int
             $next = 1;
             $db->prepare('INSERT INTO counters (name, year, value) VALUES (?, ?, ?)')->execute([$name, $year, $next]);
         }
-        $db->commit();
+        if ($ownsTransaction) {
+            $db->commit();
+        }
         return $next;
     } catch (Exception $ex) {
-        $db->rollBack();
+        if ($ownsTransaction && $db->inTransaction()) {
+            $db->rollBack();
+        }
         throw $ex;
     }
 }
@@ -417,19 +424,59 @@ function getStudentPaymentsMatrix(int $studentId, int $yearId): array
 
 function logActivity(string $action, ?string $entityType = null, ?int $entityId = null, ?string $details = null): void
 {
-    $userId = $_SESSION['user_id'] ?? null;
-    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-    $stmt = getDB()->prepare(
-        'INSERT INTO activity_log (user_id, action, entity_type, entity_id, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)'
-    );
-    $stmt->execute([$userId, $action, $entityType, $entityId, $details, $ip]);
+    try {
+        $userId = $_SESSION['user_id'] ?? null;
+        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        $stmt = getDB()->prepare(
+            'INSERT INTO activity_log (user_id, action, entity_type, entity_id, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([$userId, $action, $entityType, $entityId, $details, $ip]);
+    } catch (Exception $e) {
+        // Ne pas bloquer l'inscription publique si le journal est indisponible
+    }
 }
 
 // ─── Listes ─────────────────────────────────────────────
 
+function getSectionDisplayOrder(): array
+{
+    return [
+        'Maternelle' => 1,
+        'Primaire' => 2,
+        'Secondaire' => 3,
+    ];
+}
+
+function compareClassesByOrder(array $a, array $b): int
+{
+    $ordreCmp = ((int) ($a['ordre'] ?? 0)) <=> ((int) ($b['ordre'] ?? 0));
+    if ($ordreCmp !== 0) {
+        return $ordreCmp;
+    }
+    return strcasecmp((string) ($a['nom'] ?? ''), (string) ($b['nom'] ?? ''));
+}
+
+function compareSectionsByOrder(string $a, string $b): int
+{
+    $order = getSectionDisplayOrder();
+    $oa = $order[$a] ?? 100;
+    $ob = $order[$b] ?? 100;
+    if ($oa !== $ob) {
+        return $oa <=> $ob;
+    }
+    return strcasecmp($a, $b);
+}
+
 function getActiveClasses(): array
 {
-    return getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre, section, nom')->fetchAll();
+    $classes = getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre ASC, nom ASC')->fetchAll();
+    usort($classes, 'compareClassesByOrder');
+    return $classes;
+}
+
+function getClassesForSelect(): array
+{
+    return getActiveClasses();
 }
 
 function getClassesGroupedBySection(): array
@@ -439,6 +486,11 @@ function getClassesGroupedBySection(): array
         $sec = $classe['section'] ?: 'Autre';
         $grouped[$sec][] = $classe;
     }
+    uksort($grouped, 'compareSectionsByOrder');
+    foreach ($grouped as &$sectionClasses) {
+        usort($sectionClasses, 'compareClassesByOrder');
+    }
+    unset($sectionClasses);
     return $grouped;
 }
 

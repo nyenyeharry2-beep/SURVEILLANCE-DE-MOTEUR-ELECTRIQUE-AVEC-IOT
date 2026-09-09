@@ -115,7 +115,13 @@
                 method: 'POST',
                 body: formData,
             });
-            const data = await response.json();
+            const raw = await response.text();
+            let data;
+            try {
+                data = JSON.parse(raw);
+            } catch (parseErr) {
+                throw new Error('Réponse serveur invalide. Rechargez la page et réessayez.');
+            }
 
             if (data.success) {
                 window.location.href = data.redirect;
@@ -123,7 +129,7 @@
                 alert(data.message || 'Erreur lors de l\'inscription.');
             }
         } catch (err) {
-            alert('Erreur de connexion. Vérifiez votre réseau et réessayez.');
+            alert(err.message || 'Erreur de connexion. Vérifiez votre réseau et réessayez.');
         } finally {
             overlay.classList.add('d-none');
             overlay.classList.remove('d-flex');

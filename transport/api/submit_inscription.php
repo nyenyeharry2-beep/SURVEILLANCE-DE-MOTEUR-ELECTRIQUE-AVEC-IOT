@@ -149,8 +149,11 @@ try {
         'redirect' => $redirectUrl,
     ]);
 
-} catch (Exception $e) {
-    $db->rollBack();
+} catch (Throwable $e) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+    error_log('submit_inscription: ' . $e->getMessage());
     if (DEBUG_MODE) {
         echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
     } else {
