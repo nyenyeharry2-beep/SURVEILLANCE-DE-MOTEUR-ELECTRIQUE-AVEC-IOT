@@ -208,8 +208,16 @@ function renderSchoolLogo(string $size = 'medium', string $extraClass = ''): str
     if (!schoolLogoExists()) {
         return '';
     }
+    $sizes = [
+        'small'  => 'height:32px;max-height:32px;max-width:40px;',
+        'medium' => 'height:48px;max-height:48px;max-width:60px;',
+        'banner' => 'height:50px;max-height:50px;max-width:65px;',
+        'large'  => 'height:60px;max-height:60px;max-width:75px;',
+        'print'  => 'height:55px;max-height:55px;max-width:70px;',
+    ];
+    $style = ($sizes[$size] ?? $sizes['medium']) . 'width:auto;object-fit:contain;background:#fff;border-radius:6px;padding:2px;display:inline-block;';
     $class = trim('school-logo school-logo-' . $size . ' ' . $extraClass);
-    return '<img src="' . e(getSchoolLogoUrl()) . '" alt="Logo ' . e(getSetting('school_name', 'C.S LES SUPER GENIES')) . '" class="' . e($class) . '">';
+    return '<img src="' . e(getSchoolLogoUrl()) . '" alt="Logo ' . e(getSetting('school_name', 'C.S LES SUPER GENIES')) . '" class="' . e($class) . '" style="' . $style . '">';
 }
 
 function renderSchoolBanner(?string $subtitle = null): void
