@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Super Genies Admin</string>
+    <string name="splash_title">C.S LES SUPER GENIES</string>
+    <string name="splash_subtitle">Administration transport scolaire</string>
+    <string name="admin_only_message">Accès réservé à l\'administration.</string>
+</resources>
