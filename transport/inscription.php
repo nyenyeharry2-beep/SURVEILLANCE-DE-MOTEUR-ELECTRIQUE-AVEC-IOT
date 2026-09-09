@@ -100,7 +100,7 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
             <div class="mb-3">
                 <label class="form-label">Arrêt de bus</label>
                 <select name="arret_id" class="form-select">
-                    <option value="">-- Sélectionner un arrêt --</option>
+                    <option value="" selected>-- Sélectionner un arrêt --</option>
                     <?php foreach ($stops as $s): ?>
                     <option value="<?= $s['id'] ?>"><?= e($s['nom']) ?></option>
                     <?php endforeach; ?>
