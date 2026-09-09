@@ -49,15 +49,16 @@ $allOk = !in_array(false, $checks, true);
     <h2>Structure attendue sur InfinityFree</h2>
     <pre>
 htdocs/
-└── transport/
-    ├── index.php
-    ├── inscription.php
-    ├── test_install.php  ← ce fichier
-    ├── admin/
-    │   └── login.php
-    ├── config/
-    ├── includes/
-    └── ...
+├── index.php
+├── inscription.php
+├── test_install.php  ← ce fichier
+├── admin/
+│   └── login.php
+├── config/
+│   └── database.php  (BASE_URL = https://genies.free.je)
+├── includes/
+└── ...
     </pre>
+    <p><strong>URLs :</strong> https://genies.free.je/admin/login.php (sans /transport/)</p>
 </body>
 </html>

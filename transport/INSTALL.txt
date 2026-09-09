@@ -1,0 +1,41 @@
+========================================
+INSTALLATION - genies.free.je
+C.S LES SUPER GENIES - Transport Scolaire
+========================================
+
+ETAPE 1 - UPLOAD
+----------------
+1. File Manager InfinityFree -> ouvrez htdocs
+2. SUPPRIMEZ les anciens dossiers admin, config, includes, etc. (si existants)
+3. Uploadez genies-transport.zip dans htdocs
+4. Clic droit -> Extract / Decompresser
+5. Les fichiers doivent etre DIRECTEMENT dans htdocs :
+
+   htdocs/
+   ├── admin/
+   ├── config/
+   ├── includes/
+   ├── inscription.php
+   └── ...
+
+   PAS de dossier transport/ !
+
+ETAPE 2 - BASE DE DONNEES
+-------------------------
+1. MySQL Databases -> phpMyAdmin
+2. Selectionnez : if0_42871659_genies
+3. Importer -> database/database.sql
+
+ETAPE 3 - TESTER
+----------------
+Admin      : https://genies.free.je/admin/login.php
+Inscription: https://genies.free.je/inscription.php
+Test       : https://genies.free.je/test_install.php
+
+Login admin : admin
+Mot de passe: admin123
+
+IMPORTANT
+---------
+- NE PAS utiliser /transport/ dans l'URL
+- config/database.php est deja configure pour genies.free.je
