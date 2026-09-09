@@ -27,33 +27,53 @@
 }
 
 .school-banner-logo {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    line-height: 0;
 }
 
 .school-logo {
     object-fit: contain;
     background: white;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 2px;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .school-logo-small {
-    height: 36px;
+    height: 32px;
+    max-width: 40px;
     width: auto;
 }
 
 .school-logo-medium {
-    height: 80px;
+    height: 50px;
+    max-width: 65px;
+    width: auto;
+}
+
+.school-logo-banner {
+    height: 55px;
+    max-width: 70px;
     width: auto;
 }
 
 .school-logo-large {
-    height: 100px;
+    height: 65px;
+    max-width: 80px;
     width: auto;
 }
 
 .school-logo-print {
-    height: 70px;
+    height: 60px;
+    max-width: 75px;
+    width: auto;
+}
+
+.school-banner-logo .school-logo {
+    height: 55px;
+    max-height: 55px;
+    max-width: 70px;
     width: auto;
 }
 

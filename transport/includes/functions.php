@@ -217,7 +217,7 @@ function renderSchoolBanner(?string $subtitle = null): void
     $subtitle = $subtitle ?? '🚌 Inscription au transport scolaire';
     echo '<div class="school-banner text-center">';
     if (schoolLogoExists()) {
-        echo '<div class="school-banner-logo">' . renderSchoolLogo('large') . '</div>';
+        echo '<div class="school-banner-logo">' . renderSchoolLogo('banner') . '</div>';
     }
     echo '<h5 class="mb-0 fw-bold">' . e(getSetting('school_foundation', 'FONDATION EBEN EZER – ORA S.A.R.I')) . '</h5>';
     echo '<p class="mb-0 small">' . e(getSetting('school_project', 'PROJET EDUCATIF')) . '</p>';

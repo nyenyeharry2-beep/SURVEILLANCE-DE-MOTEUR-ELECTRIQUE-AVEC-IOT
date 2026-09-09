@@ -23,10 +23,6 @@ $currentMonth = (int) date('n');
 $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth : 9;
 ?>
 
-<div class="form-card-header-logo d-md-none">
-    <?= renderSchoolLogo('medium') ?>
-</div>
-
 <div class="step-indicator">
     <?php
     $steps = ['Élève', 'Parent', 'Transport', 'Paiement', 'Confirmation'];
