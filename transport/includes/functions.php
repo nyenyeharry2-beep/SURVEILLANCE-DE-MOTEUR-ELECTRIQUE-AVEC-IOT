@@ -187,6 +187,87 @@ function formatMonthPayment(?array $payment): string
     return $formatted . '$';
 }
 
+// ─── Fiche de contrôle (colonnes mois + OK) ─────────────
+
+function getControlSheetColspan(): int
+{
+    // N° + Nom + (Mois + colonne OK) × 10 mois
+    return 2 + count(SCHOOL_MONTHS) * 2;
+}
+
+function renderControlSheetThead(bool $pdfMode = false): void
+{
+    $monthClass = $pdfMode ? '' : 'col-month';
+    $okClass = $pdfMode ? 'col-ok-pdf' : 'col-ok';
+    echo '<thead><tr>';
+    echo '<th class="col-num">N°</th>';
+    echo '<th class="col-name">NOM &amp; POST-NOM</th>';
+    foreach (SCHOOL_MONTHS as $info) {
+        echo '<th class="' . $monthClass . '">' . e($info['short']) . '</th>';
+        echo '<th class="' . $okClass . '">&nbsp;</th>';
+    }
+    echo '</tr></thead>';
+}
+
+function renderControlSheetStudentRow(array $student, array $studentPayments, int $num, bool $interactive = false, bool $pdfMode = false): void
+{
+    $monthClass = $pdfMode ? '' : 'col-month';
+    $okClassBase = $pdfMode ? 'col-ok-pdf' : 'col-ok';
+
+    echo '<tr>';
+    echo '<td class="col-num">' . str_pad((string) $num, 2, '0', STR_PAD_LEFT) . '</td>';
+    echo '<td class="col-name">' . e($student['nom_complet']) . '</td>';
+
+    foreach (SCHOOL_MONTHS as $monthNum => $info) {
+        $p = $studentPayments[$monthNum] ?? null;
+        $cellClass = $monthClass;
+        $cellContent = '';
+
+        if ($p) {
+            if ((float) $p['montant_paye'] > 0) {
+                $cellContent = formatMonthPayment($p);
+                $cellClass = trim($cellClass . ' cell-paid');
+            } else {
+                $cellContent = '—';
+                $cellClass = trim($cellClass . ' cell-empty');
+            }
+        }
+
+        echo '<td class="' . $cellClass . '">' . $cellContent . '</td>';
+
+        // Colonne vide entre chaque mois pour marquer OK après vérification
+        $okClass = $okClassBase;
+        $okContent = '&nbsp;';
+        if ($p && (float) $p['montant_paye'] > 0) {
+            if ($p['verified_ok']) {
+                $okClass .= ' cell-ok-marked';
+                $okContent = '<strong>OK</strong>';
+            } elseif ($interactive) {
+                $okContent = '<form method="POST" class="d-inline mark-ok-form">'
+                    . csrfField()
+                    . '<input type="hidden" name="action" value="mark_ok">'
+                    . '<input type="hidden" name="payment_id" value="' . (int) $p['id'] . '">'
+                    . '<button type="submit" class="btn btn-sm btn-outline-success py-0 px-1" title="Marquer OK">OK</button>'
+                    . '</form>';
+            }
+        }
+        echo '<td class="' . $okClass . '">' . $okContent . '</td>';
+    }
+    echo '</tr>';
+}
+
+function renderControlSheetBlankRow(int $num, bool $pdfMode = false): void
+{
+    echo '<tr>';
+    echo '<td class="col-num">' . str_pad((string) $num, 2, '0', STR_PAD_LEFT) . '</td>';
+    echo '<td class="col-name">&nbsp;</td>';
+    for ($i = 0; $i < count(SCHOOL_MONTHS); $i++) {
+        echo '<td class="' . ($pdfMode ? '' : 'col-month') . '">&nbsp;</td>';
+        echo '<td class="' . ($pdfMode ? 'col-ok-pdf' : 'col-ok') . '">&nbsp;</td>';
+    }
+    echo '</tr>';
+}
+
 // ─── Élèves ─────────────────────────────────────────────
 
 function findStudentByName(string $nomComplet, int $yearId): ?array

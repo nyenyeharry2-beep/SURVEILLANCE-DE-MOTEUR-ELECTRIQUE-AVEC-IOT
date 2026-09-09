@@ -1,6 +1,7 @@
 <?php
 /**
  * Fiche de contrôle mensuelle - Reproduction du modèle papier
+ * Chaque mois est suivi d'une colonne vide pour marquer OK après vérification
  */
 $pageTitle = 'Fiche de contrôle';
 require_once __DIR__ . '/../includes/header_admin.php';
@@ -130,71 +131,31 @@ if ($filterClasse) {
 
 <div class="table-responsive">
     <table class="control-sheet">
-        <thead>
-            <tr>
-                <th class="col-num">N°</th>
-                <th class="col-name">NOM &amp; POST-NOM</th>
-                <?php foreach (SCHOOL_MONTHS as $info): ?>
-                <th class="col-month"><?= e($info['short']) ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
+        <?php renderControlSheetThead(); ?>
         <tbody>
         <?php
         $num = 0;
-        foreach ($students as $idx => $student):
+        foreach ($students as $student):
             $num++;
-            $studentPayments = $paymentsMap[$student['id']] ?? [];
-        ?>
-            <tr>
-                <td class="col-num"><?= str_pad($num, 2, '0', STR_PAD_LEFT) ?></td>
-                <td class="col-name"><?= e($student['nom_complet']) ?></td>
-                <?php foreach (SCHOOL_MONTHS as $monthNum => $info):
-                    $p = $studentPayments[$monthNum] ?? null;
-                    $cellClass = '';
-                    $cellContent = '';
-                    if ($p) {
-                        if ((float)$p['montant_paye'] > 0) {
-                            $cellContent = formatMonthPayment($p);
-                            $cellClass = 'cell-paid';
-                            if ($p['verified_ok']) {
-                                $cellContent .= ' ✓';
-                                $cellClass .= ' cell-ok';
-                            }
-                        } else {
-                            $cellContent = '—';
-                            $cellClass = 'cell-empty';
-                        }
-                    }
-                ?>
-                <td class="col-month <?= $cellClass ?>"><?= $cellContent ?></td>
-                <?php endforeach; ?>
-            </tr>
-            <?php if (($idx + 1) % 5 === 0 && $idx + 1 < count($students)): ?>
-            <tr class="row-separator"><td colspan="12"></td></tr>
-            <?php endif; ?>
-        <?php endforeach; ?>
+            renderControlSheetStudentRow($student, $paymentsMap[$student['id']] ?? [], $num, true);
+        endforeach;
 
-        <?php
-        // Lignes vides pour compléter jusqu'à 50 (comme le modèle papier)
+        // Lignes vides pour compléter (modèle papier ~50 lignes)
         $emptyRows = max(0, 50 - count($students));
         for ($i = 0; $i < min($emptyRows, 10); $i++):
             $num++;
+            renderControlSheetBlankRow($num);
+        endfor;
         ?>
-            <tr>
-                <td class="col-num"><?= str_pad($num, 2, '0', STR_PAD_LEFT) ?></td>
-                <td class="col-name">&nbsp;</td>
-                <?php for ($m = 0; $m < 10; $m++): ?><td>&nbsp;</td><?php endfor; ?>
-            </tr>
-        <?php endfor; ?>
         </tbody>
     </table>
 </div>
 
 <p class="small text-muted mt-2 no-print">
     <i class="bi bi-info-circle"></i>
-    Les lignes vides séparent les groupes de 5 élèves (comme sur la fiche papier).
-    Cliquez sur un élève pour gérer ses paiements et marquer OK.
+    Chaque mois est suivi d'une <strong>colonne vide</strong> pour marquer <strong>OK</strong> après vérification
+    (Septembre → colonne OK → Octobre → colonne OK → …).
+    Cliquez sur le bouton OK dans la colonne après le montant payé.
 </p>
 
 <?php require_once __DIR__ . '/../includes/footer_admin.php'; ?>

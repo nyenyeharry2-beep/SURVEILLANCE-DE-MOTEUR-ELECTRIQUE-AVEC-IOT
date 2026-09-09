@@ -48,8 +48,10 @@ if ($type === 'csv') {
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
 
     $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Téléphone', 'Arrêt', 'Adresse'];
-    foreach (SCHOOL_MONTHS as $info) $headers[] = $info['label'] . ' (Payé)';
-    foreach (SCHOOL_MONTHS as $info) $headers[] = $info['label'] . ' (Statut)';
+    foreach (SCHOOL_MONTHS as $info) {
+        $headers[] = $info['label'] . ' (Payé)';
+        $headers[] = $info['label'] . ' (OK)';
+    }
     fputcsv($out, $headers, ';');
 
     $num = 0;
@@ -63,10 +65,7 @@ if ($type === 'csv') {
         foreach (SCHOOL_MONTHS as $monthNum => $info) {
             $p = $sp[$monthNum] ?? null;
             $row[] = $p ? $p['montant_paye'] : '';
-        }
-        foreach (SCHOOL_MONTHS as $monthNum => $info) {
-            $p = $sp[$monthNum] ?? null;
-            $row[] = $p ? getPaymentStatusLabel($p['statut']) : '';
+            $row[] = ($p && $p['verified_ok']) ? 'OK' : '';
         }
         fputcsv($out, $row, ';');
     }
@@ -95,7 +94,8 @@ if ($type === 'pdf') {
             th { background: #f0f0f0; font-weight: bold; }
             .col-name { text-align: left; min-width: 150px; padding-left: 5px; }
             .col-num { width: 25px; }
-            .separator td { border: none; height: 6px; border-bottom: 1px solid #ccc; }
+            .col-ok-pdf { width: 22px; min-width: 22px; background: #fafafa; border-left: 1px solid #666 !important; }
+            .cell-ok-marked { color: #198754; font-weight: bold; }
             .title { font-size: 14px; font-weight: bold; }
             hr { border: 1px solid #000; margin: 5px 0; }
             @media print { .no-print { display: none; } }
@@ -129,47 +129,19 @@ if ($type === 'pdf') {
     <hr>
 
     <table>
-        <thead>
-            <tr>
-                <th class="col-num">N°</th>
-                <th class="col-name">NOM &amp; POST-NOM</th>
-                <?php foreach (SCHOOL_MONTHS as $info): ?>
-                <th><?= e($info['short']) ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
+        <?php renderControlSheetThead(true); ?>
         <tbody>
         <?php
         $num = 0;
-        foreach ($students as $idx => $s):
+        foreach ($students as $s):
             $num++;
-            $sp = $paymentsMap[$s['id']] ?? [];
-        ?>
-        <tr>
-            <td><?= str_pad($num, 2, '0', STR_PAD_LEFT) ?></td>
-            <td class="col-name"><?= e($s['nom_complet']) ?></td>
-            <?php foreach (SCHOOL_MONTHS as $monthNum => $info):
-                $p = $sp[$monthNum] ?? null;
-                $val = ($p && (float)$p['montant_paye'] > 0) ? formatMonthPayment($p) : '';
-                if ($p && $p['verified_ok'] && $val) $val .= ' ✓';
-            ?>
-            <td><?= $val ?></td>
-            <?php endforeach; ?>
-        </tr>
-        <?php if (($idx + 1) % 5 === 0 && $idx + 1 < count($students)): ?>
-        <tr class="separator"><td colspan="12"></td></tr>
-        <?php endif; ?>
-        <?php endforeach;
+            renderControlSheetStudentRow($s, $paymentsMap[$s['id']] ?? [], $num, false, true);
+        endforeach;
 
         for ($i = count($students); $i < 50; $i++):
-            $num = $i + 1;
+            renderControlSheetBlankRow($i + 1, true);
+        endfor;
         ?>
-        <tr>
-            <td><?= str_pad($num, 2, '0', STR_PAD_LEFT) ?></td>
-            <td class="col-name">&nbsp;</td>
-            <?php for ($m = 0; $m < 10; $m++): ?><td>&nbsp;</td><?php endfor; ?>
-        </tr>
-        <?php endfor; ?>
         </tbody>
     </table>
 
