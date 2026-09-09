@@ -37,12 +37,11 @@ if ($filterClasse) {
     $params[] = $filterClasse;
 }
 if ($filterSection) {
-    $sql .= ' AND (s.section = ? OR c.section = ?)';
-    $params[] = $filterSection;
+    $sql .= ' AND c.section = ?';
     $params[] = $filterSection;
 }
 
-$sql .= ' ORDER BY s.nom_complet ASC';
+$sql .= ' ORDER BY c.ordre ASC, c.section ASC, s.nom_complet ASC';
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $students = $stmt->fetchAll();
@@ -80,20 +79,23 @@ if ($filterClasse) {
     <div class="card-body py-2">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label small">Classe</label>
-                <select name="classe" class="form-select form-select-sm">
-                    <option value="">Toutes les classes</option>
-                    <?php foreach ($classes as $c): ?>
-                    <option value="<?= $c['id'] ?>" <?= $filterClasse == $c['id'] ? 'selected' : '' ?>><?= e(formatClassName($c)) ?></option>
+                <label class="form-label small">Section</label>
+                <select name="section" class="form-select form-select-sm">
+                    <option value="">Toutes les sections</option>
+                    <?php foreach (getSchoolSections() as $s): ?>
+                    <option value="<?= e($s) ?>" <?= $filterSection === $s ? 'selected' : '' ?>><?= e($s) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label small">Section</label>
-                <select name="section" class="form-select form-select-sm">
-                    <option value="">—</option>
-                    <?php foreach (['A','B','C','D'] as $s): ?>
-                    <option value="<?= $s ?>" <?= $filterSection === $s ? 'selected' : '' ?>><?= $s ?></option>
+                <label class="form-label small">Classe</label>
+                <select name="classe" class="form-select form-select-sm">
+                    <option value="">Toutes les classes</option>
+                    <?php
+                    $filterClasses = $filterSection ? getClassesBySection($filterSection) : $classes;
+                    foreach ($filterClasses as $c):
+                    ?>
+                    <option value="<?= $c['id'] ?>" <?= $filterClasse == $c['id'] ? 'selected' : '' ?>><?= e(formatClassWithSection($c)) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

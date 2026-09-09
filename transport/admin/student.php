@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrfToken($_POST['csrf_token'
         $data = [
             'nom_complet' => trim($_POST['nom_complet'] ?? ''),
             'classe_id' => (int) ($_POST['classe_id'] ?? 0) ?: null,
-            'section' => trim($_POST['section'] ?? ''),
+            'section' => '',
             'parent_nom' => trim($_POST['parent_nom'] ?? ''),
             'telephone_parent' => trim($_POST['telephone_parent'] ?? ''),
             'telephone_parent2' => trim($_POST['telephone_parent2'] ?? ''),
@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrfToken($_POST['csrf_token'
             'tariff_id' => (int) ($_POST['tariff_id'] ?? 0) ?: null,
             'verified' => isset($_POST['verified']) ? 1 : 0,
         ];
+
+        if ($data['classe_id']) {
+            $cl = getClassById((int)$data['classe_id']);
+            $data['section'] = $cl['section'] ?? '';
+        }
 
         if ($id) {
             $stmt = $db->prepare(
@@ -116,15 +121,21 @@ $isNew = ($action === 'add' && !$id);
                             <label class="form-label">Classe</label>
                             <select name="classe_id" class="form-select">
                                 <option value="">—</option>
-                                <?php foreach ($classes as $c): ?>
-                                <option value="<?= $c['id'] ?>" <?= ($student['classe_id'] ?? '') == $c['id'] ? 'selected' : '' ?>><?= e(formatClassName($c)) ?></option>
+                                <?php foreach (getClassesGroupedBySection() as $sectionName => $sectionClasses): ?>
+                                <optgroup label="<?= e($sectionName) ?>">
+                                    <?php foreach ($sectionClasses as $c): ?>
+                                    <option value="<?= $c['id'] ?>" <?= ($student['classe_id'] ?? '') == $c['id'] ? 'selected' : '' ?>><?= e(formatClassName($c)) ?></option>
+                                    <?php endforeach; ?>
+                                </optgroup>
                                 <?php endforeach; ?>
                             </select>
                         </div>
+                        <?php if (!empty($student['section']) || !empty($student['classe_section'])): ?>
                         <div class="col-4">
                             <label class="form-label">Section</label>
-                            <input type="text" name="section" class="form-control" value="<?= e($student['section'] ?? '') ?>">
+                            <input type="text" class="form-control" value="<?= e($student['section'] ?? $student['classe_section'] ?? '') ?>" readonly>
                         </div>
+                        <?php endif; ?>
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Parent / Tuteur</label>

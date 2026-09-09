@@ -332,7 +332,38 @@ function logActivity(string $action, ?string $entityType = null, ?int $entityId 
 
 function getActiveClasses(): array
 {
-    return getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre, nom, section')->fetchAll();
+    return getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre, section, nom')->fetchAll();
+}
+
+function getClassesGroupedBySection(): array
+{
+    $grouped = [];
+    foreach (getActiveClasses() as $classe) {
+        $sec = $classe['section'] ?: 'Autre';
+        $grouped[$sec][] = $classe;
+    }
+    return $grouped;
+}
+
+function getSchoolSections(): array
+{
+    $stmt = getDB()->query('SELECT DISTINCT section FROM classes WHERE statut = "actif" AND section IS NOT NULL AND section != "" ORDER BY MIN(ordre)');
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function getClassById(int $id): ?array
+{
+    $stmt = getDB()->prepare('SELECT * FROM classes WHERE id = ?');
+    $stmt->execute([$id]);
+    return $stmt->fetch() ?: null;
+}
+
+function getClassesBySection(?string $section): array
+{
+    if (!$section) return getActiveClasses();
+    $stmt = getDB()->prepare('SELECT * FROM classes WHERE statut = "actif" AND section = ? ORDER BY ordre, nom');
+    $stmt->execute([$section]);
+    return $stmt->fetchAll();
 }
 
 function getActiveStops(): array
@@ -354,9 +385,18 @@ function getDefaultTariff(): ?array
 function formatClassName(?array $classe): string
 {
     if (!$classe) return '—';
-    $name = $classe['nom'] ?? $classe['classe_nom'] ?? '';
+    return trim($classe['nom'] ?? $classe['classe_nom'] ?? '—');
+}
+
+function formatClassWithSection(?array $classe): string
+{
+    if (!$classe) return '—';
+    $name = formatClassName($classe);
     $section = $classe['section'] ?? $classe['classe_section'] ?? '';
-    return trim($name . ($section ? ' ' . $section : ''));
+    if ($section && stripos($name, $section) === false) {
+        return $section . ' — ' . $name;
+    }
+    return $name;
 }
 
 function redirect(string $url): void

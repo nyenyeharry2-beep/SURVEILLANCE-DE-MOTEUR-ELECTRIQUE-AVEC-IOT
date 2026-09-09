@@ -50,22 +50,18 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
                        placeholder="Ex: Jean Mukendi" autocomplete="name">
             </div>
             <div class="mb-3">
-                <label class="form-label">Classe *</label>
+                <label class="form-label">Section &amp; Classe *</label>
                 <select name="classe_id" class="form-select" required>
-                    <option value="">-- Sélectionner la classe --</option>
-                    <?php foreach ($classes as $c): ?>
-                    <option value="<?= $c['id'] ?>"><?= e(formatClassName($c)) ?></option>
+                    <option value="">-- Sélectionner section et classe --</option>
+                    <?php foreach (getClassesGroupedBySection() as $sectionName => $sectionClasses): ?>
+                    <optgroup label="<?= e($sectionName) ?>">
+                        <?php foreach ($sectionClasses as $c): ?>
+                        <option value="<?= $c['id'] ?>"><?= e(formatClassName($c)) ?></option>
+                        <?php endforeach; ?>
+                    </optgroup>
                     <?php endforeach; ?>
                 </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Section</label>
-                <select name="section" class="form-select">
-                    <option value="">-- Optionnel --</option>
-                    <?php foreach (['A','B','C','D'] as $s): ?>
-                    <option value="<?= $s ?>"><?= $s ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="form-text">Maternelle, Primaire, Secondaire, Pédagogie, Commercial, etc.</div>
             </div>
             <button type="button" class="btn btn-primary btn-step w-100 next-step">Suivant <i class="bi bi-arrow-right"></i></button>
         </div>

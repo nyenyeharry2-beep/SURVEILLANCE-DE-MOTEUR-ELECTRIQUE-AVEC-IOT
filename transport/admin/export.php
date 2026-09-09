@@ -21,8 +21,8 @@ $sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.telephone_par
         WHERE s.academic_year_id = ? AND s.statut = "actif"';
 $params = [$yearId];
 if ($filterClasse) { $sql .= ' AND s.classe_id = ?'; $params[] = $filterClasse; }
-if ($filterSection) { $sql .= ' AND (s.section = ? OR c.section = ?)'; $params[] = $filterSection; $params[] = $filterSection; }
-$sql .= ' ORDER BY s.nom_complet ASC';
+if ($filterSection) { $sql .= ' AND c.section = ?'; $params[] = $filterSection; }
+$sql .= ' ORDER BY c.ordre ASC, c.section ASC, s.nom_complet ASC';
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $students = $stmt->fetchAll();

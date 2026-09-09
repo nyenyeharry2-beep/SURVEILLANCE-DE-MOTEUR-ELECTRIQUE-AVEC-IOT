@@ -22,7 +22,7 @@ if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
 // Validation
 $nomComplet = trim($_POST['nom_complet'] ?? '');
 $classeId = (int) ($_POST['classe_id'] ?? 0);
-$section = trim($_POST['section'] ?? '');
+$section = '';
 $parentNom = trim($_POST['parent_nom'] ?? '');
 $telephone = trim($_POST['telephone_parent'] ?? '');
 $telephone2 = trim($_POST['telephone_parent2'] ?? '');
@@ -58,6 +58,14 @@ if ($statutPaiement === 'paye') {
 }
 
 $calc = calculatePaymentStatus($montantDu, $montantPaye);
+
+// Section automatique depuis la classe choisie
+if ($classeId) {
+    $classeRow = getClassById($classeId);
+    if ($classeRow) {
+        $section = $classeRow['section'] ?? '';
+    }
+}
 
 $db = getDB();
 $db->beginTransaction();

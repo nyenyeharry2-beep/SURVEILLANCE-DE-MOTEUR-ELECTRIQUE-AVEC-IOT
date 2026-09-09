@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrfToken($_POST['csrf_token'
 // Filtres
 $search = trim($_GET['q'] ?? '');
 $filterClasse = (int) ($_GET['classe'] ?? 0);
+$filterSection = trim($_GET['section'] ?? '');
 $filterArret = (int) ($_GET['arret'] ?? 0);
 $filterMois = (int) ($_GET['mois'] ?? 0);
 $filterStatut = $_GET['statut'] ?? '';
@@ -47,6 +48,10 @@ if ($filterClasse) {
     $sql .= ' AND s.classe_id = ?';
     $params[] = $filterClasse;
 }
+if ($filterSection) {
+    $sql .= ' AND c.section = ?';
+    $params[] = $filterSection;
+}
 if ($filterArret) {
     $sql .= ' AND s.arret_id = ?';
     $params[] = $filterArret;
@@ -61,7 +66,7 @@ if ($filterMois && $filterStatut) {
     $params[] = $filterStatut;
 }
 
-$sql .= ' ORDER BY s.nom_complet ASC';
+$sql .= ' ORDER BY c.section ASC, c.ordre ASC, s.nom_complet ASC';
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $students = $stmt->fetchAll();
@@ -83,10 +88,19 @@ $stops = getActiveStops();
                 <input type="text" name="q" class="form-control" placeholder="Nom, téléphone, dossier..." value="<?= e($search) ?>">
             </div>
             <div class="col-md-2">
+                <label class="form-label small">Section</label>
+                <select name="section" class="form-select">
+                    <option value="">Toutes</option>
+                    <?php foreach (getSchoolSections() as $s): ?>
+                    <option value="<?= e($s) ?>" <?= $filterSection === $s ? 'selected' : '' ?>><?= e($s) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
                 <label class="form-label small">Classe</label>
                 <select name="classe" class="form-select">
                     <option value="">Toutes</option>
-                    <?php foreach ($classes as $c): ?>
+                    <?php foreach (($filterSection ? getClassesBySection($filterSection) : $classes) as $c): ?>
                     <option value="<?= $c['id'] ?>" <?= $filterClasse == $c['id'] ? 'selected' : '' ?>><?= e(formatClassName($c)) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -132,6 +146,7 @@ $stops = getActiveStops();
                 <tr>
                     <th>N° Dossier</th>
                     <th>Nom & Post-nom</th>
+                    <th>Section</th>
                     <th>Classe</th>
                     <th>Parent</th>
                     <th>Téléphone</th>
@@ -145,6 +160,7 @@ $stops = getActiveStops();
             <tr>
                 <td><code><?= e($s['numero_dossier']) ?></code></td>
                 <td><a href="<?= BASE_URL ?>/admin/student.php?id=<?= $s['id'] ?>"><?= e($s['nom_complet']) ?></a></td>
+                <td><?= e($s['classe_section'] ?: $s['section'] ?: '—') ?></td>
                 <td><?= e(formatClassName($s)) ?></td>
                 <td><?= e($s['parent_nom'] ?: '—') ?></td>
                 <td><?= e($s['telephone_parent']) ?></td>
@@ -167,7 +183,7 @@ $stops = getActiveStops();
             </tr>
             <?php endforeach; ?>
             <?php if (empty($students)): ?>
-            <tr><td colspan="8" class="text-center text-muted py-4">Aucun élève trouvé.</td></tr>
+            <tr><td colspan="9" class="text-center text-muted py-4">Aucun élève trouvé.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
