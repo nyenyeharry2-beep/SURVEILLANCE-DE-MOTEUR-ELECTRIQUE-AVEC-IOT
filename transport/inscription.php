@@ -52,7 +52,7 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
             <div class="mb-3">
                 <label class="form-label">Classe de l'élève *</label>
                 <select name="classe_id" class="form-select" required>
-                    <option value="">-- Choisir la classe --</option>
+                    <option value="" disabled selected hidden>-- Choisir la classe --</option>
                     <?php foreach (getClassesForSelect() as $c): ?>
                     <option value="<?= $c['id'] ?>"><?= e(formatClassWithSection($c)) ?></option>
                     <?php endforeach; ?>

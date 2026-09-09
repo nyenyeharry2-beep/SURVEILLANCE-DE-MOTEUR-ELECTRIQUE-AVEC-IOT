@@ -99,6 +99,37 @@
     text-align: left;
 }
 
+.public-main .form-control,
+.public-main .form-select,
+.public-main textarea.form-control {
+    text-align: left;
+    text-align-last: left;
+}
+
+.public-main .form-select {
+    display: block;
+    width: 100%;
+    line-height: 1.4;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+    -webkit-appearance: menulist;
+    appearance: auto;
+    background-color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.public-main .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(26, 82, 118, 0.15);
+    border-color: var(--primary-color);
+}
+
+.public-main .form-select option {
+    color: #212529;
+    background: #fff;
+}
+
 /* Formulaire multi-étapes */
 .step-indicator {
     display: flex;
