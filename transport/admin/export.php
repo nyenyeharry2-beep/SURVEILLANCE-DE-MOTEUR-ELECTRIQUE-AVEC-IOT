@@ -41,9 +41,12 @@ if ($students) {
 $year = getAcademicYearById($yearId);
 $settings = getAllSettings();
 
-if ($type === 'csv') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="transport_' . ($year['label'] ?? 'export') . '.csv"');
+if ($type === 'csv' || $type === 'excel') {
+    $safeLabel = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $year['label'] ?? 'export');
+    header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+    header('Content-Disposition: attachment; filename="transport_' . $safeLabel . '.xls"');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
 
@@ -70,12 +73,14 @@ if ($type === 'csv') {
         fputcsv($out, $row, ';');
     }
     fclose($out);
-    logActivity('export_csv', 'report', null, 'Export CSV');
+    logActivity('export_excel', 'report', null, 'Export Excel');
     exit;
 }
 
 if ($type === 'pdf') {
-    // Export HTML imprimable (compatible InfinityFree sans lib PDF)
+    $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
+    $safeLabel = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $year['label'] ?? 'export');
+    // Export HTML → PDF côté navigateur (compatible InfinityFree sans lib PHP PDF)
     $pageTitle = 'Export PDF';
     ?>
     <!DOCTYPE html>
@@ -108,10 +113,15 @@ if ($type === 'pdf') {
         </style>
     </head>
     <body>
-    <div class="no-print" style="margin-bottom:10px;">
-        <button onclick="window.print()" style="padding:8px 16px;cursor:pointer;">🖨️ Imprimer / Enregistrer PDF</button>
+    <div class="no-print" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button type="button" id="btnDownloadPdf" style="padding:8px 16px;cursor:pointer;background:#dc3545;color:#fff;border:none;border-radius:4px;">
+            <i class="bi bi-download"></i> Télécharger le PDF
+        </button>
+        <button type="button" onclick="window.print()" style="padding:8px 16px;cursor:pointer;">🖨️ Imprimer</button>
+        <span id="pdfStatus" style="font-size:12px;color:#666;"></span>
     </div>
 
+    <div id="pdfContent">
     <?php renderSchoolPrintHeader($settings, [
         'section' => $filterSection ?: '________',
         'classe' => $filterClasse ? 'Filtrée' : 'Toutes',
@@ -135,8 +145,71 @@ if ($type === 'pdf') {
         ?>
         </tbody>
     </table>
+    </div>
 
-    <script>window.onload = function() { /* auto-print option: window.print(); */ };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+    (function () {
+        const filename = <?= json_encode('fiche_transport_' . $safeLabel . '.pdf') ?>;
+        const autoDownload = <?= $autoDownload ? 'true' : 'false' ?>;
+        const statusEl = document.getElementById('pdfStatus');
+        const btn = document.getElementById('btnDownloadPdf');
+
+        function downloadPdf() {
+            const element = document.getElementById('pdfContent');
+            if (!element || typeof html2pdf === 'undefined') {
+                alert('Impossible de générer le PDF. Utilisez Imprimer → Enregistrer en PDF.');
+                return;
+            }
+            if (statusEl) statusEl.textContent = 'Génération du PDF en cours…';
+            if (btn) btn.disabled = true;
+
+            const options = {
+                margin: [8, 8, 8, 8],
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            const worker = html2pdf().set(options).from(element);
+
+            if (window.AndroidSave && typeof window.AndroidSave.saveBase64 === 'function') {
+                worker.outputPdf('blob').then(function (blob) {
+                    const reader = new FileReader();
+                    reader.onloadend = function () {
+                        const base64 = reader.result.split(',')[1];
+                        AndroidSave.saveBase64(base64, filename, 'application/pdf');
+                        if (statusEl) statusEl.textContent = 'PDF enregistré dans Téléchargements.';
+                        if (btn) btn.disabled = false;
+                    };
+                    reader.readAsDataURL(blob);
+                }).catch(function () {
+                    if (statusEl) statusEl.textContent = '';
+                    if (btn) btn.disabled = false;
+                    alert('Erreur PDF. Utilisez Imprimer → Enregistrer en PDF.');
+                });
+                return;
+            }
+
+            worker.save().then(function () {
+                if (statusEl) statusEl.textContent = 'PDF téléchargé dans votre téléphone ou ordinateur.';
+                if (btn) btn.disabled = false;
+            }).catch(function () {
+                if (statusEl) statusEl.textContent = '';
+                if (btn) btn.disabled = false;
+                alert('Erreur PDF. Utilisez Imprimer → Enregistrer en PDF.');
+            });
+        }
+
+        if (btn) btn.addEventListener('click', downloadPdf);
+        if (autoDownload) {
+            window.addEventListener('load', function () {
+                setTimeout(downloadPdf, 600);
+            });
+        }
+    })();
+    </script>
     </body>
     </html>
     <?php

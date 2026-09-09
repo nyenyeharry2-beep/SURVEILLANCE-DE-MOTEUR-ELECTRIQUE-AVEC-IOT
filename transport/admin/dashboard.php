@@ -164,8 +164,8 @@ $recentStudents = $stmt->fetchAll();
                 <a href="<?= BASE_URL ?>/admin/control_sheet.php" class="btn btn-outline-primary"><i class="bi bi-table"></i> Fiche de contrôle</a>
                 <a href="<?= BASE_URL ?>/admin/payments.php?action=add" class="btn btn-outline-success"><i class="bi bi-plus-circle"></i> Ajouter un paiement</a>
                 <a href="<?= BASE_URL ?>/admin/qr_code.php" class="btn btn-outline-dark"><i class="bi bi-qr-code"></i> QR Code inscription</a>
-                <a href="<?= BASE_URL ?>/admin/export.php?type=csv" class="btn btn-outline-secondary"><i class="bi bi-download"></i> Export CSV</a>
-                <a href="<?= BASE_URL ?>/admin/export.php?type=pdf" class="btn btn-outline-secondary"><i class="bi bi-file-pdf"></i> Export PDF</a>
+                <a href="<?= BASE_URL ?>/admin/export.php?type=excel" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-spreadsheet"></i> Télécharger Excel</a>
+                <a href="<?= BASE_URL ?>/admin/export.php?type=pdf&download=1" class="btn btn-outline-secondary"><i class="bi bi-file-pdf"></i> Télécharger PDF</a>
             </div>
         </div>
     </div>

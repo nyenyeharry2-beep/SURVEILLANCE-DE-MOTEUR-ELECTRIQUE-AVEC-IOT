@@ -69,8 +69,8 @@ if ($filterClasse) {
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 no-print">
     <h2><i class="bi bi-table"></i> Fiche de contrôle — Minerval Transport</h2>
     <div class="d-flex gap-2">
-        <a href="<?= BASE_URL ?>/admin/export.php?type=pdf&classe=<?= $filterClasse ?>&section=<?= e($filterSection) ?>" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf"></i> Export PDF</a>
-        <a href="<?= BASE_URL ?>/admin/export.php?type=csv&classe=<?= $filterClasse ?>" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+        <a href="<?= BASE_URL ?>/admin/export.php?type=pdf&download=1&classe=<?= $filterClasse ?>&section=<?= e($filterSection) ?>" class="btn btn-danger"><i class="bi bi-file-pdf"></i> Télécharger PDF</a>
+        <a href="<?= BASE_URL ?>/admin/export.php?type=excel&classe=<?= $filterClasse ?>&section=<?= e($filterSection) ?>" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet"></i> Télécharger Excel</a>
         <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimer</button>
     </div>
 </div>

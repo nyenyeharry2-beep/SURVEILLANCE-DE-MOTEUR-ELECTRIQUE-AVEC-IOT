@@ -173,3 +173,20 @@
 .month-cell.paid { background: #d4edda; }
 .month-cell.partial { background: #fff3cd; }
 .month-cell.unpaid { background: #f8d7da; }
+
+/* QR poster — logo + QR sur la même image */
+.qr-poster {
+    max-width: 360px;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 8px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.qr-poster-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
