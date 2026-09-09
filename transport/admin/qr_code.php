@@ -50,6 +50,9 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . u
 function printQR() {
     const win = window.open('', '_blank');
     win.document.write('<html><head><title>QR Code - Transport Scolaire</title></head><body style="text-align:center;font-family:sans-serif;padding:40px;">');
+    <?php if (schoolLogoExists()): ?>
+    win.document.write('<img src="<?= e(getSchoolLogoUrl()) ?>" alt="Logo" style="height:90px;margin-bottom:12px;">');
+    <?php endif; ?>
     win.document.write('<h2><?= e(getSetting('school_name')) ?></h2>');
     win.document.write('<p>Inscription au transport scolaire</p>');
     win.document.write('<img src="<?= e($qrApiUrl) ?>" style="width:300px;">');

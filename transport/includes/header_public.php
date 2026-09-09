@@ -12,12 +12,9 @@ require_once __DIR__ . '/functions.php';
     <link href="<?= BASE_URL ?>/assets/css/style.css" rel="stylesheet">
 </head>
 <body class="public-body">
-<div class="public-header text-center py-3 mb-3">
+<div class="public-header py-3 mb-3">
     <div class="container">
-        <h5 class="mb-0 fw-bold"><?= e(getSetting('school_foundation', 'FONDATION EBEN EZER – ORA S.A.R.I')) ?></h5>
-        <p class="mb-0 small"><?= e(getSetting('school_project', 'PROJET EDUCATIF')) ?></p>
-        <h4 class="mb-0 text-primary fw-bold"><?= e(getSetting('school_name', 'C.S LES SUPER GENIES')) ?></h4>
-        <p class="mb-0 small text-muted">🚌 Inscription au transport scolaire</p>
+        <?php renderSchoolBanner($pageSubtitle ?? '🚌 Inscription au transport scolaire'); ?>
     </div>
 </div>
 <main class="container pb-5">

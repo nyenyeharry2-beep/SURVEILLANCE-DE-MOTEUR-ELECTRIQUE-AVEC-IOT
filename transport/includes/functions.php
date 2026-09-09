@@ -187,6 +187,95 @@ function formatMonthPayment(?array $payment): string
     return $formatted . '$';
 }
 
+// ─── Logo et en-tête école ───────────────────────────────
+
+function getSchoolLogoUrl(): string
+{
+    return BASE_URL . '/assets/images/logo.jpg';
+}
+
+function schoolLogoExists(): bool
+{
+    static $exists = null;
+    if ($exists === null) {
+        $exists = file_exists(__DIR__ . '/../assets/images/logo.jpg');
+    }
+    return $exists;
+}
+
+function renderSchoolLogo(string $size = 'medium', string $extraClass = ''): string
+{
+    if (!schoolLogoExists()) {
+        return '';
+    }
+    $class = trim('school-logo school-logo-' . $size . ' ' . $extraClass);
+    return '<img src="' . e(getSchoolLogoUrl()) . '" alt="Logo ' . e(getSetting('school_name', 'C.S LES SUPER GENIES')) . '" class="' . e($class) . '">';
+}
+
+function renderSchoolBanner(?string $subtitle = null): void
+{
+    $subtitle = $subtitle ?? '🚌 Inscription au transport scolaire';
+    echo '<div class="school-banner text-center">';
+    if (schoolLogoExists()) {
+        echo '<div class="school-banner-logo">' . renderSchoolLogo('large') . '</div>';
+    }
+    echo '<h5 class="mb-0 fw-bold">' . e(getSetting('school_foundation', 'FONDATION EBEN EZER – ORA S.A.R.I')) . '</h5>';
+    echo '<p class="mb-0 small">' . e(getSetting('school_project', 'PROJET EDUCATIF')) . '</p>';
+    echo '<h4 class="mb-0 fw-bold">' . e(getSetting('school_name', 'C.S LES SUPER GENIES')) . '</h4>';
+    if ($subtitle) {
+        echo '<p class="mb-0 small school-banner-subtitle">' . e($subtitle) . '</p>';
+    }
+    echo '</div>';
+}
+
+/**
+ * En-tête imprimable pour fiches (contrôle, export PDF, etc.)
+ * $meta keys: section, classe, title (default Minerval), year, date, right_html
+ */
+function renderSchoolPrintHeader(array $settings, array $meta = []): void
+{
+    $title = $meta['title'] ?? 'Minerval';
+    $section = $meta['section'] ?? '________';
+    $classe = $meta['classe'] ?? '________';
+    $year = $meta['year'] ?? '';
+    $date = $meta['date'] ?? date('d/m/Y');
+    $showDate = $meta['show_date'] ?? false;
+
+    echo '<div class="school-print-header">';
+    if (schoolLogoExists()) {
+        echo '<div class="school-print-logo">' . renderSchoolLogo('print') . '</div>';
+    }
+    echo '<div class="school-print-body" style="font-size:11px;">';
+    echo '<div class="school-print-left">';
+    echo '<strong>' . e($settings['school_foundation'] ?? '') . '</strong><br>';
+    echo e($settings['school_project'] ?? '') . '<br>';
+    echo '<strong class="school-print-name">' . e($settings['school_name'] ?? '') . '</strong><br>';
+    echo e($settings['school_address'] ?? '') . '<br>';
+    echo e($settings['school_quarter'] ?? '') . '<br>';
+    echo '<strong>' . e($settings['school_city'] ?? '') . '</strong><br>';
+    echo 'Mail: ' . e($settings['school_email'] ?? '') . '<br>';
+    echo 'TEL: ' . e($settings['school_phone'] ?? '');
+    echo '</div>';
+    echo '<div class="school-print-right">';
+    echo '<strong>SERVICE CONTROLE</strong><br>';
+    echo 'Section : <strong>' . e($section) . '</strong><br>';
+    echo 'Classe : <strong>' . e($classe) . '</strong><br><br>';
+    echo '<strong class="school-print-title">' . e($title) . '</strong><br>';
+    if ($year) {
+        echo '<small>Année : ' . e($year) . '</small><br>';
+    }
+    if ($showDate) {
+        echo '<small>Date : ' . e($date) . '</small>';
+    }
+    if (!empty($meta['right_html'])) {
+        echo $meta['right_html'];
+    }
+    echo '</div>';
+    echo '</div>';
+    echo '<hr class="school-print-divider">';
+    echo '</div>';
+}
+
 // ─── Fiche de contrôle (colonnes mois + OK) ─────────────
 
 function getControlSheetColspan(): int

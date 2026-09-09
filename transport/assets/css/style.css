@@ -15,8 +15,53 @@
     color: white;
 }
 
-.public-header h4, .public-header h5 {
+.public-header h4,
+.public-header h5,
+.school-banner h4,
+.school-banner h5 {
     color: white !important;
+}
+
+.school-banner-subtitle {
+    opacity: 0.9;
+}
+
+.school-banner-logo {
+    margin-bottom: 0.5rem;
+}
+
+.school-logo {
+    object-fit: contain;
+    background: white;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.school-logo-small {
+    height: 36px;
+    width: auto;
+}
+
+.school-logo-medium {
+    height: 80px;
+    width: auto;
+}
+
+.school-logo-large {
+    height: 100px;
+    width: auto;
+}
+
+.school-logo-print {
+    height: 70px;
+    width: auto;
+}
+
+.form-card-header-logo {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
 }
 
 /* Formulaire multi-étapes */

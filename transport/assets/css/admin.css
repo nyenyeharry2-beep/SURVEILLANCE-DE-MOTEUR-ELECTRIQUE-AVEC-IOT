@@ -99,12 +99,60 @@
 
 .print-header {
     display: none;
-    text-align: center;
     margin-bottom: 10px;
 }
 
-.print-header h3, .print-header h4, .print-header h5 {
+.print-header h3,
+.print-header h4,
+.print-header h5 {
     margin: 2px 0;
+}
+
+.navbar-logo {
+    border-radius: 4px;
+}
+
+.school-print-header {
+    margin-bottom: 8px;
+}
+
+.school-print-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.school-print-left {
+    flex: 2;
+    text-align: left;
+}
+
+.school-print-right {
+    flex: 1;
+    text-align: right;
+}
+
+.school-print-logo {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.school-print-name {
+    font-size: 14px;
+}
+
+.school-print-title {
+    font-size: 16px;
+}
+
+.school-print-divider {
+    border: 1px solid #000;
+    margin: 5px 0;
+}
+
+.admin-form-logo {
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
 .search-box {

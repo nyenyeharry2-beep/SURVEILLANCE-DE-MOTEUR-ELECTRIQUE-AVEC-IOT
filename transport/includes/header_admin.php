@@ -20,8 +20,9 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <body>
 <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?= BASE_URL ?>/admin/dashboard.php">
-            <i class="bi bi-bus-front"></i> Transport Scolaire
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= BASE_URL ?>/admin/dashboard.php">
+            <?= renderSchoolLogo('small', 'navbar-logo') ?>
+            <span><i class="bi bi-bus-front"></i> Transport Scolaire</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
             <span class="navbar-toggler-icon"></span>

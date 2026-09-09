@@ -101,6 +101,8 @@ $isNew = ($action === 'add' && !$id);
 <div class="alert alert-danger">Élève introuvable.</div>
 <?php else: ?>
 
+<div class="admin-form-logo no-print"><?= renderSchoolLogo('medium') ?></div>
+
 <div class="row">
     <div class="col-lg-5">
         <div class="card mb-4">

@@ -108,27 +108,11 @@ if ($filterClasse) {
 
 <!-- En-tête imprimable (modèle papier) -->
 <div class="print-header" style="display:block;">
-    <div class="row" style="font-size:11px;">
-        <div class="col-8 text-start">
-            <strong><?= e($settings['school_foundation'] ?? '') ?></strong><br>
-            <?= e($settings['school_project'] ?? '') ?><br>
-            <strong style="font-size:14px;"><?= e($settings['school_name'] ?? '') ?></strong><br>
-            <?= e($settings['school_address'] ?? '') ?><br>
-            <?= e($settings['school_quarter'] ?? '') ?><br>
-            <strong><?= e($settings['school_city'] ?? '') ?></strong><br>
-            Mail: <?= e($settings['school_email'] ?? '') ?><br>
-            TEL: <?= e($settings['school_phone'] ?? '') ?>
-        </div>
-        <div class="col-4 text-end">
-            <strong>SERVICE CONTROLE</strong><br>
-            Section : <strong><?= e($filterSection ?: ($selectedClass['section'] ?? '________')) ?></strong><br>
-            Classe : <strong><?= e($selectedClass ? formatClassName($selectedClass) : '________') ?></strong><br>
-            <br>
-            <strong style="font-size:16px;">Minerval</strong><br>
-            <small>Année : <?= e($year['label'] ?? '') ?></small>
-        </div>
-    </div>
-    <hr style="border:1px solid #000;">
+    <?php renderSchoolPrintHeader($settings, [
+        'section' => $filterSection ?: ($selectedClass['section'] ?? '________'),
+        'classe' => $selectedClass ? formatClassName($selectedClass) : '________',
+        'year' => $year['label'] ?? '',
+    ]); ?>
 </div>
 
 <div class="table-responsive">

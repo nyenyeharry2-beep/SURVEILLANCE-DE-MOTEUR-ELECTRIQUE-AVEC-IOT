@@ -86,9 +86,15 @@ if ($type === 'pdf') {
         <style>
             @page { size: A4 landscape; margin: 10mm; }
             body { font-family: Arial, sans-serif; font-size: 10px; margin: 0; padding: 10px; }
-            .header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-            .header-left { text-align: left; }
-            .header-right { text-align: right; }
+            .school-print-header { margin-bottom: 8px; }
+            .school-print-logo { text-align: center; margin-bottom: 6px; }
+            .school-logo-print { height: 70px; width: auto; object-fit: contain; }
+            .school-print-name { font-size: 14px; }
+            .school-print-title { font-size: 16px; }
+            .school-print-body { display: flex; justify-content: space-between; gap: 1rem; }
+            .school-print-left { flex: 2; text-align: left; }
+            .school-print-right { flex: 1; text-align: right; }
+            .school-print-divider { border: 1px solid #000; margin: 5px 0; }
             table { border-collapse: collapse; width: 100%; }
             th, td { border: 1px solid #000; padding: 2px 3px; text-align: center; font-size: 9px; }
             th { background: #f0f0f0; font-weight: bold; }
@@ -106,27 +112,12 @@ if ($type === 'pdf') {
         <button onclick="window.print()" style="padding:8px 16px;cursor:pointer;">🖨️ Imprimer / Enregistrer PDF</button>
     </div>
 
-    <div class="header">
-        <div class="header-left">
-            <strong><?= e($settings['school_foundation'] ?? '') ?></strong><br>
-            <?= e($settings['school_project'] ?? '') ?><br>
-            <span class="title"><?= e($settings['school_name'] ?? '') ?></span><br>
-            <?= e($settings['school_address'] ?? '') ?><br>
-            <?= e($settings['school_quarter'] ?? '') ?><br>
-            <strong><?= e($settings['school_city'] ?? '') ?></strong><br>
-            Mail: <?= e($settings['school_email'] ?? '') ?><br>
-            TEL: <?= e($settings['school_phone'] ?? '') ?>
-        </div>
-        <div class="header-right">
-            <strong>SERVICE CONTROLE</strong><br>
-            Section : <?= e($filterSection ?: '________') ?><br>
-            Classe : <?= e($filterClasse ? 'Filtrée' : 'Toutes') ?><br><br>
-            <span class="title">Minerval</span><br>
-            Année : <?= e($year['label'] ?? '') ?><br>
-            Date : <?= date('d/m/Y') ?>
-        </div>
-    </div>
-    <hr>
+    <?php renderSchoolPrintHeader($settings, [
+        'section' => $filterSection ?: '________',
+        'classe' => $filterClasse ? 'Filtrée' : 'Toutes',
+        'year' => $year['label'] ?? '',
+        'show_date' => true,
+    ]); ?>
 
     <table>
         <?php renderControlSheetThead(true); ?>

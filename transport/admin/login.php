@@ -41,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-md-5">
             <div class="form-card">
                 <div class="text-center mb-4">
-                    <i class="bi bi-bus-front text-primary" style="font-size:3rem;"></i>
+                    <?= renderSchoolLogo('medium') ?>
                     <h4 class="mt-2">Administration</h4>
-                    <p class="text-muted small">Transport Scolaire — C.S LES SUPER GENIES</p>
+                    <p class="text-muted small">Transport Scolaire — <?= e(getSetting('school_name', 'C.S LES SUPER GENIES')) ?></p>
                 </div>
                 <?php if ($error): ?>
                 <div class="alert alert-danger"><?= e($error) ?></div>
