@@ -59,7 +59,7 @@
     if (tariffSelect) {
         tariffSelect.addEventListener('change', () => {
             const opt = tariffSelect.selectedOptions[0];
-            montantDuInput.value = opt.dataset.montant || 50;
+            montantDuInput.value = opt.dataset.montant || montantDuInput.value || 15;
             updateReste();
         });
     }

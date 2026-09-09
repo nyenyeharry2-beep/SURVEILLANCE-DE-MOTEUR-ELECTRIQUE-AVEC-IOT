@@ -146,7 +146,7 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
                     </option>
                     <?php endforeach; ?>
                 </select>
-                <input type="hidden" name="montant_du" id="montantDu" value="<?= $defaultTariff ? $defaultTariff['montant'] : 50 ?>">
+                <input type="hidden" name="montant_du" id="montantDu" value="<?= getDefaultTariffAmount() ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Le frais de transport a-t-il déjà été payé ? *</label>

@@ -228,7 +228,7 @@ $isNew = ($action === 'add' && !$id);
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Frais dus</label>
-                            <input type="number" name="montant_du" class="form-control" step="0.01" value="<?= $defaultTariff ? $defaultTariff['montant'] : 50 ?>">
+                            <input type="number" name="montant_du" class="form-control" step="0.01" value="<?= getDefaultTariffAmount() ?>">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Montant payé</label>

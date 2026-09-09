@@ -520,9 +520,19 @@ function getActiveStops(): array
     return getDB()->query('SELECT * FROM bus_stops WHERE statut = "actif" ORDER BY nom')->fetchAll();
 }
 
+function getDefaultTariffAmount(): float
+{
+    $tariff = getDefaultTariff();
+    if ($tariff) {
+        return (float) $tariff['montant'];
+    }
+    $fromSettings = getSetting('default_tariff');
+    return $fromSettings !== null ? (float) $fromSettings : 15.0;
+}
+
 function getActiveTariffs(): array
 {
-    return getDB()->query('SELECT * FROM tariffs WHERE statut = "actif" ORDER BY is_default DESC, nom')->fetchAll();
+    return getDB()->query('SELECT * FROM tariffs WHERE statut = "actif" ORDER BY montant ASC, nom')->fetchAll();
 }
 
 function getDefaultTariff(): ?array

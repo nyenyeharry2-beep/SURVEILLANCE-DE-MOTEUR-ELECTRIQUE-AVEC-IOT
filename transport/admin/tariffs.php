@@ -38,7 +38,7 @@ $allTariffs = $db->query('SELECT * FROM tariffs ORDER BY is_default DESC, nom')-
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="add">
                     <div class="mb-2"><label class="form-label">Nom *</label><input type="text" name="nom" class="form-control" required placeholder="Ex: Zone 1"></div>
-                    <div class="mb-2"><label class="form-label">Montant (USD) *</label><input type="number" name="montant" class="form-control" step="0.01" required value="50"></div>
+                    <div class="mb-2"><label class="form-label">Montant (USD) *</label><input type="number" name="montant" class="form-control" step="0.01" required value="15"></div>
                     <div class="form-check mb-3">
                         <input type="checkbox" name="is_default" class="form-check-input" id="defNew">
                         <label class="form-check-label" for="defNew">Tarif par défaut</label>

@@ -63,10 +63,10 @@ INSERT IGNORE INTO `bus_stops` (`nom`, `adresse`, `description`) VALUES
 ('Annexe', 'Commune Annexe', NULL);
 
 INSERT IGNORE INTO `tariffs` (`nom`, `montant`, `devise`, `is_default`) VALUES
-('Standard', 50.00, 'USD', 1),
-('Zone 1', 40.00, 'USD', 0),
-('Zone 2', 50.00, 'USD', 0),
-('Zone 3', 60.00, 'USD', 0);
+('15 USD', 15.00, 'USD', 1),
+('20 USD', 20.00, 'USD', 0),
+('25 USD', 25.00, 'USD', 0),
+('30 USD', 30.00, 'USD', 0);
 
 INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('school_name', 'C.S LES SUPER GENIES'),
@@ -77,7 +77,7 @@ INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('school_city', 'VILLE DE LUBUMBASHI'),
 ('school_email', 'cslessupergenies@gmail.com'),
 ('school_phone', '+243815454401 / +243858357777'),
-('default_tariff', '50'),
+('default_tariff', '15'),
 ('default_currency', 'USD'),
 ('active_academic_year', '2026-2027'),
 ('receipt_prefix', 'BUS'),
