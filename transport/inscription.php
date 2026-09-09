@@ -5,7 +5,7 @@
 $pageTitle = 'Inscription au transport scolaire';
 require_once __DIR__ . '/includes/header_public.php';
 
-$classes = getActiveClasses();
+$classes = function_exists('getClassesForSelect') ? getClassesForSelect() : getActiveClasses();
 $stops = getActiveStops();
 $tariffs = getActiveTariffs();
 $defaultTariff = getDefaultTariff();
@@ -50,14 +50,20 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
                        placeholder="Ex: Jean Mukendi" autocomplete="name">
             </div>
             <div class="mb-3">
-                <label class="form-label">Classe de l'élève *</label>
-                <select name="classe_id" class="form-select" required>
-                    <option value="" disabled selected hidden>-- Choisir la classe --</option>
-                    <?php foreach (getClassesForSelect() as $c): ?>
-                    <option value="<?= $c['id'] ?>"><?= e(formatClassWithSection($c)) ?></option>
+                <label class="form-label" for="classeSelect">Classe de l'élève *</label>
+                <?php if (empty($classes)): ?>
+                <div class="alert alert-warning mb-0">Aucune classe disponible. Contactez l'administration.</div>
+                <?php else: ?>
+                <select id="classeSelect" name="classe_id" class="form-select" required>
+                    <option value="">-- Choisir la classe --</option>
+                    <?php foreach ($classes as $c): ?>
+                    <option value="<?= (int)$c['id'] ?>">
+                        <?= e(function_exists('formatClassWithSection') ? formatClassWithSection($c) : (($c['section'] ?? '') ? $c['section'] . ' — ' . $c['nom'] : $c['nom'])) ?>
+                    </option>
                     <?php endforeach; ?>
                 </select>
-                <div class="form-text">Liste du plus petit au plus grand : Maternelle → Primaire → Secondaire → Options.</div>
+                <div class="form-text"><?= count($classes) ?> classes — Maternelle → Primaire → Secondaire → Options</div>
+                <?php endif; ?>
             </div>
             <button type="button" class="btn btn-primary btn-step w-100 next-step">Suivant <i class="bi bi-arrow-right"></i></button>
         </div>

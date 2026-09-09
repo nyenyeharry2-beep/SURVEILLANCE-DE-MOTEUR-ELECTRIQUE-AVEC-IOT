@@ -469,9 +469,16 @@ function compareSectionsByOrder(string $a, string $b): int
 
 function getActiveClasses(): array
 {
-    $classes = getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre ASC, nom ASC')->fetchAll();
-    usort($classes, 'compareClassesByOrder');
-    return $classes;
+    try {
+        $classes = getDB()->query('SELECT * FROM classes WHERE statut = "actif" ORDER BY ordre ASC, nom ASC')->fetchAll();
+        if (empty($classes)) {
+            $classes = getDB()->query('SELECT * FROM classes ORDER BY ordre ASC, nom ASC')->fetchAll();
+        }
+        usort($classes, 'compareClassesByOrder');
+        return $classes;
+    } catch (Exception $e) {
+        return [];
+    }
 }
 
 function getClassesForSelect(): array
