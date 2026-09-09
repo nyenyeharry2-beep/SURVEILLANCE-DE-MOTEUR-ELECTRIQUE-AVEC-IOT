@@ -181,11 +181,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- DONNÉES INITIALES
 -- =====================================================
 
-INSERT INTO `academic_years` (`label`, `start_date`, `end_date`, `is_active`) VALUES
+INSERT IGNORE INTO `academic_years` (`label`, `start_date`, `end_date`, `is_active`) VALUES
 ('2025-2026', '2025-09-01', '2026-06-30', 0),
 ('2026-2027', '2026-09-01', '2027-06-30', 1);
 
-INSERT INTO `classes` (`nom`, `section`, `ordre`) VALUES
+INSERT IGNORE INTO `classes` (`nom`, `section`, `ordre`) VALUES
 -- Maternelle (1ère → 3ème)
 ('1ère maternelle', 'Maternelle', 1),
 ('2ème maternelle', 'Maternelle', 2),
@@ -234,14 +234,14 @@ INSERT INTO `classes` (`nom`, `section`, `ordre`) VALUES
 ('3ème mécanique générale', 'Mécanique Générale', 102),
 ('4ème mécanique générale', 'Mécanique Générale', 103);
 
-INSERT INTO `bus_stops` (`nom`, `adresse`, `description`) VALUES
+INSERT IGNORE INTO `bus_stops` (`nom`, `adresse`, `description`) VALUES
 ('Golf Maisha', 'Q/ Golf Maisha', 'Zone principale'),
 ('Kenya', 'Quartier Kenya', NULL),
 ('Bel-Air', 'Quartier Bel-Air', NULL),
 ('Katuba', 'Quartier Katuba', NULL),
 ('Annexe', 'Commune Annexe', NULL);
 
-INSERT INTO `tariffs` (`nom`, `montant`, `devise`, `is_default`) VALUES
+INSERT IGNORE INTO `tariffs` (`nom`, `montant`, `devise`, `is_default`) VALUES
 ('Standard', 50.00, 'USD', 1),
 ('Zone 1', 40.00, 'USD', 0),
 ('Zone 2', 50.00, 'USD', 0),
@@ -260,12 +260,13 @@ INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('default_currency', 'USD'),
 ('active_academic_year', '2026-2027'),
 ('receipt_prefix', 'BUS'),
-('dossier_prefix', 'BUS');
+('dossier_prefix', 'BUS')
+ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`);
 
 -- Mot de passe par défaut: admin123 (À CHANGER IMMÉDIATEMENT après installation)
-INSERT INTO `users` (`nom`, `username`, `password`, `role`) VALUES
+INSERT IGNORE INTO `users` (`nom`, `username`, `password`, `role`) VALUES
 ('Administrateur', 'admin', '$2b$12$osSzJCmpWXc1BWcZVHklAum47.JlBPHiPjOgl.q7yrdF5Ii1f7X2.', 'superadmin');
 
-INSERT INTO `counters` (`name`, `year`, `value`) VALUES
+INSERT IGNORE INTO `counters` (`name`, `year`, `value`) VALUES
 ('dossier', 2026, 0),
 ('receipt', 2026, 0);
