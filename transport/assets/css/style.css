@@ -26,8 +26,12 @@
     opacity: 0.9;
 }
 
+.school-banner {
+    text-align: center;
+}
+
 .school-banner-logo {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
     line-height: 0;
 }
 
@@ -77,19 +81,32 @@
     width: auto;
 }
 
-.form-card-header-logo {
+/* Contenu public centré */
+.public-main {
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.public-main .form-card h5,
+.public-main .form-label,
+.public-main .form-text,
+.public-main .step-indicator {
     text-align: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #eee;
+}
+
+.public-main .payment-choice {
+    text-align: left;
 }
 
 /* Formulaire multi-étapes */
 .step-indicator {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 2rem;
     position: relative;
+    gap: 0.25rem;
 }
 
 .step-indicator::before {
@@ -174,6 +191,61 @@
 .form-label {
     font-weight: 600;
     margin-bottom: 0.3rem;
+}
+
+@media (max-width: 576px) {
+    .public-header {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .school-banner-logo .school-logo,
+    .school-banner-logo img {
+        height: 70px !important;
+        max-height: 70px !important;
+        max-width: 90px !important;
+    }
+
+    .school-banner h5 {
+        font-size: 0.85rem;
+    }
+
+    .school-banner h4 {
+        font-size: 1.15rem;
+    }
+
+    .step-indicator {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        padding: 0 0.25rem 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-indicator::before {
+        display: none;
+    }
+
+    .step-item {
+        flex: 0 0 auto;
+        min-width: 58px;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .step-label {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .form-card {
+        padding: 1.25rem;
+    }
 }
 
 /* Confirmation */
