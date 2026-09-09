@@ -18,8 +18,8 @@ if (!$filterSection) {
     redirect(BASE_URL . '/admin/control_sheet.php');
 }
 
-$sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.telephone_parent, s.adresse,
-               c.nom AS classe_nom, c.section AS classe_section, bs.nom AS arret_nom
+$sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.telephone_parent, s.telephone_parent2,
+               s.adresse, s.arret_precision, c.nom AS classe_nom, c.section AS classe_section, bs.nom AS arret_nom
         FROM students s
         LEFT JOIN classes c ON s.classe_id = c.id
         LEFT JOIN bus_stops bs ON s.arret_id = bs.id
@@ -47,6 +47,43 @@ $settings = getAllSettings();
 $filterMeta = getReportFilterDisplayMeta($reportFilters);
 $yearLabel = $year['label'] ?? 'export';
 
+if ($type === 'addresses') {
+    $filename = buildReportExportFilename($reportFilters, $yearLabel, 'xls');
+    $filename = str_replace('.xls', '_adresses.xls', $filename);
+    header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
+    $out = fopen('php://output', 'w');
+    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+
+    fputcsv($out, ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone', 'Téléphone 2', 'Arrêt', 'Précision arrêt'], ';');
+
+    $num = 0;
+    foreach ($students as $s) {
+        $num++;
+        $classeSection = $s['classe_section'] ?? '';
+        $mainSection = in_array($classeSection, getCoreSchoolSections(), true) ? $classeSection : 'Options';
+        $optionLabel = ($mainSection === 'Options') ? $classeSection : '';
+        fputcsv($out, [
+            $num,
+            $s['numero_dossier'],
+            $s['nom_complet'],
+            $s['classe_nom'],
+            $mainSection,
+            $optionLabel,
+            formatStudentFullAddress($s),
+            $s['telephone_parent'],
+            $s['telephone_parent2'],
+            $s['arret_nom'],
+            $s['arret_precision'],
+        ], ';');
+    }
+    fclose($out);
+    logActivity('export_addresses', 'report', null, 'Export adresses — ' . $filterMeta['section'] . ' / ' . $filterMeta['classe']);
+    exit;
+}
+
 if ($type === 'csv' || $type === 'excel') {
     $filename = buildReportExportFilename($reportFilters, $yearLabel, 'xls');
     header('Content-Type: application/vnd.ms-excel; charset=utf-8');
@@ -56,7 +93,7 @@ if ($type === 'csv' || $type === 'excel') {
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Téléphone', 'Arrêt', 'Adresse'];
+    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone', 'Téléphone 2', 'Arrêt', 'Précision arrêt', 'Adresse'];
     foreach (SCHOOL_MONTHS as $info) {
         $headers[] = $info['label'] . ' (Payé)';
         $headers[] = $info['label'] . ' (OK)';
@@ -76,8 +113,11 @@ if ($type === 'csv' || $type === 'excel') {
             $s['classe_nom'],
             $mainSection,
             $optionLabel,
+            formatStudentFullAddress($s),
             $s['telephone_parent'],
+            $s['telephone_parent2'],
             $s['arret_nom'],
+            $s['arret_precision'],
             $s['adresse'],
         ];
         $sp = $paymentsMap[$s['id']] ?? [];
@@ -117,7 +157,9 @@ if ($type === 'pdf') {
             table { border-collapse: collapse; width: 100%; }
             th, td { border: 1px solid #000; padding: 2px 3px; text-align: center; font-size: 9px; }
             th { background: #f0f0f0; font-weight: bold; }
-            .col-name { text-align: left; min-width: 150px; padding-left: 5px; }
+            .col-name { text-align: left; min-width: 120px; padding-left: 5px; }
+            .col-address-pdf { text-align: left; min-width: 160px; max-width: 220px; font-size: 8px; line-height: 1.25; padding: 2px 4px; white-space: pre-line; }
+            .col-tel-pdf { min-width: 70px; font-size: 8px; }
             .col-num { width: 25px; }
             .col-ok-pdf { width: 22px; min-width: 22px; background: #fafafa; border-left: 1px solid #666 !important; }
             .cell-ok-marked { color: #198754; font-weight: bold; }

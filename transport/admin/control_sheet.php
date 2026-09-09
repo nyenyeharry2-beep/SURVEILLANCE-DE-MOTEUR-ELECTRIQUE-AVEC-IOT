@@ -34,9 +34,11 @@ $students = [];
 $paymentsMap = [];
 
 if ($hasFilter) {
-    $sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, c.nom AS classe_nom, c.section AS classe_section
+    $sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.adresse, s.telephone_parent, s.telephone_parent2,
+                   s.arret_precision, c.nom AS classe_nom, c.section AS classe_section, bs.nom AS arret_nom
             FROM students s
             LEFT JOIN classes c ON s.classe_id = c.id
+            LEFT JOIN bus_stops bs ON s.arret_id = bs.id
             WHERE s.academic_year_id = ? AND s.statut = "actif"';
     $params = [$yearId];
     applyStudentListFilters($sql, $params, $reportFilters);
@@ -58,6 +60,7 @@ if ($hasFilter) {
 
 $exportPdfUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($reportFilters, 'pdf');
 $exportExcelUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($reportFilters, 'excel', false);
+$exportAddressesUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($reportFilters, 'addresses', false);
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 no-print">
@@ -66,6 +69,7 @@ $exportExcelUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($repo
     <div class="d-flex gap-2 flex-wrap">
         <a href="<?= e($exportPdfUrl) ?>" class="btn btn-danger"><i class="bi bi-file-pdf"></i> Télécharger PDF</a>
         <a href="<?= e($exportExcelUrl) ?>" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet"></i> Télécharger Excel</a>
+        <a href="<?= e($exportAddressesUrl) ?>" class="btn btn-info text-white"><i class="bi bi-geo-alt"></i> Télécharger adresses</a>
         <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimer</button>
     </div>
     <?php endif; ?>

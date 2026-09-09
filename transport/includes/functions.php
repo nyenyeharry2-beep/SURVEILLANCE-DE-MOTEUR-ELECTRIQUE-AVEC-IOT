@@ -297,19 +297,57 @@ function renderSchoolPrintHeader(array $settings, array $meta = []): void
 
 // ─── Fiche de contrôle (colonnes mois + OK) ─────────────
 
+function formatStudentFullAddress(array $student, bool $includePhones = true): string
+{
+    $parts = [];
+
+    $adresse = trim($student['adresse'] ?? '');
+    if ($adresse !== '') {
+        $parts[] = $adresse;
+    }
+
+    $arretNom = trim($student['arret_nom'] ?? '');
+    $arretPrecision = trim($student['arret_precision'] ?? '');
+    if ($arretNom !== '' || $arretPrecision !== '') {
+        $arretLine = 'Arrêt : ' . $arretNom;
+        if ($arretPrecision !== '') {
+            $arretLine .= ($arretNom !== '' ? ' — ' : '') . $arretPrecision;
+        }
+        $parts[] = trim($arretLine, ' :—');
+    }
+
+    if ($includePhones) {
+        $telephone = trim($student['telephone_parent'] ?? '');
+        if ($telephone !== '') {
+            $parts[] = 'Tél : ' . $telephone;
+        }
+
+        $telephone2 = trim($student['telephone_parent2'] ?? '');
+        if ($telephone2 !== '') {
+            $parts[] = 'Tél 2 : ' . $telephone2;
+        }
+    }
+
+    return $parts ? implode("\n", $parts) : '—';
+}
+
 function getControlSheetColspan(): int
 {
-    // N° + Nom + (Mois + colonne OK) × 10 mois
-    return 2 + count(SCHOOL_MONTHS) * 2;
+    // N° + Nom + Adresse + Tél + (Mois + colonne OK) × 10 mois
+    return 4 + count(SCHOOL_MONTHS) * 2;
 }
 
 function renderControlSheetThead(bool $pdfMode = false): void
 {
     $monthClass = $pdfMode ? '' : 'col-month';
     $okClass = $pdfMode ? 'col-ok-pdf' : 'col-ok';
+    $addressClass = $pdfMode ? 'col-address-pdf' : 'col-address';
+    $telClass = $pdfMode ? 'col-tel-pdf' : 'col-tel';
     echo '<thead><tr>';
     echo '<th class="col-num">N°</th>';
     echo '<th class="col-name">NOM &amp; POST-NOM</th>';
+    echo '<th class="' . $addressClass . '">ADRESSE COMPLÈTE</th>';
+    echo '<th class="' . $telClass . '">TÉL</th>';
     foreach (SCHOOL_MONTHS as $info) {
         echo '<th class="' . $monthClass . '">' . e($info['short']) . '</th>';
         echo '<th class="' . $okClass . '">&nbsp;</th>';
@@ -322,9 +360,16 @@ function renderControlSheetStudentRow(array $student, array $studentPayments, in
     $monthClass = $pdfMode ? '' : 'col-month';
     $okClassBase = $pdfMode ? 'col-ok-pdf' : 'col-ok';
 
+    $addressClass = $pdfMode ? 'col-address-pdf' : 'col-address';
+    $telClass = $pdfMode ? 'col-tel-pdf' : 'col-tel';
+    $fullAddress = formatStudentFullAddress($student);
+    $telephone = trim($student['telephone_parent'] ?? '') ?: '—';
+
     echo '<tr>';
     echo '<td class="col-num">' . str_pad((string) $num, 2, '0', STR_PAD_LEFT) . '</td>';
     echo '<td class="col-name">' . e($student['nom_complet']) . '</td>';
+    echo '<td class="' . $addressClass . '">' . nl2br(e($fullAddress)) . '</td>';
+    echo '<td class="' . $telClass . '">' . e($telephone) . '</td>';
 
     foreach (SCHOOL_MONTHS as $monthNum => $info) {
         $p = $studentPayments[$monthNum] ?? null;
@@ -369,6 +414,8 @@ function renderControlSheetBlankRow(int $num, bool $pdfMode = false): void
     echo '<tr>';
     echo '<td class="col-num">' . str_pad((string) $num, 2, '0', STR_PAD_LEFT) . '</td>';
     echo '<td class="col-name">&nbsp;</td>';
+    echo '<td class="' . ($pdfMode ? 'col-address-pdf' : 'col-address') . '">&nbsp;</td>';
+    echo '<td class="' . ($pdfMode ? 'col-tel-pdf' : 'col-tel') . '">&nbsp;</td>';
     for ($i = 0; $i < count(SCHOOL_MONTHS); $i++) {
         echo '<td class="' . ($pdfMode ? '' : 'col-month') . '">&nbsp;</td>';
         echo '<td class="' . ($pdfMode ? 'col-ok-pdf' : 'col-ok') . '">&nbsp;</td>';

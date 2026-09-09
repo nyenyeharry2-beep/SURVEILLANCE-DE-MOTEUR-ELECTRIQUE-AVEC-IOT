@@ -48,8 +48,26 @@
 
 .control-sheet .col-name {
     text-align: left;
-    min-width: 180px;
+    min-width: 140px;
     padding-left: 6px;
+}
+
+.control-sheet .col-address,
+.control-sheet .col-address-pdf {
+    text-align: left;
+    min-width: 180px;
+    max-width: 260px;
+    font-size: 9px;
+    line-height: 1.35;
+    padding: 4px 6px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.control-sheet .col-tel,
+.control-sheet .col-tel-pdf {
+    min-width: 85px;
+    font-size: 9px;
 }
 
 .control-sheet .col-month {

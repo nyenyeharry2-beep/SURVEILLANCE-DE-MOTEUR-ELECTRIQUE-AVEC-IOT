@@ -15,7 +15,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="<?= BASE_URL ?>/assets/css/style.css?v=2" rel="stylesheet">
-    <link href="<?= BASE_URL ?>/assets/css/admin.css?v=3" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/admin.css?v=4" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
