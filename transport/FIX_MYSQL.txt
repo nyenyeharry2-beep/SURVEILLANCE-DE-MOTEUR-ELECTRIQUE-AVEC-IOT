@@ -1,0 +1,59 @@
+========================================
+CORRIGER ERREUR 1045 - Access denied
+C.S LES SUPER GENIES - genies.free.je
+========================================
+
+L'erreur signifie : mauvais mot de passe MySQL dans config/database.php
+
+ETAPE 1 - TROUVER LE BON MOT DE PASSE
+------------------------------------
+1. Connectez-vous à https://dash.infinityfree.com
+2. Cliquez sur votre site genies.free.je
+3. Menu "MySQL Databases"
+4. Notez EXACTEMENT (copier-coller) :
+   - MySQL Hostname  (ex: sql205.infinityfree.com)
+   - MySQL Username  (ex: if0_42871659)
+   - MySQL Password  (ATTENTION : majuscules/minuscules !)
+   - MySQL Database  (ex: if0_42871659_genies)
+
+ETAPE 2 - MODIFIER config/database.php
+--------------------------------------
+InfinityFree → File Manager → htdocs → config → database.php
+
+Remplacez par VOS vraies valeurs :
+
+define('DB_HOST', 'sql205.infinityfree.com');
+define('DB_PORT', '3306');
+define('DB_NAME', 'if0_42871659_genies');
+define('DB_USER', 'if0_42871659');
+define('DB_PASS', 'COLLEZ_ICI_VOTRE_VRAI_MOT_DE_PASSE');
+define('DB_CHARSET', 'utf8mb4');
+
+define('BASE_URL', 'https://genies.free.je');
+
+ETAPE 3 - TESTER
+----------------
+Ouvrez : https://genies.free.je/test_db.php
+Vous devez voir : "Connexion PDO réussie"
+
+ETAPE 4 - SI TOUJOURS ERREUR
+----------------------------
+A) Réinitialisez le mot de passe MySQL :
+   InfinityFree → MySQL Databases → Change Password
+   Copiez le NOUVEAU mot de passe dans database.php
+
+B) Vérifiez que la base existe :
+   phpMyAdmin → la base if0_42871659_genies doit apparaître à gauche
+
+C) Vérifiez le hostname :
+   Utilisez EXACTEMENT celui affiché dans MySQL Databases
+   (sql205, sql301, sqlXXX — pas localhost)
+
+D) Importez les données si base vide :
+   phpMyAdmin → Importer → database-donnees.sql
+
+LOGIN ADMIN (après connexion OK)
+--------------------------------
+URL   : https://genies.free.je/admin/login.php
+User  : admin
+Pass  : admin123
