@@ -5,3 +5,4 @@ app/build/
 *.apk
 *.iml
 .idea/
+genies-admin.keystore
