@@ -251,6 +251,7 @@ function renderSchoolPrintHeader(array $settings, array $meta = []): void
 {
     $title = $meta['title'] ?? 'Minerval';
     $section = $meta['section'] ?? '________';
+    $option = $meta['option'] ?? '';
     $classe = $meta['classe'] ?? '________';
     $year = $meta['year'] ?? '';
     $date = $meta['date'] ?? date('d/m/Y');
@@ -274,6 +275,9 @@ function renderSchoolPrintHeader(array $settings, array $meta = []): void
     echo '<div class="school-print-right">';
     echo '<strong>SERVICE CONTROLE</strong><br>';
     echo 'Section : <strong>' . e($section) . '</strong><br>';
+    if ($option && $option !== '—') {
+        echo 'Option : <strong>' . e($option) . '</strong><br>';
+    }
     echo 'Classe : <strong>' . e($classe) . '</strong><br><br>';
     echo '<strong class="school-print-title">' . e($title) . '</strong><br>';
     if ($year) {
@@ -572,6 +576,144 @@ function getClassesBySection(?string $section): array
     $stmt = getDB()->prepare('SELECT * FROM classes WHERE statut = "actif" AND section = ? ORDER BY ordre, nom');
     $stmt->execute([$section]);
     return $stmt->fetchAll();
+}
+
+function getMainSectionsForFilter(): array
+{
+    return ['Maternelle', 'Primaire', 'Secondaire', 'Options'];
+}
+
+function getCoreSchoolSections(): array
+{
+    return ['Maternelle', 'Primaire', 'Secondaire'];
+}
+
+function getOptionSpecialties(): array
+{
+    $core = getCoreSchoolSections();
+    $stmt = getDB()->query('SELECT DISTINCT section FROM classes WHERE statut = "actif" AND section IS NOT NULL AND section != "" ORDER BY section');
+    $all = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    return array_values(array_filter($all, static fn($s) => !in_array($s, $core, true)));
+}
+
+function parseReportFilters(array $input = []): array
+{
+    return [
+        'section' => trim($input['section'] ?? ''),
+        'option' => trim($input['option'] ?? ''),
+        'classe' => (int) ($input['classe'] ?? 0),
+    ];
+}
+
+function getClassesForAdminFilter(?string $mainSection, ?string $optionFiliere = null): array
+{
+    $classes = getActiveClasses();
+    if (!$mainSection) {
+        return $classes;
+    }
+
+    if (in_array($mainSection, getCoreSchoolSections(), true)) {
+        return array_values(array_filter($classes, static fn($c) => ($c['section'] ?? '') === $mainSection));
+    }
+
+    if ($mainSection === 'Options') {
+        $core = getCoreSchoolSections();
+        $filtered = array_values(array_filter($classes, static fn($c) => !in_array($c['section'] ?? '', $core, true)));
+        if ($optionFiliere) {
+            $filtered = array_values(array_filter($filtered, static fn($c) => ($c['section'] ?? '') === $optionFiliere));
+        }
+        return $filtered;
+    }
+
+    return $classes;
+}
+
+function applyStudentListFilters(string &$sql, array &$params, array $filters): void
+{
+    $filterClasse = (int) ($filters['classe'] ?? 0);
+    $filterSection = trim($filters['section'] ?? '');
+    $filterOption = trim($filters['option'] ?? '');
+
+    if ($filterClasse) {
+        $sql .= ' AND s.classe_id = ?';
+        $params[] = $filterClasse;
+        return;
+    }
+
+    if (in_array($filterSection, getCoreSchoolSections(), true)) {
+        $sql .= ' AND c.section = ?';
+        $params[] = $filterSection;
+        return;
+    }
+
+    if ($filterSection === 'Options') {
+        if ($filterOption) {
+            $sql .= ' AND c.section = ?';
+            $params[] = $filterOption;
+            return;
+        }
+        $core = getCoreSchoolSections();
+        $placeholders = implode(',', array_fill(0, count($core), '?'));
+        $sql .= " AND c.section NOT IN ($placeholders)";
+        array_push($params, ...$core);
+    }
+}
+
+function getReportFilterDisplayMeta(array $filters): array
+{
+    $section = trim($filters['section'] ?? '');
+    $option = trim($filters['option'] ?? '');
+    $classeId = (int) ($filters['classe'] ?? 0);
+    $selectedClass = $classeId ? getClassById($classeId) : null;
+
+    $displaySection = 'Toutes';
+    if ($section === 'Options' && $option) {
+        $displaySection = 'Options — ' . $option;
+    } elseif ($section) {
+        $displaySection = $section;
+    }
+
+    $displayClasse = $selectedClass ? formatClassName($selectedClass) : 'Toutes';
+    $displayOption = ($section === 'Options' && $option) ? $option : '—';
+
+    return [
+        'section' => $displaySection,
+        'classe' => $displayClasse,
+        'option' => $displayOption,
+    ];
+}
+
+function buildReportExportQuery(array $filters, string $type, bool $autoDownloadPdf = true): string
+{
+    $query = parseReportFilters($filters);
+    $query['type'] = $type;
+    if ($type === 'pdf' && $autoDownloadPdf) {
+        $query['download'] = '1';
+    }
+    return http_build_query($query);
+}
+
+function buildReportExportFilename(array $filters, string $yearLabel, string $ext): string
+{
+    $parts = ['transport', preg_replace('/[^a-zA-Z0-9_-]+/', '_', $yearLabel)];
+    $section = trim($filters['section'] ?? '');
+    $option = trim($filters['option'] ?? '');
+    $classeId = (int) ($filters['classe'] ?? 0);
+
+    if ($section) {
+        $parts[] = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $section);
+    }
+    if ($section === 'Options' && $option) {
+        $parts[] = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $option);
+    }
+    if ($classeId) {
+        $cl = getClassById($classeId);
+        if ($cl) {
+            $parts[] = preg_replace('/[^a-zA-Z0-9_-]+/', '_', formatClassName($cl));
+        }
+    }
+
+    return implode('_', $parts) . '.' . $ext;
 }
 
 function getActiveStops(): array

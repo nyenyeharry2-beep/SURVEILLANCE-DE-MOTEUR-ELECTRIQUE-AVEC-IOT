@@ -1,6 +1,6 @@
 <?php
 /**
- * Export CSV et PDF
+ * Export Excel et PDF — filtré par section, option et classe
  */
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -9,9 +9,14 @@ requireLogin();
 
 $yearId = getSelectedYearId();
 $db = getDB();
-$type = $_GET['type'] ?? 'csv';
-$filterClasse = (int) ($_GET['classe'] ?? 0);
-$filterSection = trim($_GET['section'] ?? '');
+$type = $_GET['type'] ?? 'excel';
+$reportFilters = parseReportFilters($_GET);
+$filterSection = $reportFilters['section'];
+
+if (!$filterSection) {
+    flashMessage('warning', 'Choisissez d\'abord une section sur la fiche de contrôle.');
+    redirect(BASE_URL . '/admin/control_sheet.php');
+}
 
 $sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.telephone_parent, s.adresse,
                c.nom AS classe_nom, c.section AS classe_section, bs.nom AS arret_nom
@@ -20,8 +25,7 @@ $sql = 'SELECT s.id, s.numero_dossier, s.nom_complet, s.section, s.telephone_par
         LEFT JOIN bus_stops bs ON s.arret_id = bs.id
         WHERE s.academic_year_id = ? AND s.statut = "actif"';
 $params = [$yearId];
-if ($filterClasse) { $sql .= ' AND s.classe_id = ?'; $params[] = $filterClasse; }
-if ($filterSection) { $sql .= ' AND c.section = ?'; $params[] = $filterSection; }
+applyStudentListFilters($sql, $params, $reportFilters);
 $sql .= ' ORDER BY c.ordre ASC, c.section ASC, s.nom_complet ASC';
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
@@ -40,17 +44,19 @@ if ($students) {
 
 $year = getAcademicYearById($yearId);
 $settings = getAllSettings();
+$filterMeta = getReportFilterDisplayMeta($reportFilters);
+$yearLabel = $year['label'] ?? 'export';
 
 if ($type === 'csv' || $type === 'excel') {
-    $safeLabel = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $year['label'] ?? 'export');
+    $filename = buildReportExportFilename($reportFilters, $yearLabel, 'xls');
     header('Content-Type: application/vnd.ms-excel; charset=utf-8');
-    header('Content-Disposition: attachment; filename="transport_' . $safeLabel . '.xls"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Cache-Control: no-store, no-cache, must-revalidate');
     header('Pragma: no-cache');
     $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
+    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Téléphone', 'Arrêt', 'Adresse'];
+    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Téléphone', 'Arrêt', 'Adresse'];
     foreach (SCHOOL_MONTHS as $info) {
         $headers[] = $info['label'] . ' (Payé)';
         $headers[] = $info['label'] . ' (OK)';
@@ -60,9 +66,19 @@ if ($type === 'csv' || $type === 'excel') {
     $num = 0;
     foreach ($students as $s) {
         $num++;
+        $classeSection = $s['classe_section'] ?? '';
+        $mainSection = in_array($classeSection, getCoreSchoolSections(), true) ? $classeSection : 'Options';
+        $optionLabel = ($mainSection === 'Options') ? $classeSection : '';
         $row = [
-            $num, $s['numero_dossier'], $s['nom_complet'], $s['classe_nom'], $s['section'] ?: $s['classe_section'],
-            $s['telephone_parent'], $s['arret_nom'], $s['adresse']
+            $num,
+            $s['numero_dossier'],
+            $s['nom_complet'],
+            $s['classe_nom'],
+            $mainSection,
+            $optionLabel,
+            $s['telephone_parent'],
+            $s['arret_nom'],
+            $s['adresse'],
         ];
         $sp = $paymentsMap[$s['id']] ?? [];
         foreach (SCHOOL_MONTHS as $monthNum => $info) {
@@ -73,21 +89,19 @@ if ($type === 'csv' || $type === 'excel') {
         fputcsv($out, $row, ';');
     }
     fclose($out);
-    logActivity('export_excel', 'report', null, 'Export Excel');
+    logActivity('export_excel', 'report', null, 'Export Excel — ' . $filterMeta['section'] . ' / ' . $filterMeta['classe']);
     exit;
 }
 
 if ($type === 'pdf') {
     $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
-    $safeLabel = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $year['label'] ?? 'export');
-    // Export HTML → PDF côté navigateur (compatible InfinityFree sans lib PHP PDF)
-    $pageTitle = 'Export PDF';
+    $filename = buildReportExportFilename($reportFilters, $yearLabel, 'pdf');
     ?>
     <!DOCTYPE html>
     <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>Fiche Contrôle Transport - <?= e($year['label'] ?? '') ?></title>
+        <title>Fiche Contrôle Transport - <?= e($yearLabel) ?></title>
         <style>
             @page { size: A4 landscape; margin: 10mm; }
             body { font-family: Arial, sans-serif; font-size: 10px; margin: 0; padding: 10px; }
@@ -107,25 +121,24 @@ if ($type === 'pdf') {
             .col-num { width: 25px; }
             .col-ok-pdf { width: 22px; min-width: 22px; background: #fafafa; border-left: 1px solid #666 !important; }
             .cell-ok-marked { color: #198754; font-weight: bold; }
-            .title { font-size: 14px; font-weight: bold; }
-            hr { border: 1px solid #000; margin: 5px 0; }
             @media print { .no-print { display: none; } }
         </style>
     </head>
     <body>
     <div class="no-print" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button type="button" id="btnDownloadPdf" style="padding:8px 16px;cursor:pointer;background:#dc3545;color:#fff;border:none;border-radius:4px;">
-            <i class="bi bi-download"></i> Télécharger le PDF
+            Télécharger le PDF
         </button>
-        <button type="button" onclick="window.print()" style="padding:8px 16px;cursor:pointer;">🖨️ Imprimer</button>
+        <button type="button" onclick="window.print()" style="padding:8px 16px;cursor:pointer;">Imprimer</button>
         <span id="pdfStatus" style="font-size:12px;color:#666;"></span>
     </div>
 
     <div id="pdfContent">
     <?php renderSchoolPrintHeader($settings, [
-        'section' => $filterSection ?: '________',
-        'classe' => $filterClasse ? 'Filtrée' : 'Toutes',
-        'year' => $year['label'] ?? '',
+        'section' => $filterMeta['section'],
+        'option' => $filterMeta['option'],
+        'classe' => $filterMeta['classe'],
+        'year' => $yearLabel,
         'show_date' => true,
     ]); ?>
 
@@ -150,7 +163,7 @@ if ($type === 'pdf') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
     (function () {
-        const filename = <?= json_encode('fiche_transport_' . $safeLabel . '.pdf') ?>;
+        const filename = <?= json_encode($filename) ?>;
         const autoDownload = <?= $autoDownload ? 'true' : 'false' ?>;
         const statusEl = document.getElementById('pdfStatus');
         const btn = document.getElementById('btnDownloadPdf');
@@ -193,7 +206,7 @@ if ($type === 'pdf') {
             }
 
             worker.save().then(function () {
-                if (statusEl) statusEl.textContent = 'PDF téléchargé dans votre téléphone ou ordinateur.';
+                if (statusEl) statusEl.textContent = 'PDF téléchargé.';
                 if (btn) btn.disabled = false;
             }).catch(function () {
                 if (statusEl) statusEl.textContent = '';
@@ -213,8 +226,8 @@ if ($type === 'pdf') {
     </body>
     </html>
     <?php
-    logActivity('export_pdf', 'report', null, 'Export PDF');
+    logActivity('export_pdf', 'report', null, 'Export PDF — ' . $filterMeta['section'] . ' / ' . $filterMeta['classe']);
     exit;
 }
 
-redirect(BASE_URL . '/admin/dashboard.php');
+redirect(BASE_URL . '/admin/control_sheet.php');
