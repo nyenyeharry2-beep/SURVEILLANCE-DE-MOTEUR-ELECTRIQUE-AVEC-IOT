@@ -486,6 +486,58 @@ function getClassesForSelect(): array
     return getActiveClasses();
 }
 
+function extractYearLevelFromClassName(string $nom): string
+{
+    if (preg_match('/^(1ère|2ème|3ème|4ème|5ème|6ème|7ème|8ème)/u', $nom, $matches)) {
+        return $matches[1];
+    }
+    return '';
+}
+
+function getMainSchoolSections(): array
+{
+    return ['Maternelle', 'Primaire', 'Secondaire', 'Options'];
+}
+
+function getClassPickerStructure(): array
+{
+    $structure = [
+        'Maternelle' => [],
+        'Primaire' => [],
+        'Secondaire' => [],
+        'Options' => [
+            'years' => ['1ère', '2ème', '3ème', '4ème'],
+            'specialties' => [],
+        ],
+    ];
+
+    foreach (getActiveClasses() as $classe) {
+        $section = $classe['section'] ?? '';
+        $item = [
+            'id' => (int) $classe['id'],
+            'label' => formatClassName($classe),
+            'year' => extractYearLevelFromClassName($classe['nom'] ?? ''),
+        ];
+
+        if ($section === 'Maternelle') {
+            $structure['Maternelle'][] = $item;
+        } elseif ($section === 'Primaire') {
+            $structure['Primaire'][] = $item;
+        } elseif ($section === 'Secondaire') {
+            $structure['Secondaire'][] = $item;
+        } elseif ($section !== '') {
+            if (!isset($structure['Options']['specialties'][$section])) {
+                $structure['Options']['specialties'][$section] = [];
+            }
+            $structure['Options']['specialties'][$section][] = $item;
+        }
+    }
+
+    ksort($structure['Options']['specialties']);
+
+    return $structure;
+}
+
 function getClassesGroupedBySection(): array
 {
     $grouped = [];

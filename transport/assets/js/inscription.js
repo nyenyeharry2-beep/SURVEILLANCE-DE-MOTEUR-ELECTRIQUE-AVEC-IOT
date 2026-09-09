@@ -9,6 +9,102 @@
     const form = document.getElementById('inscriptionForm');
     if (!form) return;
 
+    // Sélecteur de classe par section
+    initClassPicker();
+
+    function initClassPicker() {
+        const dataEl = document.getElementById('classPickerData');
+        const sectionSelect = document.getElementById('sectionSelect');
+        const simpleGroup = document.getElementById('simpleClassGroup');
+        const simpleSelect = document.getElementById('simpleClassSelect');
+        const optionsGroup = document.getElementById('optionsClassGroup');
+        const yearSelect = document.getElementById('optionYearSelect');
+        const specialtySelect = document.getElementById('optionSpecialtySelect');
+        const classeIdInput = document.getElementById('classeIdInput');
+        const hint = document.getElementById('selectedClassHint');
+
+        if (!dataEl || !sectionSelect || !classeIdInput) return;
+
+        let pickerData;
+        try {
+            pickerData = JSON.parse(dataEl.textContent || '{}');
+        } catch (e) {
+            return;
+        }
+
+        function setClasseId(id, label) {
+            classeIdInput.value = id || '';
+            if (hint) {
+                hint.textContent = label ? ('Classe choisie : ' + label) : 'Maternelle → Primaire → Secondaire → Options';
+            }
+        }
+
+        function fillSimpleSelect(items) {
+            simpleSelect.innerHTML = '<option value="">-- Choisir la classe --</option>';
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.label;
+                simpleSelect.appendChild(opt);
+            });
+        }
+
+        function fillSpecialtySelect(year) {
+            specialtySelect.innerHTML = '<option value="">-- Choisir l\'option --</option>';
+            const specialties = pickerData.Options?.specialties || {};
+            Object.keys(specialties).sort().forEach(name => {
+                const match = specialties[name].find(c => c.year === year);
+                if (match) {
+                    const opt = document.createElement('option');
+                    opt.value = match.id;
+                    opt.textContent = name;
+                    opt.dataset.label = match.label;
+                    specialtySelect.appendChild(opt);
+                }
+            });
+        }
+
+        function resetPicker() {
+            simpleGroup.style.display = 'none';
+            optionsGroup.style.display = 'none';
+            simpleSelect.innerHTML = '<option value="">-- Choisir la classe --</option>';
+            yearSelect.value = '';
+            specialtySelect.innerHTML = '<option value="">-- Choisir l\'option --</option>';
+            setClasseId('', '');
+        }
+
+        sectionSelect.addEventListener('change', () => {
+            resetPicker();
+            const section = sectionSelect.value;
+
+            if (section === 'Maternelle' || section === 'Primaire' || section === 'Secondaire') {
+                simpleGroup.style.display = 'block';
+                fillSimpleSelect(pickerData[section] || []);
+            } else if (section === 'Options') {
+                optionsGroup.style.display = 'block';
+            }
+        });
+
+        simpleSelect.addEventListener('change', () => {
+            const opt = simpleSelect.selectedOptions[0];
+            setClasseId(simpleSelect.value, opt && opt.value ? opt.textContent : '');
+        });
+
+        yearSelect.addEventListener('change', () => {
+            specialtySelect.innerHTML = '<option value="">-- Choisir l\'option --</option>';
+            setClasseId('', '');
+            if (yearSelect.value) {
+                fillSpecialtySelect(yearSelect.value);
+            }
+        });
+
+        specialtySelect.addEventListener('change', () => {
+            const opt = specialtySelect.selectedOptions[0];
+            const label = opt?.dataset?.label || opt?.textContent || '';
+            setClasseId(specialtySelect.value, label);
+        });
+    }
+
     // Navigation entre étapes
     function showStep(step) {
         document.querySelectorAll('.form-step').forEach(el => {
@@ -36,6 +132,22 @@
                 input.classList.remove('is-invalid');
             }
         });
+
+        if (step === 1) {
+            const classeIdInput = document.getElementById('classeIdInput');
+            const sectionSelect = document.getElementById('sectionSelect');
+            if (classeIdInput && sectionSelect && sectionSelect.offsetParent !== null) {
+                if (!classeIdInput.value) {
+                    classeIdInput.classList.add('is-invalid');
+                    sectionSelect.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    classeIdInput.classList.remove('is-invalid');
+                    sectionSelect.classList.remove('is-invalid');
+                }
+            }
+        }
+
         return valid;
     }
 

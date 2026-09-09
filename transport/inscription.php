@@ -5,7 +5,7 @@
 $pageTitle = 'Inscription au transport scolaire';
 require_once __DIR__ . '/includes/header_public.php';
 
-$classes = function_exists('getClassesForSelect') ? getClassesForSelect() : getActiveClasses();
+$classPicker = function_exists('getClassPickerStructure') ? getClassPickerStructure() : [];
 $stops = getActiveStops();
 $tariffs = getActiveTariffs();
 $defaultTariff = getDefaultTariff();
@@ -49,22 +49,50 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
                 <input type="text" name="nom_complet" class="form-control" required
                        placeholder="Ex: Jean Mukendi" autocomplete="name">
             </div>
-            <div class="mb-3">
-                <label class="form-label" for="classeSelect">Classe de l'élève *</label>
-                <?php if (empty($classes)): ?>
+            <div class="mb-3" id="classPicker">
+                <label class="form-label" for="sectionSelect">Section *</label>
+                <?php if (empty($classPicker['Maternelle']) && empty($classPicker['Primaire']) && empty($classPicker['Secondaire']) && empty($classPicker['Options']['specialties'])): ?>
                 <div class="alert alert-warning mb-0">Aucune classe disponible. Contactez l'administration.</div>
                 <?php else: ?>
-                <select id="classeSelect" name="classe_id" class="form-select" required>
-                    <option value="">-- Choisir la classe --</option>
-                    <?php foreach ($classes as $c): ?>
-                    <option value="<?= (int)$c['id'] ?>">
-                        <?= e(function_exists('formatClassWithSection') ? formatClassWithSection($c) : (($c['section'] ?? '') ? $c['section'] . ' — ' . $c['nom'] : $c['nom'])) ?>
-                    </option>
-                    <?php endforeach; ?>
+                <select id="sectionSelect" class="form-select" required>
+                    <option value="">-- Choisir la section --</option>
+                    <?php if (!empty($classPicker['Maternelle'])): ?><option value="Maternelle">Maternelle</option><?php endif; ?>
+                    <?php if (!empty($classPicker['Primaire'])): ?><option value="Primaire">Primaire</option><?php endif; ?>
+                    <?php if (!empty($classPicker['Secondaire'])): ?><option value="Secondaire">Secondaire (7ème – 8ème)</option><?php endif; ?>
+                    <?php if (!empty($classPicker['Options']['specialties'])): ?><option value="Options">Options (1ère – 4ème)</option><?php endif; ?>
                 </select>
-                <div class="form-text"><?= count($classes) ?> classes — Maternelle → Primaire → Secondaire → Options</div>
+
+                <div class="mb-3 mt-3" id="simpleClassGroup" style="display:none;">
+                    <label class="form-label" for="simpleClassSelect">Classe *</label>
+                    <select id="simpleClassSelect" class="form-select">
+                        <option value="">-- Choisir la classe --</option>
+                    </select>
+                </div>
+
+                <div id="optionsClassGroup" style="display:none;">
+                    <div class="mb-3 mt-3">
+                        <label class="form-label" for="optionYearSelect">Année *</label>
+                        <select id="optionYearSelect" class="form-select">
+                            <option value="">-- Choisir l'année --</option>
+                            <option value="1ère">1ère</option>
+                            <option value="2ème">2ème</option>
+                            <option value="3ème">3ème</option>
+                            <option value="4ème">4ème</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="optionSpecialtySelect">Option / Filière *</label>
+                        <select id="optionSpecialtySelect" class="form-select">
+                            <option value="">-- Choisir l'option --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <input type="hidden" name="classe_id" id="classeIdInput" value="">
+                <div class="form-text" id="selectedClassHint">Maternelle → Primaire → Secondaire → Options</div>
                 <?php endif; ?>
             </div>
+            <script id="classPickerData" type="application/json"><?= json_encode($classPicker, JSON_UNESCAPED_UNICODE) ?></script>
             <button type="button" class="btn btn-primary btn-step w-100 next-step">Suivant <i class="bi bi-arrow-right"></i></button>
         </div>
     </div>
