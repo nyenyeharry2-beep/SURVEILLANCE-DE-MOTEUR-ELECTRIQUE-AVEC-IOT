@@ -1,7 +1,11 @@
 <?php
 /**
- * Configuration - C.S LES SUPER GENIES (genies.free.je)
- * Fichiers dans htdocs/ directement
+ * Configuration MySQL - genies.free.je
+ * 
+ * Si erreur de connexion :
+ * 1. InfinityFree → MySQL Databases → copiez Host, User, Password, Database
+ * 2. Collez les valeurs ci-dessous
+ * 3. Ouvrez test_db.php pour vérifier
  */
 
 define('DB_HOST', 'sql205.infinityfree.com');
@@ -11,7 +15,7 @@ define('DB_USER', 'if0_42871659');
 define('DB_PASS', 'JoJyWjiexiP1TAd');
 define('DB_CHARSET', 'utf8mb4');
 
-// URL sans /transport car fichiers dans htdocs/
 define('BASE_URL', 'https://genies.free.je');
 
-define('DEBUG_MODE', false);
+// Mettre true temporairement pour voir l'erreur exacte, puis remettre false
+define('DEBUG_MODE', true);
