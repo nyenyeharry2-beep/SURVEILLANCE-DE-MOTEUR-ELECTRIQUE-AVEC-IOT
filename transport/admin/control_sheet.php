@@ -63,16 +63,8 @@ $exportExcelUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($repo
 $exportAddressesUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($reportFilters, 'addresses', false);
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 no-print">
+<div class="mb-3 no-print">
     <h2><i class="bi bi-table"></i> Fiche de contrôle — Minerval Transport</h2>
-    <?php if ($hasFilter): ?>
-    <div class="d-flex gap-2 flex-wrap">
-        <a href="<?= e($exportPdfUrl) ?>" class="btn btn-danger"><i class="bi bi-file-pdf"></i> Télécharger PDF</a>
-        <a href="<?= e($exportExcelUrl) ?>" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet"></i> Télécharger Excel</a>
-        <a href="<?= e($exportAddressesUrl) ?>" class="btn btn-info text-white"><i class="bi bi-geo-alt"></i> Télécharger adresses</a>
-        <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimer</button>
-    </div>
-    <?php endif; ?>
 </div>
 
 <div class="card mb-3 no-print">
@@ -81,16 +73,42 @@ $exportAddressesUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($
         <?php require __DIR__ . '/../includes/admin_report_filter.php'; ?>
         <p class="small text-muted mb-0 mt-2">
             Choisissez d'abord la <strong>section</strong>. Pour <strong>Options</strong>, sélectionnez aussi la filière (Pédagogie, Commercial…), puis éventuellement une <strong>classe</strong>.
-            Ensuite téléchargez le rapport en PDF ou Excel.
+            Cliquez <strong>Filtrer</strong>, puis téléchargez le rapport.
         </p>
     </div>
 </div>
+
+<?php if ($hasFilter): ?>
+<div class="card mb-3 no-print border-primary">
+    <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <strong><i class="bi bi-download"></i> Télécharger le rapport filtré</strong>
+            <span class="badge bg-primary"><?= count($students) ?> élève<?= count($students) > 1 ? 's' : '' ?></span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="<?= e($exportPdfUrl) ?>" class="btn btn-danger"><i class="bi bi-file-pdf"></i> PDF</a>
+            <a href="<?= e($exportExcelUrl) ?>" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet"></i> Excel</a>
+            <a href="<?= e($exportAddressesUrl) ?>" class="btn btn-info text-white"><i class="bi bi-geo-alt"></i> Adresses + Tél</a>
+            <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimer</button>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if (!$hasFilter): ?>
 <div class="alert alert-info no-print">
     <i class="bi bi-info-circle"></i> Sélectionnez une section ci-dessus pour afficher la fiche et télécharger le rapport.
 </div>
 <?php else: ?>
+
+<?php if (empty($students)): ?>
+<div class="alert alert-warning no-print">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Aucun élève inscrit</strong> pour ce filtre (<?= e($filterMeta['section']) ?> — <?= e($filterMeta['classe']) ?>).
+    Les adresses et téléphones parents apparaîtront ici après les inscriptions via le formulaire en ligne.
+    <a href="<?= BASE_URL ?>/admin/students.php" class="alert-link">Voir tous les élèves</a>
+</div>
+<?php endif; ?>
 
 <!-- En-tête imprimable (modèle papier) -->
 <div class="print-header" style="display:block;">
@@ -113,11 +131,13 @@ $exportAddressesUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($
             renderControlSheetStudentRow($student, $paymentsMap[$student['id']] ?? [], $num, true);
         endforeach;
 
-        $emptyRows = max(0, 50 - count($students));
-        for ($i = 0; $i < min($emptyRows, 10); $i++):
-            $num++;
-            renderControlSheetBlankRow($num);
-        endfor;
+        if ($students) {
+            $emptyRows = max(0, 50 - count($students));
+            for ($i = 0; $i < min($emptyRows, 10); $i++):
+                $num++;
+                renderControlSheetBlankRow($num);
+            endfor;
+        }
         ?>
         </tbody>
     </table>
