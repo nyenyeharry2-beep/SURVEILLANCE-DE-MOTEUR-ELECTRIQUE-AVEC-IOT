@@ -6,6 +6,8 @@ $inscriptionUrl = BASE_URL . '/inscription.php';
 $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($inscriptionUrl);
 $posterPreviewUrl = BASE_URL . '/admin/download_qr.php?preview=1';
 $posterDownloadUrl = BASE_URL . '/admin/download_qr.php';
+$guidePreviewUrl = BASE_URL . '/admin/download_guide_parents.php?preview=1';
+$guideDownloadUrl = BASE_URL . '/admin/download_guide_parents.php';
 ?>
 
 <h2 class="mb-4"><i class="bi bi-qr-code"></i> QR Code d'inscription</h2>
@@ -39,13 +41,25 @@ $posterDownloadUrl = BASE_URL . '/admin/download_qr.php';
         </div>
 
         <div class="card mt-4">
+            <div class="card-header"><i class="bi bi-image"></i> Guide parents (photo à envoyer WhatsApp)</div>
+            <div class="card-body text-center">
+                <p class="text-muted small">Logo + QR + étapes avec flèches — pour familles qui paient déjà le bus</p>
+                <img src="<?= e($guidePreviewUrl) ?>" alt="Guide inscription parents" class="img-fluid border rounded mb-3" style="max-width:360px;">
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="<?= e($guideDownloadUrl) ?>" class="btn btn-success">
+                        <i class="bi bi-download"></i> Télécharger le guide (PNG)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
             <div class="card-header">Instructions</div>
             <div class="card-body">
                 <ul class="mb-0">
-                    <li>Téléchargez l'affiche : le <strong>logo est en haut</strong>, le <strong>QR Code juste en dessous</strong> sur la même image</li>
-                    <li>Imprimez ou partagez l'image dans les groupes WhatsApp des parents</li>
-                    <li>Affichez-la à l'école et dans les salles de classe</li>
-                    <li>Les parents scannent → remplissent le formulaire → données enregistrées automatiquement</li>
+                    <li><strong>Guide parents</strong> : à envoyer sur WhatsApp (tout sur une image)</li>
+                    <li><strong>Affiche QR</strong> : logo + QR pour afficher à l'école</li>
+                    <li>Les parents scannent ou tapent l'adresse → remplissent le formulaire</li>
                 </ul>
             </div>
         </div>
