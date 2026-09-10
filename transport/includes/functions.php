@@ -331,9 +331,25 @@ function formatStudentFullAddress(array $student, bool $includePhones = true): s
     return $parts ? implode("\n", $parts) : '—';
 }
 
+function formatStudentPhones(array $student): string
+{
+    $phones = [];
+    $telephone = trim($student['telephone_parent'] ?? '');
+    $telephone2 = trim($student['telephone_parent2'] ?? '');
+
+    if ($telephone !== '') {
+        $phones[] = $telephone;
+    }
+    if ($telephone2 !== '') {
+        $phones[] = $telephone2;
+    }
+
+    return $phones ? implode("\n", $phones) : '—';
+}
+
 function getControlSheetColspan(): int
 {
-    // N° + Nom + Adresse + Tél + (Mois + colonne OK) × 10 mois
+    // N° + Nom + Adresse + Tél parents + (Mois + colonne OK) × 10 mois
     return 4 + count(SCHOOL_MONTHS) * 2;
 }
 
@@ -347,7 +363,7 @@ function renderControlSheetThead(bool $pdfMode = false): void
     echo '<th class="col-num">N°</th>';
     echo '<th class="col-name">NOM &amp; POST-NOM</th>';
     echo '<th class="' . $addressClass . '">ADRESSE COMPLÈTE</th>';
-    echo '<th class="' . $telClass . '">TÉL</th>';
+    echo '<th class="' . $telClass . '">TÉL PARENTS</th>';
     foreach (SCHOOL_MONTHS as $info) {
         echo '<th class="' . $monthClass . '">' . e($info['short']) . '</th>';
         echo '<th class="' . $okClass . '">&nbsp;</th>';
@@ -362,14 +378,14 @@ function renderControlSheetStudentRow(array $student, array $studentPayments, in
 
     $addressClass = $pdfMode ? 'col-address-pdf' : 'col-address';
     $telClass = $pdfMode ? 'col-tel-pdf' : 'col-tel';
-    $fullAddress = formatStudentFullAddress($student);
-    $telephone = trim($student['telephone_parent'] ?? '') ?: '—';
+    $fullAddress = formatStudentFullAddress($student, false);
+    $phones = formatStudentPhones($student);
 
     echo '<tr>';
     echo '<td class="col-num">' . str_pad((string) $num, 2, '0', STR_PAD_LEFT) . '</td>';
     echo '<td class="col-name">' . e($student['nom_complet']) . '</td>';
     echo '<td class="' . $addressClass . '">' . nl2br(e($fullAddress)) . '</td>';
-    echo '<td class="' . $telClass . '">' . e($telephone) . '</td>';
+    echo '<td class="' . $telClass . '">' . nl2br(e($phones)) . '</td>';
 
     foreach (SCHOOL_MONTHS as $monthNum => $info) {
         $p = $studentPayments[$monthNum] ?? null;

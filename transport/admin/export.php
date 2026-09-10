@@ -57,7 +57,7 @@ if ($type === 'addresses') {
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    fputcsv($out, ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone', 'Téléphone 2', 'Arrêt', 'Précision arrêt'], ';');
+    fputcsv($out, ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone parent 1', 'Téléphone parent 2', 'Arrêt', 'Précision arrêt'], ';');
 
     $num = 0;
     foreach ($students as $s) {
@@ -93,7 +93,7 @@ if ($type === 'csv' || $type === 'excel') {
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone', 'Téléphone 2', 'Arrêt', 'Précision arrêt', 'Adresse'];
+    $headers = ['N°', 'Dossier', 'Nom & Post-nom', 'Classe', 'Section', 'Option/Filière', 'Adresse complète', 'Téléphone parent 1', 'Téléphone parent 2', 'Arrêt', 'Précision arrêt', 'Adresse'];
     foreach (SCHOOL_MONTHS as $info) {
         $headers[] = $info['label'] . ' (Payé)';
         $headers[] = $info['label'] . ' (OK)';
@@ -159,7 +159,7 @@ if ($type === 'pdf') {
             th { background: #f0f0f0; font-weight: bold; }
             .col-name { text-align: left; min-width: 120px; padding-left: 5px; }
             .col-address-pdf { text-align: left; min-width: 160px; max-width: 220px; font-size: 8px; line-height: 1.25; padding: 2px 4px; white-space: pre-line; }
-            .col-tel-pdf { min-width: 70px; font-size: 8px; }
+            .col-tel-pdf { min-width: 75px; max-width: 95px; font-size: 8px; line-height: 1.25; white-space: pre-line; }
             .col-num { width: 25px; }
             .col-ok-pdf { width: 22px; min-width: 22px; background: #fafafa; border-left: 1px solid #666 !important; }
             .cell-ok-marked { color: #198754; font-weight: bold; }

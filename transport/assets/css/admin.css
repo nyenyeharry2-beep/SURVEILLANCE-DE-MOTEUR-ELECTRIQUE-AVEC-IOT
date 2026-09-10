@@ -66,8 +66,12 @@
 
 .control-sheet .col-tel,
 .control-sheet .col-tel-pdf {
-    min-width: 85px;
+    min-width: 95px;
+    max-width: 120px;
     font-size: 9px;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .control-sheet .col-month {
