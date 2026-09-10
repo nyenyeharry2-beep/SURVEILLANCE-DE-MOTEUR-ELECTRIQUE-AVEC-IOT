@@ -72,8 +72,8 @@ $exportAddressesUrl = BASE_URL . '/admin/export.php?' . buildReportExportQuery($
     <div class="card-body py-2">
         <?php require __DIR__ . '/../includes/admin_report_filter.php'; ?>
         <p class="small text-muted mb-0 mt-2">
-            Choisissez d'abord la <strong>section</strong>. Pour <strong>Options</strong>, sélectionnez aussi la filière (Pédagogie, Commercial…), puis éventuellement une <strong>classe</strong>.
-            Cliquez <strong>Filtrer</strong>, puis téléchargez le rapport.
+            Pour <strong>Secondaire</strong> : laissez « Tout le secondaire » pour 7ème, 8ème et toutes les options (1ère à 4ème),
+            ou choisissez <strong>7ème-8ème</strong> / une filière (Pédagogie, Commercial…), puis la <strong>classe</strong>.
         </p>
     </div>
 </div>

@@ -1,15 +1,18 @@
 <?php
 /**
  * Formulaire filtre rapport : Section → Option → Classe
- * Variables attendues : $reportFilters (array), $formId (string, optionnel)
  */
 $reportFilters = $reportFilters ?? parseReportFilters($_GET);
 $formId = $formId ?? 'reportFilterForm';
 $filterSection = $reportFilters['section'] ?? '';
+if ($filterSection === 'Options') {
+    $filterSection = 'Secondaire';
+}
 $filterOption = $reportFilters['option'] ?? '';
 $filterClasse = (int) ($reportFilters['classe'] ?? 0);
 $filterClasses = getClassesForAdminFilter($filterSection ?: null, $filterOption ?: null);
-$showOption = ($filterSection === 'Options');
+$showOption = isSecondaireReportSection($filterSection);
+$sectionOptions = getFilterOptionsForSection($filterSection);
 ?>
 <form method="GET" class="row g-2 align-items-end" id="<?= e($formId) ?>">
     <div class="col-auto">
@@ -22,10 +25,10 @@ $showOption = ($filterSection === 'Options');
         </select>
     </div>
     <div class="col-auto" id="filterOptionGroup" style="<?= $showOption ? '' : 'display:none;' ?>">
-        <label class="form-label small">Option / Filière</label>
+        <label class="form-label small">Niveau / Option</label>
         <select name="option" id="filterOption" class="form-select form-select-sm">
-            <option value="">Toutes les options</option>
-            <?php foreach (getOptionSpecialties() as $opt): ?>
+            <option value="">Tout le secondaire (7ème à 4ème options)</option>
+            <?php foreach ($sectionOptions as $opt): ?>
             <option value="<?= e($opt) ?>" <?= $filterOption === $opt ? 'selected' : '' ?>><?= e($opt) ?></option>
             <?php endforeach; ?>
         </select>
@@ -44,8 +47,9 @@ $showOption = ($filterSection === 'Options');
     </div>
 </form>
 <script type="application/json" id="adminFilterClassesData"><?= json_encode([
-    'core' => getCoreSchoolSections(),
-    'options' => getOptionSpecialties(),
+    'primary' => getPrimarySchoolSections(),
+    'secondaireCycleKey' => getSecondaireCycleFilterKey(),
+    'secondaireOptions' => getOptionSpecialties(),
     'classes' => array_map(static fn($c) => [
         'id' => (int) $c['id'],
         'section' => $c['section'] ?? '',

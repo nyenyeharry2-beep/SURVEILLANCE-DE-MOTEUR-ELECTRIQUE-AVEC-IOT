@@ -30,17 +30,24 @@ function initReportFilters() {
         return;
     }
 
-    const coreSections = pickerData.core || [];
+    const primarySections = pickerData.primary || ['Maternelle', 'Primaire'];
+    const secondaireCycleKey = pickerData.secondaireCycleKey || '7ème-8ème';
     const allClasses = pickerData.classes || [];
+
+    function isSecondaireSection(section) {
+        return section === 'Secondaire' || section === 'Options';
+    }
 
     function fillClassSelect(section, option) {
         let list = allClasses;
 
-        if (section && coreSections.includes(section)) {
+        if (section && primarySections.includes(section)) {
             list = allClasses.filter(c => c.section === section);
-        } else if (section === 'Options') {
-            list = allClasses.filter(c => !coreSections.includes(c.section));
-            if (option) {
+        } else if (isSecondaireSection(section)) {
+            list = allClasses.filter(c => !primarySections.includes(c.section));
+            if (option === secondaireCycleKey) {
+                list = list.filter(c => c.section === 'Secondaire');
+            } else if (option) {
                 list = list.filter(c => c.section === option);
             }
         }
@@ -61,11 +68,11 @@ function initReportFilters() {
     }
 
     function updateOptionVisibility() {
-        const isOptions = sectionSelect.value === 'Options';
+        const show = isSecondaireSection(sectionSelect.value);
         if (optionGroup) {
-            optionGroup.style.display = isOptions ? '' : 'none';
+            optionGroup.style.display = show ? '' : 'none';
         }
-        if (!isOptions && optionSelect) {
+        if (!show && optionSelect) {
             optionSelect.value = '';
         }
     }

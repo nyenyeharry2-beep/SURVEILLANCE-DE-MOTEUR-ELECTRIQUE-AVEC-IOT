@@ -643,12 +643,32 @@ function getClassesBySection(?string $section): array
 
 function getMainSectionsForFilter(): array
 {
-    return ['Maternelle', 'Primaire', 'Secondaire', 'Options'];
+    return ['Maternelle', 'Primaire', 'Secondaire'];
 }
 
 function getCoreSchoolSections(): array
 {
     return ['Maternelle', 'Primaire', 'Secondaire'];
+}
+
+function getPrimarySchoolSections(): array
+{
+    return ['Maternelle', 'Primaire'];
+}
+
+function getSecondaireCycleFilterKey(): string
+{
+    return '7ème-8ème';
+}
+
+function isSecondaireCycleFilter(?string $option): bool
+{
+    return $option === getSecondaireCycleFilterKey();
+}
+
+function isSecondaireReportSection(?string $section): bool
+{
+    return in_array($section, ['Secondaire', 'Options'], true);
 }
 
 function getOptionSpecialties(): array
@@ -657,6 +677,15 @@ function getOptionSpecialties(): array
     $stmt = getDB()->query('SELECT DISTINCT section FROM classes WHERE statut = "actif" AND section IS NOT NULL AND section != "" ORDER BY section');
     $all = $stmt->fetchAll(PDO::FETCH_COLUMN);
     return array_values(array_filter($all, static fn($s) => !in_array($s, $core, true)));
+}
+
+function getFilterOptionsForSection(?string $mainSection): array
+{
+    if (!isSecondaireReportSection($mainSection)) {
+        return [];
+    }
+
+    return array_merge([getSecondaireCycleFilterKey()], getOptionSpecialties());
 }
 
 function parseReportFilters(array $input = []): array
@@ -675,15 +704,19 @@ function getClassesForAdminFilter(?string $mainSection, ?string $optionFiliere =
         return $classes;
     }
 
-    if (in_array($mainSection, getCoreSchoolSections(), true)) {
+    if (in_array($mainSection, getPrimarySchoolSections(), true)) {
         return array_values(array_filter($classes, static fn($c) => ($c['section'] ?? '') === $mainSection));
     }
 
-    if ($mainSection === 'Options') {
-        $core = getCoreSchoolSections();
-        $filtered = array_values(array_filter($classes, static fn($c) => !in_array($c['section'] ?? '', $core, true)));
+    if (isSecondaireReportSection($mainSection)) {
+        $primary = getPrimarySchoolSections();
+        $filtered = array_values(array_filter($classes, static fn($c) => !in_array($c['section'] ?? '', $primary, true)));
         if ($optionFiliere) {
-            $filtered = array_values(array_filter($filtered, static fn($c) => ($c['section'] ?? '') === $optionFiliere));
+            if (isSecondaireCycleFilter($optionFiliere)) {
+                $filtered = array_values(array_filter($filtered, static fn($c) => ($c['section'] ?? '') === 'Secondaire'));
+            } else {
+                $filtered = array_values(array_filter($filtered, static fn($c) => ($c['section'] ?? '') === $optionFiliere));
+            }
         }
         return $filtered;
     }
@@ -703,22 +736,27 @@ function applyStudentListFilters(string &$sql, array &$params, array $filters): 
         return;
     }
 
-    if (in_array($filterSection, getCoreSchoolSections(), true)) {
+    if (in_array($filterSection, getPrimarySchoolSections(), true)) {
         $sql .= ' AND c.section = ?';
         $params[] = $filterSection;
         return;
     }
 
-    if ($filterSection === 'Options') {
+    if (isSecondaireReportSection($filterSection)) {
         if ($filterOption) {
-            $sql .= ' AND c.section = ?';
-            $params[] = $filterOption;
+            if (isSecondaireCycleFilter($filterOption)) {
+                $sql .= ' AND c.section = ?';
+                $params[] = 'Secondaire';
+            } else {
+                $sql .= ' AND c.section = ?';
+                $params[] = $filterOption;
+            }
             return;
         }
-        $core = getCoreSchoolSections();
-        $placeholders = implode(',', array_fill(0, count($core), '?'));
+        $primary = getPrimarySchoolSections();
+        $placeholders = implode(',', array_fill(0, count($primary), '?'));
         $sql .= " AND c.section NOT IN ($placeholders)";
-        array_push($params, ...$core);
+        array_push($params, ...$primary);
     }
 }
 
@@ -730,14 +768,16 @@ function getReportFilterDisplayMeta(array $filters): array
     $selectedClass = $classeId ? getClassById($classeId) : null;
 
     $displaySection = 'Toutes';
-    if ($section === 'Options' && $option) {
-        $displaySection = 'Options — ' . $option;
+    if (isSecondaireReportSection($section) && $option) {
+        $displaySection = 'Secondaire — ' . $option;
+    } elseif (isSecondaireReportSection($section)) {
+        $displaySection = 'Secondaire (7ème à 4ème options)';
     } elseif ($section) {
         $displaySection = $section;
     }
 
     $displayClasse = $selectedClass ? formatClassName($selectedClass) : 'Toutes';
-    $displayOption = ($section === 'Options' && $option) ? $option : '—';
+    $displayOption = (isSecondaireReportSection($section) && $option) ? $option : '—';
 
     return [
         'section' => $displaySection,
