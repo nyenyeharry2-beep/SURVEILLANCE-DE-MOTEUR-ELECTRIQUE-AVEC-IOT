@@ -308,12 +308,10 @@ function formatStudentFullAddress(array $student, bool $includePhones = true): s
 
     $arretNom = trim($student['arret_nom'] ?? '');
     $arretPrecision = trim($student['arret_precision'] ?? '');
-    if ($arretNom !== '' || $arretPrecision !== '') {
-        $arretLine = 'Arrêt : ' . $arretNom;
-        if ($arretPrecision !== '') {
-            $arretLine .= ($arretNom !== '' ? ' — ' : '') . $arretPrecision;
-        }
-        $parts[] = trim($arretLine, ' :—');
+    if ($arretPrecision !== '') {
+        $parts[] = 'Arrêt : ' . $arretPrecision;
+    } elseif ($arretNom !== '') {
+        $parts[] = 'Arrêt : ' . $arretNom;
     }
 
     if ($includePhones) {
@@ -690,8 +688,13 @@ function getFilterOptionsForSection(?string $mainSection): array
 
 function parseReportFilters(array $input = []): array
 {
+    $section = trim($input['section'] ?? '');
+    if ($section === 'Options') {
+        $section = 'Secondaire';
+    }
+
     return [
-        'section' => trim($input['section'] ?? ''),
+        'section' => $section,
         'option' => trim($input['option'] ?? ''),
         'classe' => (int) ($input['classe'] ?? 0),
     ];

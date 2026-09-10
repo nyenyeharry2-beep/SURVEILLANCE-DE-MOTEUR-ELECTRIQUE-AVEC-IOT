@@ -6,7 +6,6 @@ $pageTitle = 'Inscription au transport scolaire';
 require_once __DIR__ . '/includes/header_public.php';
 
 $classPicker = function_exists('getClassPickerStructure') ? getClassPickerStructure() : [];
-$stops = getActiveStops();
 $tariffs = getActiveTariffs();
 $defaultTariff = getDefaultTariff();
 $year = getActiveAcademicYear();
@@ -132,18 +131,11 @@ $suggestedMonth = in_array($currentMonth, array_keys($months)) ? $currentMonth :
                           placeholder="Ex: Golf Maisha, près de la pharmacie..."></textarea>
             </div>
             <div class="mb-3">
-                <label class="form-label">Arrêt de bus</label>
-                <select name="arret_id" class="form-select">
-                    <option value="" selected>-- Sélectionner un arrêt --</option>
-                    <?php foreach ($stops as $s): ?>
-                    <option value="<?= $s['id'] ?>"><?= e($s['nom']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Précision sur l'arrêt</label>
-                <input type="text" name="arret_precision" class="form-control"
-                       placeholder='Ex: "Devant la pharmacie..."'>
+                <label class="form-label" for="arretBus">Votre arrêt de bus *</label>
+                <input type="text" name="arret_precision" id="arretBus" class="form-control" required
+                       placeholder="Écrire votre arrêt de bus"
+                       autocomplete="off">
+                <div class="form-text">Indiquez votre quartier ou lieu de prise en charge du bus (ex: Golf Maisha, Kenya, Katuba…).</div>
             </div>
             <div class="d-flex gap-2">
                 <button type="button" class="btn btn-outline-secondary btn-step flex-fill prev-step"><i class="bi bi-arrow-left"></i> Retour</button>
