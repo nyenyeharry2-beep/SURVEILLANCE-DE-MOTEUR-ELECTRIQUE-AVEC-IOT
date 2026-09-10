@@ -4,6 +4,6 @@
     <p class="mb-0"><?= e(getSetting('school_phone', '')) ?></p>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/inscription.js?v=5"></script>
+<script src="<?= BASE_URL ?>/assets/js/inscription.js?v=6"></script>
 </body>
 </html>
