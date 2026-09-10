@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'je.free.genies.admin'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "je.free.genies.admin"
+        minSdk 24
+        targetSdk 34
+        versionCode 3
+        versionName "1.0.2"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../genies-admin.keystore')
+            storePassword 'GeniesAdmin2026'
+            keyAlias 'genies'
+            keyPassword 'GeniesAdmin2026'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+}

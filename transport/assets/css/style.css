@@ -1,0 +1,284 @@
+/* Transport Scolaire - Styles publics */
+
+:root {
+    --primary-color: #1a5276;
+    --accent-color: #2980b9;
+}
+
+.public-body {
+    background: #f0f4f8;
+    min-height: 100vh;
+}
+
+.public-header {
+    background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
+    color: white;
+}
+
+.public-header h4,
+.public-header h5,
+.school-banner h4,
+.school-banner h5 {
+    color: white !important;
+}
+
+.school-banner-subtitle {
+    opacity: 0.9;
+}
+
+.school-banner {
+    text-align: center;
+}
+
+.school-banner-logo {
+    margin-bottom: 0.5rem;
+    line-height: 0;
+}
+
+.school-logo {
+    object-fit: contain;
+    background: white;
+    border-radius: 6px;
+    padding: 2px;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.school-logo-small {
+    height: 32px;
+    max-width: 40px;
+    width: auto;
+}
+
+.school-logo-medium {
+    height: 50px;
+    max-width: 65px;
+    width: auto;
+}
+
+.school-logo-banner {
+    height: 55px;
+    max-width: 70px;
+    width: auto;
+}
+
+.school-logo-large {
+    height: 65px;
+    max-width: 80px;
+    width: auto;
+}
+
+.school-logo-print {
+    height: 60px;
+    max-width: 75px;
+    width: auto;
+}
+
+.school-banner-logo .school-logo {
+    height: 55px;
+    max-height: 55px;
+    max-width: 70px;
+    width: auto;
+}
+
+/* Contenu public centré */
+.public-main {
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.public-main .form-card h5,
+.public-main .form-label,
+.public-main .form-text,
+.public-main .step-indicator {
+    text-align: center;
+}
+
+.public-main .payment-choice {
+    text-align: left;
+}
+
+.public-main .form-control,
+.public-main .form-select,
+.public-main textarea.form-control {
+    text-align: left;
+}
+
+.public-main select.form-select {
+    width: 100%;
+    background-color: #fff;
+    color: #212529;
+}
+
+.public-main select.form-select option {
+    color: #212529;
+    background-color: #fff;
+}
+
+/* Formulaire multi-étapes */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    position: relative;
+    gap: 0.25rem;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: #dee2e6;
+    z-index: 0;
+}
+
+.step-item {
+    text-align: center;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.step-item.active .step-circle {
+    background: var(--primary-color);
+    color: white;
+}
+
+.step-item.completed .step-circle {
+    background: #28a745;
+    color: white;
+}
+
+.step-label {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.step-item.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+}
+
+.form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+}
+
+.btn-step {
+    min-height: 48px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.form-control, .form-select {
+    min-height: 48px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+@media (max-width: 576px) {
+    .public-header {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .school-banner-logo .school-logo,
+    .school-banner-logo img {
+        height: 70px !important;
+        max-height: 70px !important;
+        max-width: 90px !important;
+    }
+
+    .school-banner h5 {
+        font-size: 0.85rem;
+    }
+
+    .school-banner h4 {
+        font-size: 1.15rem;
+    }
+
+    .step-indicator {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        padding: 0 0.25rem 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-indicator::before {
+        display: none;
+    }
+
+    .step-item {
+        flex: 0 0 auto;
+        min-width: 58px;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .step-label {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .form-card {
+        padding: 1.25rem;
+    }
+}
+
+/* Confirmation */
+.confirmation-icon {
+    font-size: 4rem;
+    color: #28a745;
+}
+
+.dossier-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    letter-spacing: 1px;
+}
+
+/* Payment status colors */
+.payment-paid { color: #28a745; font-weight: 600; }
+.payment-partial { color: #fd7e14; font-weight: 600; }
+.payment-unpaid { color: #dc3545; font-weight: 600; }

@@ -1,0 +1,25 @@
+# Transport Scolaire - Configuration Apache (InfinityFree)
+
+# UTF-8
+AddDefaultCharset UTF-8
+
+# Protéger les fichiers sensibles
+<FilesMatch "^(database\.php|app\.php|\.htaccess)$">
+    Require all denied
+</FilesMatch>
+
+# Bloquer l'accès direct au dossier config et database
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+# Page d'erreur (optionnel)
+# ErrorDocument 404 /transport/index.php
+
+# Compression (si disponible)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript
+</IfModule>
