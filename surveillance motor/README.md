@@ -12,7 +12,8 @@ Capteurs ──► Arduino Uno ──UART──► ESP32 ──Wi‑Fi──► 
 
 - Mesure **ax / ay / az**, **RMS**, **vRMS**, **RPM**, **impulsions**, **fréquence**, **urgence**, **alerte**
 - Capteurs : ACS712, LM35, **IR 3 pins**, **ADXL345**
-- **Tableau de bord Telegram admin** : boutons **ON / OFF**, **Historique**, **URGENCE STOP**, Actualiser
+- **Tableau de bord Telegram admin** : date/heure, dernière action, boutons **ON / OFF**, **Historique (30 jours)**, **URGENCE STOP**, Actualiser
+- **Historique persistant** (LittleFS) : actions du mois avec date et heure, pagination
 - **Observateur** (chat optionnel) : mêmes métriques, sans commandes moteur
 - Coupure de sécurité locale Uno si `urg=2`
 

@@ -48,6 +48,18 @@ Ouvrir `esp32/motor_telegram/motor_telegram.ino` et remplir en haut du fichier :
 - Admin Telegram : `/seuil` (voir) ou `/seuil 15` (changer).
 - Bouton **Seuil** sur le clavier admin.
 
+### Tableau de bord & historique (1 mois)
+
+Le tableau de bord affiche :
+- **Date/heure maintenant** (NTP)
+- **Dernière action** avec sa date et son heure
+- **Mise à jour données** (dernière télémétrie Uno)
+- Capteurs, niveau, seuil, moteur
+
+L’historique est **persistant sur la flash ESP32 (LittleFS)** pendant **30 jours** :
+- Bouton **Historique** ou `/historique`
+- Pagination : `/historique 2`, boutons Precedent / Suivant
+- Chaque action : date, heure, type, niveau/seuil, urgence, moteur, RMS, RPM
 
 ## 4. Flasher l’Arduino Uno
 

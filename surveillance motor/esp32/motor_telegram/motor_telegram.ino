@@ -1,12 +1,13 @@
 /*
  * ESP32 — Tableau de bord Telegram (admin + observateur)
- * Libs : WiFi + UniversalTelegramBot uniquement
- * (pas ArduinoJson, pas config.h)
+ * Libs : WiFi + UniversalTelegramBot + LittleFS
+ * Historique persistant 30 jours (date/heure de chaque action)
  */
 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+#include <LittleFS.h>
 #include <time.h>
 
 // ========== CONFIG À REMPLIR ==========
@@ -38,21 +39,29 @@ struct Telemetry {
   bool valid = false;
 } tel;
 
-// Historique avec date, heure et données
-const int HIST_SIZE = 10;
-struct HistEntry {
-  char dateStr[12];   // JJ/MM/AAAA
-  char timeStr[10];   // HH:MM:SS
-  char event[48];
-  float ax, ay, az, rms, vrms, rpm, freq;
-  unsigned long imp;
-  int urg, alerte;
-  bool motorOn;
-  bool hasData;
-  bool used;
-} hist[HIST_SIZE];
-int histHead = 0;
+// ---- Historique persistant (1 mois) ----
+const char* HIST_PATH = "/hist.log";
+const char* HIST_TMP  = "/hist.tmp";
+const int HIST_RETENTION_DAYS = 30;
+const int HIST_PAGE_SIZE = 8;
+const int HIST_MAX_LINES = 2000;  // plafond sécurité flash
+
+struct Stamp {
+  char dateStr[12];
+  char timeStr[10];
+  bool ok;
+} lastDataStamp = {"--/--/----", "--:--:--", false};
+
+struct LastAction {
+  char dateStr[12];
+  char timeStr[10];
+  char event[56];
+  bool ok;
+} lastAction = {"--/--/----", "--:--:--", "(aucune)", false};
+
+bool fsOk = false;
 bool timeOk = false;
+time_t lastPruneAt = 0;
 
 unsigned long lastBotCheck = 0;
 unsigned long lastAlertMs = 0;
@@ -115,6 +124,12 @@ void syncTime() {
   }
 }
 
+time_t nowEpoch() {
+  struct tm ti;
+  if (!getLocalTime(&ti)) return 0;
+  return mktime(&ti);
+}
+
 String nowDateStr() {
   struct tm ti;
   if (!getLocalTime(&ti)) return "--/--/----";
@@ -131,30 +146,353 @@ String nowTimeStr() {
   return String(buf);
 }
 
-void pushHistory(const String& event) {
-  HistEntry& e = hist[histHead];
+void stampNow(Stamp& st) {
   String d = nowDateStr();
   String t = nowTimeStr();
-  strncpy(e.dateStr, d.c_str(), sizeof(e.dateStr) - 1);
-  e.dateStr[sizeof(e.dateStr) - 1] = '\0';
-  strncpy(e.timeStr, t.c_str(), sizeof(e.timeStr) - 1);
-  e.timeStr[sizeof(e.timeStr) - 1] = '\0';
-  strncpy(e.event, event.c_str(), sizeof(e.event) - 1);
-  e.event[sizeof(e.event) - 1] = '\0';
+  strncpy(st.dateStr, d.c_str(), sizeof(st.dateStr) - 1);
+  st.dateStr[sizeof(st.dateStr) - 1] = '\0';
+  strncpy(st.timeStr, t.c_str(), sizeof(st.timeStr) - 1);
+  st.timeStr[sizeof(st.timeStr) - 1] = '\0';
+  st.ok = true;
+}
 
-  e.hasData = tel.valid;
-  e.ax = tel.ax; e.ay = tel.ay; e.az = tel.az;
-  e.rms = tel.rms; e.vrms = tel.vrms;
-  e.rpm = tel.rpm; e.freq = tel.freq; e.imp = tel.imp;
-  e.urg = tel.urg; e.alerte = tel.alerte;
-  e.motorOn = tel.motorOn;
-  e.used = true;
-  histHead = (histHead + 1) % HIST_SIZE;
+bool initHistoryFs() {
+  if (!LittleFS.begin(true)) {
+    Serial.println(F("LittleFS echec"));
+    fsOk = false;
+    return false;
+  }
+  fsOk = true;
+  if (!LittleFS.exists(HIST_PATH)) {
+    File f = LittleFS.open(HIST_PATH, "w");
+    if (f) f.close();
+  }
+  Serial.println(F("LittleFS OK — historique 30 jours"));
+  return true;
+}
+
+String fieldAt(const String& line, int idx) {
+  int start = 0;
+  int cur = 0;
+  for (unsigned i = 0; i <= line.length(); i++) {
+    if (i == line.length() || line[i] == '|') {
+      if (cur == idx) return line.substring(start, i);
+      cur++;
+      start = i + 1;
+    }
+  }
+  return "";
+}
+
+bool lineWithinMonth(const String& line, time_t cutoff) {
+  if (cutoff == 0) return true;
+  time_t ep = (time_t)fieldAt(line, 0).toInt();
+  if (ep == 0) return true;
+  return ep >= cutoff;
+}
+
+time_t monthCutoff() {
+  time_t now = nowEpoch();
+  if (now == 0) return 0;
+  return now - (time_t)HIST_RETENTION_DAYS * 24L * 3600L;
+}
+
+int countHistoryLines(time_t cutoff) {
+  if (!fsOk) return 0;
+  File f = LittleFS.open(HIST_PATH, "r");
+  if (!f) return 0;
+  int n = 0;
+  while (f.available()) {
+    String line = f.readStringUntil('\n');
+    line.trim();
+    if (line.length() == 0) continue;
+    if (lineWithinMonth(line, cutoff)) n++;
+  }
+  f.close();
+  return n;
+}
+
+void pruneHistoryIfNeeded(bool force = false) {
+  if (!fsOk) return;
+  time_t now = nowEpoch();
+  if (!force && lastPruneAt != 0 && now != 0 && (now - lastPruneAt) < 3600) return;
+
+  time_t cutoff = monthCutoff();
+  File in = LittleFS.open(HIST_PATH, "r");
+  if (!in) return;
+
+  File out = LittleFS.open(HIST_TMP, "w");
+  if (!out) { in.close(); return; }
+
+  int kept = 0;
+  while (in.available()) {
+    String line = in.readStringUntil('\n');
+    line.trim();
+    if (line.length() == 0) continue;
+    if (!lineWithinMonth(line, cutoff)) continue;
+    out.println(line);
+    kept++;
+    if (kept >= HIST_MAX_LINES) {
+      // garder seulement la fin : on lit tout en tmp puis on re-coupe si besoin
+    }
+  }
+  in.close();
+  out.close();
+
+  LittleFS.remove(HIST_PATH);
+  LittleFS.rename(HIST_TMP, HIST_PATH);
+
+  // Si trop de lignes, garder les HIST_MAX_LINES plus recentes
+  int total = countHistoryLines(0);
+  if (total > HIST_MAX_LINES) {
+    int skip = total - HIST_MAX_LINES;
+    in = LittleFS.open(HIST_PATH, "r");
+    out = LittleFS.open(HIST_TMP, "w");
+    if (in && out) {
+      int seen = 0;
+      while (in.available()) {
+        String line = in.readStringUntil('\n');
+        line.trim();
+        if (line.length() == 0) continue;
+        if (seen++ < skip) continue;
+        out.println(line);
+      }
+    }
+    if (in) in.close();
+    if (out) out.close();
+    LittleFS.remove(HIST_PATH);
+    LittleFS.rename(HIST_TMP, HIST_PATH);
+  }
+
+  lastPruneAt = now;
+  Serial.print(F("[HIST] prune OK, lignes ~"));
+  Serial.println(countHistoryLines(monthCutoff()));
+}
+
+void loadLastActionFromFs() {
+  if (!fsOk) return;
+  File f = LittleFS.open(HIST_PATH, "r");
+  if (!f) return;
+  String last;
+  while (f.available()) {
+    String line = f.readStringUntil('\n');
+    line.trim();
+    if (line.length() > 0) last = line;
+  }
+  f.close();
+  if (last.length() == 0) return;
+  String d = fieldAt(last, 1);
+  String t = fieldAt(last, 2);
+  String ev = fieldAt(last, 3);
+  strncpy(lastAction.dateStr, d.c_str(), sizeof(lastAction.dateStr) - 1);
+  lastAction.dateStr[sizeof(lastAction.dateStr) - 1] = '\0';
+  strncpy(lastAction.timeStr, t.c_str(), sizeof(lastAction.timeStr) - 1);
+  lastAction.timeStr[sizeof(lastAction.timeStr) - 1] = '\0';
+  strncpy(lastAction.event, ev.c_str(), sizeof(lastAction.event) - 1);
+  lastAction.event[sizeof(lastAction.event) - 1] = '\0';
+  lastAction.ok = true;
+}
+
+void pushHistory(const String& event) {
+  String d = nowDateStr();
+  String t = nowTimeStr();
+  time_t ep = nowEpoch();
+
+  // Eviter le caractere '|' qui casse le format du journal
+  String evClean = event;
+  evClean.replace('|', '/');
+  if (evClean.length() > 55) evClean = evClean.substring(0, 55);
+
+  strncpy(lastAction.dateStr, d.c_str(), sizeof(lastAction.dateStr) - 1);
+  lastAction.dateStr[sizeof(lastAction.dateStr) - 1] = '\0';
+  strncpy(lastAction.timeStr, t.c_str(), sizeof(lastAction.timeStr) - 1);
+  lastAction.timeStr[sizeof(lastAction.timeStr) - 1] = '\0';
+  strncpy(lastAction.event, evClean.c_str(), sizeof(lastAction.event) - 1);
+  lastAction.event[sizeof(lastAction.event) - 1] = '\0';
+  lastAction.ok = true;
 
   Serial.print(F("[HIST] "));
-  Serial.print(e.dateStr); Serial.print(' ');
-  Serial.print(e.timeStr); Serial.print(" | ");
-  Serial.println(e.event);
+  Serial.print(d); Serial.print(' ');
+  Serial.print(t); Serial.print(" | ");
+  Serial.println(evClean);
+
+  if (!fsOk) return;
+
+  // ligne: epoch|date|heure|event|niveau|seuil|urg|moteur|rms|rpm
+  String line;
+  line.reserve(160);
+  line += String((unsigned long)ep);
+  line += '|';
+  line += d;
+  line += '|';
+  line += t;
+  line += '|';
+  line += evClean;
+  line += '|';
+  line += String(tel.niveau, 1);
+  line += '|';
+  line += String(tel.seuil, 0);
+  line += '|';
+  line += String(tel.urg);
+  line += '|';
+  line += (tel.motorOn ? "ON" : "OFF");
+  line += '|';
+  line += String(tel.rms, 3);
+  line += '|';
+  line += String(tel.rpm, 0);
+
+  File f = LittleFS.open(HIST_PATH, "a");
+  if (f) {
+    f.println(line);
+    f.close();
+  }
+  pruneHistoryIfNeeded(false);
+}
+
+String htmlEscape(const String& in);
+String padCell(const String& s, int w);
+String tableRow(const String& a, const String& b);
+String tableSep();
+String urgLabel(int u);
+
+/** page 1 = plus recent. Retourne HTML <pre> */
+String formatHistoryPage(int page) {
+  if (page < 1) page = 1;
+  time_t cutoff = monthCutoff();
+  int total = countHistoryLines(cutoff);
+  int pages = (total + HIST_PAGE_SIZE - 1) / HIST_PAGE_SIZE;
+  if (pages < 1) pages = 1;
+  if (page > pages) page = pages;
+
+  String s;
+  s.reserve(3200);
+  s += F("<pre>");
+  s += "HISTORIQUE 30 JOURS\n";
+  s += "Page ";
+  s += String(page);
+  s += "/";
+  s += String(pages);
+  s += "  (";
+  s += String(total);
+  s += " actions)\n";
+  s += tableSep();
+  s += tableRow("Date", "Heure");
+  s += tableSep();
+
+  if (!fsOk || total == 0) {
+    s += "(aucune action ce mois)\n</pre>";
+    return s;
+  }
+
+  // Indices a afficher parmi les entrees valides, ordre newest-first
+  // index 0 = plus recent. Page 1 = indices 0..PAGE-1
+  int startIdx = (page - 1) * HIST_PAGE_SIZE; // 0-based from newest
+  int endIdx = startIdx + HIST_PAGE_SIZE;     // exclusive
+
+  // Lire toutes les lignes du mois dans un buffer d'offsets trop gros —
+  // on fait 2 passes: compte, puis selectionne via skip.
+  // Pass: stocker les lignes recentes necessaires uniquement.
+  // Approche: premiere passe compte total; deuxieme passe lit et garde
+  // les lignes dont (total-1-i) est dans [startIdx, endIdx).
+
+  File f = LittleFS.open(HIST_PATH, "r");
+  if (!f) {
+    s += "(lecture FS impossible)\n</pre>";
+    return s;
+  }
+
+  int validIdx = 0; // from oldest
+  // On a besoin des lignes avec oldestIndex dans [total-endIdx, total-startIdx)
+  int fromOld = total - endIdx;
+  int toOld = total - startIdx; // exclusive
+  if (fromOld < 0) fromOld = 0;
+
+  String chunk[HIST_PAGE_SIZE];
+  int chunkN = 0;
+
+  while (f.available()) {
+    String line = f.readStringUntil('\n');
+    line.trim();
+    if (line.length() == 0) continue;
+    if (!lineWithinMonth(line, cutoff)) continue;
+    if (validIdx >= fromOld && validIdx < toOld && chunkN < HIST_PAGE_SIZE) {
+      chunk[chunkN++] = line;
+    }
+    validIdx++;
+  }
+  f.close();
+
+  // chunk est oldest→newest dans la page; afficher newest first
+  int shown = 0;
+  for (int i = chunkN - 1; i >= 0; i--) {
+    const String& line = chunk[i];
+    String date = fieldAt(line, 1);
+    String heure = fieldAt(line, 2);
+    String ev = fieldAt(line, 3);
+    String niveau = fieldAt(line, 4);
+    String seuil = fieldAt(line, 5);
+    String urg = fieldAt(line, 6);
+    String mot = fieldAt(line, 7);
+    String rms = fieldAt(line, 8);
+    String rpm = fieldAt(line, 9);
+
+    s += '\n';
+    s += tableRow("Date", date);
+    s += tableRow("Heure", heure);
+    s += tableRow("Action", htmlEscape(ev));
+    s += tableRow("Niveau", niveau + "/" + seuil);
+    s += tableRow("Urgence", urgLabel(urg.toInt()));
+    s += tableRow("Moteur", mot);
+    s += tableRow("RMS", rms + " g");
+    s += tableRow("RPM", rpm);
+    s += tableSep();
+    shown++;
+  }
+
+  if (shown == 0) s += "(vide)\n";
+  if (page < pages) {
+    s += "\nSuite: /historique ";
+    s += String(page + 1);
+    s += "\n";
+  }
+  s += F("</pre>");
+  return s;
+}
+
+String historyKeyboardJson(int page, int pages) {
+  String s = "[[";
+  if (page > 1) {
+    s += "{\"text\":\"<< Precedent\",\"callback_data\":\"history_";
+    s += String(page - 1);
+    s += "\"},";
+  }
+  s += "{\"text\":\"Page ";
+  s += String(page);
+  s += "/";
+  s += String(pages);
+  s += "\",\"callback_data\":\"history_";
+  s += String(page);
+  s += "\"}";
+  if (page < pages) {
+    s += ",{\"text\":\"Suivant >>\",\"callback_data\":\"history_";
+    s += String(page + 1);
+    s += "\"}";
+  }
+  s += "],[{\"text\":\"Actualiser\",\"callback_data\":\"refresh\"},";
+  s += "{\"text\":\"Tableau\",\"callback_data\":\"refresh\"}]]";
+  return s;
+}
+
+void sendHistoryPage(const String& chat, int page) {
+  time_t cutoff = monthCutoff();
+  int total = countHistoryLines(cutoff);
+  int pages = (total + HIST_PAGE_SIZE - 1) / HIST_PAGE_SIZE;
+  if (pages < 1) pages = 1;
+  if (page < 1) page = 1;
+  if (page > pages) page = pages;
+
+  String body = "<b>HISTORIQUE (1 mois)</b>\n" + formatHistoryPage(page);
+  bot.sendMessageWithInlineKeyboard(chat, body, "HTML", historyKeyboardJson(page, pages));
 }
 
 String urgLabel(int u) {
@@ -252,20 +590,34 @@ String tableSep() {
   return "+--------------+----------------+\n";
 }
 
-/** Tableau de bord en forme de tableau (HTML <pre> pour Telegram) */
+/** Tableau de bord — date/heure courante + derniere action + donnees */
 String formatDashboardCore() {
-  if (!tel.valid) {
-    return F("<pre>Aucune donnee Uno.\nVerifiez UART / capteurs.</pre>");
-  }
   String s;
-  s.reserve(700);
+  s.reserve(900);
   s += F("<pre>");
   s += F("TABLEAU DE BORD\n");
   s += tableSep();
   s += tableRow("Champ", "Valeur");
   s += tableSep();
-  s += tableRow("Date", nowDateStr());
-  s += tableRow("Heure", nowTimeStr());
+  s += tableRow("Date maintenant", nowDateStr());
+  s += tableRow("Heure maintenant", nowTimeStr());
+  s += tableSep();
+  s += tableRow("Dern. action", lastAction.ok ? String(lastAction.event) : String("(aucune)"));
+  s += tableRow("Date action", lastAction.ok ? String(lastAction.dateStr) : String("--/--/----"));
+  s += tableRow("Heure action", lastAction.ok ? String(lastAction.timeStr) : String("--:--:--"));
+  s += tableSep();
+  s += tableRow("Maj donnees", lastDataStamp.ok
+      ? (String(lastDataStamp.dateStr) + " " + String(lastDataStamp.timeStr))
+      : String("(aucune)"));
+
+  if (!tel.valid) {
+    s += tableSep();
+    s += "Aucune donnee Uno.\nVerifiez UART / capteurs.\n";
+    s += F("</pre>");
+    return s;
+  }
+
+  s += tableSep();
   s += tableRow("ax", String(tel.ax, 3) + " g");
   s += tableRow("ay", String(tel.ay, 3) + " g");
   s += tableRow("az", String(tel.az, 3) + " g");
@@ -280,45 +632,6 @@ String formatDashboardCore() {
   s += tableRow("Alerte", tel.alerte ? "OUI" : "NON");
   s += tableRow("Moteur", tel.motorOn ? "ON" : "OFF");
   s += tableSep();
-  s += F("</pre>");
-  return s;
-}
-
-/** Historique : chaque evenement = tableau date/heure/donnees */
-String formatHistory() {
-  String s;
-  s.reserve(2500);
-  s += F("<pre>HISTORIQUE\n");
-  int shown = 0;
-  for (int i = 0; i < HIST_SIZE; i++) {
-    int idx = (histHead - 1 - i + HIST_SIZE * 2) % HIST_SIZE;
-    if (!hist[idx].used) continue;
-    const HistEntry& e = hist[idx];
-    s += '\n';
-    s += tableSep();
-    s += tableRow("Date", String(e.dateStr));
-    s += tableRow("Heure", String(e.timeStr));
-    s += tableRow("Evenement", htmlEscape(String(e.event)));
-    if (e.hasData) {
-      s += tableSep();
-      s += tableRow("ax", String(e.ax, 3) + " g");
-      s += tableRow("ay", String(e.ay, 3) + " g");
-      s += tableRow("az", String(e.az, 3) + " g");
-      s += tableRow("RMS", String(e.rms, 3) + " g");
-      s += tableRow("vRMS", String(e.vrms, 2) + " mm/s");
-      s += tableRow("RPM", String(e.rpm, 0));
-      s += tableRow("Frequence", String(e.freq, 2) + " Hz");
-      s += tableRow("Impulsions", String(e.imp));
-      s += tableRow("Urgence", urgLabel(e.urg));
-      s += tableRow("Alerte", e.alerte ? "OUI" : "NON");
-      s += tableRow("Moteur", e.motorOn ? "ON" : "OFF");
-    } else {
-      s += tableRow("Donnees", "(aucune)");
-    }
-    s += tableSep();
-    shown++;
-  }
-  if (shown == 0) s += "(vide)\n";
   s += F("</pre>");
   return s;
 }
@@ -439,12 +752,17 @@ void handleCallback(telegramMessage& msg) {
     return;
   }
 
-  if (data == "history") {
+  if (data == "history" || data.startsWith("history_")) {
     if (!isAdmin(chat)) {
       replyWithButtons(chat, "Historique reserve a l'administrateur.");
       return;
     }
-    replyWithButtons(chat, formatHistory(), "HTML");
+    int page = 1;
+    if (data.startsWith("history_")) {
+      page = data.substring(8).toInt();
+      if (page < 1) page = 1;
+    }
+    sendHistoryPage(chat, page);
     return;
   }
 
@@ -531,12 +849,19 @@ void handleTelegramMessage(telegramMessage& msg) {
     replyWithButtons(chat,
       "Seuil demande: <b>" + String(s, 0) + "</b>\n"
       "Alerte >= " + String(s, 0) + " | Urgence STOP >= " + String(s * 2.0f, 0), "HTML");
-  } else if (text == "/historique" || text == "/history") {
+  } else if (text == "/historique" || text == "/history" ||
+             text.startsWith("/historique ") || text.startsWith("/history ")) {
     if (!isAdmin(chat)) {
       replyWithButtons(chat, "Historique reserve a l'admin.");
       return;
     }
-    replyWithButtons(chat, formatHistory(), "HTML");
+    int page = 1;
+    int sp = text.indexOf(' ');
+    if (sp > 0) {
+      page = text.substring(sp + 1).toInt();
+      if (page < 1) page = 1;
+    }
+    sendHistoryPage(chat, page);
   } else if (text == "/on") {
     if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_ON");
@@ -561,7 +886,9 @@ void handleTelegramMessage(telegramMessage& msg) {
   } else {
     replyWithButtons(chat,
       "Commandes:\n/dashboard /status /seuil /id\n"
-      "Admin: /on /off /urgence /seuil 15 /historique", "");
+      "Admin: /on /off /urgence /seuil 15\n"
+      "/historique  (30 jours, page 1)\n"
+      "/historique 2  (page suivante)", "");
   }
 }
 
@@ -648,6 +975,7 @@ bool parseTelemetry(const String& line) {
   tel.motorOn = jsonGetLong(line, "m") == 1;
   tel.updatedAt = millis();
   tel.valid = true;
+  stampNow(lastDataStamp);
 
   // === MONITEUR SERIE ESP32 USB @ 115200 ===
   Serial.println(F("--- ESP32 MONITOR ---"));
@@ -679,18 +1007,21 @@ void setup() {
   Serial.println(F("=== MONITEUR ESP32 USB 115200 ==="));
   Serial.println(F("UART Uno : GPIO16=RX GPIO17=TX @9600"));
 
-  for (int i = 0; i < HIST_SIZE; i++) hist[i].used = false;
+  initHistoryFs();
 
   UnoSerial.begin(9600, SERIAL_8N1, 16, 17);
   connectWifi();
   syncTime();
+  pruneHistoryIfNeeded(true);
+  loadLastActionFromFs();
 
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   // securedClient.setInsecure();
 
   String boot = "Bot pret.\nIP: " + WiFi.localIP().toString();
   boot += "\nDate: " + nowDateStr() + " " + nowTimeStr();
-  boot += "\n/dashboard";
+  boot += "\nHistorique: 30 jours (LittleFS)";
+  boot += "\n/dashboard  /historique";
   bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, boot, "", adminKeyboardJson());
   pushHistory("ESP32 boot OK");
   Serial.println(boot);
