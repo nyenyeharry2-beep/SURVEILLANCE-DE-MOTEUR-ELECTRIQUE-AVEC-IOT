@@ -31,6 +31,8 @@ struct Telemetry {
   unsigned long imp = 0;
   int urg = 0;
   int alerte = 0;
+  float seuil = 10;
+  float niveau = 0;
   bool motorOn = false;
   unsigned long updatedAt = 0;
   bool valid = false;
@@ -161,15 +163,39 @@ String urgLabel(int u) {
   return "OK";
 }
 
+String normalizeId(String id) {
+  id.trim();
+  return id;
+}
+
 bool isAdmin(const String& chatId) {
-  return chatId == String(TELEGRAM_ADMIN_CHAT_ID);
+  return normalizeId(chatId) == normalizeId(String(TELEGRAM_ADMIN_CHAT_ID));
 }
 
 bool isViewer(const String& chatId) {
   if (isAdmin(chatId)) return true;
   if (TELEGRAM_VIEWER_CHAT_ID[0] != '\0' &&
-      chatId == String(TELEGRAM_VIEWER_CHAT_ID)) return true;
+      normalizeId(chatId) == normalizeId(String(TELEGRAM_VIEWER_CHAT_ID))) return true;
   return false;
+}
+
+String roleLabel(const String& chatId) {
+  if (isAdmin(chatId)) return "ADMIN";
+  if (isViewer(chatId)) return "OBSERVATEUR";
+  return "INCONNU";
+}
+
+String accessDeniedMsg(const String& chatId) {
+  String id = normalizeId(chatId);
+  String s = "Acces refuse.\n\n";
+  s += "Votre Chat ID Telegram :\n";
+  s += "<code>";
+  s += id;
+  s += "</code>\n\n";
+  s += "Copiez cet ID dans le code ESP32 :\n";
+  s += "TELEGRAM_ADMIN_CHAT_ID  (commandes)\n";
+  s += "ou TELEGRAM_VIEWER_CHAT_ID (lecture)";
+  return s;
 }
 
 void connectWifi() {
@@ -248,6 +274,8 @@ String formatDashboardCore() {
   s += tableRow("RPM", String(tel.rpm, 0) + " tr/min");
   s += tableRow("Impulsions", String(tel.imp));
   s += tableRow("Frequence", String(tel.freq, 2) + " Hz");
+  s += tableRow("Niveau", String(tel.niveau, 1));
+  s += tableRow("Seuil", String(tel.seuil, 0));
   s += tableRow("Urgence", urgLabel(tel.urg));
   s += tableRow("Alerte", tel.alerte ? "OUI" : "NON");
   s += tableRow("Moteur", tel.motorOn ? "ON" : "OFF");
@@ -302,17 +330,57 @@ String adminKeyboardJson() {
     "[{\"text\":\"Actualiser\",\"callback_data\":\"refresh\"},"
     "{\"text\":\"Historique\",\"callback_data\":\"history\"}],"
     "[{\"text\":\"URGENCE STOP\",\"callback_data\":\"emergency\"},"
-    "{\"text\":\"Alertes\",\"callback_data\":\"alerts\"}]]"
+    "{\"text\":\"Alertes\",\"callback_data\":\"alerts\"}],"
+    "[{\"text\":\"Seuil\",\"callback_data\":\"seuil_info\"},"
+    "{\"text\":\"Mon ID\",\"callback_data\":\"my_id\"}]]"
   );
 }
 
 String viewerKeyboardJson() {
   return String(
     "[[{\"text\":\"Actualiser\",\"callback_data\":\"refresh\"},"
-    "{\"text\":\"Historique\",\"callback_data\":\"history\"}],"
-    "[{\"text\":\"Alertes\",\"callback_data\":\"alerts\"},"
-    "{\"text\":\"Tableau\",\"callback_data\":\"refresh\"}]]"
+    "{\"text\":\"Alertes\",\"callback_data\":\"alerts\"}],"
+    "[{\"text\":\"Tableau\",\"callback_data\":\"refresh\"},"
+    "{\"text\":\"Mon ID\",\"callback_data\":\"my_id\"}]]"
   );
+}
+
+String formatSeuilHelp() {
+  String s = "<pre>";
+  s += tableSep();
+  s += tableRow("Champ", "Valeur");
+  s += tableSep();
+  s += tableRow("Niveau", String(tel.niveau, 1));
+  s += tableRow("Seuil alerte", String(tel.seuil, 0));
+  s += tableRow("Seuil urg.", String(tel.seuil * 2.0f, 0));
+  s += tableRow("Urgence", urgLabel(tel.urg));
+  s += tableSep();
+  s += "\nReglage admin:\n";
+  s += "/seuil 10\n";
+  s += "/seuil 15\n";
+  s += "/seuil 25\n";
+  s += "\nNiveau = RMS(g) x 100\n";
+  s += "Alerte si Niveau >= Seuil\n";
+  s += "STOP si Niveau >= 2x Seuil\n";
+  s += "</pre>";
+  return s;
+}
+
+String formatMyId(const String& chat) {
+  String s = "<b>IDENTITE TELEGRAM</b>\n<pre>";
+  s += tableSep();
+  s += tableRow("Chat ID", normalizeId(chat));
+  s += tableRow("Role", roleLabel(chat));
+  s += tableSep();
+  s += "\nAdmin config: ";
+  s += normalizeId(String(TELEGRAM_ADMIN_CHAT_ID));
+  s += "\nViewer config: ";
+  if (TELEGRAM_VIEWER_CHAT_ID[0] != '\0')
+    s += normalizeId(String(TELEGRAM_VIEWER_CHAT_ID));
+  else
+    s += "(vide)";
+  s += "</pre>";
+  return s;
 }
 
 /** Toujours renvoyer les boutons en bas de la reponse */
@@ -348,8 +416,15 @@ void handleCallback(telegramMessage& msg) {
   String data = msg.text;
   data.trim();
 
+  // Mon ID accessible même sans autorisation (pour configurer le code)
+  if (data == "my_id") {
+    bot.sendMessage(chat, formatMyId(chat), "HTML");
+    if (isViewer(chat)) replyWithButtons(chat, "Role: " + roleLabel(chat));
+    return;
+  }
+
   if (!isViewer(chat)) {
-    bot.sendMessage(chat, "Acces refuse.", "");
+    bot.sendMessage(chat, accessDeniedMsg(chat), "HTML");
     return;
   }
 
@@ -359,18 +434,8 @@ void handleCallback(telegramMessage& msg) {
     return;
   }
 
-  if (data == "alerts") {
-    String a = "<pre>";
-    a += tableSep();
-    a += tableRow("Champ", "Valeur");
-    a += tableSep();
-    a += tableRow("Urgence", urgLabel(tel.urg));
-    a += tableRow("Alerte", tel.alerte ? "OUI" : "NON");
-    a += tableRow("RMS", String(tel.rms, 3) + " g");
-    a += tableRow("vRMS", String(tel.vrms, 2) + " mm/s");
-    a += tableSep();
-    a += "</pre>";
-    replyWithButtons(chat, a, "HTML");
+  if (data == "alerts" || data == "seuil_info") {
+    replyWithButtons(chat, formatSeuilHelp(), "HTML");
     return;
   }
 
@@ -412,28 +477,60 @@ void handleTelegramMessage(telegramMessage& msg) {
     return;
   }
 
-  if (!isViewer(chat)) {
-    bot.sendMessage(chat, "Acces refuse. Contactez l'admin.", "");
-    return;
-  }
-
   String text = msg.text;
   text.trim();
 
-  if (text == "/start" || text == "/help" || text == "/dashboard") {
+  // /id toujours autorise — pour recuperer son Chat ID
+  if (text == "/id" || text == "/whoami" || text.startsWith("/id@")) {
+    bot.sendMessage(chat, formatMyId(chat), "HTML");
+    return;
+  }
+
+  if (!isViewer(chat)) {
+    bot.sendMessage(chat, accessDeniedMsg(chat), "HTML");
+    return;
+  }
+
+  if (text == "/start" || text == "/help" || text == "/dashboard" ||
+      text.startsWith("/start@") || text.startsWith("/help@") || text.startsWith("/dashboard@")) {
     if (isAdmin(chat)) {
       replyWithButtons(chat,
-        "Tableau de bord <b>ADMIN</b>\nUtilisez les boutons ci-dessous.", "HTML");
+        "Tableau de bord <b>ADMIN</b>\n"
+        "Role: ADMIN | Chat ID: <code>" + normalizeId(chat) + "</code>\n"
+        "Utilisez les boutons ou /seuil 15", "HTML");
       sendAdminDashboard(chat);
     } else {
       replyWithButtons(chat,
-        "Tableau de bord <b>OBSERVATEUR</b>\nUtilisez les boutons ci-dessous.", "HTML");
+        "Tableau de bord <b>OBSERVATEUR</b>\n"
+        "Role: VIEWER | Chat ID: <code>" + normalizeId(chat) + "</code>\n"
+        "Utilisez les boutons ci-dessous.", "HTML");
       sendViewerDashboard(chat);
     }
-  } else if (text == "/status") {
+  } else if (text == "/status" || text.startsWith("/status@")) {
     sendToUno("STATUS");
     delay(350);
     replyWithButtons(chat, formatDashboardCore(), "HTML");
+  } else if (text == "/seuil" || text.startsWith("/seuil ")) {
+    if (text == "/seuil" || text == "/seuil ") {
+      replyWithButtons(chat, formatSeuilHelp(), "HTML");
+      return;
+    }
+    if (!isAdmin(chat)) {
+      replyWithButtons(chat, "Reglage seuil reserve a l'admin.\nUtilisez /seuil pour voir.");
+      return;
+    }
+    float s = text.substring(7).toFloat();
+    if (s < 1.0f || s > 200.0f) {
+      replyWithButtons(chat, "Valeur invalide. Exemple: <code>/seuil 10</code>", "HTML");
+      return;
+    }
+    String cmd = "SET_SEUIL ";
+    cmd += String(s, 0);
+    sendToUno(cmd.c_str());
+    pushHistory(String("CMD /seuil ") + String(s, 0));
+    replyWithButtons(chat,
+      "Seuil demande: <b>" + String(s, 0) + "</b>\n"
+      "Alerte >= " + String(s, 0) + " | Urgence STOP >= " + String(s * 2.0f, 0), "HTML");
   } else if (text == "/historique" || text == "/history") {
     if (!isAdmin(chat)) {
       replyWithButtons(chat, "Historique reserve a l'admin.");
@@ -462,7 +559,9 @@ void handleTelegramMessage(telegramMessage& msg) {
       replyWithButtons(chat, "PING envoye au Uno.");
     }
   } else {
-    replyWithButtons(chat, "Commande inconnue. Utilisez les boutons ou /help");
+    replyWithButtons(chat,
+      "Commandes:\n/dashboard /status /seuil /id\n"
+      "Admin: /on /off /urgence /seuil 15 /historique", "");
   }
 }
 
@@ -484,7 +583,11 @@ void maybeAlert() {
 
   String reason = "ALERTE / ";
   reason += urgLabel(tel.urg);
-  reason += " | RMS=";
+  reason += " | Niveau=";
+  reason += String(tel.niveau, 1);
+  reason += "/";
+  reason += String(tel.seuil, 0);
+  reason += " RMS=";
   reason += String(tel.rms, 3);
   reason += "g vRMS=";
   reason += String(tel.vrms, 2);
@@ -517,6 +620,12 @@ bool parseTelemetry(const String& line) {
       bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, m, "", adminKeyboardJson());
     } else if (evt == "CALIB_OK") {
       bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, "Calibration ADXL OK", "", adminKeyboardJson());
+    } else if (evt == "SEUIL_OK") {
+      float s = jsonGetFloat(line, "seuil", tel.seuil);
+      tel.seuil = s;
+      String m = "Seuil applique: " + String(s, 0) + " (urgence " + String(s * 2.0f, 0) + ")";
+      pushHistory(m);
+      bot.sendMessageWithInlineKeyboard(TELEGRAM_ADMIN_CHAT_ID, m, "", adminKeyboardJson());
     }
     return true;
   }
@@ -533,6 +642,9 @@ bool parseTelemetry(const String& line) {
   tel.freq = jsonGetFloat(line, "freq");
   tel.urg = (int)jsonGetLong(line, "urg");
   tel.alerte = (int)jsonGetLong(line, "alerte");
+  if (jsonHasKey(line, "seuil")) tel.seuil = jsonGetFloat(line, "seuil", tel.seuil);
+  if (jsonHasKey(line, "niveau")) tel.niveau = jsonGetFloat(line, "niveau", tel.niveau);
+  else tel.niveau = tel.rms * 100.0f;
   tel.motorOn = jsonGetLong(line, "m") == 1;
   tel.updatedAt = millis();
   tel.valid = true;

@@ -41,9 +41,10 @@ const float ADXL_SCALE = 0.0039f;
 const int ADXL_SAMPLES = 25;
 const float EMA_ALPHA = 0.25f;
 
-// Seuil d'alerte = 10  (niveau = RMS_g * 100 → 0.10 g donne 10)
-const float SEUIL_ALERTE = 10.0f;
-const float SEUIL_URGENCE = 20.0f; // 2× le seuil alerte
+// Seuil d'alerte (réglable via Telegram /seuil ou SET_SEUIL)
+// niveau = RMS_g * 100 → 0.10 g donne 10
+float seuilAlerte = 10.0f;
+float seuilUrgence = 20.0f; // 2× le seuil alerte (recalculé)
 
 
 volatile unsigned long rpmPulses = 0;
@@ -240,17 +241,24 @@ void computeRpmFreq() {
 }
 
 void evaluateUrgency() {
-  // Niveau = RMS (g) × 100  →  seuil d'alerte = 10
+  // Niveau = RMS (g) × 100  — comparé à seuilAlerte / seuilUrgence
   niveauAlerte = rmsG * 100.0f;
   urgLevel = 0;
   alerteFlag = 0;
-  if (niveauAlerte >= SEUIL_URGENCE) {
+  if (niveauAlerte >= seuilUrgence) {
     urgLevel = 2;
     alerteFlag = 1;
-  } else if (niveauAlerte >= SEUIL_ALERTE) {
+  } else if (niveauAlerte >= seuilAlerte) {
     urgLevel = 1;
     alerteFlag = 1;
   }
+}
+
+void applySeuil(float s) {
+  if (s < 1.0f) s = 1.0f;
+  if (s > 200.0f) s = 200.0f;
+  seuilAlerte = s;
+  seuilUrgence = s * 2.0f;
 }
 
 void setMotor(bool on) {
@@ -291,6 +299,8 @@ void sendTelemetry() {
   line += ",\"freq\":"; line += String(lastFreqHz, 2);
   line += ",\"urg\":"; line += String(urgLevel);
   line += ",\"alerte\":"; line += String(alerteFlag);
+  line += ",\"seuil\":"; line += String(seuilAlerte, 0);
+  line += ",\"niveau\":"; line += String(niveauAlerte, 1);
   line += ",\"m\":"; line += String(motorOn ? 1 : 0);
   line += "}";
   sendBoth(line);
@@ -310,7 +320,7 @@ void sendTelemetry() {
   Serial.print(F("  freq=")); Serial.print(lastFreqHz, 2);
   Serial.print(F(" Hz  imp=")); Serial.println(lastWindowImp);
   Serial.print(F("Niveau=")); Serial.print(niveauAlerte, 1);
-  Serial.print(F(" / Seuil=")); Serial.print(SEUIL_ALERTE, 0);
+  Serial.print(F(" / Seuil=")); Serial.print(seuilAlerte, 0);
   Serial.print(F("  Urgence=")); Serial.print(urgLevel);
   Serial.print(F("  Alerte=")); Serial.print(alerteFlag ? "OUI" : "NON");
   Serial.print(F("  Moteur=")); Serial.println(motorOn ? "ON" : "OFF");
@@ -341,6 +351,19 @@ void processCommand(String line) {
   } else if (line == "CALIB") {
     calibrateGravity();
     sendBoth(F("{\"evt\":\"CALIB_OK\"}"));
+  } else if (line.startsWith("SET_SEUIL ")) {
+    float s = line.substring(10).toFloat();
+    applySeuil(s);
+    String evt = "{\"evt\":\"SEUIL_OK\",\"seuil\":";
+    evt += String(seuilAlerte, 0);
+    evt += ",\"urg_seuil\":";
+    evt += String(seuilUrgence, 0);
+    evt += "}";
+    sendBoth(evt);
+    Serial.print(F(">>> Seuil alerte="));
+    Serial.print(seuilAlerte, 0);
+    Serial.print(F(" urgence="));
+    Serial.println(seuilUrgence, 0);
   }
 }
 
@@ -369,7 +392,10 @@ void setup() {
   Serial.print(F("Relais actif "));
   Serial.println(RELAY_ACTIVE_LOW ? F("LOW") : F("HIGH"));
   Serial.print(F("Seuil alerte = "));
-  Serial.println(SEUIL_ALERTE, 0);
+  Serial.print(seuilAlerte, 0);
+  Serial.print(F("  (urgence = "));
+  Serial.print(seuilUrgence, 0);
+  Serial.println(F(")"));
 
   if (adxlOk) {
     Serial.println(F("Immobile 1s pour calibrer gravite..."));

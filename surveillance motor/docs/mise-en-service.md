@@ -32,8 +32,22 @@ Pour un groupe : ajoutez le bot au groupe, envoyez un message, et relisez `getUp
 Ouvrir `esp32/motor_telegram/motor_telegram.ino` et remplir en haut du fichier :
 - `WIFI_SSID` / `WIFI_PASSWORD`
 - `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_ADMIN_CHAT_ID`
-- `TELEGRAM_VIEWER_CHAT_ID` (optionnel)
+- `TELEGRAM_ADMIN_CHAT_ID` (celui qui commande ON/OFF)
+- `TELEGRAM_VIEWER_CHAT_ID` (optionnel — lecture seule)
+
+### Récupérer son Chat ID facilement
+
+1. Flasher l’ESP32 avec **votre** token bot.
+2. Sur Telegram, ouvrez le bot et envoyez **`/id`**.
+3. Le bot répond avec votre Chat ID (même si l’accès est refusé).
+4. Copiez cet ID dans `TELEGRAM_ADMIN_CHAT_ID` ou `TELEGRAM_VIEWER_CHAT_ID`, puis re-flashez.
+
+### Régler le seuil d’alerte
+
+- Par défaut : **seuil = 10** (niveau = RMS×100). Alerte si niveau ≥ 10, STOP si ≥ 20.
+- Admin Telegram : `/seuil` (voir) ou `/seuil 15` (changer).
+- Bouton **Seuil** sur le clavier admin.
+
 
 ## 4. Flasher l’Arduino Uno
 
