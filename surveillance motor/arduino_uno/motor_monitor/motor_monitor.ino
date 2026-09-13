@@ -338,21 +338,24 @@ void processCommand(String line) {
   if (!line.length()) return;
   Serial.print(F("[CMD ESP32] "));
   Serial.println(line);
-  if (line == "MOTOR_ON") {
+
+  // indexOf : plus tolerant si SoftSerial perd le 1er caractere
+  if (line.indexOf("MOTOR_ON") >= 0) {
     setMotor(true);
     sendBoth(F("{\"evt\":\"MOTOR_ON\",\"ok\":1}"));
-  } else if (line == "MOTOR_OFF") {
+  } else if (line.indexOf("MOTOR_OFF") >= 0) {
     setMotor(false);
     sendBoth(F("{\"evt\":\"MOTOR_OFF\",\"ok\":1}"));
-  } else if (line == "STATUS") {
+  } else if (line.indexOf("STATUS") >= 0) {
     sendTelemetry();
-  } else if (line == "PING") {
+  } else if (line.indexOf("PING") >= 0) {
     sendBoth(F("{\"evt\":\"PONG\"}"));
-  } else if (line == "CALIB") {
+  } else if (line.indexOf("CALIB") >= 0) {
     calibrateGravity();
     sendBoth(F("{\"evt\":\"CALIB_OK\"}"));
-  } else if (line.startsWith("SET_SEUIL ")) {
-    float s = line.substring(10).toFloat();
+  } else if (line.indexOf("SET_SEUIL") >= 0) {
+    int sp = line.lastIndexOf(' ');
+    float s = (sp >= 0) ? line.substring(sp + 1).toFloat() : 10.0f;
     applySeuil(s);
     String evt = "{\"evt\":\"SEUIL_OK\",\"seuil\":";
     evt += String(seuilAlerte, 0);

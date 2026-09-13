@@ -557,6 +557,9 @@ void connectWifi() {
 }
 
 void sendToUno(const char* cmd) {
+  // SoftSerial Uno peut perdre des octets si occupe : envoyer 2 fois
+  UnoSerial.println(cmd);
+  delay(30);
   UnoSerial.println(cmd);
   Serial.print(F(">> Uno: "));
   Serial.println(cmd);
@@ -729,6 +732,16 @@ void handleCallback(telegramMessage& msg) {
   String data = msg.text;
   data.trim();
 
+  // IMPORTANT: acquitter le bouton sinon Telegram bloque les suivants
+  if (msg.query_id.length() > 0) {
+    bot.answerCallbackQuery(msg.query_id, "", false);
+  }
+
+  Serial.print(F("[BTN] "));
+  Serial.print(data);
+  Serial.print(F(" chat="));
+  Serial.println(chat);
+
   // Mon ID accessible même sans autorisation (pour configurer le code)
   if (data == "my_id") {
     bot.sendMessage(chat, formatMyId(chat), "HTML");
@@ -773,30 +786,39 @@ void handleCallback(telegramMessage& msg) {
 
   if (data == "motor_on") {
     sendToUno("MOTOR_ON");
+    replyWithButtons(chat, "Commande ON envoyee.\n>>> RELAIS ALLUME", "");
     pushHistory("CMD admin: MOTOR ON");
-    replyWithButtons(chat, "Commande <b>ON</b> envoyee.\n>>> RELAIS ALLUME", "HTML");
   } else if (data == "motor_off") {
     sendToUno("MOTOR_OFF");
+    replyWithButtons(chat, "Commande OFF envoyee.\n>>> RELAIS ETEINT", "");
     pushHistory("CMD admin: MOTOR OFF");
-    replyWithButtons(chat, "Commande <b>OFF</b> envoyee.\n>>> RELAIS ETEINT", "HTML");
   } else if (data == "emergency") {
     sendToUno("MOTOR_OFF");
+    replyWithButtons(chat, "URGENCE STOP execute.\n>>> RELAIS ETEINT", "");
     pushHistory("URGENCE STOP admin");
     notifyChats("URGENCE : arret moteur demande par admin.");
-    replyWithButtons(chat, "<b>URGENCE STOP</b> execute.\n>>> RELAIS ETEINT", "HTML");
+  } else {
+    Serial.print(F("[BTN] inconnu: "));
+    Serial.println(data);
+    replyWithButtons(chat, "Bouton inconnu: " + data, "");
   }
 }
 
 void handleTelegramMessage(telegramMessage& msg) {
   String chat = msg.chat_id;
+  String text = msg.text;
+  text.trim();
 
-  if (msg.type == "callback_query") {
+  Serial.print(F("[TG] type="));
+  Serial.print(msg.type);
+  Serial.print(F(" text="));
+  Serial.println(text);
+
+  // Boutons inline Telegram
+  if (msg.type == "callback_query" || msg.query_id.length() > 0) {
     handleCallback(msg);
     return;
   }
-
-  String text = msg.text;
-  text.trim();
 
   // /id toujours autorise — pour recuperer son Chat ID
   if (text == "/id" || text == "/whoami" || text.startsWith("/id@")) {
@@ -862,16 +884,17 @@ void handleTelegramMessage(telegramMessage& msg) {
       if (page < 1) page = 1;
     }
     sendHistoryPage(chat, page);
-  } else if (text == "/on") {
+  // Aussi accepter commandes texte /on /off (si boutons bloques)
+  } else if (text == "/on" || text.equalsIgnoreCase("ON")) {
     if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_ON");
     pushHistory("CMD /on");
-    replyWithButtons(chat, "<b>MOTOR ON</b>\n>>> RELAIS ALLUME", "HTML");
-  } else if (text == "/off") {
+    replyWithButtons(chat, "MOTOR ON\n>>> RELAIS ALLUME", "");
+  } else if (text == "/off" || text.equalsIgnoreCase("OFF")) {
     if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /off");
-    replyWithButtons(chat, "<b>MOTOR OFF</b>\n>>> RELAIS ETEINT", "HTML");
+    replyWithButtons(chat, "MOTOR OFF\n>>> RELAIS ETEINT", "");
   } else if (text == "/urgence" || text == "/emergency") {
     if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_OFF");
