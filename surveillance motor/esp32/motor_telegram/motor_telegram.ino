@@ -65,7 +65,7 @@ time_t lastPruneAt = 0;
 
 unsigned long lastBotCheck = 0;
 unsigned long lastAlertMs = 0;
-const unsigned long BOT_INTERVAL_MS = 800;
+const unsigned long BOT_INTERVAL_MS = 400;     // poll Telegram plus rapide
 const unsigned long ALERT_COOLDOWN_MS = 45000;
 String unoLineBuf;
 
@@ -108,8 +108,8 @@ void syncTime() {
   Serial.print(F("NTP"));
   struct tm ti;
   int tries = 0;
-  while (!getLocalTime(&ti) && tries < 20) {
-    delay(500);
+  while (!getLocalTime(&ti) && tries < 12) {  // ~3 s max
+    delay(250);
     Serial.print('.');
     tries++;
   }
@@ -537,12 +537,17 @@ String accessDeniedMsg(const String& chatId) {
 }
 
 void connectWifi() {
+  if (WiFi.status() == WL_CONNECTED) return;
+  WiFi.persistent(true);
+  WiFi.setAutoReconnect(true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.setSleep(false);  // connexion plus rapide / stable
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   Serial.print(F("WiFi"));
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   int tries = 0;
-  while (WiFi.status() != WL_CONNECTED && tries < 40) {
-    delay(500);
+  while (WiFi.status() != WL_CONNECTED && tries < 40) {  // ~8 s
+    delay(200);
     Serial.print('.');
     tries++;
   }
@@ -551,8 +556,9 @@ void connectWifi() {
     Serial.print(F("IP: "));
     Serial.println(WiFi.localIP());
   } else {
-    delay(10000);
-    ESP.restart();
+    Serial.println(F("WiFi echec — nouvel essai dans 2s"));
+    delay(2000);
+    WiFi.reconnect();
   }
 }
 
@@ -661,6 +667,23 @@ String viewerKeyboardJson() {
   );
 }
 
+/** Clavier fixe en bas de Telegram — plus fiable que les seuls boutons inline */
+String adminReplyKeyboardJson() {
+  return String(
+    "[[\"ON\",\"OFF\"],"
+    "[\"Actualiser\",\"Historique\"],"
+    "[\"URGENCE STOP\",\"Alertes\"],"
+    "[\"Seuil\",\"Mon ID\"]]"
+  );
+}
+
+String viewerReplyKeyboardJson() {
+  return String(
+    "[[\"Actualiser\",\"Alertes\"],"
+    "[\"Tableau\",\"Mon ID\"]]"
+  );
+}
+
 String formatSeuilHelp() {
   String s = "<pre>";
   s += tableSep();
@@ -699,7 +722,7 @@ String formatMyId(const String& chat) {
   return s;
 }
 
-/** Toujours renvoyer les boutons en bas de la reponse */
+/** Toujours renvoyer les boutons inline + clavier du bas */
 void replyWithButtons(const String& chat, const String& text, const String& parseMode = "") {
   if (isAdmin(chat)) {
     bot.sendMessageWithInlineKeyboard(chat, text, parseMode, adminKeyboardJson());
@@ -708,15 +731,23 @@ void replyWithButtons(const String& chat, const String& text, const String& pars
   }
 }
 
+void sendReplyKeyboardOnce(const String& chat) {
+  if (isAdmin(chat)) {
+    bot.sendMessageWithReplyKeyboard(chat, "Commandes admin (clavier bas) : ON OFF Actualiser Historique URGENCE Alertes Seuil Mon ID", "", adminReplyKeyboardJson(), true);
+  } else {
+    bot.sendMessageWithReplyKeyboard(chat, "Commandes observateur : Actualiser Alertes Tableau Mon ID", "", viewerReplyKeyboardJson(), true);
+  }
+}
+
 void sendAdminDashboard(const String& chatId) {
   sendToUno("STATUS");
-  delay(350);
+  delay(120);
   replyWithButtons(chatId, "<b>ADMIN</b>\n" + formatDashboardCore(), "HTML");
 }
 
 void sendViewerDashboard(const String& chatId) {
   sendToUno("STATUS");
-  delay(350);
+  delay(120);
   replyWithButtons(chatId, "<b>OBSERVATEUR</b>\n" + formatDashboardCore(), "HTML");
 }
 
@@ -831,24 +862,33 @@ void handleTelegramMessage(telegramMessage& msg) {
     return;
   }
 
+  // Normalise clavier bas Telegram (textes des boutons)
+  if (text == "Mon ID" || text == "MON ID") text = "/id";
+  if (text == "Actualiser" || text == "Tableau" || text == "TABLEAU") text = "/dashboard";
+  if (text == "Historique") text = "/historique";
+  if (text == "Alertes" || text == "Seuil") text = "/seuil";
+  if (text == "URGENCE STOP" || text == "URGENCE") text = "/urgence";
+
   if (text == "/start" || text == "/help" || text == "/dashboard" ||
       text.startsWith("/start@") || text.startsWith("/help@") || text.startsWith("/dashboard@")) {
+    sendReplyKeyboardOnce(chat);
     if (isAdmin(chat)) {
       replyWithButtons(chat,
         "Tableau de bord <b>ADMIN</b>\n"
         "Role: ADMIN | Chat ID: <code>" + normalizeId(chat) + "</code>\n"
-        "Utilisez les boutons ou /seuil 15", "HTML");
+        "Clavier bas + boutons : ON OFF Actualiser Historique URGENCE Seuil", "HTML");
       sendAdminDashboard(chat);
     } else {
       replyWithButtons(chat,
         "Tableau de bord <b>OBSERVATEUR</b>\n"
-        "Role: VIEWER | Chat ID: <code>" + normalizeId(chat) + "</code>\n"
-        "Utilisez les boutons ci-dessous.", "HTML");
+        "Role: VIEWER | Chat ID: <code>" + normalizeId(chat) + "</code>", "HTML");
       sendViewerDashboard(chat);
     }
+  } else if (text == "/id") {
+    bot.sendMessage(chat, formatMyId(chat), "HTML");
   } else if (text == "/status" || text.startsWith("/status@")) {
     sendToUno("STATUS");
-    delay(350);
+    delay(120);
     replyWithButtons(chat, formatDashboardCore(), "HTML");
   } else if (text == "/seuil" || text.startsWith("/seuil ")) {
     if (text == "/seuil" || text == "/seuil ") {
@@ -861,7 +901,7 @@ void handleTelegramMessage(telegramMessage& msg) {
     }
     float s = text.substring(7).toFloat();
     if (s < 1.0f || s > 200.0f) {
-      replyWithButtons(chat, "Valeur invalide. Exemple: <code>/seuil 10</code>", "HTML");
+      replyWithButtons(chat, "Valeur invalide. Exemple: /seuil 10", "");
       return;
     }
     String cmd = "SET_SEUIL ";
@@ -869,8 +909,8 @@ void handleTelegramMessage(telegramMessage& msg) {
     sendToUno(cmd.c_str());
     pushHistory(String("CMD /seuil ") + String(s, 0));
     replyWithButtons(chat,
-      "Seuil demande: <b>" + String(s, 0) + "</b>\n"
-      "Alerte >= " + String(s, 0) + " | Urgence STOP >= " + String(s * 2.0f, 0), "HTML");
+      "Seuil demande: " + String(s, 0) + "\n"
+      "Alerte >= " + String(s, 0) + " | Urgence STOP >= " + String(s * 2.0f, 0), "");
   } else if (text == "/historique" || text == "/history" ||
              text.startsWith("/historique ") || text.startsWith("/history ")) {
     if (!isAdmin(chat)) {
@@ -884,7 +924,6 @@ void handleTelegramMessage(telegramMessage& msg) {
       if (page < 1) page = 1;
     }
     sendHistoryPage(chat, page);
-  // Aussi accepter commandes texte /on /off (si boutons bloques)
   } else if (text == "/on" || text.equalsIgnoreCase("ON")) {
     if (!isAdmin(chat)) { replyWithButtons(chat, "Reserve admin."); return; }
     sendToUno("MOTOR_ON");
@@ -900,7 +939,7 @@ void handleTelegramMessage(telegramMessage& msg) {
     sendToUno("MOTOR_OFF");
     pushHistory("CMD /urgence");
     notifyChats("URGENCE : arret moteur.");
-    replyWithButtons(chat, "<b>URGENCE STOP</b>\n>>> RELAIS ETEINT", "HTML");
+    replyWithButtons(chat, "URGENCE STOP\n>>> RELAIS ETEINT", "");
   } else if (text == "/ping") {
     if (isAdmin(chat)) {
       sendToUno("PING");
@@ -910,8 +949,8 @@ void handleTelegramMessage(telegramMessage& msg) {
     replyWithButtons(chat,
       "Commandes:\n/dashboard /status /seuil /id\n"
       "Admin: /on /off /urgence /seuil 15\n"
-      "/historique  (30 jours, page 1)\n"
-      "/historique 2  (page suivante)", "");
+      "/historique  (30 jours)\n"
+      "Ou utilisez le clavier en bas.", "");
   }
 }
 
@@ -1039,6 +1078,7 @@ void setup() {
   loadLastActionFromFs();
 
   securedClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
+  securedClient.setHandshakeTimeout(8);
   // securedClient.setInsecure();
 
   String boot = "Bot pret.\nIP: " + WiFi.localIP().toString();

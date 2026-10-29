@@ -38,7 +38,7 @@ const unsigned long RPM_WINDOW_MS = 1000;
 // ---- ADXL345 ----
 const uint8_t ADXL345_ADDR = 0x53;
 const float ADXL_SCALE = 0.0039f;
-const int ADXL_SAMPLES = 25;
+const int ADXL_SAMPLES = 16;  // plus rapide pour laisser passer les commandes UART
 const float EMA_ALPHA = 0.25f;
 
 // Seuil d'alerte (réglable via Telegram /seuil ou SET_SEUIL)
@@ -139,7 +139,7 @@ void calibrateGravity() {
       sx += x; sy += y; sz += z;
       ok++;
     }
-    delay(20);
+    delay(10);
   }
   if (ok > 0) {
     g0x = sx / ok;
@@ -386,7 +386,8 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
   EspSerial.begin(9600);
-  delay(300);
+  EspSerial.setTimeout(40);
+  delay(150);
 
   adxlOk = adxlBegin();
   Serial.println(F("=== UNO : ON=relais ALLUME / OFF=relais ETEINT ==="));
