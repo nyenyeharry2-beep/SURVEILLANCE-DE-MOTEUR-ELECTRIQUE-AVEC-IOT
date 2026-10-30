@@ -1,0 +1,15 @@
+# Secrets & fichiers locaux
+# (config WiFi/Telegram est maintenant dans motor_telegram.ino)
+
+# Arduino / IDE
+*.hex
+*.elf
+*.bin
+.pio/
+.vscode/
+.idea/
+*.DS_Store
+
+# Build
+build/
+**/__pycache__/
