@@ -44,8 +44,8 @@ Ouvrir `esp32/motor_telegram/motor_telegram.ino` et remplir en haut du fichier :
 
 ### Régler le seuil d’alerte
 
-- Par défaut : **seuil = 10** (niveau = RMS×100). Alerte si niveau ≥ 10, STOP si ≥ 20.
-- Admin Telegram : `/seuil` (voir) ou `/seuil 15` (changer).
+- Par défaut : **seuil = 30** (niveau = RMS×100). Alerte si niveau ≥ 30, STOP si ≥ 60.
+- Admin Telegram : `/seuil` (voir) ou `/seuil 30` (changer).
 - Bouton **Seuil** sur le clavier admin.
 
 ### Tableau de bord & historique (1 mois)

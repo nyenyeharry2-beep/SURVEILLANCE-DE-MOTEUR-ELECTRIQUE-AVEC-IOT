@@ -32,7 +32,7 @@ struct Telemetry {
   unsigned long imp = 0;
   int urg = 0;
   int alerte = 0;
-  float seuil = 10;
+  float seuil = 30;
   float niveau = 0;
   bool motorOn = false;
   unsigned long updatedAt = 0;
@@ -695,9 +695,9 @@ String formatSeuilHelp() {
   s += tableRow("Urgence", urgLabel(tel.urg));
   s += tableSep();
   s += "\nReglage admin:\n";
-  s += "/seuil 10\n";
-  s += "/seuil 15\n";
-  s += "/seuil 25\n";
+  s += "/seuil 30\n";
+  s += "/seuil 40\n";
+  s += "/seuil 50\n";
   s += "\nNiveau = RMS(g) x 100\n";
   s += "Alerte si Niveau >= Seuil\n";
   s += "STOP si Niveau >= 2x Seuil\n";
@@ -901,7 +901,7 @@ void handleTelegramMessage(telegramMessage& msg) {
     }
     float s = text.substring(7).toFloat();
     if (s < 1.0f || s > 200.0f) {
-      replyWithButtons(chat, "Valeur invalide. Exemple: /seuil 10", "");
+      replyWithButtons(chat, "Valeur invalide. Exemple: /seuil 30", "");
       return;
     }
     String cmd = "SET_SEUIL ";
@@ -948,7 +948,7 @@ void handleTelegramMessage(telegramMessage& msg) {
   } else {
     replyWithButtons(chat,
       "Commandes:\n/dashboard /status /seuil /id\n"
-      "Admin: /on /off /urgence /seuil 15\n"
+      "Admin: /on /off /urgence /seuil 30\n"
       "/historique  (30 jours)\n"
       "Ou utilisez le clavier en bas.", "");
   }

@@ -43,8 +43,8 @@ const float EMA_ALPHA = 0.25f;
 
 // Seuil d'alerte (réglable via Telegram /seuil ou SET_SEUIL)
 // niveau = RMS_g * 100 → 0.10 g donne 10
-float seuilAlerte = 10.0f;
-float seuilUrgence = 20.0f; // 2× le seuil alerte (recalculé)
+float seuilAlerte = 30.0f;
+float seuilUrgence = 60.0f; // 2× le seuil alerte (recalculé)
 
 
 volatile unsigned long rpmPulses = 0;
@@ -61,7 +61,7 @@ float g0x = 0, g0y = 0, g0z = 1.0f; // gravité calibrée au repos
 float axG = 0, ayG = 0, azG = 0;     // accélération totale filtrée
 float axDyn = 0, ayDyn = 0, azDyn = 0; // sans gravité
 float rmsG = 0, vrmsMms = 0;
-float niveauAlerte = 0; // RMS*100 — comparé au seuil 10
+float niveauAlerte = 0; // RMS*100 — comparé au seuil 30
 int urgLevel = 0;
 int alerteFlag = 0;
 
@@ -355,7 +355,7 @@ void processCommand(String line) {
     sendBoth(F("{\"evt\":\"CALIB_OK\"}"));
   } else if (line.indexOf("SET_SEUIL") >= 0) {
     int sp = line.lastIndexOf(' ');
-    float s = (sp >= 0) ? line.substring(sp + 1).toFloat() : 10.0f;
+    float s = (sp >= 0) ? line.substring(sp + 1).toFloat() : 30.0f;
     applySeuil(s);
     String evt = "{\"evt\":\"SEUIL_OK\",\"seuil\":";
     evt += String(seuilAlerte, 0);
